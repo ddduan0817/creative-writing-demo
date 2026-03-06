@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { ChevronRight, AlertTriangle } from "lucide-react";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect, useRef } from "react";
 import { mockWorks } from "@/data/mockWorks";
 
 export default function RecentWorks() {
@@ -12,10 +12,25 @@ export default function RecentWorks() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
+  const menuRef = useRef<HTMLDivElement>(null);
+
   const showToastMsg = useCallback((msg: string) => {
     setToast(msg);
     setTimeout(() => setToast(null), 2000);
   }, []);
+
+  // Click outside to close menu
+  useEffect(() => {
+    if (!showMenu) return;
+    const handler = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setShowMenu(false);
+        setShowExport(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [showMenu]);
 
   // Sort by updatedAt descending, take the first one
   const recent = [...mockWorks].sort(
@@ -73,7 +88,7 @@ export default function RecentWorks() {
 
       {/* Bottom Actions */}
       <div className="flex items-center justify-end gap-2 mt-4 pt-3 border-t border-gray-50">
-        <div className="relative">
+        <div className="relative" ref={menuRef}>
           <button
             onClick={() => { setShowMenu(!showMenu); setShowExport(false); }}
             className="px-3 py-1.5 text-xs text-gray-500 border border-gray-200 rounded-lg hover:bg-gray-50 transition"
@@ -81,7 +96,7 @@ export default function RecentWorks() {
             更多
           </button>
           {showMenu && (
-            <div className="absolute right-0 bottom-full mb-1 bg-white rounded-lg shadow-lg border py-1 z-10 w-32">
+            <div className="absolute left-full top-0 ml-1 bg-white rounded-lg shadow-lg border py-1 z-10 w-32">
               {/* 导出 */}
               <button
                 onClick={() => setShowExport(!showExport)}

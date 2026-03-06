@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/components/home/Sidebar";
 import { mockWorks, type WorkItem } from "@/data/mockWorks";
@@ -50,11 +50,33 @@ export default function WorksPage() {
   const [toast, setToast] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<SortKey>("updated");
   const [sortDropOpen, setSortDropOpen] = useState(false);
+  const menuRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const sortRef = useRef<HTMLDivElement>(null);
 
   const showToast = useCallback((msg: string) => {
     setToast(msg);
     setTimeout(() => setToast(null), 2000);
   }, []);
+
+  // Click outside to close menus
+  useEffect(() => {
+    if (!menuOpen && !sortDropOpen) return;
+    const handler = (e: MouseEvent) => {
+      const target = e.target as Node;
+      if (menuOpen) {
+        const ref = menuRefs.current[menuOpen];
+        if (ref && !ref.contains(target)) {
+          setMenuOpen(null);
+          setExportSubOpen(false);
+        }
+      }
+      if (sortDropOpen && sortRef.current && !sortRef.current.contains(target)) {
+        setSortDropOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [menuOpen, sortDropOpen]);
 
   const handleDelete = useCallback((work: WorkItem) => {
     setDeleteTarget(work);
@@ -169,7 +191,7 @@ export default function WorksPage() {
             ))}
             <div className="flex-1" />
             {/* Sort Dropdown */}
-            <div className="relative">
+            <div className="relative" ref={sortRef}>
               <button
                 onClick={() => setSortDropOpen(!sortDropOpen)}
                 className="flex items-center gap-1 px-3 py-1.5 text-xs text-gray-500 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition"
@@ -254,7 +276,7 @@ export default function WorksPage() {
                       <Pencil className="w-3 h-3" />
                       编辑
                     </button>
-                    <div className="relative">
+                    <div className="relative" ref={(el) => { menuRefs.current[work.id] = el; }}>
                       <button
                         onClick={() => handleMenuOpen(work.id)}
                         className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition"
