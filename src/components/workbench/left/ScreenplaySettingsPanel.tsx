@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Sparkles, Loader2 } from "lucide-react";
+import { Plus, Sparkles, Loader2, Upload, X } from "lucide-react";
 import { simulateAIStream } from "@/lib/aiSimulator";
 import { useEditorStore } from "@/stores/editorStore";
 
@@ -108,6 +108,19 @@ export default function ScreenplaySettingsPanel({ subScene }: { subScene: string
     });
   };
 
+  const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
+
+  const handleUpload = () => {
+    const mockFiles = ["剧本初稿.docx", "分镜参考.pdf", "角色小传.txt", "场景气氛板.png"];
+    const next = mockFiles.find((f) => !uploadedFiles.includes(f));
+    if (next) {
+      setUploadedFiles((prev) => [...prev, next]);
+      showToast(`已上传「${next}」`);
+    } else {
+      showToast("演示文件已全部上传");
+    }
+  };
+
   const displaySettings = currentSettings.map((cs) => {
     const existing = settings.find((s) => s.key === cs.key);
     return existing || cs;
@@ -118,6 +131,37 @@ export default function ScreenplaySettingsPanel({ subScene }: { subScene: string
       <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
         剧本设定
       </h3>
+
+      {/* 上传参考资料 */}
+      <div className="pb-1">
+        <div className="flex items-center gap-2 mb-2">
+          <Upload className="w-3.5 h-3.5 text-gray-500" />
+          <span className="text-xs font-medium text-gray-600">上传参考资料</span>
+        </div>
+        <button
+          onClick={handleUpload}
+          className="w-full border border-dashed border-gray-200 rounded-lg py-3 text-xs text-gray-400 hover:border-indigo-300 hover:text-indigo-500 hover:bg-indigo-50/30 transition flex items-center justify-center gap-1.5"
+        >
+          <Upload className="w-3.5 h-3.5" />
+          点击上传或拖拽文件
+        </button>
+        {uploadedFiles.length > 0 && (
+          <div className="mt-2 space-y-1">
+            {uploadedFiles.map((file) => (
+              <div key={file} className="flex items-center justify-between px-2 py-1.5 bg-gray-50 rounded text-xs text-gray-600">
+                <span className="truncate flex-1">{file}</span>
+                <button
+                  onClick={() => setUploadedFiles((prev) => prev.filter((f) => f !== file))}
+                  className="ml-2 text-gray-300 hover:text-red-400 transition"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
       {displaySettings.map((item) => (
         <div key={item.key} className="group">
           <div className="flex items-center justify-between mb-1">
