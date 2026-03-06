@@ -1,0 +1,169 @@
+import { create } from "zustand";
+import { mockChapters, mockOutline, type Chapter } from "@/data/mockChapters";
+import { mockCharacters, type Character } from "@/data/mockCharacters";
+
+interface SettingItem {
+  key: string;
+  label: string;
+  value: string;
+}
+
+interface EditorState {
+  // 基础信息
+  title: string;
+  setTitle: (title: string) => void;
+  saveStatus: "saved" | "saving" | "failed";
+  setSaveStatus: (status: "saved" | "saving" | "failed") => void;
+
+  // 左栏视图
+  leftView: "settings" | "tags" | "characters" | "outline" | "editor";
+  setLeftView: (view: EditorState["leftView"]) => void;
+
+  // 面板折叠
+  leftCollapsed: boolean;
+  rightCollapsed: boolean;
+  toggleLeft: () => void;
+  toggleRight: () => void;
+  focusMode: boolean;
+  toggleFocusMode: () => void;
+
+  // 设定
+  settings: SettingItem[];
+  updateSetting: (key: string, value: string) => void;
+
+  // 标签
+  selectedTags: string[];
+  toggleTag: (tag: string) => void;
+
+  // 角色
+  characters: Character[];
+  addCharacter: (character: Character) => void;
+
+  // 大纲
+  outline: string;
+  setOutline: (outline: string) => void;
+
+  // 章节
+  chapters: Chapter[];
+  currentChapterId: string;
+  setCurrentChapter: (id: string) => void;
+  updateChapterContent: (id: string, content: string) => void;
+  addChapter: (title: string) => void;
+  deleteChapter: (id: string) => void;
+  renameChapter: (id: string, title: string) => void;
+
+  // 右栏
+  rightView: "inspiration" | "tips" | "rhythm" | "consistency";
+  setRightView: (view: EditorState["rightView"]) => void;
+
+  // AI对话
+  chatMessages: { role: "user" | "assistant"; content: string }[];
+  addChatMessage: (message: { role: "user" | "assistant"; content: string }) => void;
+
+  // Toast
+  toast: string | null;
+  showToast: (msg: string) => void;
+}
+
+export const useEditorStore = create<EditorState>((set) => ({
+  title: "灵脉纪",
+  setTitle: (title) => set({ title }),
+  saveStatus: "saved",
+  setSaveStatus: (saveStatus) => set({ saveStatus }),
+
+  leftView: "editor",
+  setLeftView: (leftView) => set({ leftView }),
+
+  leftCollapsed: false,
+  rightCollapsed: false,
+  toggleLeft: () => set((s) => ({ leftCollapsed: !s.leftCollapsed })),
+  toggleRight: () => set((s) => ({ rightCollapsed: !s.rightCollapsed })),
+  focusMode: false,
+  toggleFocusMode: () =>
+    set((s) => ({
+      focusMode: !s.focusMode,
+      leftCollapsed: !s.focusMode,
+      rightCollapsed: !s.focusMode,
+    })),
+
+  settings: [
+    { key: "background", label: "背景设定", value: "灵脉大陆，以灵脉为核心的能量体系支撑万物。十年前灵脉核心突然枯竭，修炼体系崩塌，大陆陷入动荡。" },
+    { key: "worldview", label: "世界观规则", value: "灵脉分布如地下河网，汇聚于五大灵脉节点。枯竭后，只有灵器持有者能勉强运转残余灵力，但代价是消耗生命力。" },
+    { key: "perspective", label: "叙事视角", value: "第三人称限制视角，主要跟随沈夜川" },
+    { key: "redline", label: "红线", value: "灵力使用必须有代价；反派动机不能过于简单" },
+    { key: "clue", label: "关键线索", value: "" },
+    { key: "conflict", label: "核心冲突", value: "" },
+    { key: "scene", label: "主要场景", value: "" },
+    { key: "style", label: "语言风格", value: "" },
+  ],
+  updateSetting: (key, value) =>
+    set((s) => ({
+      settings: s.settings.map((item) =>
+        item.key === key ? { ...item, value } : item
+      ),
+    })),
+
+  selectedTags: ["玄幻", "悬疑", "燃"],
+  toggleTag: (tag) =>
+    set((s) => ({
+      selectedTags: s.selectedTags.includes(tag)
+        ? s.selectedTags.filter((t) => t !== tag)
+        : [...s.selectedTags, tag],
+    })),
+
+  characters: mockCharacters,
+  addCharacter: (character) =>
+    set((s) => ({ characters: [...s.characters, character] })),
+
+  outline: mockOutline,
+  setOutline: (outline) => set({ outline }),
+
+  chapters: mockChapters,
+  currentChapterId: "ch1",
+  setCurrentChapter: (id) => set({ currentChapterId: id, leftView: "editor" }),
+  updateChapterContent: (id, content) =>
+    set((s) => ({
+      chapters: s.chapters.map((ch) =>
+        ch.id === id
+          ? { ...ch, content, wordCount: content.replace(/<[^>]*>/g, "").length }
+          : ch
+      ),
+    })),
+  addChapter: (title) =>
+    set((s) => {
+      const id = `ch${Date.now()}`;
+      return {
+        chapters: [
+          ...s.chapters,
+          { id, title, content: "", wordCount: 0 },
+        ],
+      };
+    }),
+  deleteChapter: (id) =>
+    set((s) => ({
+      chapters: s.chapters.filter((ch) => ch.id !== id),
+      currentChapterId:
+        s.currentChapterId === id
+          ? s.chapters[0]?.id || ""
+          : s.currentChapterId,
+    })),
+  renameChapter: (id, title) =>
+    set((s) => ({
+      chapters: s.chapters.map((ch) =>
+        ch.id === id ? { ...ch, title } : ch
+      ),
+    })),
+
+  rightView: "inspiration",
+  setRightView: (rightView) => set({ rightView }),
+
+  chatMessages: [],
+  addChatMessage: (message) =>
+    set((s) => ({ chatMessages: [...s.chatMessages, message] })),
+
+  toast: null,
+  showToast: (msg) => {
+    set({ toast: msg });
+    setTimeout(() => set({ toast: null }), 2000);
+  },
+}));
