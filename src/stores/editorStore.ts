@@ -57,6 +57,7 @@ interface EditorState {
   chapters: Chapter[];
   currentChapterId: string;
   setCurrentChapter: (id: string) => void;
+  setChapters: (chapters: Chapter[]) => void;
   updateChapterContent: (id: string, content: string) => void;
   addChapter: (title: string) => void;
   deleteChapter: (id: string) => void;
@@ -153,6 +154,7 @@ export const useEditorStore = create<EditorState>((set) => ({
   chapters: mockChapters,
   currentChapterId: "ch1",
   setCurrentChapter: (id) => set({ currentChapterId: id, leftView: "editor" }),
+  setChapters: (chapters) => set({ chapters, currentChapterId: chapters[0]?.id || "" }),
   updateChapterContent: (id, content) =>
     set((s) => ({
       chapters: s.chapters.map((ch) =>

@@ -3,6 +3,8 @@
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { useEditorStore } from "@/stores/editorStore";
+import { mockScreenplayScenes } from "@/data/mockChapters";
+import { mockChapters } from "@/data/mockChapters";
 import TopBar from "./TopBar";
 import LeftPanel from "./left/LeftPanel";
 import GeneralLeftPanel from "./left/GeneralLeftPanel";
@@ -29,7 +31,15 @@ export default function WorkbenchLayout() {
       "general",
     ] as const;
     if (validScenes.includes(sceneParam as (typeof validScenes)[number])) {
-      setScene(sceneParam as (typeof validScenes)[number]);
+      const s = sceneParam as (typeof validScenes)[number];
+      setScene(s);
+      // Switch chapter data based on scene
+      const store = useEditorStore.getState();
+      if (s === "screenplay") {
+        store.setChapters(mockScreenplayScenes);
+      } else if (s === "novel") {
+        store.setChapters(mockChapters);
+      }
     }
   }, [sceneParam, setScene]);
 

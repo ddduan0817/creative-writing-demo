@@ -5,7 +5,8 @@ import { MoreHorizontal } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
-export default function ChapterList() {
+export default function ChapterList({ sceneType = "novel" }: { sceneType?: "novel" | "screenplay" }) {
+  const isScreenplay = sceneType === "screenplay";
   const {
     chapters,
     currentChapterId,
@@ -20,12 +21,12 @@ export default function ChapterList() {
 
   const handleDelete = (id: string) => {
     if (chapters.length <= 1) {
-      showToast("至少保留一个章节");
+      showToast(isScreenplay ? "至少保留一个场次" : "至少保留一个章节");
       return;
     }
     deleteChapter(id);
     setMenuId(null);
-    showToast("已删除章节");
+    showToast(isScreenplay ? "已删除场次" : "已删除章节");
   };
 
   const handleRenameStart = (id: string, title: string) => {
