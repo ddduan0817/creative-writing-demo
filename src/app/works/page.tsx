@@ -10,6 +10,7 @@ import {
   Trash2,
   MoreHorizontal,
   FileText,
+  Search,
 } from "lucide-react";
 
 interface WorkItem {
@@ -110,11 +111,27 @@ export default function WorksPage() {
   const router = useRouter();
   const [activeCategory, setActiveCategory] = useState("all");
   const [menuOpen, setMenuOpen] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const filteredWorks =
-    activeCategory === "all"
-      ? mockWorks
-      : mockWorks.filter((w) => w.sceneLabel === categories.find((c) => c.id === activeCategory)?.label);
+  // 计算每个分类的数量
+  const getCategoryCount = (catId: string) => {
+    if (catId === "all") return mockWorks.length;
+    return mockWorks.filter(
+      (w) => w.sceneLabel === categories.find((c) => c.id === catId)?.label
+    ).length;
+  };
+
+  const filteredWorks = mockWorks
+    .filter((w) => {
+      if (activeCategory !== "all") {
+        return w.sceneLabel === categories.find((c) => c.id === activeCategory)?.label;
+      }
+      return true;
+    })
+    .filter((w) => {
+      if (!searchQuery.trim()) return true;
+      return w.title.toLowerCase().includes(searchQuery.trim().toLowerCase());
+    });
 
   return (
     <div className="min-h-screen bg-[#f7f8fa] flex">
@@ -130,6 +147,17 @@ export default function WorksPage() {
               <ArrowLeft className="w-4 h-4" />
             </button>
             <h1 className="text-lg font-bold text-gray-900">我的作品</h1>
+            <div className="flex-1" />
+            <div className="relative">
+              <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                placeholder="搜索作品..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9 pr-3 py-2 text-sm bg-white border border-gray-200 rounded-lg w-[220px] focus:outline-none focus:border-blue-300 focus:ring-1 focus:ring-blue-100 transition placeholder:text-gray-300"
+              />
+            </div>
           </div>
 
           {/* Category Tabs */}
@@ -144,7 +172,7 @@ export default function WorksPage() {
                     : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50"
                 }`}
               >
-                {cat.label}
+                {cat.label}({getCategoryCount(cat.id)})
               </button>
             ))}
           </div>
