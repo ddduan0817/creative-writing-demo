@@ -1,13 +1,21 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { ChevronRight } from "lucide-react";
-import { useState } from "react";
+import { ChevronRight, AlertTriangle } from "lucide-react";
+import { useCallback, useState } from "react";
 import { mockWorks } from "@/data/mockWorks";
 
 export default function RecentWorks() {
   const router = useRouter();
   const [showMenu, setShowMenu] = useState(false);
+  const [showExport, setShowExport] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
+
+  const showToastMsg = useCallback((msg: string) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 2000);
+  }, []);
 
   // Sort by updatedAt descending, take the first one
   const recent = [...mockWorks].sort(
@@ -31,7 +39,7 @@ export default function RecentWorks() {
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 p-5 flex flex-col">
+    <div className="relative bg-white rounded-2xl border border-gray-100 p-5 flex flex-col">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-sm font-semibold text-gray-800">近期作品</h2>
         <button
@@ -67,20 +75,50 @@ export default function RecentWorks() {
       <div className="flex items-center justify-end gap-2 mt-4 pt-3 border-t border-gray-50">
         <div className="relative">
           <button
-            onClick={() => setShowMenu(!showMenu)}
+            onClick={() => { setShowMenu(!showMenu); setShowExport(false); }}
             className="px-3 py-1.5 text-xs text-gray-500 border border-gray-200 rounded-lg hover:bg-gray-50 transition"
           >
             更多
           </button>
           {showMenu && (
-            <div className="absolute right-0 bottom-full mb-1 bg-white rounded-lg shadow-lg border py-1 z-10 w-28">
-              <button className="w-full text-left px-3 py-1.5 text-xs hover:bg-gray-50">
+            <div className="absolute right-0 bottom-full mb-1 bg-white rounded-lg shadow-lg border py-1 z-10 w-32">
+              {/* 导出 */}
+              <button
+                onClick={() => setShowExport(!showExport)}
+                className="w-full text-left px-3 py-1.5 text-xs hover:bg-gray-50 flex items-center justify-between"
+              >
                 导出作品
+                <ChevronRight className={`w-3 h-3 text-gray-400 transition ${showExport ? "rotate-90" : ""}`} />
               </button>
-              <button className="w-full text-left px-3 py-1.5 text-xs hover:bg-gray-50">
+              {showExport && (
+                <div className="border-t border-gray-50">
+                  {["TXT", "DOC", "PDF"].map((fmt) => (
+                    <button
+                      key={fmt}
+                      onClick={() => { showToastMsg(`正在导出 ${fmt}...`); setShowMenu(false); }}
+                      className="w-full text-left pl-6 pr-3 py-1.5 text-xs text-gray-500 hover:bg-gray-50"
+                    >
+                      {fmt}
+                    </button>
+                  ))}
+                </div>
+              )}
+              {/* 复制链接 */}
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(`https://creative-writing.demo/share/${recent.id}`);
+                  showToastMsg("链接已复制");
+                  setShowMenu(false);
+                }}
+                className="w-full text-left px-3 py-1.5 text-xs hover:bg-gray-50"
+              >
                 复制链接
               </button>
-              <button className="w-full text-left px-3 py-1.5 text-xs text-red-500 hover:bg-red-50">
+              {/* 删除 */}
+              <button
+                onClick={() => { setShowDeleteConfirm(true); setShowMenu(false); }}
+                className="w-full text-left px-3 py-1.5 text-xs text-red-500 hover:bg-red-50"
+              >
                 删除作品
               </button>
             </div>
@@ -93,6 +131,50 @@ export default function RecentWorks() {
           继续写作
         </button>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div
+            className="absolute inset-0 bg-black/40"
+            onClick={() => setShowDeleteConfirm(false)}
+          />
+          <div className="relative bg-white rounded-2xl shadow-xl w-[380px] p-6 space-y-4">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-red-500" />
+              <h3 className="text-base font-bold text-gray-900">确认删除</h3>
+            </div>
+            <p className="text-sm text-gray-600">
+              删除「{recent.title}」？
+              <br />
+              <span className="text-gray-400">
+                删除后无法恢复，作品内容将永久丢失。
+              </span>
+            </p>
+            <div className="flex justify-end gap-3 pt-2">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="px-4 py-2 text-sm text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition"
+              >
+                取消
+              </button>
+              <button
+                onClick={() => { setShowDeleteConfirm(false); showToastMsg("作品已删除"); }}
+                className="px-4 py-2 text-sm text-white bg-red-500 rounded-lg hover:bg-red-600 transition"
+              >
+                确认删除
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Toast */}
+      {toast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 px-4 py-2 bg-gray-800 text-white text-sm rounded-lg shadow-lg z-50">
+          {toast}
+        </div>
+      )}
     </div>
   );
 }
