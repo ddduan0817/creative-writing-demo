@@ -82,8 +82,11 @@ export default function SceneCards() {
       {/* Scroll container */}
       <div ref={containerRef} className="overflow-hidden">
         <div
-          className="flex gap-4 transition-transform duration-400 ease-out"
-          style={{ transform: `translateX(-${offset}px)` }}
+          className="flex gap-4"
+          style={{
+            transform: `translateX(-${offset}px)`,
+            transition: "transform 0.5s cubic-bezier(0.25, 1, 0.5, 1)",
+          }}
         >
           {scenes.map((scene) => (
             <button
@@ -121,7 +124,7 @@ export default function SceneCards() {
       {scrollIndex > 0 && (
         <button
           onClick={() => setScrollIndex((i) => Math.max(0, i - 1))}
-          className="absolute -left-3 top-[55px] -translate-y-1/2 w-7 h-7 bg-white rounded-full shadow-md border border-gray-100 flex items-center justify-center hover:bg-gray-50 z-10"
+          className="absolute -left-3 top-1/2 -translate-y-1/2 w-7 h-7 bg-white rounded-full shadow-md border border-gray-100 flex items-center justify-center hover:bg-gray-50 z-10"
         >
           <ChevronLeft className="w-4 h-4 text-gray-500" />
         </button>
@@ -131,7 +134,7 @@ export default function SceneCards() {
       {scrollIndex < MAX_INDEX && (
         <button
           onClick={() => setScrollIndex((i) => Math.min(MAX_INDEX, i + 1))}
-          className="absolute -right-3 top-[55px] -translate-y-1/2 w-7 h-7 bg-white rounded-full shadow-md border border-gray-100 flex items-center justify-center hover:bg-gray-50 z-10"
+          className="absolute -right-3 top-1/2 -translate-y-1/2 w-7 h-7 bg-white rounded-full shadow-md border border-gray-100 flex items-center justify-center hover:bg-gray-50 z-10"
         >
           <ChevronRight className="w-4 h-4 text-gray-500" />
         </button>
