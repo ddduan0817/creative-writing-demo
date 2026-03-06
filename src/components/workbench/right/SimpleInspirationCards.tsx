@@ -68,7 +68,7 @@ function WritingTipsView({ onBack }: { onBack: () => void }) {
   const [selectedTip, setSelectedTip] = useState<{ title: string; content: string } | null>(null);
   const [showDiff, setShowDiff] = useState(false);
   const [useAlt, setUseAlt] = useState(false);
-  const [phase, setPhase] = useState<"outline" | "expanding" | "done">("outline");
+  const [phase, setPhase] = useState<"outline" | "expanding" | "editing" | "confirmed">("outline");
   const [expandedContent, setExpandedContent] = useState("");
   const { showToast, setPendingInsert } = useEditorStore();
 
@@ -114,8 +114,12 @@ function WritingTipsView({ onBack }: { onBack: () => void }) {
     const expandText = expandedMock[category] || expandedMock.idea;
     simulateAIStream(expandText, (current, done) => {
       setExpandedContent(current);
-      if (done) setPhase("done");
+      if (done) setPhase("editing");
     });
+  };
+
+  const handleConfirmExpanded = () => {
+    setPhase("confirmed");
   };
 
   const handleApplyToText = () => {
@@ -267,23 +271,33 @@ function WritingTipsView({ onBack }: { onBack: () => void }) {
             )}
           </div>
 
-          {(phase === "expanding" || phase === "done") && (
+          {(phase === "expanding" || phase === "editing" || phase === "confirmed") && (
             <div className="rounded-lg bg-green-50/50 border border-green-100 overflow-hidden">
               <div className="px-3 pt-2.5 pb-1 flex items-center justify-between">
                 <p className="text-xs font-medium text-green-700">扩展正文</p>
                 {phase === "expanding" && (
                   <Loader2 className="w-3 h-3 text-green-500 animate-spin" />
                 )}
-                {phase === "done" && (
+                {(phase === "editing" || phase === "confirmed") && (
                   <span className="text-[10px] text-green-500 px-1.5 py-0.5 bg-green-100 rounded">已完成</span>
                 )}
               </div>
-              <div className="px-3 pb-3">
-                <p className="text-xs text-gray-600 leading-relaxed whitespace-pre-wrap">
-                  {expandedContent}
-                  {phase === "expanding" && <span className="ai-cursor" />}
-                </p>
-              </div>
+              {phase === "expanding" ? (
+                <div className="px-3 pb-3">
+                  <p className="text-xs text-gray-600 leading-relaxed whitespace-pre-wrap">
+                    {expandedContent}
+                    <span className="ai-cursor" />
+                  </p>
+                </div>
+              ) : (
+                <textarea
+                  value={expandedContent}
+                  onChange={(e) => setExpandedContent(e.target.value)}
+                  className="w-full text-xs text-gray-600 leading-relaxed bg-transparent px-3 pb-3 resize-none focus:outline-none"
+                  rows={8}
+                  readOnly={phase === "confirmed"}
+                />
+              )}
             </div>
           )}
 
@@ -297,7 +311,25 @@ function WritingTipsView({ onBack }: { onBack: () => void }) {
                   <PenLine className="w-3.5 h-3.5" /> 接着写
                 </button>
               )}
-              {phase === "done" && (
+              {phase === "editing" && (
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleConfirmExpanded}
+                    className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition"
+                  >
+                    <Check className="w-3.5 h-3.5" />
+                    确认
+                  </button>
+                  <button
+                    onClick={() => { setPhase("outline"); setExpandedContent(""); }}
+                    className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                    关闭
+                  </button>
+                </div>
+              )}
+              {phase === "confirmed" && (
                 <button
                   onClick={handleApplyToText}
                   className="w-full flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition"
@@ -314,7 +346,7 @@ function WritingTipsView({ onBack }: { onBack: () => void }) {
                 </button>
                 <button
                   onClick={() => {
-                    const text = phase === "done" ? expandedContent : editableResult;
+                    const text = (phase === "editing" || phase === "confirmed") ? expandedContent : editableResult;
                     navigator.clipboard.writeText(text);
                     showToast("已复制");
                   }}
