@@ -188,6 +188,7 @@ function SimpleOutlinePanel({ isMarketing }: { isMarketing: boolean }) {
           <Upload className="w-3.5 h-3.5" />
           点击上传或拖拽文件
         </button>
+        <p className="text-[10px] text-gray-300 mt-1.5 leading-relaxed">可选，上传后 AI 将参考您的资料生成内容</p>
       </div>
 
       {/* 结构模板 */}
