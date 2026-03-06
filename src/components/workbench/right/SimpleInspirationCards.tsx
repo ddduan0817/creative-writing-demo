@@ -11,7 +11,6 @@ import {
   RefreshCw,
   PenLine,
   Copy,
-  FileText,
   Check,
   X,
 } from "lucide-react";
@@ -66,9 +65,8 @@ function WritingTipsView({ onBack }: { onBack: () => void }) {
   const [result, setResult] = useState("");
   const [editableResult, setEditableResult] = useState("");
   const [selectedTip, setSelectedTip] = useState<{ title: string; content: string } | null>(null);
-  const [showDiff, setShowDiff] = useState(false);
   const [useAlt, setUseAlt] = useState(false);
-  const [phase, setPhase] = useState<"outline" | "expanding" | "editing" | "confirmed">("outline");
+  const [phase, setPhase] = useState<"outline" | "expanding" | "editing" | "confirmed" | "applied">("outline");
   const [expandedContent, setExpandedContent] = useState("");
   const { showToast, setPendingInsert } = useEditorStore();
 
@@ -99,7 +97,6 @@ function WritingTipsView({ onBack }: { onBack: () => void }) {
     setGenerating(true);
     setResult("");
     setEditableResult("");
-    setShowDiff(false);
     setPhase("outline");
     setExpandedContent("");
     simulateAIStream(tip.content, (current, done) => {
@@ -124,67 +121,13 @@ function WritingTipsView({ onBack }: { onBack: () => void }) {
 
   const handleApplyToText = () => {
     setPendingInsert(expandedContent);
-    setShowDiff(true);
+    setPhase("applied");
     showToast("已追加到正文");
   };
 
   const handleShuffleTips = () => {
     setUseAlt(!useAlt);
   };
-
-  if (showDiff) {
-    return (
-      <div className="px-4 pb-4 space-y-3">
-        <button
-          onClick={() => setShowDiff(false)}
-          className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600"
-        >
-          <ArrowLeft className="w-3 h-3" /> 返回建议
-        </button>
-        <div className="flex items-center gap-2 mb-1">
-          <FileText className="w-4 h-4 text-indigo-500" />
-          <span className="text-sm font-semibold text-gray-700">修改对比</span>
-        </div>
-        <div className="rounded-lg border border-gray-200 overflow-hidden">
-          <div className="px-3 py-1.5 bg-gray-50 border-b border-gray-200">
-            <span className="text-xs font-medium text-gray-500">梗概</span>
-          </div>
-          <div className="p-3">
-            <p className="text-xs text-gray-500 leading-relaxed whitespace-pre-wrap">
-              {editableResult}
-            </p>
-          </div>
-        </div>
-        <div className="rounded-lg border border-green-200 overflow-hidden">
-          <div className="px-3 py-1.5 bg-green-50 border-b border-green-200">
-            <span className="text-xs font-medium text-green-700">扩展正文</span>
-          </div>
-          <div className="p-3">
-            <p className="text-xs text-gray-700 leading-relaxed whitespace-pre-wrap">
-              {expandedContent}
-            </p>
-          </div>
-        </div>
-        <div className="flex gap-2 pt-1">
-          <button
-            onClick={() => {
-              setShowDiff(false);
-              showToast("已应用到正文");
-            }}
-            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition"
-          >
-            <Check className="w-3.5 h-3.5" /> 确认
-          </button>
-          <button
-            onClick={() => setShowDiff(false)}
-            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition"
-          >
-            <X className="w-3.5 h-3.5" /> 关闭
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="px-4 pb-4 space-y-3">
@@ -261,25 +204,36 @@ function WritingTipsView({ onBack }: { onBack: () => void }) {
                   {result}<span className="ai-cursor" />
                 </p>
               </div>
-            ) : (
+            ) : phase === "outline" ? (
               <textarea
                 value={editableResult}
                 onChange={(e) => setEditableResult(e.target.value)}
                 className="w-full text-xs text-gray-600 leading-relaxed bg-transparent px-3 pb-3 resize-none focus:outline-none"
                 rows={5}
               />
+            ) : (
+              <div className="px-3 pb-3">
+                <p className="text-xs text-gray-500 leading-relaxed whitespace-pre-wrap">
+                  {editableResult}
+                </p>
+              </div>
             )}
           </div>
 
-          {(phase === "expanding" || phase === "editing" || phase === "confirmed") && (
+          {(phase === "expanding" || phase === "editing" || phase === "confirmed" || phase === "applied") && (
             <div className="rounded-lg bg-green-50/50 border border-green-100 overflow-hidden">
               <div className="px-3 pt-2.5 pb-1 flex items-center justify-between">
                 <p className="text-xs font-medium text-green-700">扩展正文</p>
                 {phase === "expanding" && (
                   <Loader2 className="w-3 h-3 text-green-500 animate-spin" />
                 )}
-                {(phase === "editing" || phase === "confirmed") && (
-                  <span className="text-[10px] text-green-500 px-1.5 py-0.5 bg-green-100 rounded">已完成</span>
+                {phase === "editing" && (
+                  <span className="text-[10px] text-indigo-500 px-1.5 py-0.5 bg-indigo-100 rounded">可编辑</span>
+                )}
+                {(phase === "confirmed" || phase === "applied") && (
+                  <span className="text-[10px] text-green-500 px-1.5 py-0.5 bg-green-100 rounded">
+                    {phase === "applied" ? "已应用" : "已完成"}
+                  </span>
                 )}
               </div>
               {phase === "expanding" ? (
@@ -289,19 +243,24 @@ function WritingTipsView({ onBack }: { onBack: () => void }) {
                     <span className="ai-cursor" />
                   </p>
                 </div>
-              ) : (
+              ) : phase === "editing" ? (
                 <textarea
                   value={expandedContent}
                   onChange={(e) => setExpandedContent(e.target.value)}
                   className="w-full text-xs text-gray-600 leading-relaxed bg-transparent px-3 pb-3 resize-none focus:outline-none"
                   rows={8}
-                  readOnly={phase === "confirmed"}
                 />
+              ) : (
+                <div className="px-3 pb-3">
+                  <p className="text-xs text-gray-600 leading-relaxed whitespace-pre-wrap">
+                    {expandedContent}
+                  </p>
+                </div>
               )}
             </div>
           )}
 
-          {!generating && (
+          {!generating && phase !== "applied" && (
             <div className="space-y-2">
               {phase === "outline" && (
                 <button
