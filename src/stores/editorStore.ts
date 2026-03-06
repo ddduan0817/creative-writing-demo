@@ -9,6 +9,14 @@ interface SettingItem {
 }
 
 interface EditorState {
+  // 场景
+  scene: "novel" | "screenplay" | "storyboard" | "knowledge" | "general";
+  setScene: (scene: EditorState["scene"]) => void;
+
+  // 通用写作 - 选中模板
+  selectedTemplateId: string | null;
+  setSelectedTemplate: (id: string | null) => void;
+
   // 基础信息
   title: string;
   setTitle: (title: string) => void;
@@ -66,6 +74,12 @@ interface EditorState {
 }
 
 export const useEditorStore = create<EditorState>((set) => ({
+  scene: "novel",
+  setScene: (scene) => set({ scene }),
+
+  selectedTemplateId: null,
+  setSelectedTemplate: (id) => set({ selectedTemplateId: id }),
+
   title: "灵脉纪",
   setTitle: (title) => set({ title }),
   saveStatus: "saved",

@@ -17,12 +17,14 @@ import {
   Heading2,
   Sparkles,
   Loader2,
+  Paintbrush,
 } from "lucide-react";
 import { useState } from "react";
 
 export default function EditorToolbar({ editor }: { editor: Editor }) {
-  const { showToast } = useEditorStore();
+  const { showToast, scene } = useEditorStore();
   const [continuing, setContinuing] = useState(false);
+  const [polishing, setPolishing] = useState(false);
 
   const handleContinue = () => {
     setContinuing(true);
@@ -54,6 +56,37 @@ export default function EditorToolbar({ editor }: { editor: Editor }) {
       if (done) {
         setContinuing(false);
         showToast("续写完成");
+      }
+    });
+  };
+
+  const handlePolish = () => {
+    setPolishing(true);
+    simulateAIStream(mockAIResponses.polish, (current, done) => {
+      const paragraphs = current
+        .split("\n\n")
+        .filter(Boolean)
+        .map((p) => `<p>${p}</p>`)
+        .join("");
+
+      const marker = "<!-- ai-polish -->";
+      const html = editor.getHTML();
+      const clean = html.replace(
+        new RegExp(`${marker}[\\s\\S]*$`),
+        ""
+      );
+      editor.commands.setContent(
+        clean +
+          marker +
+          '<div class="border-l-2 border-emerald-300 pl-3 mt-4">' +
+          paragraphs +
+          (done ? "" : '<span class="ai-cursor"></span>') +
+          "</div>"
+      );
+
+      if (done) {
+        setPolishing(false);
+        showToast("润色完成");
       }
     });
   };
@@ -176,6 +209,20 @@ export default function EditorToolbar({ editor }: { editor: Editor }) {
         )}
         正文续写
       </button>
+      {scene === "general" && (
+        <button
+          onClick={handlePolish}
+          disabled={polishing}
+          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-emerald-600 bg-emerald-50 rounded-lg hover:bg-emerald-100 transition disabled:opacity-50"
+        >
+          {polishing ? (
+            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+          ) : (
+            <Paintbrush className="w-3.5 h-3.5" />
+          )}
+          内容润色
+        </button>
+      )}
     </div>
   );
 }

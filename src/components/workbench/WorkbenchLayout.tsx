@@ -1,14 +1,36 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
+import { useEffect } from "react";
 import { useEditorStore } from "@/stores/editorStore";
 import TopBar from "./TopBar";
 import LeftPanel from "./left/LeftPanel";
+import GeneralLeftPanel from "./left/GeneralLeftPanel";
 import RichTextEditor from "./editor/RichTextEditor";
 import RightPanel from "./right/RightPanel";
+import GeneralRightPanel from "./right/GeneralRightPanel";
 import { cn } from "@/lib/utils";
 
 export default function WorkbenchLayout() {
-  const { leftCollapsed, rightCollapsed, toast } = useEditorStore();
+  const searchParams = useSearchParams();
+  const sceneParam = searchParams.get("scene") || "novel";
+  const { leftCollapsed, rightCollapsed, toast, scene, setScene } =
+    useEditorStore();
+
+  useEffect(() => {
+    const validScenes = [
+      "novel",
+      "screenplay",
+      "storyboard",
+      "knowledge",
+      "general",
+    ] as const;
+    if (validScenes.includes(sceneParam as (typeof validScenes)[number])) {
+      setScene(sceneParam as (typeof validScenes)[number]);
+    }
+  }, [sceneParam, setScene]);
+
+  const isGeneral = scene === "general";
 
   return (
     <div className="h-screen flex flex-col bg-white overflow-hidden">
@@ -21,7 +43,7 @@ export default function WorkbenchLayout() {
             leftCollapsed ? "w-0" : "w-72"
           )}
         >
-          <LeftPanel />
+          {isGeneral ? <GeneralLeftPanel /> : <LeftPanel />}
         </div>
 
         {/* Center Editor */}
@@ -36,7 +58,7 @@ export default function WorkbenchLayout() {
             rightCollapsed ? "w-0" : "w-80"
           )}
         >
-          <RightPanel />
+          {isGeneral ? <GeneralRightPanel /> : <RightPanel />}
         </div>
       </div>
 

@@ -32,6 +32,7 @@ export default function RichTextEditor() {
     leftView,
     outline,
     showToast,
+    scene,
   } = useEditorStore();
 
   const currentChapter = chapters.find((c) => c.id === currentChapterId);
@@ -182,8 +183,8 @@ export default function RichTextEditor() {
     });
   }, []);
 
-  // Show outline if in outline mode
-  if (leftView === "outline") {
+  // Show outline if in outline mode (novel only)
+  if (leftView === "outline" && scene !== "general") {
     return (
       <div className="h-full overflow-y-auto px-12 py-8">
         <div className="max-w-4xl mx-auto">
@@ -204,7 +205,7 @@ export default function RichTextEditor() {
 
       <div className="flex-1 overflow-y-auto" ref={editorWrapRef}>
         <div className="max-w-4xl mx-auto px-4 relative">
-          {currentChapter && (
+          {scene !== "general" && currentChapter && (
             <h2 className="text-lg font-bold text-gray-800 px-8 pt-6">
               {currentChapter.title}
             </h2>

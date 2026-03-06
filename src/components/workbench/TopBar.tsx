@@ -25,6 +25,7 @@ export default function TopBar() {
     focusMode,
     toggleFocusMode,
     showToast,
+    scene,
   } = useEditorStore();
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(title);
@@ -111,8 +112,14 @@ export default function TopBar() {
             </>
           )}
         </span>
-        <span>本章 {currentChapter?.wordCount || 0} 字</span>
-        <span>总计 {totalWords} 字</span>
+        {scene === "general" ? (
+          <span>总字数 {totalWords}</span>
+        ) : (
+          <>
+            <span>本章 {currentChapter?.wordCount || 0} 字</span>
+            <span>总计 {totalWords} 字</span>
+          </>
+        )}
       </div>
 
       {/* Spacer */}
