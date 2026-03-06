@@ -96,28 +96,30 @@ export default function RecentWorks() {
             更多
           </button>
           {showMenu && (
-            <div className="absolute left-full top-0 ml-1 bg-white rounded-lg shadow-lg border py-1 z-10 w-32">
+            <div className="absolute right-0 bottom-full mb-1 bg-white rounded-lg shadow-lg border py-1 z-10 w-32">
               {/* 导出 */}
-              <button
-                onClick={() => setShowExport(!showExport)}
-                className="w-full text-left px-3 py-1.5 text-xs hover:bg-gray-50 flex items-center justify-between"
-              >
-                导出作品
-                <ChevronRight className={`w-3 h-3 text-gray-400 transition ${showExport ? "rotate-90" : ""}`} />
-              </button>
-              {showExport && (
-                <div className="border-t border-gray-50">
-                  {["TXT", "DOC", "PDF"].map((fmt) => (
-                    <button
-                      key={fmt}
-                      onClick={() => { showToastMsg(`正在导出 ${fmt}...`); setShowMenu(false); }}
-                      className="w-full text-left pl-6 pr-3 py-1.5 text-xs text-gray-500 hover:bg-gray-50"
-                    >
-                      {fmt}
-                    </button>
-                  ))}
-                </div>
-              )}
+              <div className="relative">
+                <button
+                  onClick={() => setShowExport(!showExport)}
+                  className="w-full text-left px-3 py-1.5 text-xs hover:bg-gray-50 flex items-center justify-between"
+                >
+                  导出作品
+                  <ChevronRight className="w-3 h-3 text-gray-400" />
+                </button>
+                {showExport && (
+                  <div className="absolute left-full top-0 ml-1 bg-white rounded-lg shadow-lg border py-1 z-10 w-24">
+                    {["TXT", "DOC", "PDF"].map((fmt) => (
+                      <button
+                        key={fmt}
+                        onClick={() => { showToastMsg(`正在导出 ${fmt}...`); setShowMenu(false); }}
+                        className="w-full text-left px-3 py-1.5 text-xs text-gray-500 hover:bg-gray-50"
+                      >
+                        {fmt}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
               {/* 复制链接 */}
               <button
                 onClick={() => {

@@ -15,6 +15,7 @@ import {
   AlertTriangle,
   Plus,
   ChevronDown,
+  ChevronRight,
   CloudUpload,
   ExternalLink,
   Pencil,
@@ -302,19 +303,19 @@ export default function WorksPage() {
                                 <Download className="w-3.5 h-3.5" />
                                 导出
                               </span>
-                              <ChevronDown className={`w-3 h-3 transition ${exportSubOpen ? "rotate-180" : ""}`} />
+                              <ChevronRight className="w-3 h-3 text-gray-400" />
                             </button>
                             {exportSubOpen && (
-                              <div className="border-t border-gray-50">
+                              <div className="absolute left-full top-0 ml-1 bg-white rounded-lg shadow-lg border py-1 z-10 w-24">
                                 <button
                                   onClick={() => { showToast("正在导出 DOCX..."); setMenuOpen(null); }}
-                                  className="w-full text-left pl-9 pr-3 py-1.5 text-xs text-gray-500 hover:bg-gray-50"
+                                  className="w-full text-left px-3 py-1.5 text-xs text-gray-500 hover:bg-gray-50"
                                 >
                                   DOCX
                                 </button>
                                 <button
                                   onClick={() => { showToast("正在导出 PDF..."); setMenuOpen(null); }}
-                                  className="w-full text-left pl-9 pr-3 py-1.5 text-xs text-gray-500 hover:bg-gray-50"
+                                  className="w-full text-left px-3 py-1.5 text-xs text-gray-500 hover:bg-gray-50"
                                 >
                                   PDF
                                 </button>
