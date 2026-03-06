@@ -185,35 +185,47 @@ function WritingTipsView({ onBack }: { onBack: () => void }) {
   return (
     <div className="px-4 pb-4 space-y-3">
       <button
-        onClick={onBack}
+        onClick={() => {
+          if (selectedTip) {
+            setSelectedTip(null);
+            setResult("");
+            setEditableResult("");
+            setPhase("outline");
+            setExpandedContent("");
+          } else {
+            onBack();
+          }
+        }}
         className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600"
       >
-        <ArrowLeft className="w-3 h-3" /> 返回
+        <ArrowLeft className="w-3 h-3" /> {selectedTip ? "返回列表" : "返回"}
       </button>
-      <div className="flex gap-2">
-        {categories.map((cat) => (
-          <button
-            key={cat.id}
-            onClick={() => {
-              setCategory(cat.id);
-              setSelectedTip(null);
-              setResult("");
-              setEditableResult("");
-              setPhase("outline");
-              setExpandedContent("");
-            }}
-            className={cn(
-              "flex-1 py-2 text-xs rounded-lg border transition text-center",
-              category === cat.id
-                ? "bg-indigo-50 border-indigo-200 text-indigo-700"
-                : "border-gray-100 text-gray-500 hover:bg-gray-50"
-            )}
-          >
-            <span className="block text-base mb-0.5">{cat.emoji}</span>
-            {cat.label}
-          </button>
-        ))}
-      </div>
+      {!selectedTip && (
+        <div className="flex gap-2">
+          {categories.map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => {
+                setCategory(cat.id);
+                setSelectedTip(null);
+                setResult("");
+                setEditableResult("");
+                setPhase("outline");
+                setExpandedContent("");
+              }}
+              className={cn(
+                "flex-1 py-2 text-xs rounded-lg border transition text-center",
+                category === cat.id
+                  ? "bg-indigo-50 border-indigo-200 text-indigo-700"
+                  : "border-gray-100 text-gray-500 hover:bg-gray-50"
+              )}
+            >
+              <span className="block text-base mb-0.5">{cat.emoji}</span>
+              {cat.label}
+            </button>
+          ))}
+        </div>
+      )}
       {!selectedTip ? (
         <div className="space-y-2">
           {tips.map((tip, i) => (
