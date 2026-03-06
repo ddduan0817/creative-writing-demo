@@ -6,6 +6,7 @@ import Sidebar from "@/components/home/Sidebar";
 import { mockWorks, type WorkItem } from "@/data/mockWorks";
 import {
   ArrowLeft,
+  Copy,
   Download,
   Link2,
   Trash2,
@@ -13,6 +14,10 @@ import {
   Search,
   AlertTriangle,
   Plus,
+  ChevronDown,
+  CloudUpload,
+  ExternalLink,
+  Pencil,
 } from "lucide-react";
 
 const categories = [
@@ -24,15 +29,27 @@ const categories = [
   { id: "general", label: "通用" },
 ];
 
+type SortKey = "updated" | "name" | "words" | "created";
+
+const sortOptions: { key: SortKey; label: string }[] = [
+  { key: "updated", label: "最近编辑" },
+  { key: "name", label: "名称" },
+  { key: "words", label: "字数" },
+  { key: "created", label: "创建时间" },
+];
+
 export default function WorksPage() {
   const router = useRouter();
   const [works, setWorks] = useState(mockWorks);
   const [activeCategory, setActiveCategory] = useState("all");
   const [menuOpen, setMenuOpen] = useState<string | null>(null);
+  const [exportSubOpen, setExportSubOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [deleteTarget, setDeleteTarget] = useState<WorkItem | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<SortKey>("updated");
+  const [sortDropOpen, setSortDropOpen] = useState(false);
 
   const showToast = useCallback((msg: string) => {
     setToast(msg);
@@ -56,6 +73,11 @@ export default function WorksPage() {
     }, 200);
   }, [deleteTarget, showToast]);
 
+  const handleMenuOpen = (workId: string) => {
+    setMenuOpen(menuOpen === workId ? null : workId);
+    setExportSubOpen(false);
+  };
+
   // 计算每个分类的数量
   const getCategoryCount = (catId: string) => {
     if (catId === "all") return works.length;
@@ -64,17 +86,37 @@ export default function WorksPage() {
     ).length;
   };
 
-  const filteredWorks = works
-    .filter((w) => {
-      if (activeCategory !== "all") {
-        return w.sceneLabel === categories.find((c) => c.id === activeCategory)?.label;
-      }
-      return true;
-    })
-    .filter((w) => {
-      if (!searchQuery.trim()) return true;
-      return w.title.toLowerCase().includes(searchQuery.trim().toLowerCase());
-    });
+  // 排序
+  const sortWorks = (list: WorkItem[]) => {
+    const sorted = [...list];
+    switch (sortBy) {
+      case "updated":
+        return sorted.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+      case "name":
+        return sorted.sort((a, b) => a.title.localeCompare(b.title, "zh-CN"));
+      case "words":
+        return sorted.sort((a, b) => b.wordCount - a.wordCount);
+      case "created":
+        // Demo 里没有 createdAt，用 id 倒序模拟
+        return sorted.sort((a, b) => b.id.localeCompare(a.id));
+      default:
+        return sorted;
+    }
+  };
+
+  const filteredWorks = sortWorks(
+    works
+      .filter((w) => {
+        if (activeCategory !== "all") {
+          return w.sceneLabel === categories.find((c) => c.id === activeCategory)?.label;
+        }
+        return true;
+      })
+      .filter((w) => {
+        if (!searchQuery.trim()) return true;
+        return w.title.toLowerCase().includes(searchQuery.trim().toLowerCase());
+      })
+  );
 
   return (
     <div className="min-h-screen bg-[#f7f8fa] flex">
@@ -110,8 +152,8 @@ export default function WorksPage() {
             </div>
           </div>
 
-          {/* Category Tabs */}
-          <div className="flex gap-2 mb-6">
+          {/* Category Tabs + Sort */}
+          <div className="flex items-center gap-2 mb-6">
             {categories.map((cat) => (
               <button
                 key={cat.id}
@@ -125,6 +167,32 @@ export default function WorksPage() {
                 {cat.label}({getCategoryCount(cat.id)})
               </button>
             ))}
+            <div className="flex-1" />
+            {/* Sort Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setSortDropOpen(!sortDropOpen)}
+                className="flex items-center gap-1 px-3 py-1.5 text-xs text-gray-500 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition"
+              >
+                {sortOptions.find((o) => o.key === sortBy)?.label}
+                <ChevronDown className="w-3 h-3" />
+              </button>
+              {sortDropOpen && (
+                <div className="absolute right-0 top-full mt-1 bg-white rounded-lg shadow-lg border py-1 z-10 w-28">
+                  {sortOptions.map((opt) => (
+                    <button
+                      key={opt.key}
+                      onClick={() => { setSortBy(opt.key); setSortDropOpen(false); }}
+                      className={`w-full text-left px-3 py-1.5 text-xs hover:bg-gray-50 ${
+                        sortBy === opt.key ? "text-blue-600 font-medium" : "text-gray-600"
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Works List */}
@@ -146,7 +214,8 @@ export default function WorksPage() {
               {filteredWorks.map((work) => (
                 <div
                   key={work.id}
-                  className={`bg-white rounded-xl border border-gray-100 p-4 flex items-center gap-4 hover:shadow-sm transition-all duration-200 group ${
+                  onClick={() => router.push(`/workbench?scene=${work.scene}`)}
+                  className={`bg-white rounded-xl border border-gray-100 p-4 flex items-center gap-4 hover:shadow-sm transition-all duration-200 group cursor-pointer ${
                     deletingId === work.id ? "opacity-0 scale-95" : ""
                   }`}
                 >
@@ -174,27 +243,80 @@ export default function WorksPage() {
                   </div>
 
                   {/* Actions */}
-                  <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition">
+                  <div
+                    className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <button
                       onClick={() => router.push(`/workbench?scene=${work.scene}`)}
-                      className="px-3 py-1.5 text-xs font-medium text-white bg-emerald-500 rounded-lg hover:bg-emerald-600 transition"
+                      className="px-3 py-1.5 text-xs font-medium text-white bg-emerald-500 rounded-lg hover:bg-emerald-600 transition flex items-center gap-1"
                     >
-                      继续写作
+                      <Pencil className="w-3 h-3" />
+                      编辑
                     </button>
                     <div className="relative">
                       <button
-                        onClick={() => setMenuOpen(menuOpen === work.id ? null : work.id)}
+                        onClick={() => handleMenuOpen(work.id)}
                         className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition"
                       >
                         <MoreHorizontal className="w-4 h-4" />
                       </button>
                       {menuOpen === work.id && (
-                        <div className="absolute right-0 top-full mt-1 bg-white rounded-lg shadow-lg border py-1 z-10 w-36">
-                          <button className="w-full text-left px-3 py-2 text-xs text-gray-600 hover:bg-gray-50 flex items-center gap-2">
-                            <Download className="w-3.5 h-3.5" />
-                            导出作品
+                        <div className="absolute right-0 top-full mt-1 bg-white rounded-lg shadow-lg border py-1 z-10 w-44">
+                          <button
+                            onClick={() => { navigator.clipboard.writeText(`${work.title}的全文内容（demo模拟）`); showToast("已复制"); setMenuOpen(null); }}
+                            className="w-full text-left px-3 py-2 text-xs text-gray-600 hover:bg-gray-50 flex items-center gap-2"
+                          >
+                            <Copy className="w-3.5 h-3.5" />
+                            复制全文
                           </button>
-                          <button className="w-full text-left px-3 py-2 text-xs text-gray-600 hover:bg-gray-50 flex items-center gap-2">
+                          {/* 导出 with sub-options */}
+                          <div className="relative">
+                            <button
+                              onClick={() => setExportSubOpen(!exportSubOpen)}
+                              className="w-full text-left px-3 py-2 text-xs text-gray-600 hover:bg-gray-50 flex items-center justify-between"
+                            >
+                              <span className="flex items-center gap-2">
+                                <Download className="w-3.5 h-3.5" />
+                                导出
+                              </span>
+                              <ChevronDown className={`w-3 h-3 transition ${exportSubOpen ? "rotate-180" : ""}`} />
+                            </button>
+                            {exportSubOpen && (
+                              <div className="border-t border-gray-50">
+                                <button
+                                  onClick={() => { showToast("正在导出 DOCX..."); setMenuOpen(null); }}
+                                  className="w-full text-left pl-9 pr-3 py-1.5 text-xs text-gray-500 hover:bg-gray-50"
+                                >
+                                  DOCX
+                                </button>
+                                <button
+                                  onClick={() => { showToast("正在导出 PDF..."); setMenuOpen(null); }}
+                                  className="w-full text-left pl-9 pr-3 py-1.5 text-xs text-gray-500 hover:bg-gray-50"
+                                >
+                                  PDF
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                          <button
+                            onClick={() => { showToast("已保存至百度网盘"); setMenuOpen(null); }}
+                            className="w-full text-left px-3 py-2 text-xs text-gray-600 hover:bg-gray-50 flex items-center gap-2"
+                          >
+                            <CloudUpload className="w-3.5 h-3.5" />
+                            保存至百度网盘
+                          </button>
+                          <button
+                            onClick={() => { showToast("网盘链接已生成"); setMenuOpen(null); }}
+                            className="w-full text-left px-3 py-2 text-xs text-gray-600 hover:bg-gray-50 flex items-center gap-2"
+                          >
+                            <ExternalLink className="w-3.5 h-3.5" />
+                            生成百度网盘链接
+                          </button>
+                          <button
+                            onClick={() => { navigator.clipboard.writeText(`https://creative-writing.demo/share/${work.id}`); showToast("链接已复制"); setMenuOpen(null); }}
+                            className="w-full text-left px-3 py-2 text-xs text-gray-600 hover:bg-gray-50 flex items-center gap-2"
+                          >
                             <Link2 className="w-3.5 h-3.5" />
                             复制链接
                           </button>
@@ -204,7 +326,7 @@ export default function WorksPage() {
                             className="w-full text-left px-3 py-2 text-xs text-red-500 hover:bg-red-50 flex items-center gap-2"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
-                            删除作品
+                            删除
                           </button>
                         </div>
                       )}
