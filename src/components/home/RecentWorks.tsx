@@ -12,7 +12,10 @@ export default function RecentWorks() {
     <div className="bg-white rounded-2xl border border-gray-100 p-5 flex flex-col">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-sm font-semibold text-gray-800">近期作品</h2>
-        <button className="text-xs text-gray-400 hover:text-gray-600 flex items-center gap-0.5">
+        <button
+          onClick={() => router.push("/works")}
+          className="text-xs text-gray-400 hover:text-gray-600 flex items-center gap-0.5"
+        >
           查看更多 <ChevronRight className="w-3 h-3" />
         </button>
       </div>

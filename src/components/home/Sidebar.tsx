@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter, usePathname } from "next/navigation";
 import {
   MessageSquarePlus,
   PenLine,
@@ -12,20 +13,10 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const navItems = [
-  { icon: MessageSquarePlus, label: "新对话", active: false },
-  { icon: PenLine, label: "创意写作", active: true },
-  { icon: BookOpen, label: "阅读分析", active: false },
-  { icon: MoreHorizontal, label: "更多", active: false },
-];
-
-const bottomItems = [
-  { icon: HardDrive, label: "云盘" },
-  { icon: FolderKanban, label: "项目" },
-  { icon: MessageCircle, label: "对话" },
-];
-
 export default function Sidebar() {
+  const router = useRouter();
+  const pathname = usePathname();
+
   return (
     <div className="w-[200px] h-screen bg-white border-r border-gray-100 flex flex-col flex-shrink-0 sticky top-0">
       {/* Logo */}
@@ -46,36 +37,51 @@ export default function Sidebar() {
 
       {/* Nav Items */}
       <nav className="px-3 space-y-0.5 flex-1">
-        {navItems.slice(1).map((item) => (
-          <button
-            key={item.label}
-            className={cn(
-              "w-full flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition",
-              item.active
-                ? "bg-blue-50 text-blue-600 font-medium"
-                : "text-gray-600 hover:bg-gray-50"
-            )}
-          >
-            <item.icon className="w-4 h-4" />
-            {item.label}
-            {item.label === "更多" && (
-              <ChevronDown className="w-3 h-3 ml-auto" />
-            )}
-          </button>
-        ))}
+        <button
+          onClick={() => router.push("/")}
+          className={cn(
+            "w-full flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition",
+            pathname === "/"
+              ? "bg-blue-50 text-blue-600 font-medium"
+              : "text-gray-600 hover:bg-gray-50"
+          )}
+        >
+          <PenLine className="w-4 h-4" />
+          创意写作
+        </button>
+        <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-50 transition">
+          <BookOpen className="w-4 h-4" />
+          阅读分析
+        </button>
+        <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-50 transition">
+          <MoreHorizontal className="w-4 h-4" />
+          更多
+          <ChevronDown className="w-3 h-3 ml-auto" />
+        </button>
       </nav>
 
       {/* Bottom Items */}
       <div className="px-3 pb-4 space-y-0.5 border-t border-gray-50 pt-3">
-        {bottomItems.map((item) => (
-          <button
-            key={item.label}
-            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-500 rounded-lg hover:bg-gray-50 transition"
-          >
-            <item.icon className="w-4 h-4" />
-            {item.label}
-          </button>
-        ))}
+        <button
+          onClick={() => router.push("/works")}
+          className={cn(
+            "w-full flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition",
+            pathname === "/works"
+              ? "bg-blue-50 text-blue-600 font-medium"
+              : "text-gray-500 hover:bg-gray-50"
+          )}
+        >
+          <HardDrive className="w-4 h-4" />
+          云盘
+        </button>
+        <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-500 rounded-lg hover:bg-gray-50 transition">
+          <FolderKanban className="w-4 h-4" />
+          项目
+        </button>
+        <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-500 rounded-lg hover:bg-gray-50 transition">
+          <MessageCircle className="w-4 h-4" />
+          对话
+        </button>
       </div>
     </div>
   );

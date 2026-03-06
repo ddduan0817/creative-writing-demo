@@ -7,6 +7,7 @@ import TopBar from "./TopBar";
 import LeftPanel from "./left/LeftPanel";
 import GeneralLeftPanel from "./left/GeneralLeftPanel";
 import SimpleLeftPanel from "./left/SimpleLeftPanel";
+import ScreenplayLeftPanel from "./left/ScreenplayLeftPanel";
 import RichTextEditor from "./editor/RichTextEditor";
 import RightPanel from "./right/RightPanel";
 import GeneralRightPanel from "./right/GeneralRightPanel";
@@ -38,6 +39,7 @@ export default function WorkbenchLayout() {
   const renderLeftPanel = () => {
     if (isGeneral) return <GeneralLeftPanel />;
     if (isSimple) return <SimpleLeftPanel />;
+    if (scene === "screenplay") return <ScreenplayLeftPanel />;
     return <LeftPanel />;
   };
 
