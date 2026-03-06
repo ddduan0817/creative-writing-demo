@@ -34,6 +34,8 @@ interface EditorState {
   toggleRight: () => void;
   focusMode: boolean;
   toggleFocusMode: () => void;
+  layoutMode: "normal" | "ai-assist" | "focus";
+  setLayoutMode: (mode: "normal" | "ai-assist" | "focus") => void;
 
   // 设定
   settings: SettingItem[];
@@ -102,7 +104,19 @@ export const useEditorStore = create<EditorState>((set) => ({
       focusMode: !s.focusMode,
       leftCollapsed: !s.focusMode,
       rightCollapsed: !s.focusMode,
+      layoutMode: !s.focusMode ? "focus" : "normal",
     })),
+  layoutMode: "normal",
+  setLayoutMode: (mode) =>
+    set(() => {
+      if (mode === "focus") {
+        return { layoutMode: "focus", focusMode: true, leftCollapsed: true, rightCollapsed: true };
+      }
+      if (mode === "ai-assist") {
+        return { layoutMode: "ai-assist", focusMode: false, leftCollapsed: true, rightCollapsed: false };
+      }
+      return { layoutMode: "normal", focusMode: false, leftCollapsed: false, rightCollapsed: false };
+    }),
 
   settings: [
     { key: "background", label: "背景设定", value: "灵脉大陆，以灵脉为核心的能量体系支撑万物。十年前灵脉核心突然枯竭，修炼体系崩塌，大陆陷入动荡。" },

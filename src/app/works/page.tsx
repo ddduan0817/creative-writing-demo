@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/components/home/Sidebar";
 import {
@@ -11,6 +11,7 @@ import {
   MoreHorizontal,
   FileText,
   Search,
+  AlertTriangle,
 } from "lucide-react";
 
 interface WorkItem {
@@ -109,19 +110,45 @@ const categories = [
 
 export default function WorksPage() {
   const router = useRouter();
+  const [works, setWorks] = useState(mockWorks);
   const [activeCategory, setActiveCategory] = useState("all");
   const [menuOpen, setMenuOpen] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [deleteTarget, setDeleteTarget] = useState<WorkItem | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
+
+  const showToast = useCallback((msg: string) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 2000);
+  }, []);
+
+  const handleDelete = useCallback((work: WorkItem) => {
+    setDeleteTarget(work);
+    setMenuOpen(null);
+  }, []);
+
+  const confirmDelete = useCallback(() => {
+    if (!deleteTarget) return;
+    const id = deleteTarget.id;
+    setDeleteTarget(null);
+    setDeletingId(id);
+    setTimeout(() => {
+      setWorks((prev) => prev.filter((w) => w.id !== id));
+      setDeletingId(null);
+      showToast("作品已删除");
+    }, 200);
+  }, [deleteTarget, showToast]);
 
   // 计算每个分类的数量
   const getCategoryCount = (catId: string) => {
-    if (catId === "all") return mockWorks.length;
-    return mockWorks.filter(
+    if (catId === "all") return works.length;
+    return works.filter(
       (w) => w.sceneLabel === categories.find((c) => c.id === catId)?.label
     ).length;
   };
 
-  const filteredWorks = mockWorks
+  const filteredWorks = works
     .filter((w) => {
       if (activeCategory !== "all") {
         return w.sceneLabel === categories.find((c) => c.id === activeCategory)?.label;
@@ -194,7 +221,9 @@ export default function WorksPage() {
               {filteredWorks.map((work) => (
                 <div
                   key={work.id}
-                  className="bg-white rounded-xl border border-gray-100 p-4 flex items-center gap-4 hover:shadow-sm transition group"
+                  className={`bg-white rounded-xl border border-gray-100 p-4 flex items-center gap-4 hover:shadow-sm transition-all duration-200 group ${
+                    deletingId === work.id ? "opacity-0 scale-95" : ""
+                  }`}
                 >
                   {/* Icon */}
                   <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center text-xl flex-shrink-0">
@@ -245,7 +274,10 @@ export default function WorksPage() {
                             复制链接
                           </button>
                           <div className="border-t border-gray-100 my-1" />
-                          <button className="w-full text-left px-3 py-2 text-xs text-red-500 hover:bg-red-50 flex items-center gap-2">
+                          <button
+                            onClick={() => handleDelete(work)}
+                            className="w-full text-left px-3 py-2 text-xs text-red-500 hover:bg-red-50 flex items-center gap-2"
+                          >
                             <Trash2 className="w-3.5 h-3.5" />
                             删除作品
                           </button>
@@ -259,6 +291,50 @@ export default function WorksPage() {
           )}
         </main>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {deleteTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div
+            className="absolute inset-0 bg-black/40"
+            onClick={() => setDeleteTarget(null)}
+          />
+          <div className="relative bg-white rounded-2xl shadow-xl w-[380px] p-6 space-y-4">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-red-500" />
+              <h3 className="text-base font-bold text-gray-900">确认删除</h3>
+            </div>
+            <p className="text-sm text-gray-600">
+              删除「{deleteTarget.title}」？
+              <br />
+              <span className="text-gray-400">
+                删除后无法恢复，作品内容将永久丢失。
+              </span>
+            </p>
+            <div className="flex justify-end gap-3 pt-2">
+              <button
+                onClick={() => setDeleteTarget(null)}
+                className="px-4 py-2 text-sm text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition"
+              >
+                取消
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="px-4 py-2 text-sm text-white bg-red-500 rounded-lg hover:bg-red-600 transition"
+              >
+                确认删除
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Toast */}
+      {toast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 px-4 py-2 bg-gray-800 text-white text-sm rounded-lg shadow-lg z-50">
+          {toast}
+        </div>
+      )}
     </div>
   );
 }

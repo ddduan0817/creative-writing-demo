@@ -8,6 +8,7 @@ import {
   Download,
   Star,
   Eye,
+  Bot,
   Check,
   Loader2,
   AlertCircle,
@@ -22,8 +23,8 @@ export default function TopBar() {
     saveStatus,
     chapters,
     currentChapterId,
-    focusMode,
-    toggleFocusMode,
+    layoutMode,
+    setLayoutMode,
     showToast,
     scene,
   } = useEditorStore();
@@ -127,9 +128,21 @@ export default function TopBar() {
 
       {/* Right: Actions */}
       <button
-        onClick={toggleFocusMode}
+        onClick={() => setLayoutMode(layoutMode === "ai-assist" ? "normal" : "ai-assist")}
         className={`px-2 py-1 text-xs rounded transition ${
-          focusMode
+          layoutMode === "ai-assist"
+            ? "bg-blue-100 text-blue-700"
+            : "text-gray-500 hover:bg-gray-100"
+        }`}
+      >
+        <Bot className="w-3.5 h-3.5 inline mr-1" />
+        AI辅助
+      </button>
+
+      <button
+        onClick={() => setLayoutMode(layoutMode === "focus" ? "normal" : "focus")}
+        className={`px-2 py-1 text-xs rounded transition ${
+          layoutMode === "focus"
             ? "bg-indigo-100 text-indigo-700"
             : "text-gray-500 hover:bg-gray-100"
         }`}
