@@ -18,10 +18,10 @@ import {
 const categories = [
   { id: "all", label: "全部" },
   { id: "novel", label: "小说" },
-  { id: "screenplay", label: "剧本" },
-  { id: "script", label: "脚本" },
-  { id: "knowledge", label: "内容解读" },
-  { id: "other", label: "其他" },
+  { id: "screenplay", label: "剧本/分镜" },
+  { id: "marketing", label: "种草文案" },
+  { id: "knowledge", label: "知识专栏" },
+  { id: "general", label: "通用" },
 ];
 
 export default function WorksPage() {

@@ -2,10 +2,12 @@
 
 import { useRouter } from "next/navigation";
 import { ChevronRight } from "lucide-react";
+import { useState } from "react";
 import { mockWorks } from "@/data/mockWorks";
 
 export default function RecentWorks() {
   const router = useRouter();
+  const [showMenu, setShowMenu] = useState(false);
 
   // Sort by updatedAt descending, take the first one
   const recent = [...mockWorks].sort(
@@ -63,12 +65,27 @@ export default function RecentWorks() {
 
       {/* Bottom Actions */}
       <div className="flex items-center justify-end gap-2 mt-4 pt-3 border-t border-gray-50">
-        <button
-          onClick={() => router.push("/works")}
-          className="px-3 py-1.5 text-xs text-gray-500 border border-gray-200 rounded-lg hover:bg-gray-50 transition"
-        >
-          全部作品
-        </button>
+        <div className="relative">
+          <button
+            onClick={() => setShowMenu(!showMenu)}
+            className="px-3 py-1.5 text-xs text-gray-500 border border-gray-200 rounded-lg hover:bg-gray-50 transition"
+          >
+            更多
+          </button>
+          {showMenu && (
+            <div className="absolute right-0 bottom-full mb-1 bg-white rounded-lg shadow-lg border py-1 z-10 w-28">
+              <button className="w-full text-left px-3 py-1.5 text-xs hover:bg-gray-50">
+                导出作品
+              </button>
+              <button className="w-full text-left px-3 py-1.5 text-xs hover:bg-gray-50">
+                复制链接
+              </button>
+              <button className="w-full text-left px-3 py-1.5 text-xs text-red-500 hover:bg-red-50">
+                删除作品
+              </button>
+            </div>
+          )}
+        </div>
         <button
           onClick={() => router.push(`/workbench?scene=${recent.scene}`)}
           className="px-4 py-1.5 bg-emerald-500 text-white text-xs font-medium rounded-lg hover:bg-emerald-600 transition"
