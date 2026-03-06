@@ -3,101 +3,17 @@
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/components/home/Sidebar";
+import { mockWorks, type WorkItem } from "@/data/mockWorks";
 import {
   ArrowLeft,
   Download,
   Link2,
   Trash2,
   MoreHorizontal,
-  FileText,
   Search,
   AlertTriangle,
+  Plus,
 } from "lucide-react";
-
-interface WorkItem {
-  id: string;
-  title: string;
-  scene: string;
-  sceneLabel: string;
-  wordCount: number;
-  updatedAt: string;
-  emoji: string;
-}
-
-const mockWorks: WorkItem[] = [
-  {
-    id: "w1",
-    title: "灵脉纪",
-    scene: "novel",
-    sceneLabel: "小说",
-    wordCount: 12340,
-    updatedAt: "2026-03-06 14:30",
-    emoji: "📖",
-  },
-  {
-    id: "w2",
-    title: "都市修仙录",
-    scene: "novel",
-    sceneLabel: "小说",
-    wordCount: 8720,
-    updatedAt: "2026-03-05 09:15",
-    emoji: "📖",
-  },
-  {
-    id: "w3",
-    title: "逆袭甜宠短剧",
-    scene: "screenplay",
-    sceneLabel: "剧本",
-    wordCount: 4560,
-    updatedAt: "2026-03-04 16:45",
-    emoji: "🎬",
-  },
-  {
-    id: "w4",
-    title: "美妆好物安利合集",
-    scene: "marketing",
-    sceneLabel: "其他",
-    wordCount: 2130,
-    updatedAt: "2026-03-03 11:20",
-    emoji: "🌿",
-  },
-  {
-    id: "w5",
-    title: "《思考快与慢》拆书稿",
-    scene: "knowledge",
-    sceneLabel: "内容解读",
-    wordCount: 6890,
-    updatedAt: "2026-03-02 20:00",
-    emoji: "📚",
-  },
-  {
-    id: "w6",
-    title: "悬疑分镜脚本 EP01",
-    scene: "screenplay",
-    sceneLabel: "脚本",
-    wordCount: 3210,
-    updatedAt: "2026-03-01 15:30",
-    emoji: "🎬",
-  },
-  {
-    id: "w7",
-    title: "职场成长观点文",
-    scene: "knowledge",
-    sceneLabel: "内容解读",
-    wordCount: 1850,
-    updatedAt: "2026-02-28 22:10",
-    emoji: "📚",
-  },
-  {
-    id: "w8",
-    title: "数码产品种草文案",
-    scene: "marketing",
-    sceneLabel: "其他",
-    wordCount: 980,
-    updatedAt: "2026-02-27 13:45",
-    emoji: "🌿",
-  },
-];
 
 const categories = [
   { id: "all", label: "全部" },
@@ -175,6 +91,13 @@ export default function WorksPage() {
             </button>
             <h1 className="text-lg font-bold text-gray-900">我的作品</h1>
             <div className="flex-1" />
+            <button
+              onClick={() => router.push("/")}
+              className="px-3 py-1.5 text-xs font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition flex items-center gap-1"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              新建作品
+            </button>
             <div className="relative">
               <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
@@ -207,13 +130,15 @@ export default function WorksPage() {
           {/* Works List */}
           {filteredWorks.length === 0 ? (
             <div className="text-center py-20">
-              <FileText className="w-12 h-12 text-gray-200 mx-auto mb-3" />
-              <p className="text-sm text-gray-400">暂无作品</p>
+              <div className="text-4xl mb-3">📝</div>
+              <p className="text-sm font-medium text-gray-600">还没有作品</p>
+              <p className="text-xs text-gray-400 mt-1">开始你的第一次创作吧</p>
               <button
                 onClick={() => router.push("/")}
-                className="mt-4 px-4 py-2 text-sm text-blue-600 border border-blue-200 rounded-lg hover:bg-blue-50 transition"
+                className="mt-4 px-4 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition inline-flex items-center gap-1"
               >
-                去创作
+                <Plus className="w-3.5 h-3.5" />
+                新建作品
               </button>
             </div>
           ) : (

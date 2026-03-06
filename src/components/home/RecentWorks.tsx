@@ -2,11 +2,31 @@
 
 import { useRouter } from "next/navigation";
 import { ChevronRight } from "lucide-react";
-import { useState } from "react";
+import { mockWorks } from "@/data/mockWorks";
 
 export default function RecentWorks() {
   const router = useRouter();
-  const [showMenu, setShowMenu] = useState(false);
+
+  // Sort by updatedAt descending, take the first one
+  const recent = [...mockWorks].sort(
+    (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+  )[0];
+
+  if (!recent) {
+    return (
+      <div className="bg-white rounded-2xl border border-gray-100 p-5 flex flex-col items-center justify-center">
+        <div className="text-3xl mb-2">📝</div>
+        <p className="text-sm font-medium text-gray-600">还没有作品</p>
+        <p className="text-xs text-gray-400 mt-1">开始你的第一次创作吧</p>
+        <button
+          onClick={() => router.push("/")}
+          className="mt-3 px-4 py-1.5 text-xs font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition"
+        >
+          + 新建作品
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 p-5 flex flex-col">
@@ -24,49 +44,36 @@ export default function RecentWorks() {
       <div className="flex gap-4 flex-1">
         {/* Illustration */}
         <div className="w-[80px] h-[80px] rounded-xl bg-gradient-to-br from-violet-100 to-purple-50 flex items-center justify-center text-2xl flex-shrink-0">
-          🏔️
+          {recent.emoji}
         </div>
 
         {/* Info */}
         <div className="flex-1 min-w-0 flex flex-col">
           <h3 className="text-sm font-semibold text-gray-900">
-            开启创意写作
+            {recent.title}
           </h3>
-          <p className="text-xs text-gray-400 mt-1">最近更新：第一章</p>
+          <p className="text-xs text-gray-400 mt-1">
+            {recent.sceneLabel}
+          </p>
           <p className="text-xs text-gray-300 mt-0.5">
-            总章节：1章 | 总字数：1234字 | 更新时间：2026-02-27 12:12:52
+            {recent.wordCount.toLocaleString()} 字 | {recent.updatedAt}
           </p>
         </div>
       </div>
 
       {/* Bottom Actions */}
       <div className="flex items-center justify-end gap-2 mt-4 pt-3 border-t border-gray-50">
-        <div className="relative">
-          <button
-            onClick={() => setShowMenu(!showMenu)}
-            className="px-3 py-1.5 text-xs text-gray-500 border border-gray-200 rounded-lg hover:bg-gray-50 transition"
-          >
-            更多
-          </button>
-          {showMenu && (
-            <div className="absolute right-0 bottom-full mb-1 bg-white rounded-lg shadow-lg border py-1 z-10 w-28">
-              <button className="w-full text-left px-3 py-1.5 text-xs hover:bg-gray-50">
-                导出作品
-              </button>
-              <button className="w-full text-left px-3 py-1.5 text-xs hover:bg-gray-50">
-                复制链接
-              </button>
-              <button className="w-full text-left px-3 py-1.5 text-xs text-red-500 hover:bg-red-50">
-                删除作品
-              </button>
-            </div>
-          )}
-        </div>
         <button
-          onClick={() => router.push("/workbench?scene=novel")}
+          onClick={() => router.push("/works")}
+          className="px-3 py-1.5 text-xs text-gray-500 border border-gray-200 rounded-lg hover:bg-gray-50 transition"
+        >
+          全部作品
+        </button>
+        <button
+          onClick={() => router.push(`/workbench?scene=${recent.scene}`)}
           className="px-4 py-1.5 bg-emerald-500 text-white text-xs font-medium rounded-lg hover:bg-emerald-600 transition"
         >
-          开始写作
+          继续写作
         </button>
       </div>
     </div>
