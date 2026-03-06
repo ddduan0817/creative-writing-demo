@@ -9,8 +9,13 @@ import {
   Loader2,
   ArrowLeft,
   RefreshCw,
+  PenLine,
+  Copy,
+  FileText,
+  Check,
+  X,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
 type View = "main" | "tips" | "style";
@@ -59,8 +64,16 @@ function WritingTipsView({ onBack }: { onBack: () => void }) {
   const [category, setCategory] = useState<"idea" | "setting" | "detail">("idea");
   const [generating, setGenerating] = useState(false);
   const [result, setResult] = useState("");
+  const [editableResult, setEditableResult] = useState("");
   const [selectedTip, setSelectedTip] = useState<{ title: string; content: string } | null>(null);
-  const { showToast } = useEditorStore();
+  const [showDiff, setShowDiff] = useState(false);
+  const { showToast, setPendingInsert } = useEditorStore();
+
+  useEffect(() => {
+    if (!generating && result) {
+      setEditableResult(result);
+    }
+  }, [generating, result]);
 
   const tips = {
     idea: mockAIResponses.writingTipIdea,
@@ -78,11 +91,75 @@ function WritingTipsView({ onBack }: { onBack: () => void }) {
     setSelectedTip(tip);
     setGenerating(true);
     setResult("");
+    setEditableResult("");
+    setShowDiff(false);
     simulateAIStream(tip.content, (current, done) => {
       setResult(current);
       if (done) setGenerating(false);
     });
   };
+
+  const handleInsert = () => {
+    setPendingInsert(editableResult);
+    showToast("已追加到正文");
+  };
+
+  const handleApplyDiff = () => {
+    setPendingInsert(mockAIResponses.diffAfter);
+    setShowDiff(false);
+    showToast("已应用修改");
+  };
+
+  if (showDiff) {
+    return (
+      <div className="px-4 pb-4 space-y-3">
+        <button
+          onClick={() => setShowDiff(false)}
+          className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600"
+        >
+          <ArrowLeft className="w-3 h-3" /> 返回建议
+        </button>
+        <div className="flex items-center gap-2 mb-1">
+          <FileText className="w-4 h-4 text-indigo-500" />
+          <span className="text-sm font-semibold text-gray-700">修改对比</span>
+        </div>
+        <div className="rounded-lg border border-gray-200 overflow-hidden">
+          <div className="px-3 py-1.5 bg-gray-50 border-b border-gray-200">
+            <span className="text-xs font-medium text-gray-500">修改前</span>
+          </div>
+          <div className="p-3">
+            <p className="text-xs text-gray-500 leading-relaxed whitespace-pre-wrap">
+              {mockAIResponses.diffBefore}
+            </p>
+          </div>
+        </div>
+        <div className="rounded-lg border border-green-200 overflow-hidden">
+          <div className="px-3 py-1.5 bg-green-50 border-b border-green-200">
+            <span className="text-xs font-medium text-green-700">修改后</span>
+          </div>
+          <div className="p-3">
+            <p className="text-xs text-gray-700 leading-relaxed whitespace-pre-wrap">
+              {mockAIResponses.diffAfter}
+            </p>
+          </div>
+        </div>
+        <div className="flex gap-2 pt-1">
+          <button
+            onClick={handleApplyDiff}
+            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition"
+          >
+            <Check className="w-3.5 h-3.5" /> 确认应用
+          </button>
+          <button
+            onClick={() => setShowDiff(false)}
+            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition"
+          >
+            <X className="w-3.5 h-3.5" /> 取消
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="px-4 pb-4 space-y-3">
@@ -92,7 +169,6 @@ function WritingTipsView({ onBack }: { onBack: () => void }) {
       >
         <ArrowLeft className="w-3 h-3" /> 返回
       </button>
-
       <div className="flex gap-2">
         {categories.map((cat) => (
           <button
@@ -101,6 +177,7 @@ function WritingTipsView({ onBack }: { onBack: () => void }) {
               setCategory(cat.id);
               setSelectedTip(null);
               setResult("");
+              setEditableResult("");
             }}
             className={cn(
               "flex-1 py-2 text-xs rounded-lg border transition text-center",
@@ -114,7 +191,6 @@ function WritingTipsView({ onBack }: { onBack: () => void }) {
           </button>
         ))}
       </div>
-
       {!selectedTip ? (
         <div className="space-y-2">
           {tips[category].map((tip, i) => (
@@ -129,32 +205,56 @@ function WritingTipsView({ onBack }: { onBack: () => void }) {
         </div>
       ) : (
         <div className="space-y-2">
-          <div className="p-3 rounded-lg bg-indigo-50/50 border border-indigo-100">
-            <p className="text-xs font-medium text-indigo-700 mb-1">
-              {selectedTip.title}
-            </p>
-            <p className="text-xs text-gray-600 leading-relaxed">
-              {result}
-              {generating && <span className="ai-cursor" />}
-            </p>
+          <div className="rounded-lg bg-indigo-50/50 border border-indigo-100 overflow-hidden">
+            <div className="px-3 pt-2.5 pb-1">
+              <p className="text-xs font-medium text-indigo-700">{selectedTip.title}</p>
+            </div>
+            {generating ? (
+              <div className="px-3 pb-3">
+                <p className="text-xs text-gray-600 leading-relaxed">
+                  {result}<span className="ai-cursor" />
+                </p>
+              </div>
+            ) : (
+              <textarea
+                value={editableResult}
+                onChange={(e) => setEditableResult(e.target.value)}
+                className="w-full text-xs text-gray-600 leading-relaxed bg-transparent px-3 pb-3 resize-none focus:outline-none"
+                rows={5}
+              />
+            )}
           </div>
           {!generating && (
-            <div className="flex gap-2">
+            <div className="space-y-2">
               <button
-                onClick={() => {
-                  navigator.clipboard.writeText(result);
-                  showToast("已复制");
-                }}
-                className="text-xs text-gray-500 hover:text-indigo-600"
+                onClick={handleInsert}
+                className="w-full flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition"
               >
-                复制
+                <PenLine className="w-3.5 h-3.5" /> 接着写
               </button>
-              <button
-                onClick={() => handleTipClick(selectedTip)}
-                className="text-xs text-gray-500 hover:text-indigo-600 flex items-center gap-1"
-              >
-                <RefreshCw className="w-3 h-3" /> 换一换
-              </button>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => handleTipClick(selectedTip)}
+                  className="text-xs text-gray-500 hover:text-indigo-600 flex items-center gap-1"
+                >
+                  <RefreshCw className="w-3 h-3" /> 换一换
+                </button>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(editableResult);
+                    showToast("已复制");
+                  }}
+                  className="text-xs text-gray-500 hover:text-indigo-600 flex items-center gap-1"
+                >
+                  <Copy className="w-3 h-3" /> 复制
+                </button>
+                <button
+                  onClick={() => setShowDiff(true)}
+                  className="text-xs text-gray-500 hover:text-indigo-600 flex items-center gap-1"
+                >
+                  <FileText className="w-3 h-3" /> 应用到全文
+                </button>
+              </div>
             </div>
           )}
         </div>

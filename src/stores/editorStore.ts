@@ -71,6 +71,10 @@ interface EditorState {
   // Toast
   toast: string | null;
   showToast: (msg: string) => void;
+
+  // 灵感卡片 → 编辑器插入
+  pendingInsert: string | null;
+  setPendingInsert: (text: string | null) => void;
 }
 
 export const useEditorStore = create<EditorState>((set) => ({
@@ -180,4 +184,7 @@ export const useEditorStore = create<EditorState>((set) => ({
     set({ toast: msg });
     setTimeout(() => set({ toast: null }), 2000);
   },
+
+  pendingInsert: null,
+  setPendingInsert: (text) => set({ pendingInsert: text }),
 }));

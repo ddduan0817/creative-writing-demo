@@ -33,6 +33,8 @@ export default function RichTextEditor() {
     outline,
     showToast,
     scene,
+    pendingInsert,
+    setPendingInsert,
   } = useEditorStore();
 
   const currentChapter = chapters.find((c) => c.id === currentChapterId);
@@ -103,6 +105,23 @@ export default function RichTextEditor() {
       }
     }
   }, [currentChapterId, editor, currentChapter]);
+
+  // Handle pending insert from inspiration cards
+  useEffect(() => {
+    if (editor && pendingInsert) {
+      editor
+        .chain()
+        .focus("end")
+        .insertContent(
+          pendingInsert
+            .split("\n\n")
+            .map((p) => `<p>${p}</p>`)
+            .join("")
+        )
+        .run();
+      setPendingInsert(null);
+    }
+  }, [editor, pendingInsert, setPendingInsert]);
 
   const handleAIAction = useCallback(
     (action: string) => {
