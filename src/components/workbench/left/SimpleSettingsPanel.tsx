@@ -117,6 +117,7 @@ export default function SimpleSettingsPanel({ scene }: { scene: string }) {
           <Upload className="w-3.5 h-3.5" />
           点击上传或拖拽文件
         </button>
+        <p className="text-[10px] text-gray-300 mt-1.5 leading-relaxed">可选，上传后 AI 将参考您的资料生成内容</p>
         {uploadedFiles.length > 0 && (
           <div className="mt-2 space-y-1">
             {uploadedFiles.map((file) => (
