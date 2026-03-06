@@ -112,7 +112,7 @@ export default function TopBar() {
             </>
           )}
         </span>
-        {scene === "general" ? (
+        {scene === "general" || scene === "marketing" || scene === "knowledge" ? (
           <span>总字数 {totalWords}</span>
         ) : (
           <>

@@ -6,9 +6,11 @@ import { useEditorStore } from "@/stores/editorStore";
 import TopBar from "./TopBar";
 import LeftPanel from "./left/LeftPanel";
 import GeneralLeftPanel from "./left/GeneralLeftPanel";
+import SimpleLeftPanel from "./left/SimpleLeftPanel";
 import RichTextEditor from "./editor/RichTextEditor";
 import RightPanel from "./right/RightPanel";
 import GeneralRightPanel from "./right/GeneralRightPanel";
+import SimpleRightPanel from "./right/SimpleRightPanel";
 import { cn } from "@/lib/utils";
 
 export default function WorkbenchLayout() {
@@ -21,7 +23,7 @@ export default function WorkbenchLayout() {
     const validScenes = [
       "novel",
       "screenplay",
-      "storyboard",
+      "marketing",
       "knowledge",
       "general",
     ] as const;
@@ -31,6 +33,19 @@ export default function WorkbenchLayout() {
   }, [sceneParam, setScene]);
 
   const isGeneral = scene === "general";
+  const isSimple = scene === "marketing" || scene === "knowledge";
+
+  const renderLeftPanel = () => {
+    if (isGeneral) return <GeneralLeftPanel />;
+    if (isSimple) return <SimpleLeftPanel />;
+    return <LeftPanel />;
+  };
+
+  const renderRightPanel = () => {
+    if (isGeneral) return <GeneralRightPanel />;
+    if (isSimple) return <SimpleRightPanel />;
+    return <RightPanel />;
+  };
 
   return (
     <div className="h-screen flex flex-col bg-white overflow-hidden">
@@ -43,7 +58,7 @@ export default function WorkbenchLayout() {
             leftCollapsed ? "w-0" : "w-72"
           )}
         >
-          {isGeneral ? <GeneralLeftPanel /> : <LeftPanel />}
+          {renderLeftPanel()}
         </div>
 
         {/* Center Editor */}
@@ -58,7 +73,7 @@ export default function WorkbenchLayout() {
             rightCollapsed ? "w-0" : "w-80"
           )}
         >
-          {isGeneral ? <GeneralRightPanel /> : <RightPanel />}
+          {renderRightPanel()}
         </div>
       </div>
 

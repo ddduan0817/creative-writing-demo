@@ -36,6 +36,7 @@ export default function RichTextEditor() {
   } = useEditorStore();
 
   const currentChapter = chapters.find((c) => c.id === currentChapterId);
+  const isSimpleScene = scene === "marketing" || scene === "knowledge";
   const [showAIMenu, setShowAIMenu] = useState(false);
   const [floatingToolbar, setFloatingToolbar] = useState<{
     show: boolean;
@@ -47,7 +48,8 @@ export default function RichTextEditor() {
     text: string;
     generating: boolean;
     result: string;
-  }>({ show: false, text: "", generating: false, result: "" });
+    actionLabel: string;
+  }>({ show: false, text: "", generating: false, result: "", actionLabel: "" });
   const editorWrapRef = useRef<HTMLDivElement>(null);
 
   const editor = useEditor({
@@ -115,11 +117,14 @@ export default function RichTextEditor() {
           " "
         ) || "";
 
-      if (action === "atmosphere" || action === "polish") {
+      if (action === "atmosphere" || action === "polish" || action === "grassify") {
         const responseText =
           action === "atmosphere"
             ? mockAIResponses.atmosphere
+            : action === "grassify"
+            ? (mockAIResponses.grassify || mockAIResponses.atmosphere)
             : mockAIResponses.polish;
+        const label = action === "grassify" ? "种草感增强" : action === "atmosphere" ? "氛围增强" : "润色";
         setAtmosphereDialog({
           show: true,
           text:
@@ -127,6 +132,7 @@ export default function RichTextEditor() {
             (selectedText.length > 15 ? "..." : ""),
           generating: true,
           result: "",
+          actionLabel: label,
         });
         simulateAIStream(responseText, (current, done) => {
           setAtmosphereDialog((prev) => ({
@@ -163,6 +169,7 @@ export default function RichTextEditor() {
       text: "",
       generating: false,
       result: "",
+      actionLabel: "",
     });
     showToast("已替换选中内容");
   }, [editor, atmosphereDialog.result, showToast]);
@@ -184,7 +191,7 @@ export default function RichTextEditor() {
   }, []);
 
   // Show outline if in outline mode (novel only)
-  if (leftView === "outline" && scene !== "general") {
+  if (leftView === "outline" && scene !== "general" && !isSimpleScene) {
     return (
       <div className="h-full overflow-y-auto px-12 py-8">
         <div className="max-w-4xl mx-auto">
@@ -205,7 +212,7 @@ export default function RichTextEditor() {
 
       <div className="flex-1 overflow-y-auto" ref={editorWrapRef}>
         <div className="max-w-4xl mx-auto px-4 relative">
-          {scene !== "general" && currentChapter && (
+          {scene !== "general" && !isSimpleScene && currentChapter && (
             <h2 className="text-lg font-bold text-gray-800 px-8 pt-6">
               {currentChapter.title}
             </h2>
@@ -252,10 +259,10 @@ export default function RichTextEditor() {
                     </button>
                     <div className="border-t border-gray-100 my-1" />
                     <button
-                      onClick={() => handleAIAction("atmosphere")}
+                      onClick={() => handleAIAction(isSimpleScene ? "grassify" : "atmosphere")}
                       className="w-full text-left px-3 py-2 text-xs hover:bg-indigo-50 text-indigo-600 font-medium"
                     >
-                      ✨ 氛围增强
+                      {isSimpleScene ? "🌿 种草感增强" : "✨ 氛围增强"}
                     </button>
                   </div>
                 )}
@@ -379,6 +386,7 @@ export default function RichTextEditor() {
                       text: "",
                       generating: false,
                       result: "",
+                      actionLabel: "",
                     })
                   }
                   className="text-gray-400 hover:text-gray-600 text-xs"
@@ -392,7 +400,7 @@ export default function RichTextEditor() {
               <div className="flex justify-end">
                 <div className="bg-indigo-50 rounded-lg px-3 py-2 max-w-[80%]">
                   <p className="text-xs text-indigo-600 font-medium">
-                    氛围增强
+                    {atmosphereDialog.actionLabel || "氛围增强"}
                   </p>
                   <p className="text-xs text-gray-500 mt-0.5">
                     「{atmosphereDialog.text}」

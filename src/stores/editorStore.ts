@@ -10,7 +10,7 @@ interface SettingItem {
 
 interface EditorState {
   // 场景
-  scene: "novel" | "screenplay" | "storyboard" | "knowledge" | "general";
+  scene: "novel" | "screenplay" | "marketing" | "knowledge" | "general";
   setScene: (scene: EditorState["scene"]) => void;
 
   // 通用写作 - 选中模板
