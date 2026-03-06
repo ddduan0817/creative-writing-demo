@@ -232,13 +232,6 @@ function WritingTipsView({ onBack }: { onBack: () => void }) {
                   <span className="ai-cursor" />
                 </p>
               </div>
-            ) : phase === "outline" ? (
-              <textarea
-                value={editableResult}
-                onChange={(e) => setEditableResult(e.target.value)}
-                className="w-full text-xs text-gray-600 leading-relaxed bg-transparent px-3 pb-3 resize-none focus:outline-none"
-                rows={5}
-              />
             ) : (
               <div className="px-3 pb-3">
                 <p className="text-xs text-gray-500 leading-relaxed whitespace-pre-wrap">
