@@ -3,13 +3,11 @@
 import { useEditorStore } from "@/stores/editorStore";
 
 const marketingTagGroups: Record<string, string[]> = {
-  平台: ["小红书", "抖音", "微博", "公众号", "B站", "快手"],
   风格: ["种草安利", "测评对比", "故事型", "干货型", "情绪型", "搞笑型"],
   品类: ["美妆", "服饰", "数码", "美食", "家居", "母婴", "健身"],
 };
 
 const knowledgeTagGroups: Record<string, string[]> = {
-  内容类型: ["拆书稿", "视频解说", "观点输出", "课程大纲", "深度分析"],
   领域: ["商业", "心理学", "科技", "历史", "文学", "教育", "哲学"],
   风格: ["通俗易懂", "学术严谨", "幽默风趣", "深度思考", "故事化"],
 };
