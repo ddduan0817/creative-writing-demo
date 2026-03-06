@@ -24,6 +24,9 @@ export default function EditorToolbar({ editor }: { editor: Editor }) {
   const { showToast } = useEditorStore();
   const [continuing, setContinuing] = useState(false);
 
+  // Check if editor has meaningful content
+  const hasContent = editor.getText().trim().length > 0;
+
   const handleContinue = () => {
     setContinuing(true);
     editor.commands.focus("end");
@@ -53,7 +56,7 @@ export default function EditorToolbar({ editor }: { editor: Editor }) {
 
       if (done) {
         setContinuing(false);
-        showToast("续写完成");
+        showToast(hasContent ? "续写完成" : "生成完成");
       }
     });
   };
@@ -168,13 +171,14 @@ export default function EditorToolbar({ editor }: { editor: Editor }) {
         onClick={handleContinue}
         disabled={continuing}
         className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition disabled:opacity-50"
+        title={hasContent ? "基于已有内容继续生成" : "根据设定和大纲一键生成正文"}
       >
         {continuing ? (
           <Loader2 className="w-3.5 h-3.5 animate-spin" />
         ) : (
           <Sparkles className="w-3.5 h-3.5" />
         )}
-        正文续写
+        {hasContent ? "正文续写" : "AI 写作"}
       </button>
     </div>
   );
