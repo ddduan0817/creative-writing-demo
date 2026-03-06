@@ -6,87 +6,81 @@ import {
   Settings,
   Tag,
   ChevronDown,
-  ChevronRight,
+  FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import SimpleSettingsPanel from "./SimpleSettingsPanel";
 import SimpleTagsPanel from "./SimpleTagsPanel";
 
-export default function SimpleLeftPanel() {
-  const { leftView, setLeftView, scene } = useEditorStore();
-  const [settingsOpen, setSettingsOpen] = useState(true);
+type AccordionSection = "settings" | "tags" | null;
 
-  const showDetailPanel = leftView === "settings" || leftView === "tags";
+export default function SimpleLeftPanel() {
+  const { scene } = useEditorStore();
+  const [expandedSection, setExpandedSection] = useState<AccordionSection>("settings");
+
+  const toggleSection = (section: AccordionSection) => {
+    setExpandedSection((prev) => (prev === section ? null : section));
+  };
+
+  const sections: {
+    id: AccordionSection;
+    label: string;
+    icon: React.ElementType;
+  }[] = [
+    { id: "settings", label: "设定", icon: Settings },
+    { id: "tags", label: "标签", icon: Tag },
+  ];
 
   return (
     <div className="h-full flex flex-col overflow-hidden w-72">
       <div className="flex-1 overflow-y-auto">
-        {/* 作品设置 group */}
-        <div className="border-b border-gray-50">
-          <button
-            onClick={() => {
-              const next = !settingsOpen;
-              setSettingsOpen(next);
-              if (!next && showDetailPanel) {
-                setLeftView("editor");
-              }
-            }}
-            className="w-full flex items-center gap-2 px-4 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50"
-          >
-            {settingsOpen ? (
-              <ChevronDown className="w-3.5 h-3.5" />
-            ) : (
-              <ChevronRight className="w-3.5 h-3.5" />
-            )}
-            作品设置
-          </button>
-          {settingsOpen && (
-            <div className="px-2 pb-2 space-y-0.5">
-              {[
-                {
-                  id: "settings" as const,
-                  label: "设定",
-                  icon: Settings,
-                },
-                { id: "tags" as const, label: "标签", icon: Tag },
-              ].map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => setLeftView(leftView === item.id ? "editor" : item.id)}
-                  className={cn(
-                    "w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition",
-                    leftView === item.id
-                      ? "bg-indigo-50 text-indigo-700 font-medium"
-                      : "text-gray-600 hover:bg-gray-50"
-                  )}
-                >
-                  <item.icon className="w-4 h-4" />
-                  {item.label}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+        {sections.map((section) => (
+          <div key={section.id} className="border-b border-gray-50">
+            {/* Accordion header */}
+            <button
+              onClick={() => toggleSection(section.id)}
+              className={cn(
+                "w-full flex items-center gap-2 px-4 py-3 text-sm transition hover:bg-gray-50",
+                expandedSection === section.id
+                  ? "text-indigo-700 font-medium bg-indigo-50/50"
+                  : "text-gray-600"
+              )}
+            >
+              <section.icon className="w-4 h-4" />
+              <span className="flex-1 text-left">{section.label}</span>
+              <ChevronDown
+                className={cn(
+                  "w-3.5 h-3.5 text-gray-400 transition-transform duration-200",
+                  expandedSection === section.id ? "rotate-0" : "-rotate-90"
+                )}
+              />
+            </button>
 
-        {/* 设定/标签 详情面板 */}
-        {showDetailPanel && (
-          <div className="flex-1 overflow-y-auto">
-            {leftView === "settings" && <SimpleSettingsPanel scene={scene} />}
-            {leftView === "tags" && <SimpleTagsPanel scene={scene} />}
+            {/* Accordion content */}
+            <div
+              className={cn(
+                "overflow-hidden transition-all duration-200",
+                expandedSection === section.id ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
+              )}
+            >
+              {section.id === "settings" && <SimpleSettingsPanel scene={scene} />}
+              {section.id === "tags" && <SimpleTagsPanel scene={scene} />}
+            </div>
           </div>
-        )}
+        ))}
 
         {/* 单篇模式提示 */}
-        {!showDetailPanel && (
-          <div className="px-4 py-6 text-center">
-            <p className="text-xs text-gray-400">
-              单篇模式，无需章节管理
-            </p>
-            <p className="text-xs text-gray-300 mt-1">
-              点击上方「设定」或「标签」配置作品信息
-            </p>
+        <div className="px-4 py-6">
+          <div className="flex items-center gap-2 mb-2">
+            <FileText className="w-4 h-4 text-gray-300" />
+            <span className="text-xs font-medium text-gray-400">单篇模式</span>
           </div>
-        )}
+          <p className="text-xs text-gray-300 leading-relaxed">
+            {scene === "marketing"
+              ? "种草文案为单篇创作，无需章节管理。配置好设定和标签后即可开始写作。"
+              : "知识专栏为单篇创作，无需章节管理。配置好设定和标签后即可开始写作。"}
+          </p>
+        </div>
       </div>
     </div>
   );
