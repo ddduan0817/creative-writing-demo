@@ -55,6 +55,7 @@ export const templateCards: TemplateCard[] = [
   { id: "t5", categoryId: "optimize", title: "缩写", description: "提炼核心信息，精简输出", iconColor: "bg-gradient-to-br from-cyan-400 to-blue-500", iconEmoji: "✂️" },
   { id: "t6", categoryId: "optimize", title: "润色", description: "提升表达质感，纠错通顺", iconColor: "bg-gradient-to-br from-pink-400 to-rose-500", iconEmoji: "💎" },
   { id: "t7", categoryId: "optimize", title: "划重点", description: "抽离关键结论，输出决策", iconColor: "bg-gradient-to-br from-yellow-400 to-amber-500", iconEmoji: "🎯" },
+  { id: "t27", categoryId: "optimize", title: "检索成文", description: "多源调研整合，深度输出", iconColor: "bg-gradient-to-br from-indigo-400 to-purple-500", iconEmoji: "🔎" },
   // 工作提效
   { id: "t8", categoryId: "work", title: "汇报总结", description: "提炼工作进展，生成汇报", iconColor: "bg-gradient-to-br from-sky-400 to-blue-500", iconEmoji: "📊" },
   { id: "t9", categoryId: "work", title: "会议助手", description: "整理会议纪要，输出待办", iconColor: "bg-gradient-to-br from-emerald-400 to-green-500", iconEmoji: "📋" },
@@ -200,14 +201,57 @@ export const subTemplates: SubTemplate[] = [
   { id: "s24-2", parentId: "t24", title: "避雷吐槽" },
   { id: "s24-3", parentId: "t24", title: "深度解读" },
 
-  // 文章优化类 - 通用配置
-  { id: "s1-1", parentId: "t1", title: "通用仿写" },
-  { id: "s2-1", parentId: "t2", title: "通用续写" },
-  { id: "s3-1", parentId: "t3", title: "通用扩写" },
-  { id: "s4-1", parentId: "t4", title: "通用改写" },
-  { id: "s5-1", parentId: "t5", title: "通用缩写" },
-  { id: "s6-1", parentId: "t6", title: "通用润色" },
-  { id: "s7-1", parentId: "t7", title: "通用划重点" },
+  // 文章优化类
+  // 仿写 (t1)
+  { id: "s1-1", parentId: "t1", title: "结构仿写" },
+  { id: "s1-2", parentId: "t1", title: "风格仿写" },
+  { id: "s1-3", parentId: "t1", title: "标题仿写" },
+  { id: "s1-4", parentId: "t1", title: "语气迁移" },
+
+  // 续写 (t2)
+  { id: "s2-1", parentId: "t2", title: "正文续写" },
+  { id: "s2-2", parentId: "t2", title: "结构补齐" },
+  { id: "s2-3", parentId: "t2", title: "承上启下" },
+  { id: "s2-4", parentId: "t2", title: "收尾总结" },
+
+  // 扩写 (t3)
+  { id: "s3-1", parentId: "t3", title: "段落展开" },
+  { id: "s3-2", parentId: "t3", title: "细节补全" },
+  { id: "s3-3", parentId: "t3", title: "论据补强" },
+  { id: "s3-4", parentId: "t3", title: "卖点深化" },
+  { id: "s3-5", parentId: "t3", title: "提纲成文" },
+
+  // 改写 (t4)
+  { id: "s4-1", parentId: "t4", title: "语气调整" },
+  { id: "s4-2", parentId: "t4", title: "结构重组" },
+  { id: "s4-3", parentId: "t4", title: "视角转换" },
+  { id: "s4-4", parentId: "t4", title: "场景适配" },
+  { id: "s4-5", parentId: "t4", title: "降重改写" },
+
+  // 缩写 (t5)
+  { id: "s5-1", parentId: "t5", title: "段落摘要" },
+  { id: "s5-2", parentId: "t5", title: "要点清单" },
+  { id: "s5-3", parentId: "t5", title: "内容压缩" },
+  { id: "s5-4", parentId: "t5", title: "分层提纲" },
+  { id: "s5-5", parentId: "t5", title: "一句话总结" },
+
+  // 润色 (t6)
+  { id: "s6-1", parentId: "t6", title: "通顺纠错" },
+  { id: "s6-2", parentId: "t6", title: "精简表达" },
+  { id: "s6-3", parentId: "t6", title: "文风统一" },
+  { id: "s6-4", parentId: "t6", title: "专业度提升" },
+  { id: "s6-5", parentId: "t6", title: "感染力提升" },
+
+  // 划重点 (t7)
+  { id: "s7-1", parentId: "t7", title: "关键结论" },
+  { id: "s7-2", parentId: "t7", title: "安排计划" },
+  { id: "s7-3", parentId: "t7", title: "逻辑框架" },
+
+  // 检索成文 (t27)
+  { id: "s27-1", parentId: "t27", title: "深度调研" },
+  { id: "s27-2", parentId: "t27", title: "多源综述" },
+  { id: "s27-3", parentId: "t27", title: "数据盘点" },
+  { id: "s27-4", parentId: "t27", title: "方案设计" },
 ];
 
 // 四级配置 - 字段定义
@@ -837,67 +881,350 @@ export const templateConfigs: TemplateConfig[] = [
       { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "300字", "500字", "800字", "1000字", "1500字"] },
     ],
   },
-  // 通用仿写
+  // ========== 文章优化 ==========
+  // 仿写 - 结构仿写 (s1-1)
   {
     subTemplateId: "s1-1",
     fields: [
       { key: "original", label: "原文", type: "textarea", placeholder: "粘贴需要仿写的原文...", rows: 5, required: true },
       { key: "topic", label: "新主题", type: "textarea", placeholder: "仿写的新主题或内容方向...", rows: 2, required: true },
-      { key: "keepStyle", label: "保留元素", type: "tags", options: ["语言风格", "结构框架", "修辞手法", "情感基调", "段落节奏"] },
+      { key: "style", label: "风格", type: "select", options: ["风格不限", "简洁", "严肃", "文艺", "口语", "幽默"] },
+      { key: "similarity", label: "相似度", type: "select", options: ["相似度不限", "低", "中", "高"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "100字", "300字", "500字", "1000字", "5000字", "10000字"] },
     ],
   },
-  // 通用续写
+  // 仿写 - 风格仿写 (s1-2)
+  {
+    subTemplateId: "s1-2",
+    fields: [
+      { key: "original", label: "原文", type: "textarea", placeholder: "粘贴需要仿写的原文...", rows: 5, required: true },
+      { key: "topic", label: "新主题", type: "textarea", placeholder: "仿写的新主题或内容方向...", rows: 2, required: true },
+      { key: "style", label: "风格", type: "select", options: ["风格不限", "简洁", "严肃", "文艺", "口语", "幽默"] },
+      { key: "similarity", label: "相似度", type: "select", options: ["相似度不限", "低", "中", "高"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "100字", "300字", "500字", "1000字", "5000字", "10000字"] },
+    ],
+  },
+  // 仿写 - 标题仿写 (s1-3)
+  {
+    subTemplateId: "s1-3",
+    fields: [
+      { key: "original", label: "原标题", type: "textarea", placeholder: "粘贴需要仿写的标题...", rows: 2, required: true },
+      { key: "topic", label: "新主题", type: "textarea", placeholder: "仿写的新主题或内容方向...", rows: 2, required: true },
+      { key: "style", label: "风格", type: "select", options: ["风格不限", "简洁", "严肃", "文艺", "口语", "幽默"] },
+      { key: "similarity", label: "相似度", type: "select", options: ["相似度不限", "低", "中", "高"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "100字", "300字", "500字", "1000字", "5000字", "10000字"] },
+    ],
+  },
+  // 仿写 - 语气迁移 (s1-4)
+  {
+    subTemplateId: "s1-4",
+    fields: [
+      { key: "original", label: "原文", type: "textarea", placeholder: "粘贴需要仿写的原文...", rows: 5, required: true },
+      { key: "topic", label: "新主题", type: "textarea", placeholder: "仿写的新主题或内容方向...", rows: 2, required: true },
+      { key: "style", label: "风格", type: "select", options: ["风格不限", "简洁", "严肃", "文艺", "口语", "幽默"] },
+      { key: "similarity", label: "相似度", type: "select", options: ["相似度不限", "低", "中", "高"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "100字", "300字", "500字", "1000字", "5000字", "10000字"] },
+    ],
+  },
+
+  // 续写 - 正文续写 (s2-1)
   {
     subTemplateId: "s2-1",
     fields: [
       { key: "original", label: "原文", type: "textarea", placeholder: "粘贴需要续写的原文...", rows: 5, required: true },
-      { key: "direction", label: "续写方向", type: "textarea", placeholder: "希望续写的内容方向...", rows: 2 },
-      { key: "length", label: "续写长度", type: "select", options: ["短续(100-200字)", "中续(300-500字)", "长续(500字以上)"] },
+      { key: "style", label: "风格", type: "select", options: ["风格不限", "简洁", "严肃", "文艺", "口语", "幽默"] },
+      { key: "consistency", label: "一致性", type: "select", options: ["严格保持", "适度调整"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "100字", "300字", "500字", "1000字", "5000字", "10000字"] },
     ],
   },
-  // 通用扩写
+  // 续写 - 结构补齐 (s2-2)
+  {
+    subTemplateId: "s2-2",
+    fields: [
+      { key: "original", label: "原文", type: "textarea", placeholder: "粘贴需要续写的原文...", rows: 5, required: true },
+      { key: "style", label: "风格", type: "select", options: ["风格不限", "简洁", "严肃", "文艺", "口语", "幽默"] },
+      { key: "consistency", label: "一致性", type: "select", options: ["严格保持", "适度调整"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "100字", "300字", "500字", "1000字", "5000字", "10000字"] },
+    ],
+  },
+  // 续写 - 承上启下 (s2-3)
+  {
+    subTemplateId: "s2-3",
+    fields: [
+      { key: "original", label: "原文", type: "textarea", placeholder: "粘贴需要续写的原文...", rows: 5, required: true },
+      { key: "style", label: "风格", type: "select", options: ["风格不限", "简洁", "严肃", "文艺", "口语", "幽默"] },
+      { key: "consistency", label: "一致性", type: "select", options: ["严格保持", "适度调整"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "100字", "300字", "500字", "1000字", "5000字", "10000字"] },
+    ],
+  },
+  // 续写 - 收尾总结 (s2-4)
+  {
+    subTemplateId: "s2-4",
+    fields: [
+      { key: "original", label: "原文", type: "textarea", placeholder: "粘贴需要续写的原文...", rows: 5, required: true },
+      { key: "style", label: "风格", type: "select", options: ["风格不限", "简洁", "严肃", "文艺", "口语", "幽默"] },
+      { key: "consistency", label: "一致性", type: "select", options: ["严格保持", "适度调整"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "100字", "300字", "500字", "1000字", "5000字", "10000字"] },
+    ],
+  },
+
+  // 扩写 - 段落展开 (s3-1)
   {
     subTemplateId: "s3-1",
     fields: [
-      { key: "original", label: "原文", type: "textarea", placeholder: "粘贴需要扩写的原文...", rows: 4, required: true },
-      { key: "expandAspect", label: "扩展方向", type: "tags", options: ["增加细节", "补充例证", "深化分析", "丰富描写", "增加过渡"] },
-      { key: "targetLength", label: "目标字数", type: "select", options: ["扩展50%", "扩展100%", "扩展200%"] },
+      { key: "original", label: "原文", type: "textarea", placeholder: "粘贴需要扩写的原文...", rows: 5, required: true },
+      { key: "style", label: "文风", type: "select", options: ["文风不限", "原风格", "更正式", "更口语", "更生动", "更克制"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "100字", "300字", "500字", "1000字", "5000字", "10000字"] },
     ],
   },
-  // 通用改写
+  // 扩写 - 细节补全 (s3-2)
+  {
+    subTemplateId: "s3-2",
+    fields: [
+      { key: "original", label: "原文", type: "textarea", placeholder: "粘贴需要扩写的原文...", rows: 5, required: true },
+      { key: "style", label: "文风", type: "select", options: ["文风不限", "原风格", "更正式", "更口语", "更生动", "更克制"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "100字", "300字", "500字", "1000字", "5000字", "10000字"] },
+    ],
+  },
+  // 扩写 - 论据补强 (s3-3)
+  {
+    subTemplateId: "s3-3",
+    fields: [
+      { key: "original", label: "原文", type: "textarea", placeholder: "粘贴需要扩写的原文...", rows: 5, required: true },
+      { key: "style", label: "文风", type: "select", options: ["文风不限", "原风格", "更网感", "更高级", "更幽默", "更克制"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "100字", "300字", "500字", "1000字", "5000字", "10000字"] },
+    ],
+  },
+  // 扩写 - 卖点深化 (s3-4)
+  {
+    subTemplateId: "s3-4",
+    fields: [
+      { key: "original", label: "原文", type: "textarea", placeholder: "粘贴需要扩写的原文...", rows: 5, required: true },
+      { key: "style", label: "文风", type: "select", options: ["文风不限", "原风格", "更正式", "更口语", "更生动", "更克制"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "100字", "300字", "500字", "1000字", "5000字", "10000字"] },
+    ],
+  },
+  // 扩写 - 提纲成文 (s3-5)
+  {
+    subTemplateId: "s3-5",
+    fields: [
+      { key: "original", label: "提纲", type: "textarea", placeholder: "粘贴需要扩写的提纲...", rows: 5, required: true },
+      { key: "style", label: "文风", type: "select", options: ["文风不限", "原风格", "更正式", "更口语", "更生动", "更克制"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "100字", "300字", "500字", "1000字", "5000字", "10000字"] },
+    ],
+  },
+
+  // 改写 - 语气调整 (s4-1)
   {
     subTemplateId: "s4-1",
     fields: [
       { key: "original", label: "原文", type: "textarea", placeholder: "粘贴需要改写的原文...", rows: 5, required: true },
-      { key: "requirement", label: "改写要求", type: "textarea", placeholder: "具体的改写需求...", rows: 2 },
-      { key: "targetStyle", label: "目标风格", type: "select", options: ["更正式", "更口语", "更简洁", "更详细", "更生动"] },
+      { key: "tone", label: "语气", type: "select", options: ["语气不限", "更通俗", "更正式", "更犀利", "更温柔", "更委婉", "更专业"] },
+      { key: "degree", label: "幅度", type: "select", options: ["幅度不限", "轻改", "中改", "大改"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "100字", "300字", "500字", "1000字", "5000字", "10000字"] },
     ],
   },
-  // 通用缩写
+  // 改写 - 结构重组 (s4-2)
+  {
+    subTemplateId: "s4-2",
+    fields: [
+      { key: "original", label: "原文", type: "textarea", placeholder: "粘贴需要改写的原文...", rows: 5, required: true },
+      { key: "degree", label: "幅度", type: "select", options: ["幅度不限", "轻改", "中改", "大改"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "100字", "300字", "500字", "1000字", "5000字", "10000字"] },
+    ],
+  },
+  // 改写 - 视角转换 (s4-3)
+  {
+    subTemplateId: "s4-3",
+    fields: [
+      { key: "original", label: "原文", type: "textarea", placeholder: "粘贴需要改写的原文...", rows: 5, required: true },
+      { key: "person", label: "人称", type: "select", options: ["人称不限", "第一人称", "第二人称", "第三人称"] },
+      { key: "degree", label: "幅度", type: "select", options: ["幅度不限", "轻改", "中改", "大改"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "100字", "300字", "500字", "1000字", "5000字", "10000字"] },
+    ],
+  },
+  // 改写 - 场景适配 (s4-4)
+  {
+    subTemplateId: "s4-4",
+    fields: [
+      { key: "original", label: "原文", type: "textarea", placeholder: "粘贴需要改写的原文...", rows: 5, required: true },
+      { key: "degree", label: "幅度", type: "select", options: ["幅度不限", "轻改", "中改", "大改"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "100字", "300字", "500字", "1000字", "5000字", "10000字"] },
+    ],
+  },
+  // 改写 - 降重改写 (s4-5)
+  {
+    subTemplateId: "s4-5",
+    fields: [
+      { key: "original", label: "原文", type: "textarea", placeholder: "粘贴需要改写的原文...", rows: 5, required: true },
+      { key: "degree", label: "幅度", type: "select", options: ["幅度不限", "轻改", "中改", "大改"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "100字", "300字", "500字", "1000字", "5000字", "10000字"] },
+    ],
+  },
+
+  // 缩写 - 段落摘要 (s5-1)
   {
     subTemplateId: "s5-1",
     fields: [
       { key: "original", label: "原文", type: "textarea", placeholder: "粘贴需要缩写的原文...", rows: 6, required: true },
-      { key: "targetLength", label: "目标字数", type: "select", options: ["精简至50%", "精简至30%", "精简至100字内", "精简至50字内"] },
-      { key: "keepElements", label: "保留要点", type: "textarea", placeholder: "必须保留的核心信息...", rows: 2 },
+      { key: "focus", label: "重点", type: "select", options: ["重点不限", "结论优先", "论据优先", "数据优先", "行动优先"] },
+      { key: "tone", label: "语气", type: "select", options: ["语气不限", "中性客观", "更有力度", "更口语化"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "20字", "50字", "100字", "200字", "500字", "1000字"] },
     ],
   },
-  // 通用润色
+  // 缩写 - 要点清单 (s5-2)
+  {
+    subTemplateId: "s5-2",
+    fields: [
+      { key: "original", label: "原文", type: "textarea", placeholder: "粘贴需要缩写的原文...", rows: 6, required: true },
+      { key: "focus", label: "重点", type: "select", options: ["重点不限", "结论优先", "论据优先", "数据优先", "行动优先"] },
+      { key: "tone", label: "语气", type: "select", options: ["语气不限", "中性客观", "更有力度", "更口语化"] },
+      { key: "count", label: "数量", type: "select", options: ["数量不限", "3条", "5条", "10条", "15条", "20条"] },
+    ],
+  },
+  // 缩写 - 内容压缩 (s5-3)
+  {
+    subTemplateId: "s5-3",
+    fields: [
+      { key: "original", label: "原文", type: "textarea", placeholder: "粘贴需要缩写的原文...", rows: 6, required: true },
+      { key: "focus", label: "重点", type: "select", options: ["重点不限", "结论优先", "论据优先", "数据优先", "行动优先"] },
+      { key: "tone", label: "语气", type: "select", options: ["语气不限", "中性客观", "更有力度", "更口语化"] },
+      { key: "ratio", label: "长度", type: "select", options: ["长度不限", "压缩30%", "压缩50%", "压缩80%"] },
+    ],
+  },
+  // 缩写 - 分层提纲 (s5-4)
+  {
+    subTemplateId: "s5-4",
+    fields: [
+      { key: "original", label: "原文", type: "textarea", placeholder: "粘贴需要缩写的原文...", rows: 6, required: true },
+      { key: "focus", label: "重点", type: "select", options: ["重点不限", "结论优先", "论据优先", "数据优先", "行动优先"] },
+      { key: "tone", label: "语气", type: "select", options: ["语气不限", "中性客观", "更有力度", "更口语化"] },
+    ],
+  },
+  // 缩写 - 一句话总结 (s5-5)
+  {
+    subTemplateId: "s5-5",
+    fields: [
+      { key: "original", label: "原文", type: "textarea", placeholder: "粘贴需要缩写的原文...", rows: 6, required: true },
+      { key: "focus", label: "重点", type: "select", options: ["重点不限", "结论优先", "论据优先", "数据优先", "行动优先"] },
+      { key: "tone", label: "语气", type: "select", options: ["语气不限", "中性客观", "更有力度", "更口语化"] },
+    ],
+  },
+
+  // 润色 - 通顺纠错 (s6-1)
   {
     subTemplateId: "s6-1",
     fields: [
       { key: "original", label: "原文", type: "textarea", placeholder: "粘贴需要润色的原文...", rows: 5, required: true },
-      { key: "focus", label: "润色重点", type: "tags", options: ["语法纠错", "措辞优化", "逻辑通顺", "风格统一", "表达升级"] },
-      { key: "targetTone", label: "目标语气", type: "select", options: ["保持原样", "更正式", "更生动", "更专业", "更口语化"] },
+      { key: "intensity", label: "强度", type: "select", options: ["强度不限", "轻度", "标准", "深度"] },
+      { key: "style", label: "风格", type: "select", options: ["风格不限", "简洁", "严肃", "文艺", "口语", "幽默"] },
     ],
   },
-  // 通用划重点
+  // 润色 - 精简表达 (s6-2)
+  {
+    subTemplateId: "s6-2",
+    fields: [
+      { key: "original", label: "原文", type: "textarea", placeholder: "粘贴需要润色的原文...", rows: 5, required: true },
+      { key: "intensity", label: "强度", type: "select", options: ["强度不限", "轻度", "标准", "深度"] },
+      { key: "style", label: "风格", type: "select", options: ["风格不限", "简洁", "严肃", "文艺", "口语", "幽默"] },
+    ],
+  },
+  // 润色 - 文风统一 (s6-3)
+  {
+    subTemplateId: "s6-3",
+    fields: [
+      { key: "original", label: "原文", type: "textarea", placeholder: "粘贴需要润色的原文...", rows: 5, required: true },
+      { key: "intensity", label: "强度", type: "select", options: ["强度不限", "轻度", "标准", "深度"] },
+      { key: "baseline", label: "基准", type: "select", options: ["基准不限", "开头为准", "当前段为准", "全文混合"] },
+      { key: "style", label: "风格", type: "select", options: ["风格不限", "简洁", "严肃", "文艺", "口语", "幽默"] },
+    ],
+  },
+  // 润色 - 专业度提升 (s6-4)
+  {
+    subTemplateId: "s6-4",
+    fields: [
+      { key: "original", label: "原文", type: "textarea", placeholder: "粘贴需要润色的原文...", rows: 5, required: true },
+      { key: "intensity", label: "强度", type: "select", options: ["强度不限", "轻度", "标准", "深度"] },
+      { key: "style", label: "风格", type: "select", options: ["风格不限", "简洁", "严肃", "文艺", "口语", "幽默"] },
+    ],
+  },
+  // 润色 - 感染力提升 (s6-5)
+  {
+    subTemplateId: "s6-5",
+    fields: [
+      { key: "original", label: "原文", type: "textarea", placeholder: "粘贴需要润色的原文...", rows: 5, required: true },
+      { key: "intensity", label: "强度", type: "select", options: ["强度不限", "轻度", "标准", "深度"] },
+      { key: "emotion", label: "情绪", type: "select", options: ["情绪不限", "克制", "适中", "饱满", "强烈"] },
+      { key: "style", label: "风格", type: "select", options: ["风格不限", "简洁", "严肃", "文艺", "口语", "幽默"] },
+    ],
+  },
+
+  // 划重点 - 关键结论 (s7-1)
   {
     subTemplateId: "s7-1",
     fields: [
       { key: "original", label: "原文", type: "textarea", placeholder: "粘贴需要提取重点的原文...", rows: 6, required: true },
-      { key: "format", label: "输出格式", type: "select", options: ["要点列表", "一句话总结", "思维导图", "关键词"] },
-      { key: "focus", label: "关注方向", type: "textarea", placeholder: "特别关注的方面（可选）...", rows: 2 },
+      { key: "target", label: "对象", type: "select", options: ["对象不限", "自用", "同事", "老板", "客户"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "100字", "300字", "500字", "1000字", "1500字"] },
+    ],
+  },
+  // 划重点 - 安排计划 (s7-2)
+  {
+    subTemplateId: "s7-2",
+    fields: [
+      { key: "original", label: "原文", type: "textarea", placeholder: "粘贴需要提取重点的原文...", rows: 6, required: true },
+      { key: "target", label: "对象", type: "select", options: ["对象不限", "自用", "同事", "老板", "客户"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "100字", "300字", "500字", "1000字", "1500字"] },
+    ],
+  },
+  // 划重点 - 逻辑框架 (s7-3)
+  {
+    subTemplateId: "s7-3",
+    fields: [
+      { key: "original", label: "原文", type: "textarea", placeholder: "粘贴需要提取重点的原文...", rows: 6, required: true },
+      { key: "target", label: "对象", type: "select", options: ["对象不限", "自用", "同事", "老板", "客户"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "100字", "300字", "500字", "1000字", "1500字"] },
+    ],
+  },
+
+  // 检索成文 - 深度调研 (s27-1)
+  {
+    subTemplateId: "s27-1",
+    fields: [
+      { key: "topic", label: "调研主题", type: "textarea", placeholder: "描述需要调研的主题...", rows: 3, required: true },
+      { key: "style", label: "风格", type: "select", options: ["风格不限", "正式严谨", "商务专业", "科普易懂", "结论先行"] },
+      { key: "source", label: "来源偏好", type: "select", options: ["官方机构", "权威媒体", "行业研报", "学术论文", "综合"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "100字", "300字", "500字", "1000字", "5000字", "10000字"] },
+    ],
+  },
+  // 检索成文 - 多源综述 (s27-2)
+  {
+    subTemplateId: "s27-2",
+    fields: [
+      { key: "topic", label: "综述主题", type: "textarea", placeholder: "描述需要综述的主题...", rows: 3, required: true },
+      { key: "style", label: "风格", type: "select", options: ["风格不限", "正式严谨", "商务专业", "科普易懂", "结论先行"] },
+      { key: "source", label: "来源偏好", type: "select", options: ["官方机构", "权威媒体", "行业研报", "学术论文", "综合"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "100字", "300字", "500字", "1000字", "5000字", "10000字"] },
+    ],
+  },
+  // 检索成文 - 数据盘点 (s27-3)
+  {
+    subTemplateId: "s27-3",
+    fields: [
+      { key: "topic", label: "盘点主题", type: "textarea", placeholder: "描述需要盘点的主题...", rows: 3, required: true },
+      { key: "style", label: "风格", type: "select", options: ["风格不限", "正式严谨", "商务专业", "科普易懂", "结论先行"] },
+      { key: "source", label: "来源偏好", type: "select", options: ["官方机构", "权威媒体", "行业研报", "学术论文", "综合"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "100字", "300字", "500字", "1000字", "5000字", "10000字"] },
+    ],
+  },
+  // 检索成文 - 方案设计 (s27-4)
+  {
+    subTemplateId: "s27-4",
+    fields: [
+      { key: "topic", label: "方案主题", type: "textarea", placeholder: "描述需要设计的方案...", rows: 3, required: true },
+      { key: "style", label: "风格", type: "select", options: ["风格不限", "正式严谨", "商务专业", "科普易懂", "结论先行"] },
+      { key: "source", label: "来源偏好", type: "select", options: ["官方机构", "权威媒体", "行业研报", "学术论文", "综合"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "100字", "300字", "500字", "1000字", "5000字", "10000字"] },
     ],
   },
 ];
