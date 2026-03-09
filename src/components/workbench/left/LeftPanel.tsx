@@ -17,6 +17,8 @@ import {
   LayoutTemplate,
   GitBranch,
   Milestone,
+  Sparkles,
+  Loader2,
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -138,12 +140,44 @@ function OutlinePanel({
     climax: "",
     ending: "",
   });
+  const [generating, setGenerating] = useState<string | null>(null);
 
   const structures = [
     { id: "three-act", label: "三幕剧" },
     { id: "four-part", label: "起承转合" },
     { id: "episodic", label: "单元剧" },
   ];
+
+  // Mock AI 生成内容
+  const mockGenerations: Record<string, string> = {
+    chapterNotes: "第一章：日常引入，展示主角现状\n第二章：触发事件，打破平衡\n第三章：初次冒险，遭遇挫折\n第四章：获得线索，揭示真相一角\n第五章：转折点，敌人现身",
+    opening: "主角在一次意外中发现自己的特殊能力",
+    turning: "发现信任的人竟然是幕后黑手",
+    climax: "最终决战，主角面临艰难抉择",
+    ending: "击败敌人，但付出了代价，留下伏笔",
+  };
+
+  const handleGenerate = (field: string) => {
+    setGenerating(field);
+    const text = mockGenerations[field] || "AI 生成的内容...";
+
+    // 模拟流式生成
+    let i = 0;
+    const interval = setInterval(() => {
+      i += 2;
+      const current = text.slice(0, i);
+      if (field === "chapterNotes") {
+        setChapterNotes(current);
+      } else {
+        setKeyNodes(prev => ({ ...prev, [field]: current }));
+      }
+      if (i >= text.length) {
+        clearInterval(interval);
+        setGenerating(null);
+        showToast("生成完成");
+      }
+    }, 30);
+  };
 
   return (
     <div className="px-4 pb-4 space-y-4">
@@ -192,9 +226,23 @@ function OutlinePanel({
 
       {/* 章节脉络 */}
       <div>
-        <div className="flex items-center gap-2 mb-2">
-          <GitBranch className="w-3.5 h-3.5 text-gray-500" />
-          <span className="text-xs font-medium text-gray-600">章节脉络</span>
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <GitBranch className="w-3.5 h-3.5 text-gray-500" />
+            <span className="text-xs font-medium text-gray-600">章节脉络</span>
+          </div>
+          <button
+            onClick={() => handleGenerate("chapterNotes")}
+            disabled={generating === "chapterNotes"}
+            className="flex items-center gap-1 px-2 py-0.5 text-xs text-indigo-500 hover:text-indigo-600 hover:bg-indigo-50 rounded transition disabled:opacity-50"
+          >
+            {generating === "chapterNotes" ? (
+              <Loader2 className="w-3 h-3 animate-spin" />
+            ) : (
+              <Sparkles className="w-3 h-3" />
+            )}
+            生成
+          </button>
         </div>
         <textarea
           value={chapterNotes}
@@ -219,9 +267,20 @@ function OutlinePanel({
             { key: "ending" as const, label: "结局" },
           ].map((node) => (
             <div key={node.key}>
-              <label className="text-xs text-gray-400 mb-0.5 block">
-                {node.label}
-              </label>
+              <div className="flex items-center justify-between mb-0.5">
+                <label className="text-xs text-gray-400">{node.label}</label>
+                <button
+                  onClick={() => handleGenerate(node.key)}
+                  disabled={generating === node.key}
+                  className="flex items-center gap-1 px-1.5 py-0.5 text-xs text-indigo-500 hover:text-indigo-600 hover:bg-indigo-50 rounded transition disabled:opacity-50"
+                >
+                  {generating === node.key ? (
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                  ) : (
+                    <Sparkles className="w-3 h-3" />
+                  )}
+                </button>
+              </div>
               <input
                 type="text"
                 value={keyNodes[node.key]}
