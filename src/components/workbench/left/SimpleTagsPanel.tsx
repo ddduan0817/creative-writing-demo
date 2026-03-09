@@ -13,8 +13,11 @@ const knowledgeTagGroups: Record<string, string[]> = {
 };
 
 export default function SimpleTagsPanel({ scene }: { scene: string }) {
-  const { selectedTags, toggleTag } = useEditorStore();
+  const { selectedTags, toggleTagElement } = useEditorStore();
   const tagGroups = scene === "marketing" ? marketingTagGroups : knowledgeTagGroups;
+
+  // 使用 elements 数组存储简单标签
+  const selectedList = selectedTags.elements;
 
   return (
     <div className="p-4 space-y-4">
@@ -28,9 +31,9 @@ export default function SimpleTagsPanel({ scene }: { scene: string }) {
             {tags.map((tag) => (
               <button
                 key={tag}
-                onClick={() => toggleTag(tag)}
+                onClick={() => toggleTagElement(tag)}
                 className={`chip ${
-                  selectedTags.includes(tag)
+                  selectedList.includes(tag)
                     ? "chip-selected"
                     : "chip-default"
                 }`}

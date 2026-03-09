@@ -42,8 +42,19 @@ interface EditorState {
   updateSetting: (key: string, value: string) => void;
 
   // 标签
-  selectedTags: string[];
-  toggleTag: (tag: string) => void;
+  selectedTags: {
+    genre: string | null;       // 题材（单选）
+    elements: string[];         // 元素（多选，限3）
+    style: string[];            // 风格调性（多选，限3）
+    ending: string | null;      // 结局（单选）
+    timespace: string | null;   // 时空（单选）
+  };
+  setTagGenre: (tag: string | null) => void;
+  toggleTagElement: (tag: string) => void;
+  toggleTagStyle: (tag: string) => void;
+  setTagEnding: (tag: string | null) => void;
+  setTagTimespace: (tag: string | null) => void;
+  randomizeTags: () => void;
 
   // 角色
   characters: Character[];
@@ -139,13 +150,61 @@ export const useEditorStore = create<EditorState>((set) => ({
       ),
     })),
 
-  selectedTags: ["玄幻", "悬疑", "燃"],
-  toggleTag: (tag) =>
-    set((s) => ({
-      selectedTags: s.selectedTags.includes(tag)
-        ? s.selectedTags.filter((t) => t !== tag)
-        : [...s.selectedTags, tag],
-    })),
+  selectedTags: {
+    genre: null,
+    elements: [],
+    style: [],
+    ending: null,
+    timespace: null,
+  },
+  setTagGenre: (tag) => set((s) => ({
+    selectedTags: { ...s.selectedTags, genre: tag }
+  })),
+  toggleTagElement: (tag) => set((s) => {
+    const current = s.selectedTags.elements;
+    if (current.includes(tag)) {
+      return { selectedTags: { ...s.selectedTags, elements: current.filter(t => t !== tag) } };
+    }
+    if (current.length >= 3) return s; // 限制最多3个
+    return { selectedTags: { ...s.selectedTags, elements: [...current, tag] } };
+  }),
+  toggleTagStyle: (tag) => set((s) => {
+    const current = s.selectedTags.style;
+    if (current.includes(tag)) {
+      return { selectedTags: { ...s.selectedTags, style: current.filter(t => t !== tag) } };
+    }
+    if (current.length >= 3) return s; // 限制最多3个
+    return { selectedTags: { ...s.selectedTags, style: [...current, tag] } };
+  }),
+  setTagEnding: (tag) => set((s) => ({
+    selectedTags: { ...s.selectedTags, ending: tag }
+  })),
+  setTagTimespace: (tag) => set((s) => ({
+    selectedTags: { ...s.selectedTags, timespace: tag }
+  })),
+  randomizeTags: () => set((s) => {
+    const genres = ["言情", "悬疑", "惊悚", "科幻", "武侠", "仙侠", "历史", "玄幻", "奇幻", "都市", "军事", "电竞", "体育", "现实", "游戏", "末日"];
+    const elements = ["权谋", "婚姻", "家庭", "校园", "职场", "娱乐圈", "重生", "穿越", "犯罪", "丧尸", "探险", "宫斗宅斗", "克苏鲁", "系统", "规则怪谈", "团宠", "囤物资", "先婚后爱", "追妻火葬场", "破镜重圆", "争霸", "超能力", "玄学风水", "种田", "直播", "萌宝", "美食", "鉴宝", "聊天群", "无限流", "快穿", "扮猪吃虎", "马甲文", "金手指", "年代文"];
+    const styles = ["甜宠", "虐恋", "暗恋", "沙雕", "爽文", "复仇", "逆袭", "励志", "烧脑", "热血", "求生", "打脸", "治愈", "反套路", "搞笑", "反转", "暗黑", "轻松", "慢热", "1v1", "无CP", "双洁", "先虐后甜"];
+    const endings = ["HE", "BE", "开放式"];
+    const timespaces = ["古代", "现代", "近现代", "未来", "架空", "末世"];
+
+    const pick = <T>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
+    const pickN = <T>(arr: T[], n: number): T[] => {
+      const shuffled = [...arr].sort(() => Math.random() - 0.5);
+      return shuffled.slice(0, n);
+    };
+
+    return {
+      selectedTags: {
+        genre: pick(genres),
+        elements: pickN(elements, 3),
+        style: pickN(styles, 3),
+        ending: pick(endings),
+        timespace: pick(timespaces),
+      }
+    };
+  }),
 
   characters: mockCharacters,
   addCharacter: (character) =>
@@ -228,7 +287,13 @@ export const useEditorStore = create<EditorState>((set) => ({
       currentChapterId: defaultChapter.id,
       outline: "",
       characters: [],
-      selectedTags: [],
+      selectedTags: {
+        genre: null,
+        elements: [],
+        style: [],
+        ending: null,
+        timespace: null,
+      },
       chatMessages: [],
       settings: [
         { key: "background", label: "背景设定", value: "" },
