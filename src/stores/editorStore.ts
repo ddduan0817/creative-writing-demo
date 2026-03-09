@@ -8,6 +8,17 @@ interface SettingItem {
   value: string;
 }
 
+// 历史记录项
+interface HistoryItem {
+  id: string;
+  timestamp: Date;
+  chapterId: string;
+  chapterTitle: string;
+  content: string;
+  wordCount: number;
+  action: "edit" | "ai_rewrite" | "ai_polish" | "ai_condense" | "ai_atmosphere" | "manual_save";
+}
+
 interface EditorState {
   // 场景
   scene: "novel" | "screenplay" | "marketing" | "knowledge" | "general";
@@ -92,6 +103,13 @@ interface EditorState {
   // 灵感卡片 → 编辑器插入
   pendingInsert: string | null;
   setPendingInsert: (text: string | null) => void;
+
+  // 历史记录
+  historyItems: HistoryItem[];
+  showHistoryPanel: boolean;
+  setShowHistoryPanel: (show: boolean) => void;
+  addHistoryItem: (item: Omit<HistoryItem, "id" | "timestamp">) => void;
+  restoreFromHistory: (historyId: string) => void;
 
   // 重置为空白文档
   resetToEmpty: (sceneType: EditorState["scene"]) => void;
@@ -269,6 +287,72 @@ export const useEditorStore = create<EditorState>((set) => ({
 
   pendingInsert: null,
   setPendingInsert: (text) => set({ pendingInsert: text }),
+
+  // 历史记录 - mock 数据
+  historyItems: [
+    {
+      id: "h1",
+      timestamp: new Date(Date.now() - 1000 * 60 * 30), // 30分钟前
+      chapterId: "ch1",
+      chapterTitle: "第一章 南渊城",
+      content: "<p>沈夜川站在窗前，看着街上逐渐散去的人群。</p>",
+      wordCount: 1200,
+      action: "edit" as const,
+    },
+    {
+      id: "h2",
+      timestamp: new Date(Date.now() - 1000 * 60 * 60), // 1小时前
+      chapterId: "ch1",
+      chapterTitle: "第一章 南渊城",
+      content: "<p>夜色渐深，南渊城的街道上行人渐稀。</p>",
+      wordCount: 980,
+      action: "ai_polish" as const,
+    },
+    {
+      id: "h3",
+      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2小时前
+      chapterId: "ch1",
+      chapterTitle: "第一章 南渊城",
+      content: "<p>这是一个普通的夜晚，沈夜川如往常一样站在窗前。</p>",
+      wordCount: 850,
+      action: "manual_save" as const,
+    },
+    {
+      id: "h4",
+      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 5), // 5小时前
+      chapterId: "ch2",
+      chapterTitle: "第二章 古剑苏醒",
+      content: "<p>古剑在沉寂了十年之后，终于再次发出了光芒。</p>",
+      wordCount: 2100,
+      action: "edit" as const,
+    },
+  ],
+  showHistoryPanel: false,
+  setShowHistoryPanel: (show) => set({ showHistoryPanel: show }),
+  addHistoryItem: (item) =>
+    set((s) => ({
+      historyItems: [
+        {
+          ...item,
+          id: `h${Date.now()}`,
+          timestamp: new Date(),
+        },
+        ...s.historyItems,
+      ].slice(0, 50), // 最多保留50条历史
+    })),
+  restoreFromHistory: (historyId) =>
+    set((s) => {
+      const historyItem = s.historyItems.find((h) => h.id === historyId);
+      if (!historyItem) return s;
+      return {
+        chapters: s.chapters.map((ch) =>
+          ch.id === historyItem.chapterId
+            ? { ...ch, content: historyItem.content, wordCount: historyItem.wordCount }
+            : ch
+        ),
+        currentChapterId: historyItem.chapterId,
+      };
+    }),
 
   resetToEmpty: (sceneType) => {
     const sceneNames: Record<string, string> = {

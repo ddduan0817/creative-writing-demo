@@ -137,14 +137,34 @@ export default function RichTextEditor() {
         ) || "";
 
       const mockData = getSceneMockResponses(scene);
-      if (action === "atmosphere" || action === "polish" || action === "grassify") {
-        const responseText =
-          action === "atmosphere"
-            ? mockData.atmosphere
-            : action === "grassify"
-            ? (mockData.grassify || mockData.atmosphere)
-            : mockData.polish;
-        const label = action === "grassify" ? "种草感增强" : action === "atmosphere" ? "氛围增强" : "润色";
+      if (action === "atmosphere" || action === "polish" || action === "grassify" || action === "rewrite" || action === "condense") {
+        let responseText: string;
+        let label: string;
+        switch (action) {
+          case "atmosphere":
+            responseText = mockData.atmosphere;
+            label = "氛围增强";
+            break;
+          case "grassify":
+            responseText = mockData.grassify || mockData.atmosphere;
+            label = "种草感增强";
+            break;
+          case "polish":
+            responseText = mockData.polish;
+            label = "润色";
+            break;
+          case "rewrite":
+            responseText = mockData.rewrite || mockData.polish;
+            label = "改写";
+            break;
+          case "condense":
+            responseText = mockData.condense || selectedText.slice(0, 50);
+            label = "缩写";
+            break;
+          default:
+            responseText = mockData.polish;
+            label = "AI调整";
+        }
         setAtmosphereDialog({
           show: true,
           text:
@@ -161,13 +181,9 @@ export default function RichTextEditor() {
             generating: !done,
           }));
         });
-      } else if (action === "rewrite") {
-        showToast("改写功能演示中...");
-      } else if (action === "condense") {
-        showToast("缩写功能演示中...");
       }
     },
-    [editor, showToast]
+    [editor, scene]
   );
 
   const handleReplace = useCallback(() => {
