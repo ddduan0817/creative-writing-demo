@@ -36,20 +36,19 @@ const iconMap: Record<string, LucideIcon> = {
   Wand2,
 };
 
-type ViewLevel = "category" | "subTemplate" | "form";
+type ViewLevel = "category" | "subTemplate";
 
 export default function GeneralLeftPanel() {
   const [activeCategory, setActiveCategory] = useState("all");
   const [viewLevel, setViewLevel] = useState<ViewLevel>("category");
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
-  const [selectedSubTemplateId, setSelectedSubTemplateId] = useState<string | null>(null);
+  const [expandedSubTemplateId, setExpandedSubTemplateId] = useState<string | null>(null);
   const { showToast, selectedTemplateId, setSelectedTemplate } = useEditorStore();
 
   const activeCategoryObj = templateCategories.find((c) => c.id === activeCategory);
   const selectedCard = templateCards.find((c) => c.id === selectedCardId);
   const subTemplates = selectedCardId ? getSubTemplates(selectedCardId) : [];
-  const templateConfig = selectedSubTemplateId ? getTemplateConfig(selectedSubTemplateId) : null;
-  const selectedSubTemplate = subTemplates.find((s) => s.id === selectedSubTemplateId);
+  const expandedTemplateConfig = expandedSubTemplateId ? getTemplateConfig(expandedSubTemplateId) : null;
 
   const filteredCards =
     activeCategory === "all"
@@ -63,44 +62,34 @@ export default function GeneralLeftPanel() {
     const subs = getSubTemplates(cardId);
     setSelectedCardId(cardId);
     setSelectedTemplate(cardId);
+    setExpandedSubTemplateId(null);
 
     if (subs.length === 0) {
       // 没有三级模板，直接显示通用表单
       showToast(`已选择模板：${templateCards.find(c => c.id === cardId)?.title}`);
-    } else if (subs.length === 1) {
-      // 只有一个三级模板，直接进入四级
-      setSelectedSubTemplateId(subs[0].id);
-      setViewLevel("form");
     } else {
-      // 多个三级模板，显示三级选择
+      // 显示三级选择
       setViewLevel("subTemplate");
     }
   };
 
-  // 选择三级模板后进入四级
-  const handleSelectSubTemplate = (subId: string) => {
-    setSelectedSubTemplateId(subId);
-    setViewLevel("form");
+  // 点击三级模板，展开/收起四级表单
+  const handleToggleSubTemplate = (subId: string) => {
+    if (expandedSubTemplateId === subId) {
+      setExpandedSubTemplateId(null);
+    } else {
+      setExpandedSubTemplateId(subId);
+    }
   };
 
   // 返回上一级
   const handleBack = () => {
-    if (viewLevel === "form") {
-      if (subTemplates.length > 1) {
-        setViewLevel("subTemplate");
-      } else {
-        setViewLevel("category");
-        setSelectedCardId(null);
-        setSelectedSubTemplateId(null);
-      }
-    } else if (viewLevel === "subTemplate") {
-      setViewLevel("category");
-      setSelectedCardId(null);
-      setSelectedSubTemplateId(null);
-    }
+    setViewLevel("category");
+    setSelectedCardId(null);
+    setExpandedSubTemplateId(null);
   };
 
-  // 渲染三级模板选择
+  // 渲染三级模板选择（带内联四级表单）
   const renderSubTemplateView = () => (
     <div className="flex-1 overflow-y-auto">
       {/* Header with back button */}
@@ -123,74 +112,47 @@ export default function GeneralLeftPanel() {
         </div>
       </div>
       <div className="p-2 space-y-1.5">
-        {subTemplates.map((sub) => (
-          <button
-            key={sub.id}
-            onClick={() => handleSelectSubTemplate(sub.id)}
-            className={cn(
-              "w-full flex items-start gap-2.5 p-2.5 rounded-lg text-left transition group",
-              selectedSubTemplateId === sub.id
-                ? "bg-indigo-50 ring-1 ring-indigo-200"
-                : "hover:bg-gray-50"
-            )}
-          >
-            <div
-              className={`w-8 h-8 rounded-lg ${selectedCard?.iconColor} opacity-80 flex items-center justify-center flex-shrink-0 text-base`}
-            >
-              {selectedCard?.iconEmoji}
-            </div>
-            <div className="flex-1 min-w-0 flex items-center">
-              <span className="text-sm font-medium text-gray-800">
-                {sub.title}
-              </span>
-            </div>
-            <MoreHorizontal className="w-3.5 h-3.5 text-gray-300 opacity-0 group-hover:opacity-100 flex-shrink-0 self-center" />
-          </button>
-        ))}
-      </div>
-    </div>
-  );
+        {subTemplates.map((sub) => {
+          const isExpanded = expandedSubTemplateId === sub.id;
+          const subConfig = isExpanded ? expandedTemplateConfig : null;
+          return (
+            <div key={sub.id} className="space-y-0">
+              <button
+                onClick={() => handleToggleSubTemplate(sub.id)}
+                className={cn(
+                  "w-full flex items-start gap-2.5 p-2.5 rounded-lg text-left transition group",
+                  isExpanded
+                    ? "bg-indigo-50 ring-1 ring-indigo-200"
+                    : "hover:bg-gray-50"
+                )}
+              >
+                <div
+                  className={`w-8 h-8 rounded-lg ${selectedCard?.iconColor} opacity-80 flex items-center justify-center flex-shrink-0 text-base`}
+                >
+                  {selectedCard?.iconEmoji}
+                </div>
+                <div className="flex-1 min-w-0 flex items-center">
+                  <span className="text-sm font-medium text-gray-800">
+                    {sub.title}
+                  </span>
+                </div>
+                <ChevronLeft
+                  className={cn(
+                    "w-3.5 h-3.5 text-gray-400 flex-shrink-0 self-center transition-transform",
+                    isExpanded ? "-rotate-90" : "rotate-180"
+                  )}
+                />
+              </button>
 
-  // 渲染四级表单
-  const renderFormView = () => (
-    <div className="flex-1 overflow-y-auto">
-      {/* Header with back button */}
-      <div className="px-3 py-3 border-b border-gray-50 flex items-center gap-2">
-        <button
-          onClick={handleBack}
-          className="p-1 hover:bg-gray-100 rounded transition"
-        >
-          <ChevronLeft className="w-4 h-4 text-gray-500" />
-        </button>
-        <div className="flex items-center gap-2">
-          <div
-            className={`w-6 h-6 rounded ${selectedCard?.iconColor} flex items-center justify-center flex-shrink-0 text-sm`}
-          >
-            {selectedCard?.iconEmoji}
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="text-sm font-medium text-gray-800">
-              {selectedCard?.title}
-            </span>
-            {selectedSubTemplate && (
-              <>
-                <span className="text-gray-300">/</span>
-                <span className="text-sm text-gray-500">
-                  {selectedSubTemplate.title}
-                </span>
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Form fields */}
-      <div className="p-3">
-        {templateConfig ? (
-          <TemplateForm fields={templateConfig.fields} />
-        ) : (
-          <p className="text-xs text-gray-400">暂无配置</p>
-        )}
+              {/* 内联四级表单 */}
+              {isExpanded && subConfig && (
+                <div className="ml-10 mr-2 mt-1 mb-2 p-3 bg-gray-50 rounded-lg border border-gray-100">
+                  <TemplateForm fields={subConfig.fields} />
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -270,7 +232,6 @@ export default function GeneralLeftPanel() {
       {/* Content area */}
       {viewLevel === "category" && renderCategoryView()}
       {viewLevel === "subTemplate" && renderSubTemplateView()}
-      {viewLevel === "form" && renderFormView()}
     </div>
   );
 }
