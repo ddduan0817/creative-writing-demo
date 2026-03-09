@@ -1,7 +1,7 @@
 "use client";
 
 import { useEditorStore } from "@/stores/editorStore";
-import { mockAIResponses } from "@/data/mockAIResponses";
+import { getSceneMockResponses } from "@/data/mockAIResponses";
 import { simulateAIStream } from "@/lib/aiSimulator";
 import {
   Lightbulb,
@@ -29,6 +29,9 @@ export default function SimpleInspirationCards() {
 }
 
 function MainView({ onNavigate }: { onNavigate: (v: View) => void }) {
+  const { scene } = useEditorStore();
+  const isMarketing = scene === "marketing";
+
   return (
     <div className="px-4 pb-4 space-y-2">
       <button
@@ -38,10 +41,12 @@ function MainView({ onNavigate }: { onNavigate: (v: View) => void }) {
         <div className="flex items-center gap-2">
           <Lightbulb className="w-5 h-5 text-amber-500" />
           <span className="text-base font-bold bg-gradient-to-r from-amber-600 to-orange-500 bg-clip-text text-transparent">
-            卡文锦囊
+            创作灵感
           </span>
         </div>
-        <p className="text-xs text-gray-400 mt-1 ml-7">思路卡了？让 AI 帮你找到方向</p>
+        <p className="text-xs text-gray-400 mt-1 ml-7">
+          {isMarketing ? "不知道怎么写？看看这些思路" : "写作没方向？让 AI 给你灵感"}
+        </p>
       </button>
       <button
         onClick={() => onNavigate("style")}
@@ -60,7 +65,9 @@ function MainView({ onNavigate }: { onNavigate: (v: View) => void }) {
 }
 
 function WritingTipsView({ onBack }: { onBack: () => void }) {
-  const [category, setCategory] = useState<"idea" | "setting" | "detail">("idea");
+  const { scene, showToast, setPendingInsert } = useEditorStore();
+  const mockData = getSceneMockResponses(scene);
+
   const [generating, setGenerating] = useState(false);
   const [result, setResult] = useState("");
   const [editableResult, setEditableResult] = useState("");
@@ -68,7 +75,6 @@ function WritingTipsView({ onBack }: { onBack: () => void }) {
   const [useAlt, setUseAlt] = useState(false);
   const [phase, setPhase] = useState<"outline" | "expanding" | "editing" | "confirmed" | "applied">("outline");
   const [expandedContent, setExpandedContent] = useState("");
-  const { showToast, setPendingInsert } = useEditorStore();
 
   useEffect(() => {
     if (!generating && result && phase === "outline") {
@@ -76,21 +82,10 @@ function WritingTipsView({ onBack }: { onBack: () => void }) {
     }
   }, [generating, result, phase]);
 
-  const tipSets = {
-    idea: [mockAIResponses.writingTipIdea, mockAIResponses.writingTipIdeaAlt],
-    setting: [mockAIResponses.writingTipSetting, mockAIResponses.writingTipSettingAlt],
-    detail: [mockAIResponses.writingTipDetail, mockAIResponses.writingTipDetailAlt],
-  };
+  // 种草文案/知识专栏：直接展示3条灵感，不分类
+  const tips = useAlt ? mockData.writingTipIdeaAlt : mockData.writingTipIdea;
 
-  const tips = tipSets[category][useAlt ? 1 : 0];
-
-  const expandedMock: Record<string, string> = mockAIResponses.expandedPlot;
-
-  const categories = [
-    { id: "idea" as const, label: "思路卡了", emoji: "🧠" },
-    { id: "setting" as const, label: "设定卡了", emoji: "🏗️" },
-    { id: "detail" as const, label: "细节卡了", emoji: "🔍" },
-  ];
+  const expandedMock: Record<string, string> = mockData.expandedPlot;
 
   const handleTipClick = (tip: { title: string; content: string }) => {
     setSelectedTip(tip);
@@ -108,7 +103,7 @@ function WritingTipsView({ onBack }: { onBack: () => void }) {
   const handleContinueWrite = () => {
     setPhase("expanding");
     setExpandedContent("");
-    const expandText = expandedMock[category] || expandedMock.idea;
+    const expandText = expandedMock.idea || "";
     simulateAIStream(expandText, (current, done) => {
       setExpandedContent(current);
       if (done) setPhase("editing");
@@ -147,32 +142,8 @@ function WritingTipsView({ onBack }: { onBack: () => void }) {
       >
         <ArrowLeft className="w-3 h-3" /> {selectedTip ? "返回列表" : "返回"}
       </button>
-      {!selectedTip && (
-        <div className="flex gap-2">
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => {
-                setCategory(cat.id);
-                setSelectedTip(null);
-                setResult("");
-                setEditableResult("");
-                setPhase("outline");
-                setExpandedContent("");
-              }}
-              className={cn(
-                "flex-1 py-2 text-xs rounded-lg border transition text-center",
-                category === cat.id
-                  ? "bg-indigo-50 border-indigo-200 text-indigo-700"
-                  : "border-gray-100 text-gray-500 hover:bg-gray-50"
-              )}
-            >
-              <span className="block text-base mb-0.5">{cat.emoji}</span>
-              {cat.label}
-            </button>
-          ))}
-        </div>
-      )}
+
+      {/* 直接展示3条灵感，无分类tab */}
       {!selectedTip ? (
         <div className="space-y-2">
           {tips.map((tip, i) => (
@@ -316,6 +287,8 @@ function WritingTipsView({ onBack }: { onBack: () => void }) {
 }
 
 function StyleDiagnosisView({ onBack }: { onBack: () => void }) {
+  const { scene } = useEditorStore();
+  const mockData = getSceneMockResponses(scene);
   const [loading, setLoading] = useState(true);
 
   // Simulate loading
@@ -323,35 +296,7 @@ function StyleDiagnosisView({ onBack }: { onBack: () => void }) {
     setTimeout(() => setLoading(false), 1500);
   });
 
-  const mockDiagnosis = {
-    summary: "整体文风偏理性叙述，种草感不足。建议增加场景代入和感官描写，让读者产生共鸣。",
-    items: [
-      {
-        label: "种草感",
-        score: 65,
-        color: "bg-amber-500",
-        suggestion: "增加使用场景描述，让读者代入真实体验。",
-      },
-      {
-        label: "转化力",
-        score: 50,
-        color: "bg-red-400",
-        suggestion: "结尾缺少明确的行动引导，建议加入限时优惠或口令。",
-      },
-      {
-        label: "可读性",
-        score: 85,
-        color: "bg-green-500",
-        suggestion: "句式简洁，节奏良好，继续保持。",
-      },
-      {
-        label: "独特性",
-        score: 70,
-        color: "bg-blue-500",
-        suggestion: "可加入个人真实体验或独家对比，增强辨识度。",
-      },
-    ],
-  };
+  const diagnosis = mockData.rhythmDiagnosis;
 
   return (
     <div className="px-4 pb-4 space-y-3">
@@ -375,22 +320,28 @@ function StyleDiagnosisView({ onBack }: { onBack: () => void }) {
       ) : (
         <>
           <p className="text-xs text-gray-500 bg-gray-50 rounded-lg p-3">
-            {mockDiagnosis.summary}
+            {diagnosis.summary}
           </p>
           <div className="space-y-3">
-            {mockDiagnosis.items.map((item) => (
-              <div key={item.label} className="p-3 rounded-lg border border-gray-100 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium text-gray-700">{item.label}</span>
-                  <span className="text-xs text-gray-400">{item.score}/100</span>
+            {diagnosis.issues.map((issue, i) => (
+              <div key={i} className="p-3 rounded-lg border border-gray-100 space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-mono text-gray-400">
+                    {issue.location}
+                  </span>
+                  <span
+                    className={cn(
+                      "text-xs px-1.5 py-0.5 rounded",
+                      issue.type.includes("佳") || issue.type.includes("良好")
+                        ? "bg-green-50 text-green-600"
+                        : "bg-amber-50 text-amber-600"
+                    )}
+                  >
+                    {issue.type}
+                  </span>
                 </div>
-                <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                  <div
-                    className={`h-full rounded-full ${item.color} transition-all duration-500`}
-                    style={{ width: `${item.score}%` }}
-                  />
-                </div>
-                <p className="text-xs text-gray-500">{item.suggestion}</p>
+                <p className="text-xs text-gray-600">{issue.description}</p>
+                <p className="text-xs text-indigo-600">💡 {issue.suggestion}</p>
               </div>
             ))}
           </div>

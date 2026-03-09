@@ -1,7 +1,7 @@
 "use client";
 
 import { useEditorStore } from "@/stores/editorStore";
-import { mockAIResponses } from "@/data/mockAIResponses";
+import { getSceneMockResponses } from "@/data/mockAIResponses";
 import { simulateAIStream } from "@/lib/aiSimulator";
 import {
   Send,
@@ -30,7 +30,8 @@ const attachmentOptions = [
 ];
 
 export default function GeneralAIChat() {
-  const { chatMessages, addChatMessage, showToast } = useEditorStore();
+  const { chatMessages, addChatMessage, showToast, scene } = useEditorStore();
+  const mockData = getSceneMockResponses(scene);
   const [input, setInput] = useState("");
   const [generating, setGenerating] = useState(false);
   const [streamingText, setStreamingText] = useState("");
@@ -54,8 +55,8 @@ export default function GeneralAIChat() {
       (m) => m.role === "assistant"
     ).length;
     const response =
-      mockAIResponses.chatResponses[
-        responseIdx % mockAIResponses.chatResponses.length
+      mockData.chatResponses[
+        responseIdx % mockData.chatResponses.length
       ];
 
     simulateAIStream(response, (current, done) => {

@@ -7,7 +7,7 @@ import Underline from "@tiptap/extension-underline";
 import Placeholder from "@tiptap/extension-placeholder";
 import EditorToolbar from "./EditorToolbar";
 import { useEffect, useState, useCallback, useRef } from "react";
-import { mockAIResponses } from "@/data/mockAIResponses";
+import { getSceneMockResponses } from "@/data/mockAIResponses";
 import { simulateAIStream } from "@/lib/aiSimulator";
 import {
   Wand2,
@@ -136,13 +136,14 @@ export default function RichTextEditor() {
           " "
         ) || "";
 
+      const mockData = getSceneMockResponses(scene);
       if (action === "atmosphere" || action === "polish" || action === "grassify") {
         const responseText =
           action === "atmosphere"
-            ? mockAIResponses.atmosphere
+            ? mockData.atmosphere
             : action === "grassify"
-            ? (mockAIResponses.grassify || mockAIResponses.atmosphere)
-            : mockAIResponses.polish;
+            ? (mockData.grassify || mockData.atmosphere)
+            : mockData.polish;
         const label = action === "grassify" ? "种草感增强" : action === "atmosphere" ? "氛围增强" : "润色";
         setAtmosphereDialog({
           show: true,
@@ -199,15 +200,16 @@ export default function RichTextEditor() {
   }, [atmosphereDialog.result, showToast]);
 
   const handleRegenerate = useCallback(() => {
+    const mockData = getSceneMockResponses(scene);
     setAtmosphereDialog((prev) => ({ ...prev, generating: true, result: "" }));
-    simulateAIStream(mockAIResponses.atmosphere, (current, done) => {
+    simulateAIStream(mockData.atmosphere, (current, done) => {
       setAtmosphereDialog((prev) => ({
         ...prev,
         result: current,
         generating: !done,
       }));
     });
-  }, []);
+  }, [scene]);
 
   // Show outline if in outline mode (novel only)
   if (leftView === "outline" && scene !== "general" && !isSimpleScene) {

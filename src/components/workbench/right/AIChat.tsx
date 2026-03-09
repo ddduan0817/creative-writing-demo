@@ -1,13 +1,14 @@
 "use client";
 
 import { useEditorStore } from "@/stores/editorStore";
-import { mockAIResponses } from "@/data/mockAIResponses";
+import { getSceneMockResponses } from "@/data/mockAIResponses";
 import { simulateAIStream } from "@/lib/aiSimulator";
 import { Send, Paperclip, Loader2, Pin, History, Plus } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 
 export default function AIChat() {
-  const { chatMessages, addChatMessage } = useEditorStore();
+  const { chatMessages, addChatMessage, scene } = useEditorStore();
+  const mockData = getSceneMockResponses(scene);
   const [input, setInput] = useState("");
   const [generating, setGenerating] = useState(false);
   const [streamingText, setStreamingText] = useState("");
@@ -29,8 +30,8 @@ export default function AIChat() {
     // Pick a relevant mock response
     const responseIdx = chatMessages.filter((m) => m.role === "assistant").length;
     const response =
-      mockAIResponses.chatResponses[
-        responseIdx % mockAIResponses.chatResponses.length
+      mockData.chatResponses[
+        responseIdx % mockData.chatResponses.length
       ];
 
     simulateAIStream(response, (current, done) => {

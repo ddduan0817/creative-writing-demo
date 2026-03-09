@@ -1,7 +1,7 @@
 "use client";
 
 import { type Editor } from "@tiptap/react";
-import { mockAIResponses } from "@/data/mockAIResponses";
+import { getSceneMockResponses } from "@/data/mockAIResponses";
 import { simulateAIStream } from "@/lib/aiSimulator";
 import { useEditorStore } from "@/stores/editorStore";
 import {
@@ -21,7 +21,8 @@ import {
 import { useState } from "react";
 
 export default function EditorToolbar({ editor }: { editor: Editor }) {
-  const { showToast } = useEditorStore();
+  const { showToast, scene } = useEditorStore();
+  const mockData = getSceneMockResponses(scene);
   const [continuing, setContinuing] = useState(false);
 
   // Check if editor has meaningful content
@@ -31,7 +32,7 @@ export default function EditorToolbar({ editor }: { editor: Editor }) {
     setContinuing(true);
     editor.commands.focus("end");
 
-    simulateAIStream(mockAIResponses.continuation, (current, done) => {
+    simulateAIStream(mockData.continuation, (current, done) => {
       // Clear and re-insert to show streaming
       const paragraphs = current
         .split("\n\n")

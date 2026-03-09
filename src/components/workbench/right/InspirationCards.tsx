@@ -1,7 +1,7 @@
 "use client";
 
 import { useEditorStore } from "@/stores/editorStore";
-import { mockAIResponses } from "@/data/mockAIResponses";
+import { getSceneMockResponses } from "@/data/mockAIResponses";
 import { simulateAIStream } from "@/lib/aiSimulator";
 import {
   Lightbulb,
@@ -86,7 +86,8 @@ function WritingTipsView({ onBack }: { onBack: () => void }) {
   // Two-phase: "outline" = initial tip shown, "expanding" = generating, "editing" = user can edit, "confirmed" = ready to apply, "applied" = done
   const [phase, setPhase] = useState<"outline" | "expanding" | "editing" | "confirmed" | "applied">("outline");
   const [expandedContent, setExpandedContent] = useState("");
-  const { showToast, setPendingInsert } = useEditorStore();
+  const { scene, showToast, setPendingInsert } = useEditorStore();
+  const mockData = getSceneMockResponses(scene);
 
   // Sync editableResult when generation completes
   useEffect(() => {
@@ -96,14 +97,14 @@ function WritingTipsView({ onBack }: { onBack: () => void }) {
   }, [generating, result, phase]);
 
   const tipSets = {
-    idea: [mockAIResponses.writingTipIdea, mockAIResponses.writingTipIdeaAlt],
-    setting: [mockAIResponses.writingTipSetting, mockAIResponses.writingTipSettingAlt],
-    detail: [mockAIResponses.writingTipDetail, mockAIResponses.writingTipDetailAlt],
+    idea: [mockData.writingTipIdea, mockData.writingTipIdeaAlt],
+    setting: [mockData.writingTipSetting, mockData.writingTipSettingAlt],
+    detail: [mockData.writingTipDetail, mockData.writingTipDetailAlt],
   };
 
   const tips = tipSets[category][useAlt ? 1 : 0];
 
-  const expandedMock: Record<string, string> = mockAIResponses.expandedPlot;
+  const expandedMock: Record<string, string> = mockData.expandedPlot;
 
   const categories = [
     { id: "idea" as const, label: "思路卡了", emoji: "🧠" },
@@ -351,8 +352,10 @@ function WritingTipsView({ onBack }: { onBack: () => void }) {
 }
 
 function RhythmView({ onBack }: { onBack: () => void }) {
+  const { scene } = useEditorStore();
+  const mockData = getSceneMockResponses(scene);
   const [loading, setLoading] = useState(true);
-  const data = mockAIResponses.rhythmDiagnosis;
+  const data = mockData.rhythmDiagnosis;
 
   // Simulate loading
   useState(() => {
@@ -395,7 +398,7 @@ function RhythmView({ onBack }: { onBack: () => void }) {
                 <span
                   className={cn(
                     "text-xs px-1.5 py-0.5 rounded",
-                    issue.type === "高潮节奏佳"
+                    issue.type.includes("佳") || issue.type.includes("良好")
                       ? "bg-green-50 text-green-600"
                       : "bg-amber-50 text-amber-600"
                   )}
@@ -414,8 +417,10 @@ function RhythmView({ onBack }: { onBack: () => void }) {
 }
 
 function ConsistencyView({ onBack }: { onBack: () => void }) {
+  const { scene } = useEditorStore();
+  const mockData = getSceneMockResponses(scene);
   const [loading, setLoading] = useState(true);
-  const data = mockAIResponses.consistencyCheck;
+  const data = mockData.consistencyCheck;
 
   useState(() => {
     setTimeout(() => setLoading(false), 2000);
