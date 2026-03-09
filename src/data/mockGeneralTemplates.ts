@@ -86,39 +86,37 @@ export const recentTemplateIds = ["t1", "t8", "t17", "t22"];
 // 三级模板数据
 export const subTemplates: SubTemplate[] = [
   // 汇报总结 (t8)
-  { id: "s8-1", parentId: "t8", title: "日报" },
-  { id: "s8-2", parentId: "t8", title: "周报" },
-  { id: "s8-3", parentId: "t8", title: "月报" },
-  { id: "s8-4", parentId: "t8", title: "季报" },
-  { id: "s8-5", parentId: "t8", title: "年报" },
-  { id: "s8-6", parentId: "t8", title: "项目汇报" },
-  { id: "s8-7", parentId: "t8", title: "述职报告" },
+  { id: "s8-1", parentId: "t8", title: "阶段总结" },
+  { id: "s8-2", parentId: "t8", title: "正式汇报" },
+  { id: "s8-3", parentId: "t8", title: "工作计划" },
+  { id: "s8-4", parentId: "t8", title: "演示大纲" },
+  { id: "s8-5", parentId: "t8", title: "演示讲稿" },
+  { id: "s8-6", parentId: "t8", title: "方案策划" },
+  { id: "s8-7", parentId: "t8", title: "商业计划书" },
+  { id: "s8-8", parentId: "t8", title: "汇报材料" },
 
   // 会议助手 (t9)
   { id: "s9-1", parentId: "t9", title: "会议纪要" },
-  { id: "s9-2", parentId: "t9", title: "会议邀请" },
-  { id: "s9-3", parentId: "t9", title: "会议通知" },
-  { id: "s9-4", parentId: "t9", title: "会议总结" },
+  { id: "s9-2", parentId: "t9", title: "会议安排" },
 
   // 邮件沟通 (t10)
-  { id: "s10-1", parentId: "t10", title: "工作邮件" },
-  { id: "s10-2", parentId: "t10", title: "感谢邮件" },
-  { id: "s10-3", parentId: "t10", title: "道歉邮件" },
-  { id: "s10-4", parentId: "t10", title: "邀请邮件" },
-  { id: "s10-5", parentId: "t10", title: "催促邮件" },
-  { id: "s10-6", parentId: "t10", title: "拒绝邮件" },
+  { id: "s10-1", parentId: "t10", title: "通用" },
+  { id: "s10-2", parentId: "t10", title: "通知邮件" },
+  { id: "s10-3", parentId: "t10", title: "回复邮件" },
 
   // 个人材料 (t11)
   { id: "s11-1", parentId: "t11", title: "个人简历" },
   { id: "s11-2", parentId: "t11", title: "自我介绍" },
-  { id: "s11-3", parentId: "t11", title: "求职信" },
-  { id: "s11-4", parentId: "t11", title: "推荐信" },
+  { id: "s11-3", parentId: "t11", title: "申请" },
 
   // 心得体会 (t12)
-  { id: "s12-1", parentId: "t12", title: "读书心得" },
-  { id: "s12-2", parentId: "t12", title: "培训心得" },
-  { id: "s12-3", parentId: "t12", title: "工作心得" },
-  { id: "s12-4", parentId: "t12", title: "学习心得" },
+  { id: "s12-1", parentId: "t12", title: "通用" },
+  { id: "s12-2", parentId: "t12", title: "党团" },
+  { id: "s12-3", parentId: "t12", title: "安全" },
+  { id: "s12-4", parentId: "t12", title: "培训" },
+  { id: "s12-5", parentId: "t12", title: "学习" },
+  { id: "s12-6", parentId: "t12", title: "参观" },
+  { id: "s12-7", parentId: "t12", title: "座谈" },
 
   // 论文写作 (t13)
   { id: "s13-1", parentId: "t13", title: "专业论文" },
@@ -257,82 +255,236 @@ export const subTemplates: SubTemplate[] = [
 // 四级配置 - 字段定义
 export const templateConfigs: TemplateConfig[] = [
   // 日报
+  // ========== 工作提效 ==========
+  // 汇报总结 - 阶段总结 (s8-1)
   {
     subTemplateId: "s8-1",
     fields: [
-      { key: "date", label: "日期", type: "input", placeholder: "如：2024年3月9日" },
-      { key: "todayWork", label: "今日工作内容", type: "textarea", placeholder: "请描述今天完成的主要工作...", rows: 4, required: true },
-      { key: "problems", label: "遇到的问题", type: "textarea", placeholder: "工作中遇到的困难或需要协调的事项...", rows: 2 },
-      { key: "tomorrowPlan", label: "明日计划", type: "textarea", placeholder: "明天计划完成的工作...", rows: 2 },
-      { key: "tone", label: "语气风格", type: "select", options: ["正式简洁", "详细专业", "轻松随意"] },
+      { key: "content", label: "工作内容", type: "textarea", placeholder: "请描述需要总结的工作内容...", rows: 4, required: true },
+      { key: "position", label: "岗位", type: "select", options: ["岗位不限", "企业人员", "政府人员", "教师", "医护", "学生"] },
+      { key: "cycle", label: "周期", type: "select", options: ["周期不限", "日", "周", "月", "季", "年"] },
+      { key: "scope", label: "范围", type: "select", options: ["个人", "团队"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "500字", "800字", "1000字", "1500字", "3000字", "5000字", "8000字", "10000字"] },
     ],
   },
-  // 周报
+  // 汇报总结 - 正式汇报 (s8-2)
   {
     subTemplateId: "s8-2",
     fields: [
-      { key: "week", label: "周次", type: "input", placeholder: "如：第10周（3.4-3.8）" },
-      { key: "weekWork", label: "本周工作总结", type: "textarea", placeholder: "请总结本周完成的主要工作...", rows: 4, required: true },
-      { key: "achievement", label: "重点成果", type: "textarea", placeholder: "本周取得的关键进展或成果...", rows: 2 },
-      { key: "problems", label: "问题与风险", type: "textarea", placeholder: "遇到的问题及潜在风险...", rows: 2 },
-      { key: "nextWeekPlan", label: "下周计划", type: "textarea", placeholder: "下周的工作安排...", rows: 2 },
-      { key: "tone", label: "语气风格", type: "select", options: ["正式简洁", "详细专业", "数据导向"] },
+      { key: "content", label: "汇报内容", type: "textarea", placeholder: "请描述需要汇报的工作内容...", rows: 4, required: true },
+      { key: "scene", label: "场景", type: "select", options: ["场景不限", "述职", "晋升", "转正", "年终", "路演"] },
+      { key: "position", label: "岗位", type: "select", options: ["岗位不限", "企业人员", "政府人员", "教师", "医护", "学生"] },
+      { key: "role", label: "角色", type: "select", options: ["个人", "主管", "负责人"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "500字", "800字", "1000字", "1500字", "3000字", "5000字", "8000字", "10000字"] },
     ],
   },
-  // 月报
+  // 汇报总结 - 工作计划 (s8-3)
   {
     subTemplateId: "s8-3",
     fields: [
-      { key: "month", label: "月份", type: "input", placeholder: "如：2024年3月" },
-      { key: "monthSummary", label: "月度工作总结", type: "textarea", placeholder: "本月主要工作内容及成果...", rows: 5, required: true },
-      { key: "keyMetrics", label: "关键指标", type: "textarea", placeholder: "完成的KPI、数据指标等...", rows: 2 },
-      { key: "problems", label: "问题分析", type: "textarea", placeholder: "遇到的问题及解决方案...", rows: 2 },
-      { key: "nextMonthPlan", label: "下月规划", type: "textarea", placeholder: "下月工作计划...", rows: 2 },
+      { key: "content", label: "计划内容", type: "textarea", placeholder: "请描述工作计划的主要内容...", rows: 4, required: true },
+      { key: "position", label: "岗位", type: "select", options: ["岗位不限", "企业人员", "政府人员", "教师", "医护", "学生"] },
+      { key: "cycle", label: "周期", type: "select", options: ["周期不限", "日", "周", "月", "季", "年"] },
+      { key: "scope", label: "范围", type: "select", options: ["个人", "团队"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "500字", "800字", "1000字", "1500字", "3000字", "5000字", "8000字", "10000字"] },
     ],
   },
-  // 项目汇报
+  // 汇报总结 - 演示大纲 (s8-4)
+  {
+    subTemplateId: "s8-4",
+    fields: [
+      { key: "content", label: "演示内容", type: "textarea", placeholder: "请描述演示的主要内容...", rows: 4, required: true },
+      { key: "tone", label: "语气", type: "select", options: ["语气不限", "中性", "正式"] },
+      { key: "target", label: "对象", type: "select", options: ["对象不限", "同事", "上级", "下属", "客户"] },
+      { key: "pages", label: "页数", type: "select", options: ["页数不限", "5页", "10页", "15页", "20页", "30页"] },
+    ],
+  },
+  // 汇报总结 - 演示讲稿 (s8-5)
+  {
+    subTemplateId: "s8-5",
+    fields: [
+      { key: "content", label: "演示内容", type: "textarea", placeholder: "请描述演示的主要内容...", rows: 4, required: true },
+      { key: "tone", label: "语气", type: "select", options: ["语气不限", "中性", "正式"] },
+      { key: "target", label: "对象", type: "select", options: ["对象不限", "同事", "上级", "下属", "客户"] },
+      { key: "pages", label: "页数", type: "select", options: ["页数不限", "5页", "10页", "15页", "20页", "30页"] },
+    ],
+  },
+  // 汇报总结 - 方案策划 (s8-6)
   {
     subTemplateId: "s8-6",
     fields: [
-      { key: "projectName", label: "项目名称", type: "input", placeholder: "请输入项目名称", required: true },
-      { key: "progress", label: "项目进度", type: "select", options: ["筹备阶段", "进行中", "收尾阶段", "已完成"] },
-      { key: "content", label: "项目概况", type: "textarea", placeholder: "项目背景、目标、当前状态...", rows: 4, required: true },
-      { key: "milestone", label: "里程碑", type: "textarea", placeholder: "已完成和待完成的关键节点...", rows: 2 },
-      { key: "risk", label: "风险与对策", type: "textarea", placeholder: "潜在风险及应对措施...", rows: 2 },
+      { key: "content", label: "方案内容", type: "textarea", placeholder: "请描述方案的主要内容...", rows: 4, required: true },
+      { key: "scene", label: "场景", type: "select", options: ["场景不限", "企业", "校园-校级", "校园-班级", "线上"] },
+      { key: "type", label: "类型", type: "select", options: ["类型不限", "活动策划", "项目实施", "宣传推广", "招募报名", "主题活动", "赛事运营"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "500字", "800字", "1000字", "1500字", "3000字"] },
     ],
   },
-  // 会议纪要
+  // 汇报总结 - 商业计划书 (s8-7)
+  {
+    subTemplateId: "s8-7",
+    fields: [
+      { key: "content", label: "项目内容", type: "textarea", placeholder: "请描述商业项目的主要内容...", rows: 4, required: true },
+      { key: "topic", label: "主题", type: "select", options: ["主题不限", "企业服务", "消费品牌", "教育培训", "医疗健康", "文旅餐饮", "本地生活", "制造", "跨境电商", "其他"] },
+      { key: "structure", label: "结构", type: "select", options: ["结构不限", "标准版", "路演版", "内部立项版", "招商合作版"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "500字", "800字", "1000字", "1500字", "3000字", "5000字", "8000字", "10000字"] },
+    ],
+  },
+  // 汇报总结 - 汇报材料 (s8-8)
+  {
+    subTemplateId: "s8-8",
+    fields: [
+      { key: "content", label: "汇报主题", type: "textarea", placeholder: "请描述需要汇报的主题...", rows: 4, required: true },
+      { key: "source", label: "来源偏好", type: "select", options: ["官方机构", "权威媒体", "行业研报", "学术论文", "综合"] },
+      { key: "style", label: "风格", type: "select", options: ["风格不限", "正式严谨", "商务专业", "科普易懂", "结论先行"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "500字", "800字", "1000字", "1500字", "3000字", "5000字", "8000字", "10000字"] },
+    ],
+  },
+
+  // 会议助手 - 会议纪要 (s9-1)
   {
     subTemplateId: "s9-1",
     fields: [
-      { key: "meetingTitle", label: "会议主题", type: "input", placeholder: "请输入会议主题", required: true },
-      { key: "attendees", label: "参会人员", type: "input", placeholder: "参会人员名单" },
-      { key: "time", label: "会议时间", type: "input", placeholder: "如：2024年3月9日 14:00-15:00" },
-      { key: "content", label: "会议内容", type: "textarea", placeholder: "讨论的主要内容、发言要点...", rows: 5, required: true },
-      { key: "decisions", label: "会议决议", type: "textarea", placeholder: "达成的共识、决定的事项...", rows: 2 },
-      { key: "todos", label: "待办事项", type: "textarea", placeholder: "后续任务分配（负责人、截止时间）...", rows: 2 },
+      { key: "content", label: "会议内容", type: "textarea", placeholder: "请描述会议讨论的主要内容...", rows: 5, required: true },
+      { key: "tone", label: "语气", type: "select", options: ["语气不限", "中性", "正式", "口语"] },
+      { key: "type", label: "类型", type: "select", options: ["类型不限", "标准", "精简", "总结"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "500字", "800字", "1000字", "1500字", "3000字"] },
     ],
   },
-  // 工作邮件
+  // 会议助手 - 会议安排 (s9-2)
+  {
+    subTemplateId: "s9-2",
+    fields: [
+      { key: "content", label: "会议主题", type: "textarea", placeholder: "请描述会议的主题和目的...", rows: 3, required: true },
+      { key: "type", label: "类型", type: "select", options: ["类型不限", "日常例会", "项目对齐", "方案评审", "面试", "头脑风暴", "客户沟通", "培训分享", "1v1沟通", "复盘"] },
+      { key: "format", label: "形式", type: "select", options: ["形式不限", "线上", "线下", "线上+线下"] },
+      { key: "duration", label: "时长", type: "select", options: ["时长不限", "15分钟", "30分钟", "1小时", "2小时"] },
+    ],
+  },
+
+  // 邮件沟通 - 通用 (s10-1)
   {
     subTemplateId: "s10-1",
     fields: [
-      { key: "recipient", label: "收件人", type: "input", placeholder: "收件人称呼，如：张总、各位同事" },
-      { key: "subject", label: "邮件主题", type: "input", placeholder: "简洁明了的邮件主题", required: true },
-      { key: "purpose", label: "邮件目的", type: "select", options: ["汇报工作", "请求批准", "通知事项", "寻求协助", "确认信息"] },
-      { key: "content", label: "邮件内容", type: "textarea", placeholder: "邮件的主要内容...", rows: 4, required: true },
-      { key: "tone", label: "语气", type: "select", options: ["正式商务", "礼貌友好", "简洁直接"] },
+      { key: "content", label: "邮件内容", type: "textarea", placeholder: "请描述邮件的主要内容...", rows: 4, required: true },
+      { key: "tone", label: "语气", type: "select", options: ["语气不限", "更委婉", "中性", "更正式"] },
+      { key: "target", label: "对象", type: "select", options: ["同事", "上级", "下属", "客户"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "100字", "200字", "500字", "1000字", "1500字"] },
     ],
   },
-  // 个人简历
+  // 邮件沟通 - 通知邮件 (s10-2)
+  {
+    subTemplateId: "s10-2",
+    fields: [
+      { key: "content", label: "通知内容", type: "textarea", placeholder: "请描述需要通知的内容...", rows: 4, required: true },
+      { key: "tone", label: "语气", type: "select", options: ["语气不限", "更委婉", "中性", "更正式"] },
+      { key: "target", label: "对象", type: "select", options: ["同事", "上级", "下属", "客户"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "100字", "200字", "500字", "1000字", "1500字"] },
+    ],
+  },
+  // 邮件沟通 - 回复邮件 (s10-3)
+  {
+    subTemplateId: "s10-3",
+    fields: [
+      { key: "originalEmail", label: "原邮件内容", type: "textarea", placeholder: "请粘贴需要回复的邮件内容...", rows: 3, required: true },
+      { key: "replyContent", label: "回复要点", type: "textarea", placeholder: "请描述回复的主要内容...", rows: 3, required: true },
+      { key: "tone", label: "语气", type: "select", options: ["语气不限", "更委婉", "中性", "更正式"] },
+      { key: "target", label: "对象", type: "select", options: ["同事", "上级", "下属", "客户"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "100字", "200字", "500字", "1000字", "1500字"] },
+    ],
+  },
+
+  // 个人材料 - 个人简历 (s11-1)
   {
     subTemplateId: "s11-1",
     fields: [
-      { key: "position", label: "目标岗位", type: "input", placeholder: "应聘的职位名称", required: true },
-      { key: "experience", label: "工作经历", type: "textarea", placeholder: "按时间倒序列出工作经历...", rows: 4, required: true },
-      { key: "education", label: "教育背景", type: "textarea", placeholder: "学历、专业、毕业院校...", rows: 2 },
-      { key: "skills", label: "技能特长", type: "textarea", placeholder: "专业技能、证书、语言能力...", rows: 2 },
-      { key: "style", label: "简历风格", type: "select", options: ["专业正式", "简洁现代", "创意个性"] },
+      { key: "experience", label: "工作经历", type: "textarea", placeholder: "请描述您的工作经历...", rows: 4, required: true },
+      { key: "pages", label: "页数", type: "select", options: ["一页", "两页", "详细"] },
+      { key: "position", label: "岗位", type: "select", options: ["岗位不限", "产品", "运营", "开发", "测试", "设计", "市场", "销售", "财务", "人事", "咨询", "教师", "医护", "管培", "其他"] },
+      { key: "industry", label: "行业", type: "select", options: ["行业不限", "互联网", "金融", "教育", "医疗"] },
+      { key: "unitType", label: "单位性质", type: "select", options: ["单位性质不限", "外企", "国企", "民营", "事业单位", "政府机关"] },
+      { key: "type", label: "类型", type: "select", options: ["校招", "社招", "实习", "其他"] },
+    ],
+  },
+  // 个人材料 - 自我介绍 (s11-2)
+  {
+    subTemplateId: "s11-2",
+    fields: [
+      { key: "content", label: "个人情况", type: "textarea", placeholder: "请描述您的基本情况...", rows: 4, required: true },
+      { key: "duration", label: "时长", type: "select", options: ["时长不限", "30秒", "1分钟", "3分钟"] },
+      { key: "tone", label: "语气", type: "select", options: ["语气不限", "幽默", "中性", "正式"] },
+    ],
+  },
+  // 个人材料 - 申请 (s11-3)
+  {
+    subTemplateId: "s11-3",
+    fields: [
+      { key: "content", label: "申请内容", type: "textarea", placeholder: "请描述申请的具体内容和原因...", rows: 4, required: true },
+      { key: "type", label: "类型", type: "select", options: ["请假", "转正", "离职"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "100字", "200字", "500字", "1000字", "1500字"] },
+    ],
+  },
+
+  // 心得体会 - 通用 (s12-1)
+  {
+    subTemplateId: "s12-1",
+    fields: [
+      { key: "content", label: "体会内容", type: "textarea", placeholder: "请描述心得体会的主要内容...", rows: 4, required: true },
+      { key: "position", label: "岗位", type: "select", options: ["岗位不限", "企业人员", "政府人员", "教师", "医护", "学生"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "500字", "800字", "1000字", "1500字", "3000字", "5000字", "8000字", "10000字"] },
+    ],
+  },
+  // 心得体会 - 党团 (s12-2)
+  {
+    subTemplateId: "s12-2",
+    fields: [
+      { key: "content", label: "体会内容", type: "textarea", placeholder: "请描述党团活动的心得体会...", rows: 4, required: true },
+      { key: "position", label: "岗位", type: "select", options: ["岗位不限", "企业人员", "政府人员", "教师", "医护", "学生"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "500字", "800字", "1000字", "1500字", "3000字", "5000字", "8000字", "10000字"] },
+    ],
+  },
+  // 心得体会 - 安全 (s12-3)
+  {
+    subTemplateId: "s12-3",
+    fields: [
+      { key: "content", label: "体会内容", type: "textarea", placeholder: "请描述安全学习的心得体会...", rows: 4, required: true },
+      { key: "position", label: "岗位", type: "select", options: ["岗位不限", "企业人员", "政府人员", "教师", "医护", "学生"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "500字", "800字", "1000字", "1500字", "3000字", "5000字", "8000字", "10000字"] },
+    ],
+  },
+  // 心得体会 - 培训 (s12-4)
+  {
+    subTemplateId: "s12-4",
+    fields: [
+      { key: "content", label: "体会内容", type: "textarea", placeholder: "请描述培训活动的心得体会...", rows: 4, required: true },
+      { key: "position", label: "岗位", type: "select", options: ["岗位不限", "企业人员", "政府人员", "教师", "医护", "学生"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "500字", "800字", "1000字", "1500字", "3000字", "5000字", "8000字", "10000字"] },
+    ],
+  },
+  // 心得体会 - 学习 (s12-5)
+  {
+    subTemplateId: "s12-5",
+    fields: [
+      { key: "content", label: "体会内容", type: "textarea", placeholder: "请描述学习活动的心得体会...", rows: 4, required: true },
+      { key: "position", label: "岗位", type: "select", options: ["岗位不限", "企业人员", "政府人员", "教师", "医护", "学生"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "500字", "800字", "1000字", "1500字", "3000字", "5000字", "8000字", "10000字"] },
+    ],
+  },
+  // 心得体会 - 参观 (s12-6)
+  {
+    subTemplateId: "s12-6",
+    fields: [
+      { key: "content", label: "体会内容", type: "textarea", placeholder: "请描述参观活动的心得体会...", rows: 4, required: true },
+      { key: "position", label: "岗位", type: "select", options: ["岗位不限", "企业人员", "政府人员", "教师", "医护", "学生"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "500字", "800字", "1000字", "1500字", "3000字", "5000字", "8000字", "10000字"] },
+    ],
+  },
+  // 心得体会 - 座谈 (s12-7)
+  {
+    subTemplateId: "s12-7",
+    fields: [
+      { key: "content", label: "体会内容", type: "textarea", placeholder: "请描述座谈会的心得体会...", rows: 4, required: true },
+      { key: "position", label: "岗位", type: "select", options: ["岗位不限", "企业人员", "政府人员", "教师", "医护", "学生"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "500字", "800字", "1000字", "1500字", "3000字", "5000字", "8000字", "10000字"] },
     ],
   },
 
