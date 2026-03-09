@@ -43,6 +43,7 @@ export default function ScreenplayLeftPanel() {
   const { showToast } = useEditorStore();
   const [expandedSection, setExpandedSection] = useState<AccordionSection>("subscene");
   const [activeSubScene, setActiveSubScene] = useState("movie");
+  const [isSelectingType, setIsSelectingType] = useState(false);
   const [outlineContent, setOutlineContent] = useState("");
   const [generating, setGenerating] = useState(false);
   const [outlineStructure, setOutlineStructure] = useState("three-act");
@@ -122,31 +123,60 @@ export default function ScreenplayLeftPanel() {
             >
               {/* 剧本/分镜 子类型 */}
               {section.id === "subscene" && (
-                <div className="px-2 pb-2 space-y-0.5">
-                  {subScenes.map((sub) => (
-                    <div key={sub.id}>
-                      <button
-                        onClick={() => setActiveSubScene(sub.id)}
-                        className={cn(
-                          "w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition",
-                          activeSubScene === sub.id
-                            ? "bg-blue-50 text-blue-700 font-medium"
-                            : "text-gray-600 hover:bg-gray-50"
-                        )}
-                      >
-                        <sub.icon className="w-4 h-4" />
-                        <div className="flex-1 text-left">
-                          <span className="block">{sub.label}</span>
-                          <span className="text-[10px] text-gray-400 font-normal">{sub.desc}</span>
-                        </div>
-                      </button>
-                      {activeSubScene === sub.id && (
-                        <div className="ml-2 border-l-2 border-blue-100">
-                          <ScreenplaySettingsPanel subScene={sub.id} />
-                        </div>
-                      )}
+                <div className="px-2 pb-2">
+                  {isSelectingType ? (
+                    // 选择模式：显示所有类型
+                    <div className="space-y-0.5">
+                      {subScenes.map((sub) => (
+                        <button
+                          key={sub.id}
+                          onClick={() => {
+                            setActiveSubScene(sub.id);
+                            setIsSelectingType(false);
+                          }}
+                          className={cn(
+                            "w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition",
+                            activeSubScene === sub.id
+                              ? "bg-blue-50 text-blue-700 font-medium"
+                              : "text-gray-600 hover:bg-gray-50"
+                          )}
+                        >
+                          <sub.icon className="w-4 h-4" />
+                          <div className="flex-1 text-left">
+                            <span className="block">{sub.label}</span>
+                            <span className="text-[10px] text-gray-400 font-normal">{sub.desc}</span>
+                          </div>
+                        </button>
+                      ))}
                     </div>
-                  ))}
+                  ) : (
+                    // 已选模式：只显示当前类型 + 设定
+                    <div>
+                      {(() => {
+                        const current = subScenes.find((s) => s.id === activeSubScene);
+                        return current ? (
+                          <div>
+                            <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 rounded-lg">
+                              <current.icon className="w-4 h-4 text-blue-600" />
+                              <div className="flex-1">
+                                <span className="block text-sm font-medium text-blue-700">{current.label}</span>
+                                <span className="text-[10px] text-gray-400">{current.desc}</span>
+                              </div>
+                              <button
+                                onClick={() => setIsSelectingType(true)}
+                                className="text-xs text-blue-600 hover:text-blue-700 px-2 py-1 rounded hover:bg-blue-100 transition"
+                              >
+                                更换
+                              </button>
+                            </div>
+                            <div className="mt-2 ml-2 border-l-2 border-blue-100">
+                              <ScreenplaySettingsPanel subScene={current.id} />
+                            </div>
+                          </div>
+                        ) : null;
+                      })()}
+                    </div>
+                  )}
                 </div>
               )}
 

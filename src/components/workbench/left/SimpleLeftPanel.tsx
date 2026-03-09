@@ -41,6 +41,7 @@ export default function SimpleLeftPanel() {
   const [activeType, setActiveType] = useState(
     scene === "marketing" ? "graphic_seed" : "book_review"
   );
+  const [isSelectingType, setIsSelectingType] = useState(false);
 
   const toggleSection = (section: AccordionSection) => {
     setExpandedSection((prev) => (prev === section ? null : section));
@@ -97,30 +98,58 @@ export default function SimpleLeftPanel() {
             >
               {/* 内容形式 / 内容类型 选择 + 内联设定 */}
               {section.id === "type" && (
-                <div className="px-2 pb-2 space-y-0.5">
-                  {typeOptions.map((opt) => (
-                    <div key={opt.id}>
-                      <button
-                        onClick={() => setActiveType(opt.id)}
-                        className={cn(
-                          "w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition",
-                          activeType === opt.id
-                            ? "bg-blue-50 text-blue-700 font-medium"
-                            : "text-gray-600 hover:bg-gray-50"
-                        )}
-                      >
-                        <div className="flex-1 text-left">
-                          <span className="block">{opt.label}</span>
-                          <span className="text-[10px] text-gray-400 font-normal">{opt.desc}</span>
-                        </div>
-                      </button>
-                      {activeType === opt.id && (
-                        <div className="ml-2 border-l-2 border-blue-100">
-                          <SimpleSettingsPanel scene={scene} activeType={opt.id} />
-                        </div>
-                      )}
+                <div className="px-2 pb-2">
+                  {isSelectingType ? (
+                    // 选择模式：显示所有类型
+                    <div className="space-y-0.5">
+                      {typeOptions.map((opt) => (
+                        <button
+                          key={opt.id}
+                          onClick={() => {
+                            setActiveType(opt.id);
+                            setIsSelectingType(false);
+                          }}
+                          className={cn(
+                            "w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition",
+                            activeType === opt.id
+                              ? "bg-blue-50 text-blue-700 font-medium"
+                              : "text-gray-600 hover:bg-gray-50"
+                          )}
+                        >
+                          <div className="flex-1 text-left">
+                            <span className="block">{opt.label}</span>
+                            <span className="text-[10px] text-gray-400 font-normal">{opt.desc}</span>
+                          </div>
+                        </button>
+                      ))}
                     </div>
-                  ))}
+                  ) : (
+                    // 已选模式：只显示当前类型 + 设定
+                    <div>
+                      {(() => {
+                        const current = typeOptions.find((t) => t.id === activeType);
+                        return current ? (
+                          <div>
+                            <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 rounded-lg">
+                              <div className="flex-1">
+                                <span className="block text-sm font-medium text-blue-700">{current.label}</span>
+                                <span className="text-[10px] text-gray-400">{current.desc}</span>
+                              </div>
+                              <button
+                                onClick={() => setIsSelectingType(true)}
+                                className="text-xs text-blue-600 hover:text-blue-700 px-2 py-1 rounded hover:bg-blue-100 transition"
+                              >
+                                更换
+                              </button>
+                            </div>
+                            <div className="mt-2 ml-2 border-l-2 border-blue-100">
+                              <SimpleSettingsPanel scene={scene} activeType={activeType} />
+                            </div>
+                          </div>
+                        ) : null;
+                      })()}
+                    </div>
+                  )}
                 </div>
               )}
 
