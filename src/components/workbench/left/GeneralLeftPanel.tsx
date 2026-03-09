@@ -122,24 +122,31 @@ export default function GeneralLeftPanel() {
           </span>
         </div>
       </div>
-      <div className="p-3">
-        <p className="text-xs text-gray-400 mb-3">请选择具体类型</p>
-        <div className="grid grid-cols-2 gap-2">
-          {subTemplates.map((sub) => (
-            <button
-              key={sub.id}
-              onClick={() => handleSelectSubTemplate(sub.id)}
-              className={cn(
-                "px-3 py-2.5 text-sm rounded-lg border transition text-left",
-                selectedSubTemplateId === sub.id
-                  ? "border-indigo-300 bg-indigo-50 text-indigo-700 font-medium"
-                  : "border-gray-200 text-gray-600 hover:border-indigo-200 hover:bg-gray-50"
-              )}
+      <div className="p-2 space-y-1.5">
+        {subTemplates.map((sub) => (
+          <button
+            key={sub.id}
+            onClick={() => handleSelectSubTemplate(sub.id)}
+            className={cn(
+              "w-full flex items-start gap-2.5 p-2.5 rounded-lg text-left transition group",
+              selectedSubTemplateId === sub.id
+                ? "bg-indigo-50 ring-1 ring-indigo-200"
+                : "hover:bg-gray-50"
+            )}
+          >
+            <div
+              className={`w-8 h-8 rounded-lg ${selectedCard?.iconColor} opacity-80 flex items-center justify-center flex-shrink-0 text-base`}
             >
-              {sub.title}
-            </button>
-          ))}
-        </div>
+              {selectedCard?.iconEmoji}
+            </div>
+            <div className="flex-1 min-w-0 flex items-center">
+              <span className="text-sm font-medium text-gray-800">
+                {sub.title}
+              </span>
+            </div>
+            <MoreHorizontal className="w-3.5 h-3.5 text-gray-300 opacity-0 group-hover:opacity-100 flex-shrink-0 self-center" />
+          </button>
+        ))}
       </div>
     </div>
   );
