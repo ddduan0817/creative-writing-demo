@@ -38,9 +38,7 @@ type AccordionSection = "type" | "tags" | "outline" | null;
 export default function SimpleLeftPanel() {
   const { scene } = useEditorStore();
   const [expandedSection, setExpandedSection] = useState<AccordionSection>("type");
-  const [activeType, setActiveType] = useState(
-    scene === "marketing" ? "graphic_seed" : "book_review"
-  );
+  const [activeType, setActiveType] = useState("");
   const [isSelectingType, setIsSelectingType] = useState(true);
 
   const toggleSection = (section: AccordionSection) => {

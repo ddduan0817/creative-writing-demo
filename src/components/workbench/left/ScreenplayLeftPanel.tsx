@@ -42,7 +42,7 @@ type AccordionSection = "subscene" | "tags" | "characters" | "outline" | "scenes
 export default function ScreenplayLeftPanel() {
   const { showToast } = useEditorStore();
   const [expandedSection, setExpandedSection] = useState<AccordionSection>("subscene");
-  const [activeSubScene, setActiveSubScene] = useState("movie");
+  const [activeSubScene, setActiveSubScene] = useState("");
   const [isSelectingType, setIsSelectingType] = useState(true);
   const [outlineContent, setOutlineContent] = useState("");
   const [generating, setGenerating] = useState(false);
