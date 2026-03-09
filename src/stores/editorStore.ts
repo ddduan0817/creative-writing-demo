@@ -135,8 +135,11 @@ export const useEditorStore = create<EditorState>((set) => ({
 
   settings: [
     { key: "background", label: "故事背景", value: "" },
+    { key: "keyEvents", label: "前情提要", value: "" },
+    { key: "perspective", label: "叙事视角", value: "" },
     { key: "coreConflict", label: "核心冲突", value: "" },
     { key: "redline", label: "创作红线", value: "" },
+    { key: "style", label: "语言风格", value: "" },
   ],
   updateSetting: (key, value) =>
     set((s) => ({
@@ -291,10 +294,8 @@ export const useEditorStore = create<EditorState>((set) => ({
       },
       chatMessages: [],
       settings: [
-        { key: "worldType", label: "世界类型", value: "" },
-        { key: "powerSystem", label: "力量体系", value: "" },
-        { key: "socialStructure", label: "社会结构", value: "" },
-        { key: "keyHistory", label: "关键历史", value: "" },
+        { key: "background", label: "故事背景", value: "" },
+        { key: "keyEvents", label: "前情提要", value: "" },
         { key: "perspective", label: "叙事视角", value: "" },
         { key: "coreConflict", label: "核心冲突", value: "" },
         { key: "redline", label: "创作红线", value: "" },

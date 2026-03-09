@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Sparkles, Loader2, Upload, X } from "lucide-react";
 import { simulateAIStream } from "@/lib/aiSimulator";
 
-// 设定字段配置 - 精简为3个核心字段
+// 设定字段配置
 const settingFields: {
   key: string;
   label: string;
@@ -15,8 +15,20 @@ const settingFields: {
   {
     key: "background",
     label: "故事背景",
-    placeholder: "故事发生的时代、地点、世界观概述...",
+    placeholder: "时代背景、地点环境、社会结构...",
     rows: 3,
+  },
+  {
+    key: "keyEvents",
+    label: "前情提要",
+    placeholder: "影响当下剧情的重要事件/历史...",
+    rows: 2,
+  },
+  {
+    key: "perspective",
+    label: "叙事视角",
+    placeholder: "第一人称/第三人称限制/全知视角...",
+    rows: 1,
   },
   {
     key: "coreConflict",
@@ -30,13 +42,22 @@ const settingFields: {
     placeholder: "不能触碰的设定/需要遵守的规则...",
     rows: 2,
   },
+  {
+    key: "style",
+    label: "语言风格",
+    placeholder: "古风/白话/幽默/严肃...",
+    rows: 1,
+  },
 ];
 
 // Mock AI 生成内容
 const mockGenerations: Record<string, string> = {
   background: "故事发生在一个架空的东方大陆，灵气复苏后的现代都市。修行者与普通人共存，但两个世界之间存在着微妙的平衡。城市的霓虹灯下，隐藏着古老的门派势力...",
+  keyEvents: "十年前的灵脉暴动导致天机阁一夜覆灭，幸存者寥寥无几。这场变故的真相至今成谜，但它改变了整个大陆的格局...",
+  perspective: "第三人称限制视角，主要跟随主角",
   coreConflict: "主角在追查父母失踪真相的过程中，逐渐发现自己的身世与一个被封印的远古存在有关。他必须在守护身边人与揭开真相之间做出选择...",
-  redline: "1. 不写无脑爽文，冲突要有逻辑\n2. 反派要有合理动机\n3. 感情线不喧宾夺主\n4. 保持叙事节奏，避免水字数",
+  redline: "1. 不写无脑爽文，冲突要有逻辑\n2. 反派要有合理动机\n3. 感情线不喧宾夺主",
+  style: "古风与现代结合，叙事简洁有力，对话风趣但不油腻",
 };
 
 export default function SettingsPanel() {

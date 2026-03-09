@@ -19,7 +19,7 @@ const mockFieldGenerations: Record<string, (name: string) => string> = {
   identity: (name) => `${name}是一位神秘的游方术士，表面上以占卜为生，实际上是某个古老组织的成员`,
   motivation: (name) => `${name}渴望找回失去的记忆，揭开自己身世的秘密，同时保护身边重要的人`,
   background: (name) => `${name}自幼被养父收养，在偏僻的山村长大。十年前的一场变故让他失去了所有记忆，只留下一枚古老的玉佩。此后他四处漂泊，直到在某座城市遇到了改变命运的契机...`,
-  arc: (name) => `从逃避过去的流浪者 → 直面命运的承担者`,
+  arc: () => `从逃避过去的流浪者 → 直面命运的承担者`,
 };
 
 export default function CharactersPanel() {
