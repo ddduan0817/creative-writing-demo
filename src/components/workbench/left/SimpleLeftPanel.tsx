@@ -41,7 +41,7 @@ export default function SimpleLeftPanel() {
   const [activeType, setActiveType] = useState(
     scene === "marketing" ? "graphic_seed" : "book_review"
   );
-  const [isSelectingType, setIsSelectingType] = useState(false);
+  const [isSelectingType, setIsSelectingType] = useState(true);
 
   const toggleSection = (section: AccordionSection) => {
     setExpandedSection((prev) => (prev === section ? null : section));

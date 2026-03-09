@@ -43,7 +43,7 @@ export default function ScreenplayLeftPanel() {
   const { showToast } = useEditorStore();
   const [expandedSection, setExpandedSection] = useState<AccordionSection>("subscene");
   const [activeSubScene, setActiveSubScene] = useState("movie");
-  const [isSelectingType, setIsSelectingType] = useState(false);
+  const [isSelectingType, setIsSelectingType] = useState(true);
   const [outlineContent, setOutlineContent] = useState("");
   const [generating, setGenerating] = useState(false);
   const [outlineStructure, setOutlineStructure] = useState("three-act");
