@@ -36,19 +36,19 @@ const iconMap: Record<string, LucideIcon> = {
   Wand2,
 };
 
-type ViewLevel = "category" | "subTemplate";
+type ViewLevel = "category" | "form";
 
 export default function GeneralLeftPanel() {
   const [activeCategory, setActiveCategory] = useState("all");
   const [viewLevel, setViewLevel] = useState<ViewLevel>("category");
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
-  const [expandedSubTemplateId, setExpandedSubTemplateId] = useState<string | null>(null);
-  const { showToast, selectedTemplateId, setSelectedTemplate } = useEditorStore();
+  const [selectedSubTemplateId, setSelectedSubTemplateId] = useState<string | null>(null);
+  const { selectedTemplateId, setSelectedTemplate } = useEditorStore();
 
   const activeCategoryObj = templateCategories.find((c) => c.id === activeCategory);
   const selectedCard = templateCards.find((c) => c.id === selectedCardId);
   const subTemplates = selectedCardId ? getSubTemplates(selectedCardId) : [];
-  const expandedTemplateConfig = expandedSubTemplateId ? getTemplateConfig(expandedSubTemplateId) : null;
+  const selectedTemplateConfig = selectedSubTemplateId ? getTemplateConfig(selectedSubTemplateId) : null;
 
   const filteredCards =
     activeCategory === "all"
@@ -57,40 +57,28 @@ export default function GeneralLeftPanel() {
       ? templateCards.filter((c) => recentTemplateIds.includes(c.id))
       : templateCards.filter((c) => c.categoryId === activeCategory);
 
-  // 选择二级模板后进入三级
+  // 选择二级模板后进入表单
   const handleSelectCard = (cardId: string) => {
-    const subs = getSubTemplates(cardId);
     setSelectedCardId(cardId);
     setSelectedTemplate(cardId);
-    setExpandedSubTemplateId(null);
-
-    if (subs.length === 0) {
-      // 没有三级模板，直接显示通用表单
-      showToast(`已选择模板：${templateCards.find(c => c.id === cardId)?.title}`);
-    } else {
-      // 显示三级选择
-      setViewLevel("subTemplate");
-    }
+    setSelectedSubTemplateId(null);
+    setViewLevel("form");
   };
 
-  // 点击三级模板，展开/收起四级表单
-  const handleToggleSubTemplate = (subId: string) => {
-    if (expandedSubTemplateId === subId) {
-      setExpandedSubTemplateId(null);
-    } else {
-      setExpandedSubTemplateId(subId);
-    }
+  // 选择三级模板
+  const handleSelectSubTemplate = (subId: string) => {
+    setSelectedSubTemplateId(subId);
   };
 
   // 返回上一级
   const handleBack = () => {
     setViewLevel("category");
     setSelectedCardId(null);
-    setExpandedSubTemplateId(null);
+    setSelectedSubTemplateId(null);
   };
 
-  // 渲染三级模板选择（带内联四级表单）
-  const renderSubTemplateView = () => (
+  // 渲染表单视图（三级作为选项 + 四级字段）
+  const renderFormView = () => (
     <div className="flex-1 overflow-y-auto">
       {/* Header with back button */}
       <div className="px-3 py-3 border-b border-gray-50 flex items-center gap-2">
@@ -111,48 +99,15 @@ export default function GeneralLeftPanel() {
           </span>
         </div>
       </div>
-      <div className="p-2 space-y-1.5">
-        {subTemplates.map((sub) => {
-          const isExpanded = expandedSubTemplateId === sub.id;
-          const subConfig = isExpanded ? expandedTemplateConfig : null;
-          return (
-            <div key={sub.id} className="space-y-0">
-              <button
-                onClick={() => handleToggleSubTemplate(sub.id)}
-                className={cn(
-                  "w-full flex items-start gap-2.5 p-2.5 rounded-lg text-left transition group",
-                  isExpanded
-                    ? "bg-indigo-50 ring-1 ring-indigo-200"
-                    : "hover:bg-gray-50"
-                )}
-              >
-                <div
-                  className={`w-8 h-8 rounded-lg ${selectedCard?.iconColor} opacity-80 flex items-center justify-center flex-shrink-0 text-base`}
-                >
-                  {selectedCard?.iconEmoji}
-                </div>
-                <div className="flex-1 min-w-0 flex items-center">
-                  <span className="text-sm font-medium text-gray-800">
-                    {sub.title}
-                  </span>
-                </div>
-                <ChevronLeft
-                  className={cn(
-                    "w-3.5 h-3.5 text-gray-400 flex-shrink-0 self-center transition-transform",
-                    isExpanded ? "-rotate-90" : "rotate-180"
-                  )}
-                />
-              </button>
 
-              {/* 内联四级表单 */}
-              {isExpanded && subConfig && (
-                <div className="ml-10 mr-2 mt-1 mb-2 p-3 bg-gray-50 rounded-lg border border-gray-100">
-                  <TemplateForm fields={subConfig.fields} />
-                </div>
-              )}
-            </div>
-          );
-        })}
+      {/* 表单内容 */}
+      <div className="p-3">
+        <CombinedForm
+          subTemplates={subTemplates}
+          selectedSubTemplateId={selectedSubTemplateId}
+          onSelectSubTemplate={handleSelectSubTemplate}
+          templateConfig={selectedTemplateConfig}
+        />
       </div>
     </div>
   );
@@ -231,13 +186,23 @@ export default function GeneralLeftPanel() {
 
       {/* Content area */}
       {viewLevel === "category" && renderCategoryView()}
-      {viewLevel === "subTemplate" && renderSubTemplateView()}
+      {viewLevel === "form" && renderFormView()}
     </div>
   );
 }
 
-// 四级表单组件
-function TemplateForm({ fields }: { fields: TemplateField[] }) {
+// 合并的表单组件（三级选项 + 四级字段）
+function CombinedForm({
+  subTemplates,
+  selectedSubTemplateId,
+  onSelectSubTemplate,
+  templateConfig,
+}: {
+  subTemplates: { id: string; title: string }[];
+  selectedSubTemplateId: string | null;
+  onSelectSubTemplate: (id: string) => void;
+  templateConfig: { fields: TemplateField[] } | null | undefined;
+}) {
   const { showToast } = useEditorStore();
   const [formData, setFormData] = useState<Record<string, string | string[]>>({});
   const [generating, setGenerating] = useState(false);
@@ -256,7 +221,12 @@ function TemplateForm({ fields }: { fields: TemplateField[] }) {
   };
 
   const handleGenerate = () => {
-    // 检查必填字段
+    if (!selectedSubTemplateId) {
+      showToast("请先选择类型");
+      return;
+    }
+
+    const fields = templateConfig?.fields || [];
     const missingFields = fields
       .filter((f) => f.required && !formData[f.key])
       .map((f) => f.label);
@@ -275,7 +245,34 @@ function TemplateForm({ fields }: { fields: TemplateField[] }) {
 
   return (
     <div className="space-y-4">
-      {fields.map((field) => (
+      {/* 三级选项作为第一个字段 */}
+      {subTemplates.length > 0 && (
+        <div>
+          <label className="text-xs font-medium text-gray-600 mb-1.5 flex items-center gap-1">
+            选择类型
+            <span className="text-red-400">*</span>
+          </label>
+          <div className="flex flex-wrap gap-2">
+            {subTemplates.map((sub) => (
+              <button
+                key={sub.id}
+                onClick={() => onSelectSubTemplate(sub.id)}
+                className={cn(
+                  "px-3 py-1.5 text-xs rounded-lg border transition",
+                  selectedSubTemplateId === sub.id
+                    ? "border-indigo-300 bg-indigo-50 text-indigo-700 font-medium"
+                    : "border-gray-200 text-gray-500 hover:border-indigo-200 hover:bg-gray-50"
+                )}
+              >
+                {sub.title}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* 四级字段（选择三级后显示） */}
+      {selectedSubTemplateId && templateConfig && templateConfig.fields.map((field) => (
         <div key={field.key}>
           <label className="text-xs font-medium text-gray-600 mb-1.5 flex items-center gap-1">
             {field.label}
