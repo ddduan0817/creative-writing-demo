@@ -13,7 +13,7 @@ import {
   Loader2,
   AlertCircle,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function TopBar() {
   const router = useRouter();
@@ -31,6 +31,11 @@ export default function TopBar() {
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(title);
   const [starred, setStarred] = useState(false);
+
+  // 同步 store 中的 title 到 editTitle
+  useEffect(() => {
+    setEditTitle(title);
+  }, [title]);
 
   const currentChapter = chapters.find((c) => c.id === currentChapterId);
   const totalWords = chapters.reduce((sum, c) => sum + c.wordCount, 0);
@@ -67,12 +72,12 @@ export default function TopBar() {
           value={editTitle}
           onChange={(e) => setEditTitle(e.target.value)}
           onBlur={() => {
-            setTitle(editTitle);
+            setTitle(editTitle || title);
             setIsEditing(false);
           }}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
-              setTitle(editTitle);
+              setTitle(editTitle || title);
               setIsEditing(false);
             }
             if (e.key === "Escape") {
@@ -80,14 +85,19 @@ export default function TopBar() {
               setIsEditing(false);
             }
           }}
-          className="text-sm font-semibold bg-indigo-50 border border-indigo-200 rounded px-2 py-0.5 outline-none"
+          placeholder="输入作品标题..."
+          className="text-sm font-semibold bg-indigo-50 border border-indigo-200 rounded px-2 py-0.5 outline-none min-w-[120px]"
         />
       ) : (
         <button
           onClick={() => setIsEditing(true)}
-          className="text-sm font-semibold text-gray-900 hover:text-indigo-600 transition"
+          className={`text-sm font-semibold transition ${
+            title.startsWith("未命名")
+              ? "text-gray-400 hover:text-indigo-600"
+              : "text-gray-900 hover:text-indigo-600"
+          }`}
         >
-          {title}
+          {title.startsWith("未命名") ? `${title}（点击编辑）` : title}
         </button>
       )}
 
