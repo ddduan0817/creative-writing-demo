@@ -3,7 +3,7 @@
 import { useEditorStore } from "@/stores/editorStore";
 import { mockAIResponses } from "@/data/mockAIResponses";
 import { type Character } from "@/data/mockCharacters";
-import { Plus, Sparkles, Loader2, User, ChevronDown, X, Edit2 } from "lucide-react";
+import { Plus, Sparkles, Loader2, User, Edit2 } from "lucide-react";
 import { useState } from "react";
 
 // 性格标签选项
