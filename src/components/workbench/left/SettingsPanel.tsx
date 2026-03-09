@@ -32,7 +32,7 @@ const settingFields: {
     key: "perspective",
     label: "叙事视角",
     type: "select",
-    options: ["第一人称", "第三人称限制", "第三人称全知", "多视角轮转"],
+    options: ["第一人称亲历者", "第一人称旁观者", "第三人称全知", "第三人称有限", "不可靠叙述者"],
   },
   {
     key: "coreConflict",
@@ -45,14 +45,14 @@ const settingFields: {
     key: "redline",
     label: "创作红线",
     type: "textarea",
-    placeholder: "不能触碰的设定/需要遵守的规则...",
+    placeholder: "告诉AI不要写什么，避免踩雷。如：不要圣母、不要无脑、不要水字数...",
     rows: 2,
   },
   {
     key: "style",
     label: "语言风格",
     type: "select",
-    options: ["古风典雅", "现代白话", "幽默诙谐", "严肃冷峻", "文艺抒情", "通俗直白"],
+    options: ["轻松幽默", "细腻文艺", "简洁有力", "沉稳大气", "诙谐吐槽", "古典优美"],
   },
 ];
 
@@ -61,7 +61,7 @@ const mockGenerations: Record<string, string> = {
   background: "故事发生在一个架空的东方大陆，灵气复苏后的现代都市。修行者与普通人共存，但两个世界之间存在着微妙的平衡。城市的霓虹灯下，隐藏着古老的门派势力...",
   keyEvents: "十年前的灵脉暴动导致天机阁一夜覆灭，幸存者寥寥无几。这场变故的真相至今成谜，但它改变了整个大陆的格局...",
   coreConflict: "主角在追查父母失踪真相的过程中，逐渐发现自己的身世与一个被封印的远古存在有关。他必须在守护身边人与揭开真相之间做出选择...",
-  redline: "1. 不写无脑爽文，冲突要有逻辑\n2. 反派要有合理动机\n3. 感情线不喧宾夺主",
+  redline: "不要圣母白莲花\n不要无脑降智\n不要水字数拖剧情\n反派要有合理动机",
 };
 
 export default function SettingsPanel() {
