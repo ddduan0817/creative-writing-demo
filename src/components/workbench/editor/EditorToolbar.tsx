@@ -32,6 +32,9 @@ export default function EditorToolbar({ editor }: { editor: Editor }) {
     setContinuing(true);
     editor.commands.focus("end");
 
+    // 使用唯一 ID 作为标记，避免正则转义问题
+    const markerId = "ai-continue-marker";
+
     simulateAIStream(mockData.continuation, (current, done) => {
       // Clear and re-insert to show streaming
       const paragraphs = current
@@ -40,16 +43,15 @@ export default function EditorToolbar({ editor }: { editor: Editor }) {
         .map((p) => `<p>${p}</p>`)
         .join("");
 
-      const marker = "<!-- ai-continue -->";
       const html = editor.getHTML();
+      // 移除之前的 AI 生成内容（通过 data 属性定位）
       const clean = html.replace(
-        new RegExp(`${marker}[\\s\\S]*$`),
+        /<div data-ai-marker="ai-continue-marker"[\s\S]*$/,
         ""
       );
       editor.commands.setContent(
         clean +
-          marker +
-          '<div class="border-l-2 border-indigo-300 pl-3 mt-4">' +
+          `<div data-ai-marker="${markerId}" class="border-l-2 border-indigo-300 pl-3 mt-4">` +
           paragraphs +
           (done ? "" : '<span class="ai-cursor"></span>') +
           "</div>"
