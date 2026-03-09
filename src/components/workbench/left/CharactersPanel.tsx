@@ -5,13 +5,22 @@ import { mockAIResponses } from "@/data/mockAIResponses";
 import { type Character } from "@/data/mockCharacters";
 import { Plus, Sparkles, Loader2, User, Edit2 } from "lucide-react";
 import { useState } from "react";
+import { simulateAIStream } from "@/lib/aiSimulator";
 
 // 性格标签选项
 const personalityOptions = [
   "傲娇", "腹黑", "忠犬", "病娇", "逗比", "高冷", "温柔", "暴躁",
-  "隐忍", "聪慧", "天真", "腹黑", "果决", "细腻", "刚正", "固执",
+  "隐忍", "聪慧", "天真", "果决", "细腻", "刚正", "固执",
   "重情义", "外冷内热", "亦正亦邪", "孤僻", "热情", "狡猾"
 ];
+
+// Mock AI 生成内容
+const mockFieldGenerations: Record<string, (name: string) => string> = {
+  identity: (name) => `${name}是一位神秘的游方术士，表面上以占卜为生，实际上是某个古老组织的成员`,
+  motivation: (name) => `${name}渴望找回失去的记忆，揭开自己身世的秘密，同时保护身边重要的人`,
+  background: (name) => `${name}自幼被养父收养，在偏僻的山村长大。十年前的一场变故让他失去了所有记忆，只留下一枚古老的玉佩。此后他四处漂泊，直到在某座城市遇到了改变命运的契机...`,
+  arc: (name) => `从逃避过去的流浪者 → 直面命运的承担者`,
+};
 
 export default function CharactersPanel() {
   const { characters, addCharacter, showToast } = useEditorStore();
@@ -46,7 +55,6 @@ export default function CharactersPanel() {
     };
     addCharacter(newChar);
     setEditingCharId(newChar.id);
-    showToast("已添加空白角色");
   };
 
   return (
@@ -126,13 +134,28 @@ function CharCard({
 }) {
   const { characters, showToast } = useEditorStore();
   const [localChar, setLocalChar] = useState(char);
+  const [generatingField, setGeneratingField] = useState<string | null>(null);
 
   const updateCharacter = (updates: Partial<Character>) => {
     setLocalChar((prev) => ({ ...prev, ...updates }));
   };
 
+  const handleGenerateField = (field: keyof Character) => {
+    if (field === "name" || field === "id" || field === "role" || field === "personality") return;
+
+    setGeneratingField(field);
+    const generator = mockFieldGenerations[field];
+    const text = generator ? generator(localChar.name) : "AI 生成的内容...";
+
+    simulateAIStream(text, (current, done) => {
+      updateCharacter({ [field]: current });
+      if (done) {
+        setGeneratingField(null);
+      }
+    });
+  };
+
   const handleSave = () => {
-    // 更新 store 中的角色
     useEditorStore.setState({
       characters: characters.map((c) => (c.id === char.id ? localChar : c)),
     });
@@ -154,6 +177,58 @@ function CharCard({
     } else if (current.length < 5) {
       updateCharacter({ personality: [...current, tag] });
     }
+  };
+
+  // 带AI生成按钮的输入框
+  const FieldWithAI = ({
+    label,
+    field,
+    placeholder,
+    multiline = false,
+  }: {
+    label: string;
+    field: keyof Character;
+    placeholder: string;
+    multiline?: boolean;
+  }) => {
+    const value = localChar[field] as string;
+    const isGenerating = generatingField === field;
+
+    return (
+      <div className="mb-3">
+        <div className="flex items-center justify-between mb-1">
+          <label className="text-xs text-gray-500">{label}</label>
+          <button
+            onClick={() => handleGenerateField(field)}
+            disabled={isGenerating}
+            className="flex items-center gap-1 px-1.5 py-0.5 text-xs text-indigo-500 hover:text-indigo-600 hover:bg-indigo-50 rounded transition disabled:opacity-50"
+          >
+            {isGenerating ? (
+              <Loader2 className="w-3 h-3 animate-spin" />
+            ) : (
+              <Sparkles className="w-3 h-3" />
+            )}
+          </button>
+        </div>
+        {multiline ? (
+          <textarea
+            value={value}
+            onChange={(e) => updateCharacter({ [field]: e.target.value })}
+            placeholder={placeholder}
+            className="w-full text-xs border border-gray-200 rounded px-2 py-1.5 resize-none focus:outline-none focus:border-indigo-300 placeholder:text-gray-300"
+            rows={3}
+          />
+        ) : (
+          <input
+            type="text"
+            value={value}
+            onChange={(e) => updateCharacter({ [field]: e.target.value })}
+            placeholder={placeholder}
+            className="w-full text-xs border border-gray-200 rounded px-2 py-1.5 focus:outline-none focus:border-indigo-300 placeholder:text-gray-300"
+          />
+        )}
+      </div>
+    );
   };
 
   if (isEditing) {
@@ -183,16 +258,7 @@ function CharCard({
           </div>
         </div>
 
-        <div className="mb-3">
-          <label className="text-xs text-gray-500 mb-1 block">身份</label>
-          <input
-            type="text"
-            value={localChar.identity}
-            onChange={(e) => updateCharacter({ identity: e.target.value })}
-            placeholder="角色的社会身份/职业..."
-            className="w-full text-xs border border-gray-200 rounded px-2 py-1.5 focus:outline-none focus:border-indigo-300 placeholder:text-gray-300"
-          />
-        </div>
+        <FieldWithAI label="身份" field="identity" placeholder="角色的社会身份/职业..." />
 
         {/* 性格标签 */}
         <div className="mb-3">
@@ -216,41 +282,12 @@ function CharCard({
           </div>
         </div>
 
-        <div className="mb-3">
-          <label className="text-xs text-gray-500 mb-1 block">动机</label>
-          <textarea
-            value={localChar.motivation}
-            onChange={(e) => updateCharacter({ motivation: e.target.value })}
-            placeholder="角色的核心目标/驱动力..."
-            className="w-full text-xs border border-gray-200 rounded px-2 py-1.5 resize-none focus:outline-none focus:border-indigo-300 placeholder:text-gray-300"
-            rows={2}
-          />
-        </div>
-
-        <div className="mb-3">
-          <label className="text-xs text-gray-500 mb-1 block">背景故事</label>
-          <textarea
-            value={localChar.background}
-            onChange={(e) => updateCharacter({ background: e.target.value })}
-            placeholder="童年经历/重要事件/高光时刻..."
-            className="w-full text-xs border border-gray-200 rounded px-2 py-1.5 resize-none focus:outline-none focus:border-indigo-300 placeholder:text-gray-300"
-            rows={3}
-          />
-        </div>
-
-        <div className="mb-3">
-          <label className="text-xs text-gray-500 mb-1 block">人物弧光</label>
-          <input
-            type="text"
-            value={localChar.arc}
-            onChange={(e) => updateCharacter({ arc: e.target.value })}
-            placeholder="开场性格 → 结局改变（如：从逃避者到承担者）"
-            className="w-full text-xs border border-gray-200 rounded px-2 py-1.5 focus:outline-none focus:border-indigo-300 placeholder:text-gray-300"
-          />
-        </div>
+        <FieldWithAI label="动机" field="motivation" placeholder="角色的核心目标/驱动力..." />
+        <FieldWithAI label="背景故事" field="background" placeholder="成长经历/重要事件..." multiline />
+        <FieldWithAI label="人物弧光" field="arc" placeholder="开场状态 → 结局改变" />
 
         {/* 操作按钮 */}
-        <div className="flex justify-between pt-2 border-t border-gray-100">
+        <div className="flex justify-between pt-2 border-t border-gray-200">
           <button
             onClick={handleDelete}
             className="text-xs text-red-500 hover:text-red-600 transition"
