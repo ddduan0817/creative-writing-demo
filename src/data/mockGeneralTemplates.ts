@@ -70,11 +70,8 @@ export const templateCards: TemplateCard[] = [
   // 社媒文案
   { id: "t17", categoryId: "social", title: "小红书笔记", description: "自带流量网感，生成爆款笔记", iconColor: "bg-gradient-to-br from-red-400 to-pink-500", iconEmoji: "📕" },
   { id: "t18", categoryId: "social", title: "内容传播", description: "干货分享营销，文案一键生成", iconColor: "bg-gradient-to-br from-blue-400 to-cyan-500", iconEmoji: "📣" },
-  { id: "t19", categoryId: "social", title: "视频直播", description: "生成脚本话术，把控口播节奏", iconColor: "bg-gradient-to-br from-violet-400 to-purple-500", iconEmoji: "🎥" },
-  { id: "t25", categoryId: "social", title: "内容切片", description: "长视频拆解，高效二创分发", iconColor: "bg-gradient-to-br from-pink-400 to-rose-500", iconEmoji: "✂️" },
   { id: "t20", categoryId: "social", title: "品牌营销", description: "遵循品牌调性，输出全套物料", iconColor: "bg-gradient-to-br from-emerald-400 to-teal-500", iconEmoji: "🏷️" },
   { id: "t21", categoryId: "social", title: "新闻媒体", description: "基于事实材料，撰写专业报道", iconColor: "bg-gradient-to-br from-orange-400 to-amber-500", iconEmoji: "📰" },
-  { id: "t26", categoryId: "social", title: "内容解读", description: "深度拆解分析，洞察爆款密码", iconColor: "bg-gradient-to-br from-indigo-400 to-blue-500", iconEmoji: "🔍" },
   // 生活日常
   { id: "t22", categoryId: "life", title: "人际交往", description: "得体发言，应对各种场合", iconColor: "bg-gradient-to-br from-rose-400 to-red-500", iconEmoji: "🤝" },
   { id: "t23", categoryId: "life", title: "高情商社交", description: "拒绝尴尬，让社交更得体", iconColor: "bg-gradient-to-br from-teal-400 to-cyan-500", iconEmoji: "💬" },
@@ -155,17 +152,6 @@ export const subTemplates: SubTemplate[] = [
   { id: "s18-2", parentId: "t18", title: "日常分享" },
   { id: "s18-3", parentId: "t18", title: "商品营销" },
 
-  // 视频直播 (t19)
-  { id: "s19-1", parentId: "t19", title: "短视频口播稿" },
-  { id: "s19-2", parentId: "t19", title: "直播台本" },
-
-  // 内容切片 (t25)
-  { id: "s25-1", parentId: "t25", title: "长片拆条" },
-  { id: "s25-2", parentId: "t25", title: "切片带货" },
-  { id: "s25-3", parentId: "t25", title: "知识拆分" },
-  { id: "s25-4", parentId: "t25", title: "金句提炼" },
-  { id: "s25-5", parentId: "t25", title: "课程拆解" },
-
   // 品牌营销 (t20)
   { id: "s20-1", parentId: "t20", title: "品牌Slogan" },
   { id: "s20-2", parentId: "t20", title: "品牌故事" },
@@ -175,11 +161,6 @@ export const subTemplates: SubTemplate[] = [
   // 新闻媒体 (t21)
   { id: "s21-1", parentId: "t21", title: "新闻稿" },
   { id: "s21-2", parentId: "t21", title: "观点撰写" },
-
-  // 内容解读 (t26)
-  { id: "s26-1", parentId: "t26", title: "影书拆解" },
-  { id: "s26-2", parentId: "t26", title: "爆款拆解" },
-  { id: "s26-3", parentId: "t26", title: "观点解读" },
 
   // 人际交往 (t22)
   { id: "s22-1", parentId: "t22", title: "祝福贺词" },
@@ -754,78 +735,6 @@ export const templateConfigs: TemplateConfig[] = [
     ],
   },
 
-  // 视频直播 - 短视频口播稿 (s19-1)
-  {
-    subTemplateId: "s19-1",
-    fields: [
-      { key: "topic", label: "视频主题", type: "textarea", placeholder: "描述视频要讲的内容...", rows: 3, required: true },
-      { key: "type", label: "类型", type: "select", options: ["类型不限", "开箱", "测评", "教程", "探店", "对比", "剧情"], required: true },
-      { key: "style", label: "风格", type: "select", options: ["风格不限", "真实测评", "专业讲解", "情绪感染", "反转剧情", "干脆直接"], required: true },
-      { key: "duration", label: "时长", type: "select", options: ["时长不限", "15秒", "30秒", "60秒", "3分钟", "10分钟"], required: true },
-    ],
-  },
-  // 视频直播 - 直播台本 (s19-2)
-  {
-    subTemplateId: "s19-2",
-    fields: [
-      { key: "topic", label: "直播主题", type: "textarea", placeholder: "描述直播内容、产品...", rows: 3, required: true },
-      { key: "pace", label: "节奏", type: "select", options: ["节奏不限", "快", "中", "慢"], required: true },
-      { key: "type", label: "类型", type: "select", options: ["类型不限", "日常分享", "大促专场", "清仓福利", "其他"], required: true },
-      { key: "duration", label: "时长", type: "select", options: ["时长不限", "30分钟", "1小时", "2小时"], required: true },
-    ],
-  },
-
-  // 内容切片 - 长片拆条 (s25-1)
-  {
-    subTemplateId: "s25-1",
-    fields: [
-      { key: "content", label: "原片内容", type: "textarea", placeholder: "粘贴或描述原视频/文章内容...", rows: 5, required: true },
-      { key: "clipCount", label: "切片数量", type: "select", options: ["切片数量不限", "3条", "5条", "10条"], required: true },
-      { key: "style", label: "风格", type: "select", options: ["风格不限", "口语", "专业", "幽默", "犀利"], required: true },
-      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "100字", "500字", "800字", "1000字", "1500字", "3000字", "5000字", "10000字"], required: true },
-    ],
-  },
-  // 内容切片 - 切片带货 (s25-2)
-  {
-    subTemplateId: "s25-2",
-    fields: [
-      { key: "content", label: "原片内容", type: "textarea", placeholder: "粘贴或描述原视频/文章内容...", rows: 5, required: true },
-      { key: "clipCount", label: "切片数量", type: "select", options: ["切片数量不限", "3条", "5条", "10条"], required: true },
-      { key: "style", label: "风格", type: "select", options: ["风格不限", "口语", "专业", "幽默", "犀利"], required: true },
-      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "100字", "500字", "800字", "1000字", "1500字", "3000字", "5000字", "10000字"], required: true },
-    ],
-  },
-  // 内容切片 - 知识拆分 (s25-3)
-  {
-    subTemplateId: "s25-3",
-    fields: [
-      { key: "content", label: "原片内容", type: "textarea", placeholder: "粘贴或描述原视频/文章内容...", rows: 5, required: true },
-      { key: "clipCount", label: "切片数量", type: "select", options: ["切片数量不限", "3条", "5条", "10条"], required: true },
-      { key: "style", label: "风格", type: "select", options: ["风格不限", "口语", "专业", "幽默", "犀利"], required: true },
-      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "100字", "500字", "800字", "1000字", "1500字", "3000字", "5000字", "10000字"], required: true },
-    ],
-  },
-  // 内容切片 - 金句提炼 (s25-4)
-  {
-    subTemplateId: "s25-4",
-    fields: [
-      { key: "content", label: "原片内容", type: "textarea", placeholder: "粘贴或描述原视频/文章内容...", rows: 5, required: true },
-      { key: "clipCount", label: "切片数量", type: "select", options: ["切片数量不限", "3条", "5条", "10条"], required: true },
-      { key: "style", label: "风格", type: "select", options: ["风格不限", "口语", "专业", "幽默", "犀利"], required: true },
-      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "100字", "500字", "800字", "1000字", "1500字", "3000字", "5000字", "10000字"], required: true },
-    ],
-  },
-  // 内容切片 - 课程拆解 (s25-5)
-  {
-    subTemplateId: "s25-5",
-    fields: [
-      { key: "content", label: "原片内容", type: "textarea", placeholder: "粘贴或描述原视频/文章内容...", rows: 5, required: true },
-      { key: "clipCount", label: "切片数量", type: "select", options: ["切片数量不限", "3条", "5条", "10条"], required: true },
-      { key: "style", label: "风格", type: "select", options: ["风格不限", "口语", "专业", "幽默", "犀利"], required: true },
-      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "100字", "500字", "800字", "1000字", "1500字", "3000字", "5000字", "10000字"], required: true },
-    ],
-  },
-
   // 品牌营销 - 品牌Slogan (s20-1)
   {
     subTemplateId: "s20-1",
@@ -885,40 +794,6 @@ export const templateConfigs: TemplateConfig[] = [
       { key: "stance", label: "立场", type: "select", options: ["中立", "支持", "反对"] },
       { key: "tone", label: "语气", type: "select", options: ["语气不限", "理性", "犀利", "温和"], required: true },
       { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "100字", "300字", "500字", "800字"], required: true },
-    ],
-  },
-
-  // 内容解读 - 影书拆解 (s26-1)
-  {
-    subTemplateId: "s26-1",
-    fields: [
-      { key: "work", label: "作品信息", type: "textarea", placeholder: "填写影视/书籍名称及简介...", rows: 3, required: true },
-      { key: "platform", label: "平台", type: "select", options: ["平台不限", "小红书图文", "公众号长文", "知乎", "微博", "视频口播稿"], required: true },
-      { key: "angle", label: "角度", type: "select", options: ["角度不限", "剧情结构", "人物弧光", "主题立意", "叙事手法", "营销传播"], required: true },
-      { key: "format", label: "表达形式", type: "select", options: ["表达形式不限", "清单要点", "长文深度", "金句解读", "复盘总结"], required: true },
-      { key: "tone", label: "语气", type: "select", options: ["语气不限", "中立", "理性", "温和", "犀利", "幽默"], required: true },
-      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "500字", "800字", "1000字", "1500字", "3000字", "5000字", "10000字"], required: true },
-    ],
-  },
-  // 内容解读 - 爆款拆解 (s26-2)
-  {
-    subTemplateId: "s26-2",
-    fields: [
-      { key: "content", label: "爆款内容", type: "textarea", placeholder: "粘贴或描述要拆解的爆款内容...", rows: 4, required: true },
-      { key: "inputType", label: "输入形态", type: "select", options: ["图文", "短视频", "公众号文章", "直播切片"] },
-      { key: "focus", label: "重点", type: "tags", options: ["选题分析", "标题与封面钩子", "结构与节奏", "卖点", "互动设计", "转化路径", "视觉镜头"] },
-      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "500字", "800字", "1000字", "1500字", "3000字", "5000字", "10000字"], required: true },
-    ],
-  },
-  // 内容解读 - 观点解读 (s26-3)
-  {
-    subTemplateId: "s26-3",
-    fields: [
-      { key: "topic", label: "议题/事件", type: "textarea", placeholder: "描述要解读的议题或事件...", rows: 4, required: true },
-      { key: "platform", label: "平台", type: "select", options: ["平台不限", "小红书图文", "公众号长文", "知乎", "微博", "视频口播稿"], required: true },
-      { key: "angle", label: "角度", type: "select", options: ["角度不限", "时间线梳理", "争议点拆分", "因果链分析", "观点对比", "影响评估"], required: true },
-      { key: "tone", label: "语气", type: "select", options: ["语气不限", "中立", "理性", "温和", "犀利", "幽默"], required: true },
-      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "500字", "800字", "1000字", "1500字", "3000字", "5000字", "10000字"], required: true },
     ],
   },
 
