@@ -13,6 +13,29 @@ export interface TemplateCard {
   iconEmoji: string;
 }
 
+// 三级模板
+export interface SubTemplate {
+  id: string;
+  parentId: string; // 对应二级模板的 id
+  title: string;
+}
+
+// 四级字段配置
+export interface TemplateField {
+  key: string;
+  label: string;
+  type: "input" | "textarea" | "select" | "tags";
+  placeholder?: string;
+  options?: string[];
+  rows?: number;
+  required?: boolean;
+}
+
+export interface TemplateConfig {
+  subTemplateId: string;
+  fields: TemplateField[];
+}
+
 export const templateCategories: TemplateCategory[] = [
   { id: "all", label: "全部", icon: "LayoutGrid" },
   { id: "recent", label: "最近使用", icon: "Clock" },
@@ -56,3 +79,542 @@ export const templateCards: TemplateCard[] = [
 ];
 
 export const recentTemplateIds = ["t1", "t8", "t17", "t22"];
+
+// 三级模板数据
+export const subTemplates: SubTemplate[] = [
+  // 汇报总结 (t8)
+  { id: "s8-1", parentId: "t8", title: "日报" },
+  { id: "s8-2", parentId: "t8", title: "周报" },
+  { id: "s8-3", parentId: "t8", title: "月报" },
+  { id: "s8-4", parentId: "t8", title: "季报" },
+  { id: "s8-5", parentId: "t8", title: "年报" },
+  { id: "s8-6", parentId: "t8", title: "项目汇报" },
+  { id: "s8-7", parentId: "t8", title: "述职报告" },
+
+  // 会议助手 (t9)
+  { id: "s9-1", parentId: "t9", title: "会议纪要" },
+  { id: "s9-2", parentId: "t9", title: "会议邀请" },
+  { id: "s9-3", parentId: "t9", title: "会议通知" },
+  { id: "s9-4", parentId: "t9", title: "会议总结" },
+
+  // 邮件沟通 (t10)
+  { id: "s10-1", parentId: "t10", title: "工作邮件" },
+  { id: "s10-2", parentId: "t10", title: "感谢邮件" },
+  { id: "s10-3", parentId: "t10", title: "道歉邮件" },
+  { id: "s10-4", parentId: "t10", title: "邀请邮件" },
+  { id: "s10-5", parentId: "t10", title: "催促邮件" },
+  { id: "s10-6", parentId: "t10", title: "拒绝邮件" },
+
+  // 个人材料 (t11)
+  { id: "s11-1", parentId: "t11", title: "个人简历" },
+  { id: "s11-2", parentId: "t11", title: "自我介绍" },
+  { id: "s11-3", parentId: "t11", title: "求职信" },
+  { id: "s11-4", parentId: "t11", title: "推荐信" },
+
+  // 心得体会 (t12)
+  { id: "s12-1", parentId: "t12", title: "读书心得" },
+  { id: "s12-2", parentId: "t12", title: "培训心得" },
+  { id: "s12-3", parentId: "t12", title: "工作心得" },
+  { id: "s12-4", parentId: "t12", title: "学习心得" },
+
+  // 论文写作 (t13)
+  { id: "s13-1", parentId: "t13", title: "专业论文" },
+  { id: "s13-2", parentId: "t13", title: "论文标题" },
+  { id: "s13-3", parentId: "t13", title: "论文大纲" },
+  { id: "s13-4", parentId: "t13", title: "论文综述" },
+
+  // 研究报告 (t14)
+  { id: "s14-1", parentId: "t14", title: "开题报告" },
+  { id: "s14-2", parentId: "t14", title: "调研报告" },
+  { id: "s14-3", parentId: "t14", title: "进展报告" },
+  { id: "s14-4", parentId: "t14", title: "实践报告" },
+
+  // 作文 (t15)
+  { id: "s15-1", parentId: "t15", title: "通用作文" },
+  { id: "s15-2", parentId: "t15", title: "记叙文" },
+  { id: "s15-3", parentId: "t15", title: "议论文" },
+  { id: "s15-4", parentId: "t15", title: "说明文" },
+  { id: "s15-5", parentId: "t15", title: "散文" },
+  { id: "s15-6", parentId: "t15", title: "日记" },
+  { id: "s15-7", parentId: "t15", title: "读后感" },
+
+  // 教学设计 (t16)
+  { id: "s16-1", parentId: "t16", title: "教案" },
+  { id: "s16-2", parentId: "t16", title: "课件讲义" },
+  { id: "s16-3", parentId: "t16", title: "学生评语" },
+  { id: "s16-4", parentId: "t16", title: "学情分析" },
+
+  // 小红书笔记 (t17)
+  { id: "s17-1", parentId: "t17", title: "种草笔记" },
+  { id: "s17-2", parentId: "t17", title: "探店笔记" },
+  { id: "s17-3", parentId: "t17", title: "穿搭笔记" },
+  { id: "s17-4", parentId: "t17", title: "美妆笔记" },
+  { id: "s17-5", parentId: "t17", title: "旅行笔记" },
+
+  // 内容传播 (t18)
+  { id: "s18-1", parentId: "t18", title: "公众号文章" },
+  { id: "s18-2", parentId: "t18", title: "朋友圈文案" },
+  { id: "s18-3", parentId: "t18", title: "微博文案" },
+  { id: "s18-4", parentId: "t18", title: "知乎回答" },
+
+  // 视频直播 (t19)
+  { id: "s19-1", parentId: "t19", title: "短视频脚本" },
+  { id: "s19-2", parentId: "t19", title: "直播脚本" },
+  { id: "s19-3", parentId: "t19", title: "口播稿" },
+  { id: "s19-4", parentId: "t19", title: "视频文案" },
+
+  // 品牌营销 (t20)
+  { id: "s20-1", parentId: "t20", title: "品牌故事" },
+  { id: "s20-2", parentId: "t20", title: "广告文案" },
+  { id: "s20-3", parentId: "t20", title: "宣传语" },
+  { id: "s20-4", parentId: "t20", title: "活动方案" },
+
+  // 新闻媒体 (t21)
+  { id: "s21-1", parentId: "t21", title: "新闻稿" },
+  { id: "s21-2", parentId: "t21", title: "通讯稿" },
+  { id: "s21-3", parentId: "t21", title: "新闻评论" },
+  { id: "s21-4", parentId: "t21", title: "人物专访" },
+
+  // 人际交往 (t22)
+  { id: "s22-1", parentId: "t22", title: "祝福语" },
+  { id: "s22-2", parentId: "t22", title: "感谢语" },
+  { id: "s22-3", parentId: "t22", title: "道歉语" },
+  { id: "s22-4", parentId: "t22", title: "邀请语" },
+
+  // 高情商社交 (t23)
+  { id: "s23-1", parentId: "t23", title: "拒绝话术" },
+  { id: "s23-2", parentId: "t23", title: "夸人话术" },
+  { id: "s23-3", parentId: "t23", title: "安慰话术" },
+  { id: "s23-4", parentId: "t23", title: "求助话术" },
+
+  // 影书评论 (t24)
+  { id: "s24-1", parentId: "t24", title: "电影评论" },
+  { id: "s24-2", parentId: "t24", title: "书评" },
+  { id: "s24-3", parentId: "t24", title: "剧评" },
+  { id: "s24-4", parentId: "t24", title: "音乐评论" },
+
+  // 文章优化类 - 通用配置
+  { id: "s1-1", parentId: "t1", title: "通用仿写" },
+  { id: "s2-1", parentId: "t2", title: "通用续写" },
+  { id: "s3-1", parentId: "t3", title: "通用扩写" },
+  { id: "s4-1", parentId: "t4", title: "通用改写" },
+  { id: "s5-1", parentId: "t5", title: "通用缩写" },
+  { id: "s6-1", parentId: "t6", title: "通用润色" },
+  { id: "s7-1", parentId: "t7", title: "通用划重点" },
+];
+
+// 四级配置 - 字段定义
+export const templateConfigs: TemplateConfig[] = [
+  // 日报
+  {
+    subTemplateId: "s8-1",
+    fields: [
+      { key: "date", label: "日期", type: "input", placeholder: "如：2024年3月9日" },
+      { key: "todayWork", label: "今日工作内容", type: "textarea", placeholder: "请描述今天完成的主要工作...", rows: 4, required: true },
+      { key: "problems", label: "遇到的问题", type: "textarea", placeholder: "工作中遇到的困难或需要协调的事项...", rows: 2 },
+      { key: "tomorrowPlan", label: "明日计划", type: "textarea", placeholder: "明天计划完成的工作...", rows: 2 },
+      { key: "tone", label: "语气风格", type: "select", options: ["正式简洁", "详细专业", "轻松随意"] },
+    ],
+  },
+  // 周报
+  {
+    subTemplateId: "s8-2",
+    fields: [
+      { key: "week", label: "周次", type: "input", placeholder: "如：第10周（3.4-3.8）" },
+      { key: "weekWork", label: "本周工作总结", type: "textarea", placeholder: "请总结本周完成的主要工作...", rows: 4, required: true },
+      { key: "achievement", label: "重点成果", type: "textarea", placeholder: "本周取得的关键进展或成果...", rows: 2 },
+      { key: "problems", label: "问题与风险", type: "textarea", placeholder: "遇到的问题及潜在风险...", rows: 2 },
+      { key: "nextWeekPlan", label: "下周计划", type: "textarea", placeholder: "下周的工作安排...", rows: 2 },
+      { key: "tone", label: "语气风格", type: "select", options: ["正式简洁", "详细专业", "数据导向"] },
+    ],
+  },
+  // 月报
+  {
+    subTemplateId: "s8-3",
+    fields: [
+      { key: "month", label: "月份", type: "input", placeholder: "如：2024年3月" },
+      { key: "monthSummary", label: "月度工作总结", type: "textarea", placeholder: "本月主要工作内容及成果...", rows: 5, required: true },
+      { key: "keyMetrics", label: "关键指标", type: "textarea", placeholder: "完成的KPI、数据指标等...", rows: 2 },
+      { key: "problems", label: "问题分析", type: "textarea", placeholder: "遇到的问题及解决方案...", rows: 2 },
+      { key: "nextMonthPlan", label: "下月规划", type: "textarea", placeholder: "下月工作计划...", rows: 2 },
+    ],
+  },
+  // 项目汇报
+  {
+    subTemplateId: "s8-6",
+    fields: [
+      { key: "projectName", label: "项目名称", type: "input", placeholder: "请输入项目名称", required: true },
+      { key: "progress", label: "项目进度", type: "select", options: ["筹备阶段", "进行中", "收尾阶段", "已完成"] },
+      { key: "content", label: "项目概况", type: "textarea", placeholder: "项目背景、目标、当前状态...", rows: 4, required: true },
+      { key: "milestone", label: "里程碑", type: "textarea", placeholder: "已完成和待完成的关键节点...", rows: 2 },
+      { key: "risk", label: "风险与对策", type: "textarea", placeholder: "潜在风险及应对措施...", rows: 2 },
+    ],
+  },
+  // 会议纪要
+  {
+    subTemplateId: "s9-1",
+    fields: [
+      { key: "meetingTitle", label: "会议主题", type: "input", placeholder: "请输入会议主题", required: true },
+      { key: "attendees", label: "参会人员", type: "input", placeholder: "参会人员名单" },
+      { key: "time", label: "会议时间", type: "input", placeholder: "如：2024年3月9日 14:00-15:00" },
+      { key: "content", label: "会议内容", type: "textarea", placeholder: "讨论的主要内容、发言要点...", rows: 5, required: true },
+      { key: "decisions", label: "会议决议", type: "textarea", placeholder: "达成的共识、决定的事项...", rows: 2 },
+      { key: "todos", label: "待办事项", type: "textarea", placeholder: "后续任务分配（负责人、截止时间）...", rows: 2 },
+    ],
+  },
+  // 工作邮件
+  {
+    subTemplateId: "s10-1",
+    fields: [
+      { key: "recipient", label: "收件人", type: "input", placeholder: "收件人称呼，如：张总、各位同事" },
+      { key: "subject", label: "邮件主题", type: "input", placeholder: "简洁明了的邮件主题", required: true },
+      { key: "purpose", label: "邮件目的", type: "select", options: ["汇报工作", "请求批准", "通知事项", "寻求协助", "确认信息"] },
+      { key: "content", label: "邮件内容", type: "textarea", placeholder: "邮件的主要内容...", rows: 4, required: true },
+      { key: "tone", label: "语气", type: "select", options: ["正式商务", "礼貌友好", "简洁直接"] },
+    ],
+  },
+  // 个人简历
+  {
+    subTemplateId: "s11-1",
+    fields: [
+      { key: "position", label: "目标岗位", type: "input", placeholder: "应聘的职位名称", required: true },
+      { key: "experience", label: "工作经历", type: "textarea", placeholder: "按时间倒序列出工作经历...", rows: 4, required: true },
+      { key: "education", label: "教育背景", type: "textarea", placeholder: "学历、专业、毕业院校...", rows: 2 },
+      { key: "skills", label: "技能特长", type: "textarea", placeholder: "专业技能、证书、语言能力...", rows: 2 },
+      { key: "style", label: "简历风格", type: "select", options: ["专业正式", "简洁现代", "创意个性"] },
+    ],
+  },
+
+  // ========== 学术助手 - 论文写作 ==========
+  // 专业论文 (s13-1)
+  {
+    subTemplateId: "s13-1",
+    fields: [
+      { key: "title", label: "论文题目", type: "input", placeholder: "请输入论文题目", required: true },
+      { key: "level", label: "学段", type: "select", options: ["学段不限", "专科", "本科", "硕士", "博士"] },
+      { key: "major", label: "专业", type: "select", options: ["专业不限", "哲学", "经济学", "法学", "教育学", "文学", "历史学", "理学", "工学", "农学", "医学", "管理学", "艺术学"] },
+      { key: "type", label: "类型", type: "select", options: ["课程论文", "毕业论文", "期刊论文", "专升本论文", "教学论文"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "5000字", "8000字", "10000字", "12000字", "15000字", "20000字", "30000字"] },
+    ],
+  },
+  // 论文标题 (s13-2)
+  {
+    subTemplateId: "s13-2",
+    fields: [
+      { key: "topic", label: "研究方向/主题", type: "textarea", placeholder: "请描述研究方向或主题...", rows: 3, required: true },
+      { key: "level", label: "学段", type: "select", options: ["学段不限", "专科", "本科", "硕士", "博士"] },
+      { key: "major", label: "专业", type: "select", options: ["专业不限", "哲学", "经济学", "法学", "教育学", "文学", "历史学", "理学", "工学", "农学", "医学", "管理学", "艺术学"] },
+      { key: "type", label: "类型", type: "select", options: ["课程论文", "毕业论文", "期刊论文", "专升本论文", "教学论文"] },
+      { key: "length", label: "标题长度", type: "select", options: ["字数不限", "短", "中", "长"] },
+    ],
+  },
+  // 论文大纲 (s13-3)
+  {
+    subTemplateId: "s13-3",
+    fields: [
+      { key: "title", label: "论文题目", type: "input", placeholder: "请输入论文题目", required: true },
+      { key: "level", label: "学段", type: "select", options: ["学段不限", "专科", "本科", "硕士", "博士"] },
+      { key: "major", label: "专业", type: "select", options: ["专业不限", "哲学", "经济学", "法学", "教育学", "文学", "历史学", "理学", "工学", "农学", "医学", "管理学", "艺术学"] },
+      { key: "type", label: "类型", type: "select", options: ["课程论文", "毕业论文", "期刊论文", "专升本论文", "教学论文"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "1000字", "2000字", "3000字", "5000字", "10000字", "15000字"] },
+    ],
+  },
+  // 论文综述 (s13-4)
+  {
+    subTemplateId: "s13-4",
+    fields: [
+      { key: "topic", label: "研究主题", type: "textarea", placeholder: "请描述综述的研究主题...", rows: 3, required: true },
+      { key: "level", label: "学段", type: "select", options: ["学段不限", "专科", "本科", "硕士", "博士"] },
+      { key: "major", label: "专业", type: "select", options: ["专业不限", "哲学", "经济学", "法学", "教育学", "文学", "历史学", "理学", "工学", "农学", "医学", "管理学", "艺术学"] },
+      { key: "timeRange", label: "时间范围", type: "select", options: ["时间不限", "近1年", "近3年", "近5年", "近10年"] },
+      { key: "literatureCount", label: "文献数量", type: "select", options: ["文献数量不限", "10篇", "20篇", "30篇"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "1500字", "3000字", "5000字", "8000字", "10000字", "15000字"] },
+    ],
+  },
+
+  // ========== 学术助手 - 研究报告 ==========
+  // 开题报告 (s14-1)
+  {
+    subTemplateId: "s14-1",
+    fields: [
+      { key: "title", label: "研究题目", type: "input", placeholder: "请输入研究题目", required: true },
+      { key: "level", label: "学段", type: "select", options: ["学段不限", "专科", "本科", "硕士", "博士"] },
+      { key: "major", label: "专业", type: "select", options: ["专业不限", "哲学", "经济学", "法学", "教育学", "文学", "历史学", "理学", "工学", "农学", "医学", "管理学", "艺术学"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "1500字", "3000字", "5000字", "8000字", "10000字", "15000字"] },
+    ],
+  },
+  // 调研报告 (s14-2)
+  {
+    subTemplateId: "s14-2",
+    fields: [
+      { key: "topic", label: "调研主题", type: "textarea", placeholder: "请描述调研主题...", rows: 3, required: true },
+      { key: "level", label: "学段", type: "select", options: ["学段不限", "专科", "本科", "硕士", "博士"] },
+      { key: "major", label: "专业", type: "select", options: ["专业不限", "哲学", "经济学", "法学", "教育学", "文学", "历史学", "理学", "工学", "农学", "医学", "管理学", "艺术学"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "1500字", "3000字", "5000字", "8000字", "10000字", "15000字"] },
+    ],
+  },
+  // 进展报告 (s14-3)
+  {
+    subTemplateId: "s14-3",
+    fields: [
+      { key: "project", label: "项目/课题名称", type: "input", placeholder: "请输入项目或课题名称", required: true },
+      { key: "level", label: "学段", type: "select", options: ["学段不限", "专科", "本科", "硕士", "博士"] },
+      { key: "major", label: "专业", type: "select", options: ["专业不限", "哲学", "经济学", "法学", "教育学", "文学", "历史学", "理学", "工学", "农学", "医学", "管理学", "艺术学"] },
+      { key: "cycle", label: "周期", type: "select", options: ["周期不限", "周", "月", "季", "年"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "1500字", "3000字", "5000字", "8000字", "10000字", "15000字"] },
+    ],
+  },
+  // 实践报告 (s14-4)
+  {
+    subTemplateId: "s14-4",
+    fields: [
+      { key: "topic", label: "实践主题", type: "textarea", placeholder: "请描述实践内容...", rows: 3, required: true },
+      { key: "level", label: "学段", type: "select", options: ["学段不限", "专科", "本科", "硕士", "博士"] },
+      { key: "major", label: "专业", type: "select", options: ["专业不限", "哲学", "经济学", "法学", "教育学", "文学", "历史学", "理学", "工学", "农学", "医学", "管理学", "艺术学"] },
+      { key: "type", label: "类型", type: "select", options: ["课程实践", "社会实践", "实习报告", "教育实习", "临床实习", "毕设实践"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "1500字", "3000字", "5000字", "8000字", "10000字", "15000字"] },
+    ],
+  },
+
+  // ========== 学术助手 - 作文 ==========
+  // 通用作文 (s15-1)
+  {
+    subTemplateId: "s15-1",
+    fields: [
+      { key: "topic", label: "作文题目/主题", type: "input", placeholder: "请输入作文题目或主题", required: true },
+      { key: "level", label: "学段", type: "select", options: ["学段不限", "小学", "初中", "高中"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "100字", "200字", "300字", "500字", "800字", "1000字"] },
+    ],
+  },
+  // 记叙文 (s15-2)
+  {
+    subTemplateId: "s15-2",
+    fields: [
+      { key: "topic", label: "作文题目/主题", type: "input", placeholder: "请输入作文题目或主题", required: true },
+      { key: "level", label: "学段", type: "select", options: ["学段不限", "小学", "初中", "高中"] },
+      { key: "structure", label: "结构", type: "select", options: ["顺叙", "倒叙", "插叙"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "100字", "200字", "300字", "500字", "800字", "1000字"] },
+    ],
+  },
+  // 议论文 (s15-3)
+  {
+    subTemplateId: "s15-3",
+    fields: [
+      { key: "topic", label: "作文题目/主题", type: "input", placeholder: "请输入作文题目或主题", required: true },
+      { key: "level", label: "学段", type: "select", options: ["学段不限", "小学", "初中", "高中"] },
+      { key: "structure", label: "结构", type: "select", options: ["立论", "驳论", "结合"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "100字", "200字", "300字", "500字", "800字", "1000字"] },
+    ],
+  },
+  // 说明文 (s15-4)
+  {
+    subTemplateId: "s15-4",
+    fields: [
+      { key: "topic", label: "作文题目/主题", type: "input", placeholder: "请输入作文题目或主题", required: true },
+      { key: "level", label: "学段", type: "select", options: ["学段不限", "小学", "初中", "高中"] },
+      { key: "structure", label: "结构", type: "select", options: ["总分总", "并列式", "递进式"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "100字", "200字", "300字", "500字", "800字", "1000字"] },
+    ],
+  },
+  // 散文 (s15-5)
+  {
+    subTemplateId: "s15-5",
+    fields: [
+      { key: "topic", label: "作文题目/主题", type: "input", placeholder: "请输入作文题目或主题", required: true },
+      { key: "level", label: "学段", type: "select", options: ["学段不限", "小学", "初中", "高中"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "100字", "200字", "300字", "500字", "800字", "1000字"] },
+    ],
+  },
+  // 日记 (s15-6)
+  {
+    subTemplateId: "s15-6",
+    fields: [
+      { key: "topic", label: "日记主题/事件", type: "input", placeholder: "请输入日记主题或记录的事件", required: true },
+      { key: "level", label: "学段", type: "select", options: ["学段不限", "小学", "初中", "高中"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "100字", "200字", "300字", "500字", "800字", "1000字"] },
+    ],
+  },
+  // 读后感 (s15-7)
+  {
+    subTemplateId: "s15-7",
+    fields: [
+      { key: "bookName", label: "书名/文章名", type: "input", placeholder: "请输入阅读的书名或文章名", required: true },
+      { key: "level", label: "学段", type: "select", options: ["学段不限", "小学", "初中", "高中"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "100字", "200字", "300字", "500字", "800字", "1000字"] },
+    ],
+  },
+
+  // ========== 学术助手 - 教学设计 ==========
+  // 教案 (s16-1)
+  {
+    subTemplateId: "s16-1",
+    fields: [
+      { key: "topic", label: "课程主题", type: "input", placeholder: "请输入课程主题", required: true },
+      { key: "level", label: "学段", type: "select", options: ["学段不限", "小学", "初中", "高中"] },
+      { key: "subject", label: "学科", type: "select", options: ["语文", "数学", "英语", "政治", "地理", "历史", "物理", "化学", "生物"] },
+      { key: "lessonType", label: "课型", type: "select", options: ["课型不限", "新课", "复习课", "练习课", "讲评课", "实验课", "活动课", "作文课", "公开课"] },
+      { key: "duration", label: "课时", type: "select", options: ["课时不限", "40分钟", "45分钟", "60分钟", "90分钟"] },
+    ],
+  },
+  // 课件讲义 (s16-2)
+  {
+    subTemplateId: "s16-2",
+    fields: [
+      { key: "topic", label: "课程主题", type: "input", placeholder: "请输入课程主题", required: true },
+      { key: "level", label: "学段", type: "select", options: ["学段不限", "小学", "初中", "高中"] },
+      { key: "usage", label: "用途", type: "select", options: ["用途不限", "PPT讲义", "课堂板书"] },
+      { key: "pages", label: "页数", type: "select", options: ["页数不限", "5页", "10页", "15页", "20页", "30页"] },
+    ],
+  },
+  // 学生评语 (s16-3)
+  {
+    subTemplateId: "s16-3",
+    fields: [
+      { key: "studentInfo", label: "学生情况", type: "textarea", placeholder: "请描述学生的基本情况、特点...", rows: 3, required: true },
+      { key: "level", label: "学段", type: "select", options: ["学段不限", "小学", "初中", "高中"] },
+      { key: "scene", label: "场景", type: "select", options: ["期末评语", "期中评语", "作业评语", "课堂表现评语"] },
+      { key: "format", label: "形式", type: "select", options: ["形式不限", "段落式", "分点式", "小作文", "格律诗", "对联式"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "100字", "200字", "300字", "500字", "800字", "1000字"] },
+    ],
+  },
+  // 学情分析 (s16-4)
+  {
+    subTemplateId: "s16-4",
+    fields: [
+      { key: "classInfo", label: "班级情况", type: "textarea", placeholder: "请描述班级的基本情况...", rows: 3, required: true },
+      { key: "level", label: "学段", type: "select", options: ["学段不限", "小学", "初中", "高中"] },
+      { key: "timeRange", label: "时间范围", type: "select", options: ["时间范围不限", "短期", "中期", "长期"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "100字", "200字", "300字", "500字", "800字", "1000字"] },
+    ],
+  },
+
+  // ========== 社媒文案 ==========
+  {
+    subTemplateId: "s17-1",
+    fields: [
+      { key: "product", label: "产品/品牌", type: "input", placeholder: "推荐的产品或品牌名称", required: true },
+      { key: "category", label: "品类", type: "select", options: ["美妆护肤", "服饰穿搭", "美食饮品", "家居好物", "数码电子", "母婴用品", "其他"] },
+      { key: "highlights", label: "产品亮点", type: "textarea", placeholder: "产品的核心卖点、使用感受...", rows: 3, required: true },
+      { key: "scenario", label: "使用场景", type: "textarea", placeholder: "适合什么人群、什么场合使用...", rows: 2 },
+      { key: "style", label: "笔记风格", type: "select", options: ["真诚分享", "专业测评", "趣味种草", "对比安利"] },
+    ],
+  },
+  // 公众号文章
+  {
+    subTemplateId: "s18-1",
+    fields: [
+      { key: "title", label: "文章标题", type: "input", placeholder: "吸引人的标题", required: true },
+      { key: "topic", label: "主题内容", type: "textarea", placeholder: "文章要表达的核心观点或内容...", rows: 4, required: true },
+      { key: "audience", label: "目标读者", type: "input", placeholder: "如：职场新人、宝妈群体..." },
+      { key: "length", label: "字数要求", type: "select", options: ["短文(500字)", "中等(1000字)", "长文(2000字)", "深度(3000字+)"] },
+      { key: "style", label: "文章风格", type: "select", options: ["干货分享", "情感共鸣", "观点输出", "故事叙述"] },
+    ],
+  },
+  // 新闻稿
+  {
+    subTemplateId: "s21-1",
+    fields: [
+      { key: "title", label: "新闻标题", type: "input", placeholder: "简洁有力的标题", required: true },
+      { key: "event", label: "事件/主题", type: "textarea", placeholder: "新闻事件的核心内容...", rows: 4, required: true },
+      { key: "who", label: "涉及人物/机构", type: "input", placeholder: "主要人物或组织" },
+      { key: "when", label: "时间", type: "input", placeholder: "事件发生时间" },
+      { key: "where", label: "地点", type: "input", placeholder: "事件发生地点" },
+      { key: "type", label: "新闻类型", type: "select", options: ["企业新闻", "活动报道", "产品发布", "人物专访", "行业动态"] },
+    ],
+  },
+  // 祝福语
+  {
+    subTemplateId: "s22-1",
+    fields: [
+      { key: "occasion", label: "场合", type: "select", options: ["生日", "结婚", "新年", "升职", "乔迁", "毕业", "节日", "其他"], required: true },
+      { key: "recipient", label: "对象", type: "input", placeholder: "祝福对象，如：朋友、长辈、同事..." },
+      { key: "relationship", label: "关系", type: "select", options: ["亲密朋友", "普通朋友", "长辈", "晚辈", "同事", "领导", "客户"] },
+      { key: "extra", label: "补充信息", type: "textarea", placeholder: "特殊要求或想表达的内容...", rows: 2 },
+      { key: "style", label: "风格", type: "select", options: ["真挚温暖", "幽默风趣", "文艺诗意", "正式得体"] },
+    ],
+  },
+  // 电影评论
+  {
+    subTemplateId: "s24-1",
+    fields: [
+      { key: "movieName", label: "电影名称", type: "input", placeholder: "请输入电影名称", required: true },
+      { key: "rating", label: "个人评分", type: "select", options: ["10分-神作", "8-9分-优秀", "6-7分-一般", "5分以下-较差"] },
+      { key: "impression", label: "观影感受", type: "textarea", placeholder: "看完电影的感受、印象深刻的点...", rows: 4, required: true },
+      { key: "aspect", label: "评论角度", type: "tags", options: ["剧情", "演技", "画面", "配乐", "主题", "节奏", "细节"] },
+      { key: "style", label: "评论风格", type: "select", options: ["专业影评", "个人感想", "深度解析", "轻松吐槽"] },
+    ],
+  },
+  // 通用仿写
+  {
+    subTemplateId: "s1-1",
+    fields: [
+      { key: "original", label: "原文", type: "textarea", placeholder: "粘贴需要仿写的原文...", rows: 5, required: true },
+      { key: "topic", label: "新主题", type: "textarea", placeholder: "仿写的新主题或内容方向...", rows: 2, required: true },
+      { key: "keepStyle", label: "保留元素", type: "tags", options: ["语言风格", "结构框架", "修辞手法", "情感基调", "段落节奏"] },
+    ],
+  },
+  // 通用续写
+  {
+    subTemplateId: "s2-1",
+    fields: [
+      { key: "original", label: "原文", type: "textarea", placeholder: "粘贴需要续写的原文...", rows: 5, required: true },
+      { key: "direction", label: "续写方向", type: "textarea", placeholder: "希望续写的内容方向...", rows: 2 },
+      { key: "length", label: "续写长度", type: "select", options: ["短续(100-200字)", "中续(300-500字)", "长续(500字以上)"] },
+    ],
+  },
+  // 通用扩写
+  {
+    subTemplateId: "s3-1",
+    fields: [
+      { key: "original", label: "原文", type: "textarea", placeholder: "粘贴需要扩写的原文...", rows: 4, required: true },
+      { key: "expandAspect", label: "扩展方向", type: "tags", options: ["增加细节", "补充例证", "深化分析", "丰富描写", "增加过渡"] },
+      { key: "targetLength", label: "目标字数", type: "select", options: ["扩展50%", "扩展100%", "扩展200%"] },
+    ],
+  },
+  // 通用改写
+  {
+    subTemplateId: "s4-1",
+    fields: [
+      { key: "original", label: "原文", type: "textarea", placeholder: "粘贴需要改写的原文...", rows: 5, required: true },
+      { key: "requirement", label: "改写要求", type: "textarea", placeholder: "具体的改写需求...", rows: 2 },
+      { key: "targetStyle", label: "目标风格", type: "select", options: ["更正式", "更口语", "更简洁", "更详细", "更生动"] },
+    ],
+  },
+  // 通用缩写
+  {
+    subTemplateId: "s5-1",
+    fields: [
+      { key: "original", label: "原文", type: "textarea", placeholder: "粘贴需要缩写的原文...", rows: 6, required: true },
+      { key: "targetLength", label: "目标字数", type: "select", options: ["精简至50%", "精简至30%", "精简至100字内", "精简至50字内"] },
+      { key: "keepElements", label: "保留要点", type: "textarea", placeholder: "必须保留的核心信息...", rows: 2 },
+    ],
+  },
+  // 通用润色
+  {
+    subTemplateId: "s6-1",
+    fields: [
+      { key: "original", label: "原文", type: "textarea", placeholder: "粘贴需要润色的原文...", rows: 5, required: true },
+      { key: "focus", label: "润色重点", type: "tags", options: ["语法纠错", "措辞优化", "逻辑通顺", "风格统一", "表达升级"] },
+      { key: "targetTone", label: "目标语气", type: "select", options: ["保持原样", "更正式", "更生动", "更专业", "更口语化"] },
+    ],
+  },
+  // 通用划重点
+  {
+    subTemplateId: "s7-1",
+    fields: [
+      { key: "original", label: "原文", type: "textarea", placeholder: "粘贴需要提取重点的原文...", rows: 6, required: true },
+      { key: "format", label: "输出格式", type: "select", options: ["要点列表", "一句话总结", "思维导图", "关键词"] },
+      { key: "focus", label: "关注方向", type: "textarea", placeholder: "特别关注的方面（可选）...", rows: 2 },
+    ],
+  },
+];
+
+// 获取某个二级模板的所有三级模板
+export function getSubTemplates(parentId: string): SubTemplate[] {
+  return subTemplates.filter((s) => s.parentId === parentId);
+}
+
+// 获取某个三级模板的四级配置
+export function getTemplateConfig(subTemplateId: string): TemplateConfig | undefined {
+  return templateConfigs.find((c) => c.subTemplateId === subTemplateId);
+}
