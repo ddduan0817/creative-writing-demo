@@ -1,10 +1,8 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useEditorStore } from "@/stores/editorStore";
-import { mockScreenplayScenes } from "@/data/mockChapters";
-import { mockChapters } from "@/data/mockChapters";
 import TopBar from "./TopBar";
 import LeftPanel from "./left/LeftPanel";
 import GeneralLeftPanel from "./left/GeneralLeftPanel";
@@ -19,10 +17,17 @@ import { cn } from "@/lib/utils";
 export default function WorkbenchLayout() {
   const searchParams = useSearchParams();
   const sceneParam = searchParams.get("scene") || "novel";
-  const { leftCollapsed, rightCollapsed, toast, scene, setScene } =
+  const workId = searchParams.get("id"); // 如果有 id 参数，说明是打开已有作品
+  const { leftCollapsed, rightCollapsed, toast, scene, resetToEmpty } =
     useEditorStore();
 
+  const hasInitialized = useRef(false);
+
   useEffect(() => {
+    // 防止 React StrictMode 下重复执行
+    if (hasInitialized.current) return;
+    hasInitialized.current = true;
+
     const validScenes = [
       "novel",
       "screenplay",
@@ -30,18 +35,20 @@ export default function WorkbenchLayout() {
       "knowledge",
       "general",
     ] as const;
+
     if (validScenes.includes(sceneParam as (typeof validScenes)[number])) {
       const s = sceneParam as (typeof validScenes)[number];
-      setScene(s);
-      // Switch chapter data based on scene
-      const store = useEditorStore.getState();
-      if (s === "screenplay") {
-        store.setChapters(mockScreenplayScenes);
-      } else if (s === "novel") {
-        store.setChapters(mockChapters);
+
+      if (workId) {
+        // TODO: 有 id 参数时，从存储加载已有作品
+        // 目前 demo 阶段直接重置为空白
+        resetToEmpty(s);
+      } else {
+        // 没有 id 参数，说明是新建作品，重置为空白文档
+        resetToEmpty(s);
       }
     }
-  }, [sceneParam, setScene]);
+  }, [sceneParam, workId, resetToEmpty]);
 
   const isGeneral = scene === "general";
   const isSimple = scene === "marketing" || scene === "knowledge";

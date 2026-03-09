@@ -78,6 +78,9 @@ interface EditorState {
   // 灵感卡片 → 编辑器插入
   pendingInsert: string | null;
   setPendingInsert: (text: string | null) => void;
+
+  // 重置为空白文档
+  resetToEmpty: (sceneType: EditorState["scene"]) => void;
 }
 
 export const useEditorStore = create<EditorState>((set) => ({
@@ -203,4 +206,40 @@ export const useEditorStore = create<EditorState>((set) => ({
 
   pendingInsert: null,
   setPendingInsert: (text) => set({ pendingInsert: text }),
+
+  resetToEmpty: (sceneType) => {
+    const sceneNames: Record<string, string> = {
+      novel: "未命名小说",
+      screenplay: "未命名剧本",
+      marketing: "未命名文案",
+      knowledge: "未命名专栏",
+      general: "未命名文档",
+    };
+    const defaultChapter = {
+      id: `ch${Date.now()}`,
+      title: sceneType === "screenplay" ? "第1场 开场" : "第一章",
+      content: "",
+      wordCount: 0,
+    };
+    set({
+      scene: sceneType,
+      title: sceneNames[sceneType] || "未命名文档",
+      chapters: [defaultChapter],
+      currentChapterId: defaultChapter.id,
+      outline: "",
+      characters: [],
+      selectedTags: [],
+      chatMessages: [],
+      settings: [
+        { key: "background", label: "背景设定", value: "" },
+        { key: "worldview", label: "世界观规则", value: "" },
+        { key: "perspective", label: "叙事视角", value: "" },
+        { key: "redline", label: "红线", value: "" },
+        { key: "clue", label: "关键线索", value: "" },
+        { key: "conflict", label: "核心冲突", value: "" },
+        { key: "scene", label: "主要场景", value: "" },
+        { key: "style", label: "语言风格", value: "" },
+      ],
+    });
+  },
 }));
