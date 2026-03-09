@@ -20,6 +20,9 @@ interface EditorState {
   // 基础信息
   title: string;
   setTitle: (title: string) => void;
+  titleManuallyEdited: boolean;  // 用户是否手动修改过标题
+  setTitleManuallyEdited: (edited: boolean) => void;
+  setAutoTitle: (title: string) => void;  // 自动设置标题（仅当用户未手动修改时）
   saveStatus: "saved" | "saving" | "failed";
   setSaveStatus: (status: "saved" | "saving" | "failed") => void;
 
@@ -102,7 +105,10 @@ export const useEditorStore = create<EditorState>((set) => ({
   setSelectedTemplate: (id) => set({ selectedTemplateId: id }),
 
   title: "灵脉纪",
-  setTitle: (title) => set({ title }),
+  setTitle: (title) => set({ title, titleManuallyEdited: true }),  // 用户手动修改时标记
+  titleManuallyEdited: false,
+  setTitleManuallyEdited: (edited) => set({ titleManuallyEdited: edited }),
+  setAutoTitle: (title) => set((s) => s.titleManuallyEdited ? s : { title }),  // 仅当未手动修改时生效
   saveStatus: "saved",
   setSaveStatus: (saveStatus) => set({ saveStatus }),
 
@@ -281,6 +287,7 @@ export const useEditorStore = create<EditorState>((set) => ({
     set({
       scene: sceneType,
       title: sceneNames[sceneType] || "未命名文档",
+      titleManuallyEdited: false,
       chapters: [defaultChapter],
       currentChapterId: defaultChapter.id,
       outline: "",

@@ -103,6 +103,7 @@ export default function GeneralLeftPanel() {
       {/* 表单内容 */}
       <div className="p-3">
         <CombinedForm
+          cardTitle={selectedCard?.title || ""}
           subTemplates={subTemplates}
           selectedSubTemplateId={selectedSubTemplateId}
           onSelectSubTemplate={handleSelectSubTemplate}
@@ -193,17 +194,19 @@ export default function GeneralLeftPanel() {
 
 // 合并的表单组件（三级选项 + 四级字段）
 function CombinedForm({
+  cardTitle,
   subTemplates,
   selectedSubTemplateId,
   onSelectSubTemplate,
   templateConfig,
 }: {
+  cardTitle: string;
   subTemplates: { id: string; title: string }[];
   selectedSubTemplateId: string | null;
   onSelectSubTemplate: (id: string) => void;
   templateConfig: { fields: TemplateField[] } | null | undefined;
 }) {
-  const { showToast } = useEditorStore();
+  const { showToast, setAutoTitle } = useEditorStore();
   const [formData, setFormData] = useState<Record<string, string | string[]>>({});
   const [generating, setGenerating] = useState(false);
 
@@ -237,6 +240,15 @@ function CombinedForm({
     }
 
     setGenerating(true);
+
+    // 自动生成文档名：二级模板-三级模板-日期
+    const selectedSubTitle = subTemplates.find(s => s.id === selectedSubTemplateId)?.title || "";
+    const dateStr = new Date().toISOString().slice(0, 10);  // YYYY-MM-DD
+    const autoTitle = selectedSubTitle
+      ? `${cardTitle}-${selectedSubTitle}-${dateStr}`
+      : `${cardTitle}-${dateStr}`;
+    setAutoTitle(autoTitle);
+
     setTimeout(() => {
       setGenerating(false);
       showToast("内容生成完成！");
