@@ -183,22 +183,22 @@ export const subTemplates: SubTemplate[] = [
   { id: "s26-3", parentId: "t26", title: "观点解读" },
 
   // 人际交往 (t22)
-  { id: "s22-1", parentId: "t22", title: "祝福语" },
-  { id: "s22-2", parentId: "t22", title: "感谢语" },
-  { id: "s22-3", parentId: "t22", title: "道歉语" },
-  { id: "s22-4", parentId: "t22", title: "邀请语" },
+  { id: "s22-1", parentId: "t22", title: "祝福贺词" },
+  { id: "s22-2", parentId: "t22", title: "致辞发言" },
+  { id: "s22-3", parentId: "t22", title: "家校沟通" },
 
   // 高情商社交 (t23)
-  { id: "s23-1", parentId: "t23", title: "拒绝话术" },
-  { id: "s23-2", parentId: "t23", title: "夸人话术" },
-  { id: "s23-3", parentId: "t23", title: "安慰话术" },
-  { id: "s23-4", parentId: "t23", title: "求助话术" },
+  { id: "s23-1", parentId: "t23", title: "通用场景" },
+  { id: "s23-2", parentId: "t23", title: "情侣" },
+  { id: "s23-3", parentId: "t23", title: "职场" },
+  { id: "s23-4", parentId: "t23", title: "聚会" },
+  { id: "s23-5", parentId: "t23", title: "家庭" },
+  { id: "s23-6", parentId: "t23", title: "校园" },
 
   // 影书评论 (t24)
-  { id: "s24-1", parentId: "t24", title: "电影评论" },
-  { id: "s24-2", parentId: "t24", title: "书评" },
-  { id: "s24-3", parentId: "t24", title: "剧评" },
-  { id: "s24-4", parentId: "t24", title: "音乐评论" },
+  { id: "s24-1", parentId: "t24", title: "安利推荐" },
+  { id: "s24-2", parentId: "t24", title: "避雷吐槽" },
+  { id: "s24-3", parentId: "t24", title: "深度解读" },
 
   // 文章优化类 - 通用配置
   { id: "s1-1", parentId: "t1", title: "通用仿写" },
@@ -727,25 +727,114 @@ export const templateConfigs: TemplateConfig[] = [
   },
 
   // ========== 生活日常 ==========
+  // 人际交往 - 祝福贺词 (s22-1)
   {
     subTemplateId: "s22-1",
     fields: [
-      { key: "occasion", label: "场合", type: "select", options: ["生日", "结婚", "新年", "升职", "乔迁", "毕业", "节日", "其他"], required: true },
-      { key: "recipient", label: "对象", type: "input", placeholder: "祝福对象，如：朋友、长辈、同事..." },
-      { key: "relationship", label: "关系", type: "select", options: ["亲密朋友", "普通朋友", "长辈", "晚辈", "同事", "领导", "客户"] },
-      { key: "extra", label: "补充信息", type: "textarea", placeholder: "特殊要求或想表达的内容...", rows: 2 },
-      { key: "style", label: "风格", type: "select", options: ["真挚温暖", "幽默风趣", "文艺诗意", "正式得体"] },
+      { key: "recipient", label: "对象", type: "select", options: ["对象不限", "亲人", "朋友", "同事", "领导", "长辈", "晚辈", "恋人"], required: true },
+      { key: "scene", label: "场景", type: "select", options: ["场景不限", "生日", "结婚", "乔迁", "升职", "毕业", "节日", "新年", "中秋", "其他"] },
+      { key: "tone", label: "语气", type: "select", options: ["语气不限", "真挚温暖", "幽默风趣", "文艺诗意", "正式得体"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "50字", "100字", "200字", "300字"] },
     ],
   },
-  // 电影评论
+  // 人际交往 - 致辞发言 (s22-2)
+  {
+    subTemplateId: "s22-2",
+    fields: [
+      { key: "recipient", label: "对象", type: "select", options: ["对象不限", "亲人", "朋友", "同事", "领导", "长辈", "晚辈", "恋人"], required: true },
+      { key: "scene", label: "场景", type: "select", options: ["场景不限", "婚礼", "生日宴", "聚会", "毕业典礼", "颁奖", "追悼会", "其他"] },
+      { key: "tone", label: "语气", type: "select", options: ["语气不限", "真挚温暖", "幽默风趣", "文艺诗意", "正式得体"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "100字", "200字", "300字", "500字", "800字"] },
+    ],
+  },
+  // 人际交往 - 家校沟通 (s22-3)
+  {
+    subTemplateId: "s22-3",
+    fields: [
+      { key: "identity", label: "身份", type: "select", options: ["身份不限", "家长", "老师"], required: true },
+      { key: "purpose", label: "目的", type: "select", options: ["目的不限", "请假", "反馈问题", "表扬感谢", "咨询事宜", "其他"] },
+      { key: "occasion", label: "场合", type: "select", options: ["场合不限", "微信私聊", "家长群", "家长会", "书面信函"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "50字", "100字", "200字", "300字"] },
+    ],
+  },
+
+  // 高情商社交 - 通用场景 (s23-1)
+  {
+    subTemplateId: "s23-1",
+    fields: [
+      { key: "purpose", label: "目的", type: "textarea", placeholder: "描述你想要表达的目的或情境...", rows: 3, required: true },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "50字", "100字", "200字", "300字"] },
+    ],
+  },
+  // 高情商社交 - 情侣 (s23-2)
+  {
+    subTemplateId: "s23-2",
+    fields: [
+      { key: "purpose", label: "目的", type: "textarea", placeholder: "描述你想要表达的目的或情境...", rows: 3, required: true },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "50字", "100字", "200字", "300字"] },
+    ],
+  },
+  // 高情商社交 - 职场 (s23-3)
+  {
+    subTemplateId: "s23-3",
+    fields: [
+      { key: "purpose", label: "目的", type: "textarea", placeholder: "描述你想要表达的目的或情境...", rows: 3, required: true },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "50字", "100字", "200字", "300字"] },
+    ],
+  },
+  // 高情商社交 - 聚会 (s23-4)
+  {
+    subTemplateId: "s23-4",
+    fields: [
+      { key: "purpose", label: "目的", type: "textarea", placeholder: "描述你想要表达的目的或情境...", rows: 3, required: true },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "50字", "100字", "200字", "300字"] },
+    ],
+  },
+  // 高情商社交 - 家庭 (s23-5)
+  {
+    subTemplateId: "s23-5",
+    fields: [
+      { key: "purpose", label: "目的", type: "textarea", placeholder: "描述你想要表达的目的或情境...", rows: 3, required: true },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "50字", "100字", "200字", "300字"] },
+    ],
+  },
+  // 高情商社交 - 校园 (s23-6)
+  {
+    subTemplateId: "s23-6",
+    fields: [
+      { key: "purpose", label: "目的", type: "textarea", placeholder: "描述你想要表达的目的或情境...", rows: 3, required: true },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "50字", "100字", "200字", "300字"] },
+    ],
+  },
+
+  // 影书评论 - 安利推荐 (s24-1)
   {
     subTemplateId: "s24-1",
     fields: [
-      { key: "movieName", label: "电影名称", type: "input", placeholder: "请输入电影名称", required: true },
-      { key: "rating", label: "个人评分", type: "select", options: ["10分-神作", "8-9分-优秀", "6-7分-一般", "5分以下-较差"] },
-      { key: "impression", label: "观影感受", type: "textarea", placeholder: "看完电影的感受、印象深刻的点...", rows: 4, required: true },
-      { key: "aspect", label: "评论角度", type: "tags", options: ["剧情", "演技", "画面", "配乐", "主题", "节奏", "细节"] },
-      { key: "style", label: "评论风格", type: "select", options: ["专业影评", "个人感想", "深度解析", "轻松吐槽"] },
+      { key: "type", label: "类型", type: "select", options: ["类型不限", "电影", "电视剧", "书籍", "综艺", "纪录片", "动漫"], required: true },
+      { key: "style", label: "风格", type: "select", options: ["风格不限", "热情安利", "理性分析", "幽默轻松", "文艺抒情"] },
+      { key: "angle", label: "角度", type: "tags", options: ["剧情", "演技/文笔", "视听/画面", "主题立意", "情感共鸣", "细节彩蛋"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "100字", "200字", "300字", "500字", "800字"] },
+    ],
+  },
+  // 影书评论 - 避雷吐槽 (s24-2)
+  {
+    subTemplateId: "s24-2",
+    fields: [
+      { key: "type", label: "类型", type: "select", options: ["类型不限", "电影", "电视剧", "书籍", "综艺", "纪录片", "动漫"], required: true },
+      { key: "style", label: "风格", type: "select", options: ["风格不限", "犀利吐槽", "理性分析", "幽默调侃", "中肯点评"] },
+      { key: "angle", label: "角度", type: "tags", options: ["剧情", "演技/文笔", "视听/画面", "主题立意", "逻辑硬伤", "节奏拖沓"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "100字", "200字", "300字", "500字", "800字"] },
+    ],
+  },
+  // 影书评论 - 深度解读 (s24-3)
+  {
+    subTemplateId: "s24-3",
+    fields: [
+      { key: "type", label: "类型", type: "select", options: ["类型不限", "电影", "电视剧", "书籍", "综艺", "纪录片", "动漫"], required: true },
+      { key: "style", label: "风格", type: "select", options: ["风格不限", "学术分析", "个人感悟", "对比解读", "隐喻解析"] },
+      { key: "angle", label: "角度", type: "tags", options: ["主题思想", "人物塑造", "叙事结构", "符号隐喻", "时代背景", "创作手法"] },
+      { key: "wordCount", label: "字数", type: "select", options: ["字数不限", "300字", "500字", "800字", "1000字", "1500字"] },
     ],
   },
   // 通用仿写
