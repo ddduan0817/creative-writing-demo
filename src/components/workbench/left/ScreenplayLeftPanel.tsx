@@ -3,7 +3,6 @@
 import { useEditorStore } from "@/stores/editorStore";
 import { useState } from "react";
 import {
-  Settings,
   Tag,
   Users,
   FileText,
@@ -38,7 +37,7 @@ const subScenes = [
   { id: "comic_script", label: "漫剧脚本", icon: Layers, desc: "画师执行指令" },
 ];
 
-type AccordionSection = "subscene" | "settings" | "tags" | "characters" | "outline" | "scenes" | null;
+type AccordionSection = "subscene" | "tags" | "characters" | "outline" | "scenes" | null;
 
 export default function ScreenplayLeftPanel() {
   const { showToast } = useEditorStore();
@@ -70,7 +69,6 @@ export default function ScreenplayLeftPanel() {
     icon: React.ElementType;
   }[] = [
     { id: "subscene", label: "剧本/分镜", icon: Film },
-    { id: "settings", label: "设定", icon: Settings },
     { id: "tags", label: "标签", icon: Tag },
     { id: "characters", label: "角色", icon: Users },
     { id: "outline", label: "内容大纲", icon: FileText },
@@ -126,28 +124,31 @@ export default function ScreenplayLeftPanel() {
               {section.id === "subscene" && (
                 <div className="px-2 pb-2 space-y-0.5">
                   {subScenes.map((sub) => (
-                    <button
-                      key={sub.id}
-                      onClick={() => setActiveSubScene(sub.id)}
-                      className={cn(
-                        "w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition",
-                        activeSubScene === sub.id
-                          ? "bg-blue-50 text-blue-700 font-medium"
-                          : "text-gray-600 hover:bg-gray-50"
+                    <div key={sub.id}>
+                      <button
+                        onClick={() => setActiveSubScene(sub.id)}
+                        className={cn(
+                          "w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition",
+                          activeSubScene === sub.id
+                            ? "bg-blue-50 text-blue-700 font-medium"
+                            : "text-gray-600 hover:bg-gray-50"
+                        )}
+                      >
+                        <sub.icon className="w-4 h-4" />
+                        <div className="flex-1 text-left">
+                          <span className="block">{sub.label}</span>
+                          <span className="text-[10px] text-gray-400 font-normal">{sub.desc}</span>
+                        </div>
+                      </button>
+                      {activeSubScene === sub.id && (
+                        <div className="ml-2 border-l-2 border-blue-100">
+                          <ScreenplaySettingsPanel subScene={sub.id} />
+                        </div>
                       )}
-                    >
-                      <sub.icon className="w-4 h-4" />
-                      <div className="flex-1 text-left">
-                        <span className="block">{sub.label}</span>
-                        <span className="text-[10px] text-gray-400 font-normal">{sub.desc}</span>
-                      </div>
-                    </button>
+                    </div>
                   ))}
                 </div>
               )}
-
-              {/* 设定 */}
-              {section.id === "settings" && <ScreenplaySettingsPanel subScene={activeSubScene} />}
 
               {/* 标签 */}
               {section.id === "tags" && <TagsPanel />}

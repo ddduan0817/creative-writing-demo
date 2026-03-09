@@ -18,7 +18,6 @@ const settingsBySubScene: Record<string, SettingItem[]> = {
     { key: "action", label: "动作描述", value: "" },
     { key: "dialogue", label: "对白", value: "" },
     { key: "note", label: "备注/潜台词", value: "" },
-    { key: "reference", label: "参考文件", value: "" },
   ],
   short: [
     { key: "duration", label: "单集时长", value: "" },
@@ -26,7 +25,6 @@ const settingsBySubScene: Record<string, SettingItem[]> = {
     { key: "paywall", label: "付费卡点", value: "" },
     { key: "dialogue_density", label: "对白密度", value: "" },
     { key: "cliffhanger", label: "结尾悬念", value: "" },
-    { key: "reference", label: "参考文件", value: "" },
   ],
   comic: [
     { key: "episodes", label: "总集数", value: "" },
@@ -34,7 +32,6 @@ const settingsBySubScene: Record<string, SettingItem[]> = {
     { key: "pages_per_ep", label: "每集页数", value: "" },
     { key: "characters", label: "角色设定", value: "" },
     { key: "scene_setting", label: "场景设定", value: "" },
-    { key: "reference", label: "参考文件", value: "" },
   ],
   storyboard: [
     { key: "shot_type", label: "景别", value: "" },
@@ -42,7 +39,6 @@ const settingsBySubScene: Record<string, SettingItem[]> = {
     { key: "visual", label: "画面描述", value: "" },
     { key: "audio", label: "对白/音效", value: "" },
     { key: "duration", label: "时长（秒）", value: "" },
-    { key: "reference", label: "参考文件", value: "" },
   ],
   comic_script: [
     { key: "panel", label: "分格说明", value: "" },
@@ -50,7 +46,6 @@ const settingsBySubScene: Record<string, SettingItem[]> = {
     { key: "emotion", label: "情绪参考", value: "" },
     { key: "bubble", label: "对白位置", value: "" },
     { key: "sfx", label: "特效字/拟声词", value: "" },
-    { key: "reference", label: "参考文件", value: "" },
   ],
 };
 
