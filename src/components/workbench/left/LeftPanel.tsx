@@ -9,6 +9,7 @@ import {
   ChevronRight,
   Sparkles,
   Users,
+  Loader2,
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -56,6 +57,10 @@ export default function LeftPanel() {
   // 故事梗概
   const [synopsis, setSynopsis] = useState("");
 
+  // 是否已生成设定
+  const [isGenerated, setIsGenerated] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+
   // 选中的标签
   const [selectedTags, setSelectedTags] = useState<Record<string, string[]>>({
     genre: [],
@@ -84,6 +89,7 @@ export default function LeftPanel() {
   // 删除文件
   const removeFile = (index: number) => {
     setUploadedFiles((prev) => prev.filter((_, i) => i !== index));
+    setIsGenerated(false);
   };
 
   // 切换标签选中
@@ -127,6 +133,51 @@ export default function LeftPanel() {
     return Object.values(selectedTags).flat().length;
   };
 
+  // 检查是否有内容（上传文件或输入梗概）
+  const hasContent = uploadedFiles.length > 0 || synopsis.trim().length > 0;
+
+  // 生成设定
+  const handleGenerate = () => {
+    if (!hasContent) {
+      showToast("请上传参考材料或输入故事梗概");
+      return;
+    }
+    setIsGenerating(true);
+    // 模拟生成
+    setTimeout(() => {
+      setIsGenerating(false);
+      setIsGenerated(true);
+      showToast("设定生成成功");
+      // 如果是从文件生成，模拟填充梗概
+      if (uploadedFiles.length > 0 && !synopsis.trim()) {
+        setSynopsis(`【故事线】顶流影后苏瑾意外穿越到1985年的小镇，成为供销社售货员的女儿。她需要在这个没有互联网、没有智能手机的年代重新开始...
+
+【核心冲突】1. 现代娱乐理念VS80年代文艺体制的碰撞
+2. 身份隐藏与真相揭露的悬念
+3. 新旧观念的冲突与融合
+
+【情感设定】与镇上文艺青年的纯真爱情，从相互看不顺眼到惺惺相惜...`);
+      }
+    }, 1500);
+  };
+
+  // 点击生成大纲或文章
+  const handleCreateOutline = () => {
+    if (!isGenerated) {
+      showToast("请先点击「生成设定」按钮");
+      return;
+    }
+    showToast("正在生成大纲...");
+  };
+
+  const handleCreateArticle = () => {
+    if (!isGenerated) {
+      showToast("请先点击「生成设定」按钮");
+      return;
+    }
+    showToast("正在生成文章...");
+  };
+
   return (
     <div className="h-full flex flex-col overflow-hidden w-72 bg-white">
       {/* 可滚动内容区 */}
@@ -147,6 +198,7 @@ export default function LeftPanel() {
               <Upload className="w-4 h-4" />
               <span>+ 上传参考材料</span>
             </button>
+            <p className="text-[10px] text-gray-400 mt-1.5">可选，上传后 AI 将参考您的资料生成设定</p>
 
             {/* 已上传文件 */}
             {uploadedFiles.length > 0 && (
@@ -174,10 +226,49 @@ export default function LeftPanel() {
           <div>
             <textarea
               value={synopsis}
-              onChange={(e) => setSynopsis(e.target.value)}
-              placeholder="【故事线】请输入故事的主要情节走向...&#10;&#10;【核心冲突】故事的主要矛盾和冲突...&#10;&#10;【情感设定】角色之间的情感关系..."
-              className="w-full h-[200px] text-sm border border-gray-200 rounded-lg p-3 resize-none focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 placeholder:text-gray-300 leading-relaxed"
+              onChange={(e) => {
+                setSynopsis(e.target.value);
+                setIsGenerated(false);
+              }}
+              placeholder={`【故事线】请输入故事的主要情节走向...
+
+【核心冲突】故事的主要矛盾和冲突...
+
+【情感设定】角色之间的情感关系...`}
+              className={cn(
+                "w-full h-[180px] text-sm border rounded-lg p-3 resize-none focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 placeholder:text-gray-300 leading-relaxed",
+                isGenerated ? "border-green-300 bg-green-50/30" : "border-gray-200"
+              )}
             />
+
+            {/* 生成设定按钮 */}
+            <button
+              onClick={handleGenerate}
+              disabled={isGenerating}
+              className={cn(
+                "w-full mt-2 py-2 text-sm rounded-lg transition flex items-center justify-center gap-2",
+                isGenerated
+                  ? "bg-green-50 text-green-600 border border-green-200"
+                  : "bg-indigo-50 text-indigo-600 hover:bg-indigo-100 border border-indigo-200"
+              )}
+            >
+              {isGenerating ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  生成中...
+                </>
+              ) : isGenerated ? (
+                <>
+                  <Sparkles className="w-4 h-4" />
+                  已生成设定（点击重新生成）
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4" />
+                  生成设定
+                </>
+              )}
+            </button>
           </div>
 
           {/* +风格 按钮 */}
@@ -376,15 +467,27 @@ export default function LeftPanel() {
       {/* 底部操作栏 */}
       <div className="p-4 border-t border-gray-100 space-y-2">
         <button
-          onClick={() => showToast("正在生成大纲...")}
-          className="w-full py-2.5 text-sm text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition flex items-center justify-center gap-2"
+          onClick={handleCreateOutline}
+          disabled={!isGenerated}
+          className={cn(
+            "w-full py-2.5 text-sm border rounded-lg transition flex items-center justify-center gap-2",
+            isGenerated
+              ? "text-gray-600 border-gray-200 hover:bg-gray-50"
+              : "text-gray-300 border-gray-100 cursor-not-allowed"
+          )}
         >
           <FileText className="w-4 h-4" />
           先生成大纲
         </button>
         <button
-          onClick={() => showToast("正在生成文章...")}
-          className="w-full py-2.5 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition flex items-center justify-center gap-2"
+          onClick={handleCreateArticle}
+          disabled={!isGenerated}
+          className={cn(
+            "w-full py-2.5 text-sm font-medium rounded-lg transition flex items-center justify-center gap-2",
+            isGenerated
+              ? "text-white bg-indigo-600 hover:bg-indigo-700"
+              : "text-gray-400 bg-gray-100 cursor-not-allowed"
+          )}
         >
           <Sparkles className="w-4 h-4" />
           直接生成文章
