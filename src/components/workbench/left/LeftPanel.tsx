@@ -73,6 +73,9 @@ export default function LeftPanel() {
   // 角色列表
   const [characters, setCharacters] = useState<{ name: string; desc: string }[]>([]);
 
+  // 篇幅选择
+  const [length, setLength] = useState<"short" | "medium" | "long">("short");
+
   // 浮层状态
   const [showStylePopup, setShowStylePopup] = useState(false);
   const [showCharacterPopup, setShowCharacterPopup] = useState(false);
@@ -271,6 +274,35 @@ export default function LeftPanel() {
             </button>
           </div>
 
+          {/* 篇幅选择 */}
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-xs font-medium text-gray-600">篇幅</span>
+              <span className="text-[10px] text-red-400">*必选</span>
+            </div>
+            <div className="flex gap-2">
+              {[
+                { id: "short" as const, label: "短篇", desc: "<5000字" },
+                { id: "medium" as const, label: "中篇", desc: "5000-2万字" },
+                { id: "long" as const, label: "长篇", desc: "≥2万字" },
+              ].map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => setLength(item.id)}
+                  className={cn(
+                    "flex-1 py-2 px-2 rounded-lg border transition text-center",
+                    length === item.id
+                      ? "border-indigo-300 bg-indigo-50 text-indigo-700"
+                      : "border-gray-200 text-gray-500 hover:border-gray-300"
+                  )}
+                >
+                  <div className="text-xs font-medium">{item.label}</div>
+                  <div className="text-[10px] text-gray-400 mt-0.5">{item.desc}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* +风格 按钮 */}
           <div className="relative">
             <button
@@ -465,33 +497,36 @@ export default function LeftPanel() {
       </div>
 
       {/* 底部操作栏 */}
-      <div className="p-4 border-t border-gray-100 space-y-2">
-        <button
-          onClick={handleCreateOutline}
-          disabled={!isGenerated}
-          className={cn(
-            "w-full py-2.5 text-sm border rounded-lg transition flex items-center justify-center gap-2",
-            isGenerated
-              ? "text-gray-600 border-gray-200 hover:bg-gray-50"
-              : "text-gray-300 border-gray-100 cursor-not-allowed"
-          )}
-        >
-          <FileText className="w-4 h-4" />
-          先生成大纲
-        </button>
-        <button
-          onClick={handleCreateArticle}
-          disabled={!isGenerated}
-          className={cn(
-            "w-full py-2.5 text-sm font-medium rounded-lg transition flex items-center justify-center gap-2",
-            isGenerated
-              ? "text-white bg-indigo-600 hover:bg-indigo-700"
-              : "text-gray-400 bg-gray-100 cursor-not-allowed"
-          )}
-        >
-          <Sparkles className="w-4 h-4" />
-          直接生成文章
-        </button>
+      <div className="p-4 border-t border-gray-100">
+        {length === "short" ? (
+          <button
+            onClick={handleCreateArticle}
+            disabled={!isGenerated}
+            className={cn(
+              "w-full py-2.5 text-sm font-medium rounded-lg transition flex items-center justify-center gap-2",
+              isGenerated
+                ? "text-white bg-indigo-600 hover:bg-indigo-700"
+                : "text-gray-400 bg-gray-100 cursor-not-allowed"
+            )}
+          >
+            <Sparkles className="w-4 h-4" />
+            直接生成文章
+          </button>
+        ) : (
+          <button
+            onClick={handleCreateOutline}
+            disabled={!isGenerated}
+            className={cn(
+              "w-full py-2.5 text-sm font-medium rounded-lg transition flex items-center justify-center gap-2",
+              isGenerated
+                ? "text-white bg-indigo-600 hover:bg-indigo-700"
+                : "text-gray-400 bg-gray-100 cursor-not-allowed"
+            )}
+          >
+            <FileText className="w-4 h-4" />
+            先生成大纲
+          </button>
+        )}
       </div>
     </div>
   );
