@@ -1,298 +1,394 @@
 "use client";
 
 import { useEditorStore } from "@/stores/editorStore";
-import SettingsPanel from "./SettingsPanel";
-import TagsPanel from "./TagsPanel";
-import CharactersPanel from "./CharactersPanel";
-import ChapterList from "./ChapterList";
 import {
-  Settings,
-  Tag,
-  Users,
-  FileText,
-  List,
-  Plus,
-  ChevronDown,
   Upload,
-  LayoutTemplate,
-  GitBranch,
-  Milestone,
+  X,
+  FileText,
+  Plus,
+  ChevronRight,
   Sparkles,
-  Loader2,
+  Users,
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
-type AccordionSection = "settings" | "tags" | "characters" | "outline" | "chapters" | null;
+// 标签数据
+const tagGroups = [
+  {
+    id: "genre",
+    label: "题材",
+    max: 1,
+    tags: ["言情", "悬疑", "惊悚", "科幻", "武侠", "仙侠", "历史", "玄幻", "奇幻", "都市", "军事", "电竞", "体育", "现实", "游戏", "末日"],
+  },
+  {
+    id: "elements",
+    label: "元素",
+    max: 3,
+    tags: ["权谋", "婚姻", "家庭", "校园", "职场", "娱乐圈", "重生", "穿越", "犯罪", "丧尸", "探险", "宫斗宅斗", "克苏鲁", "系统", "规则怪谈", "团宠", "囤物资", "先婚后爱", "追妻火葬场", "破镜重圆"],
+  },
+  {
+    id: "style",
+    label: "风格调性",
+    max: 3,
+    tags: ["甜宠", "虐恋", "暗恋", "沙雕", "爽文", "复仇", "逆袭", "励志", "烧脑", "热血", "求生", "打脸", "治愈", "反套路", "搞笑", "反转", "暗黑", "轻松", "慢热"],
+  },
+  {
+    id: "ending",
+    label: "结局",
+    max: 1,
+    tags: ["HE", "BE", "开放式"],
+  },
+  {
+    id: "timespace",
+    label: "时空",
+    max: 1,
+    tags: ["古代", "现代", "近现代", "未来", "架空", "末世"],
+  },
+];
 
 export default function LeftPanel() {
-  const [expandedSection, setExpandedSection] = useState<AccordionSection>("settings");
-  const [outlineStructure, setOutlineStructure] = useState("three-act");
+  const { showToast } = useEditorStore();
 
-  const toggleSection = (section: AccordionSection) => {
-    setExpandedSection((prev) => (prev === section ? null : section));
+  // 上传的文件
+  const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
+
+  // 故事梗概
+  const [synopsis, setSynopsis] = useState("");
+
+  // 选中的标签
+  const [selectedTags, setSelectedTags] = useState<Record<string, string[]>>({
+    genre: [],
+    elements: [],
+    style: [],
+    ending: [],
+    timespace: [],
+  });
+
+  // 角色列表
+  const [characters, setCharacters] = useState<{ name: string; desc: string }[]>([]);
+
+  // 浮层状态
+  const [showStylePopup, setShowStylePopup] = useState(false);
+  const [showCharacterPopup, setShowCharacterPopup] = useState(false);
+  const [newCharacter, setNewCharacter] = useState({ name: "", desc: "" });
+
+  // 模拟上传
+  const handleUpload = () => {
+    const mockFiles = ["小说初稿大明星穿到80年代...", "穿到80年代参考资料.docx"];
+    const randomFile = mockFiles[Math.floor(Math.random() * mockFiles.length)];
+    setUploadedFiles((prev) => [...prev, randomFile]);
+    showToast("文件上传成功");
   };
 
-  const sections: {
-    id: AccordionSection;
-    label: string;
-    icon: React.ElementType;
-  }[] = [
-    { id: "settings", label: "设定", icon: Settings },
-    { id: "tags", label: "标签", icon: Tag },
-    { id: "characters", label: "角色", icon: Users },
-    { id: "outline", label: "内容大纲", icon: FileText },
-    { id: "chapters", label: "章节信息", icon: List },
-  ];
+  // 删除文件
+  const removeFile = (index: number) => {
+    setUploadedFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  // 切换标签选中
+  const toggleTag = (groupId: string, tag: string, max: number) => {
+    setSelectedTags((prev) => {
+      const current = prev[groupId] || [];
+      if (current.includes(tag)) {
+        return { ...prev, [groupId]: current.filter((t) => t !== tag) };
+      }
+      if (current.length >= max) {
+        // 单选时替换，多选时提示
+        if (max === 1) {
+          return { ...prev, [groupId]: [tag] };
+        }
+        showToast(`最多选择 ${max} 个`);
+        return prev;
+      }
+      return { ...prev, [groupId]: [...current, tag] };
+    });
+  };
+
+  // 添加角色
+  const addCharacter = () => {
+    if (!newCharacter.name.trim()) {
+      showToast("请输入角色名称");
+      return;
+    }
+    setCharacters((prev) => [...prev, { ...newCharacter }]);
+    setNewCharacter({ name: "", desc: "" });
+    setShowCharacterPopup(false);
+    showToast("角色添加成功");
+  };
+
+  // 删除角色
+  const removeCharacter = (index: number) => {
+    setCharacters((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  // 获取已选标签数量
+  const getSelectedCount = () => {
+    return Object.values(selectedTags).flat().length;
+  };
 
   return (
-    <div className="h-full flex flex-col overflow-hidden w-72">
+    <div className="h-full flex flex-col overflow-hidden w-72 bg-white">
+      {/* 可滚动内容区 */}
       <div className="flex-1 overflow-y-auto">
-        {sections.map((section) => (
-          <div key={section.id} className="border-b border-gray-50">
-            {/* Accordion header */}
+        <div className="p-4 space-y-4">
+          {/* 标题 */}
+          <div className="flex items-center gap-2">
+            <FileText className="w-4 h-4 text-gray-500" />
+            <span className="text-sm font-medium text-gray-700">设定</span>
+          </div>
+
+          {/* 上传参考材料 */}
+          <div>
             <button
-              onClick={() => toggleSection(section.id)}
+              onClick={handleUpload}
+              className="w-full flex items-center justify-center gap-2 px-3 py-2.5 border border-dashed border-gray-200 rounded-lg text-sm text-gray-500 hover:border-indigo-300 hover:text-indigo-600 hover:bg-indigo-50/30 transition"
+            >
+              <Upload className="w-4 h-4" />
+              <span>+ 上传参考材料</span>
+            </button>
+
+            {/* 已上传文件 */}
+            {uploadedFiles.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-2">
+                {uploadedFiles.map((file, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center gap-1.5 px-2 py-1 bg-gray-50 rounded-lg text-xs text-gray-600 max-w-full"
+                  >
+                    <FileText className="w-3 h-3 flex-shrink-0" />
+                    <span className="truncate max-w-[140px]">{file}</span>
+                    <button
+                      onClick={() => removeFile(i)}
+                      className="p-0.5 hover:bg-gray-200 rounded transition flex-shrink-0"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* 故事梗概 */}
+          <div>
+            <textarea
+              value={synopsis}
+              onChange={(e) => setSynopsis(e.target.value)}
+              placeholder="【故事线】请输入故事的主要情节走向...&#10;&#10;【核心冲突】故事的主要矛盾和冲突...&#10;&#10;【情感设定】角色之间的情感关系..."
+              className="w-full h-[200px] text-sm border border-gray-200 rounded-lg p-3 resize-none focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 placeholder:text-gray-300 leading-relaxed"
+            />
+          </div>
+
+          {/* +风格 按钮 */}
+          <div className="relative">
+            <button
+              onClick={() => setShowStylePopup(!showStylePopup)}
               className={cn(
-                "w-full flex items-center gap-2 px-4 py-3 text-sm transition hover:bg-gray-50",
-                expandedSection === section.id
-                  ? "text-indigo-700 font-medium bg-indigo-50/50"
-                  : "text-gray-600"
+                "w-full flex items-center justify-between px-3 py-2.5 rounded-lg border transition text-sm",
+                getSelectedCount() > 0
+                  ? "border-indigo-200 bg-indigo-50/50 text-indigo-700"
+                  : "border-gray-200 text-gray-500 hover:border-gray-300"
               )}
             >
-              <section.icon className="w-4 h-4" />
-              <span className="flex-1 text-left">{section.label}</span>
-              {section.id === "chapters" && expandedSection !== "chapters" && (
-                <span
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    const num = useEditorStore.getState().chapters.length + 1;
-                    useEditorStore.getState().addChapter(`第${num}章 新章节`);
-                    useEditorStore.getState().showToast("已添加新章节");
-                  }}
-                  className="p-1 text-gray-400 hover:text-indigo-600 rounded hover:bg-gray-100 transition"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                </span>
-              )}
-              <ChevronDown
+              <div className="flex items-center gap-2">
+                <Plus className="w-4 h-4" />
+                <span>风格</span>
+                {getSelectedCount() > 0 && (
+                  <span className="text-xs text-indigo-500">
+                    已选 {getSelectedCount()} 项
+                  </span>
+                )}
+              </div>
+              <ChevronRight
                 className={cn(
-                  "w-3.5 h-3.5 text-gray-400 transition-transform duration-200",
-                  expandedSection === section.id ? "rotate-0" : "-rotate-90"
+                  "w-4 h-4 transition-transform",
+                  showStylePopup && "rotate-90"
                 )}
               />
             </button>
 
-            {/* Accordion content */}
-            <div
+            {/* 已选标签预览 */}
+            {getSelectedCount() > 0 && !showStylePopup && (
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {Object.entries(selectedTags).flatMap(([, tags]) =>
+                  tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="px-2 py-0.5 bg-indigo-50 text-indigo-600 text-xs rounded-full"
+                    >
+                      {tag}
+                    </span>
+                  ))
+                )}
+              </div>
+            )}
+
+            {/* 风格浮层 */}
+            {showStylePopup && (
+              <div className="absolute left-full top-0 ml-2 w-72 bg-white rounded-xl shadow-xl border border-gray-100 z-50 max-h-[400px] overflow-y-auto">
+                <div className="p-3 space-y-3">
+                  {tagGroups.map((group) => (
+                    <div key={group.id}>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs font-medium text-gray-600">
+                          {group.label}
+                        </span>
+                        <span className="text-xs text-gray-400">
+                          {selectedTags[group.id]?.length || 0}/{group.max}
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {group.tags.map((tag) => (
+                          <button
+                            key={tag}
+                            onClick={() => toggleTag(group.id, tag, group.max)}
+                            className={cn(
+                              "px-2 py-1 text-xs rounded-full border transition",
+                              selectedTags[group.id]?.includes(tag)
+                                ? "border-indigo-300 bg-indigo-50 text-indigo-700"
+                                : "border-gray-200 text-gray-500 hover:border-gray-300"
+                            )}
+                          >
+                            {tag}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* +角色 按钮 */}
+          <div className="relative">
+            <button
+              onClick={() => setShowCharacterPopup(!showCharacterPopup)}
               className={cn(
-                "overflow-hidden transition-all duration-200",
-                expandedSection === section.id ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
+                "w-full flex items-center justify-between px-3 py-2.5 rounded-lg border transition text-sm",
+                characters.length > 0
+                  ? "border-indigo-200 bg-indigo-50/50 text-indigo-700"
+                  : "border-gray-200 text-gray-500 hover:border-gray-300"
               )}
             >
-              {section.id === "settings" && <SettingsPanel />}
-              {section.id === "tags" && <TagsPanel />}
-              {section.id === "characters" && <CharactersPanel />}
-              {section.id === "outline" && (
-                <OutlinePanel
-                  outlineStructure={outlineStructure}
-                  setOutlineStructure={setOutlineStructure}
-                />
-              )}
-              {section.id === "chapters" && (
-                <div>
-                  <div className="flex items-center justify-end px-4 py-1">
+              <div className="flex items-center gap-2">
+                <Users className="w-4 h-4" />
+                <span>角色</span>
+                {characters.length > 0 && (
+                  <span className="text-xs text-indigo-500">
+                    {characters.length} 个角色
+                  </span>
+                )}
+              </div>
+              <ChevronRight
+                className={cn(
+                  "w-4 h-4 transition-transform",
+                  showCharacterPopup && "rotate-90"
+                )}
+              />
+            </button>
+
+            {/* 已添加角色预览 */}
+            {characters.length > 0 && !showCharacterPopup && (
+              <div className="mt-2 space-y-1.5">
+                {characters.map((char, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center justify-between px-2.5 py-1.5 bg-gray-50 rounded-lg"
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div className="w-6 h-6 rounded-full bg-indigo-100 flex items-center justify-center text-xs text-indigo-600 flex-shrink-0">
+                        {char.name[0]}
+                      </div>
+                      <span className="text-xs text-gray-700 truncate">
+                        {char.name}
+                      </span>
+                    </div>
                     <button
-                      onClick={() => {
-                        const num = useEditorStore.getState().chapters.length + 1;
-                        useEditorStore.getState().addChapter(`第${num}章 新章节`);
-                        useEditorStore.getState().showToast("已添加新章节");
-                      }}
-                      className="flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-700 px-2 py-1 rounded hover:bg-indigo-50 transition"
+                      onClick={() => removeCharacter(i)}
+                      className="p-1 hover:bg-gray-200 rounded transition"
                     >
-                      <Plus className="w-3 h-3" />
-                      添加章节
+                      <X className="w-3 h-3 text-gray-400" />
                     </button>
                   </div>
-                  <ChapterList />
-                </div>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function OutlinePanel({
-  outlineStructure,
-  setOutlineStructure,
-}: {
-  outlineStructure: string;
-  setOutlineStructure: (v: string) => void;
-}) {
-  const { showToast } = useEditorStore();
-  const [chapterNotes, setChapterNotes] = useState("");
-  const [keyNodes, setKeyNodes] = useState({
-    opening: "",
-    turning: "",
-    climax: "",
-    ending: "",
-  });
-  const [generating, setGenerating] = useState<string | null>(null);
-
-  const structures = [
-    { id: "three-act", label: "三幕剧" },
-    { id: "four-part", label: "起承转合" },
-    { id: "episodic", label: "单元剧" },
-  ];
-
-  // Mock AI 生成内容
-  const mockGenerations: Record<string, string> = {
-    chapterNotes: "第一章：日常引入，展示主角现状\n第二章：触发事件，打破平衡\n第三章：初次冒险，遭遇挫折\n第四章：获得线索，揭示真相一角\n第五章：转折点，敌人现身",
-    opening: "主角在一次意外中发现自己的特殊能力",
-    turning: "发现信任的人竟然是幕后黑手",
-    climax: "最终决战，主角面临艰难抉择",
-    ending: "击败敌人，但付出了代价，留下伏笔",
-  };
-
-  const handleGenerate = (field: string) => {
-    setGenerating(field);
-    const text = mockGenerations[field] || "AI 生成的内容...";
-
-    // 模拟流式生成
-    let i = 0;
-    const interval = setInterval(() => {
-      i += 2;
-      const current = text.slice(0, i);
-      if (field === "chapterNotes") {
-        setChapterNotes(current);
-      } else {
-        setKeyNodes(prev => ({ ...prev, [field]: current }));
-      }
-      if (i >= text.length) {
-        clearInterval(interval);
-        setGenerating(null);
-        showToast("生成完成");
-      }
-    }, 30);
-  };
-
-  return (
-    <div className="px-4 pb-4 space-y-4">
-      {/* 上传大纲文档 */}
-      <div>
-        <div className="flex items-center gap-2 mb-2">
-          <Upload className="w-3.5 h-3.5 text-gray-500" />
-          <span className="text-xs font-medium text-gray-600">上传大纲文档</span>
-        </div>
-        <button
-          onClick={() => showToast("上传功能演示中...")}
-          className="w-full border border-dashed border-gray-200 rounded-lg py-3 text-xs text-gray-400 hover:border-indigo-300 hover:text-indigo-500 hover:bg-indigo-50/30 transition flex items-center justify-center gap-1.5"
-        >
-          <Upload className="w-3.5 h-3.5" />
-          点击上传或拖拽文件
-        </button>
-        <p className="text-[10px] text-gray-300 mt-1.5 leading-relaxed">可选，上传后 AI 将参考您的资料生成内容</p>
-      </div>
-
-      {/* 结构模板 */}
-      <div>
-        <div className="flex items-center gap-2 mb-2">
-          <LayoutTemplate className="w-3.5 h-3.5 text-gray-500" />
-          <span className="text-xs font-medium text-gray-600">结构模板</span>
-        </div>
-        <div className="flex gap-2">
-          {structures.map((s) => (
-            <button
-              key={s.id}
-              onClick={() => {
-                setOutlineStructure(s.id);
-                showToast(`已选择「${s.label}」结构`);
-              }}
-              className={cn(
-                "flex-1 px-2 py-1.5 text-xs rounded-lg border transition",
-                outlineStructure === s.id
-                  ? "border-indigo-300 bg-indigo-50 text-indigo-700 font-medium"
-                  : "border-gray-200 text-gray-500 hover:bg-gray-50"
-              )}
-            >
-              {s.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* 章节脉络 */}
-      <div>
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-2">
-            <GitBranch className="w-3.5 h-3.5 text-gray-500" />
-            <span className="text-xs font-medium text-gray-600">章节脉络</span>
-          </div>
-          <button
-            onClick={() => handleGenerate("chapterNotes")}
-            disabled={generating === "chapterNotes"}
-            className="flex items-center gap-1 px-2 py-0.5 text-xs text-indigo-500 hover:text-indigo-600 hover:bg-indigo-50 rounded transition disabled:opacity-50"
-          >
-            {generating === "chapterNotes" ? (
-              <Loader2 className="w-3 h-3 animate-spin" />
-            ) : (
-              <Sparkles className="w-3 h-3" />
-            )}
-            生成
-          </button>
-        </div>
-        <textarea
-          value={chapterNotes}
-          onChange={(e) => setChapterNotes(e.target.value)}
-          placeholder="每章核心事件、伏笔埋设..."
-          className="w-full text-xs border border-gray-200 rounded-lg p-2.5 resize-none focus:outline-none focus:border-indigo-300 focus:ring-1 focus:ring-indigo-100 placeholder:text-gray-300"
-          rows={3}
-        />
-      </div>
-
-      {/* 关键节点 */}
-      <div>
-        <div className="flex items-center gap-2 mb-2">
-          <Milestone className="w-3.5 h-3.5 text-gray-500" />
-          <span className="text-xs font-medium text-gray-600">关键节点</span>
-        </div>
-        <div className="space-y-2">
-          {[
-            { key: "opening" as const, label: "开场事件" },
-            { key: "turning" as const, label: "转折点" },
-            { key: "climax" as const, label: "高潮" },
-            { key: "ending" as const, label: "结局" },
-          ].map((node) => (
-            <div key={node.key}>
-              <div className="flex items-center justify-between mb-0.5">
-                <label className="text-xs text-gray-400">{node.label}</label>
-                <button
-                  onClick={() => handleGenerate(node.key)}
-                  disabled={generating === node.key}
-                  className="flex items-center gap-1 px-1.5 py-0.5 text-xs text-indigo-500 hover:text-indigo-600 hover:bg-indigo-50 rounded transition disabled:opacity-50"
-                >
-                  {generating === node.key ? (
-                    <Loader2 className="w-3 h-3 animate-spin" />
-                  ) : (
-                    <Sparkles className="w-3 h-3" />
-                  )}
-                </button>
+                ))}
               </div>
-              <input
-                type="text"
-                value={keyNodes[node.key]}
-                onChange={(e) =>
-                  setKeyNodes((prev) => ({ ...prev, [node.key]: e.target.value }))
-                }
-                placeholder={`填写${node.label}...`}
-                className="w-full text-xs border border-gray-200 rounded-lg px-2.5 py-2 focus:outline-none focus:border-indigo-300 focus:ring-1 focus:ring-indigo-100 placeholder:text-gray-300"
-              />
-            </div>
-          ))}
+            )}
+
+            {/* 角色浮层 */}
+            {showCharacterPopup && (
+              <div className="absolute left-full top-0 ml-2 w-64 bg-white rounded-xl shadow-xl border border-gray-100 z-50">
+                <div className="p-3 space-y-3">
+                  <div className="text-xs font-medium text-gray-600">添加角色</div>
+                  <input
+                    type="text"
+                    value={newCharacter.name}
+                    onChange={(e) =>
+                      setNewCharacter((p) => ({ ...p, name: e.target.value }))
+                    }
+                    placeholder="角色名称"
+                    className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-indigo-300"
+                  />
+                  <textarea
+                    value={newCharacter.desc}
+                    onChange={(e) =>
+                      setNewCharacter((p) => ({ ...p, desc: e.target.value }))
+                    }
+                    placeholder="角色简介（选填）"
+                    className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 resize-none focus:outline-none focus:border-indigo-300"
+                    rows={2}
+                  />
+                  <button
+                    onClick={addCharacter}
+                    className="w-full py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition"
+                  >
+                    添加
+                  </button>
+
+                  {/* 已有角色列表 */}
+                  {characters.length > 0 && (
+                    <div className="border-t border-gray-100 pt-3 space-y-1.5">
+                      <div className="text-xs text-gray-400">已添加角色</div>
+                      {characters.map((char, i) => (
+                        <div
+                          key={i}
+                          className="flex items-center justify-between px-2 py-1.5 bg-gray-50 rounded-lg"
+                        >
+                          <span className="text-xs text-gray-600">{char.name}</span>
+                          <button
+                            onClick={() => removeCharacter(i)}
+                            className="p-0.5 hover:bg-gray-200 rounded"
+                          >
+                            <X className="w-3 h-3 text-gray-400" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
+      </div>
+
+      {/* 底部操作栏 */}
+      <div className="p-4 border-t border-gray-100 space-y-2">
+        <button
+          onClick={() => showToast("正在生成大纲...")}
+          className="w-full py-2.5 text-sm text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition flex items-center justify-center gap-2"
+        >
+          <FileText className="w-4 h-4" />
+          先生成大纲
+        </button>
+        <button
+          onClick={() => showToast("正在生成文章...")}
+          className="w-full py-2.5 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition flex items-center justify-center gap-2"
+        >
+          <Sparkles className="w-4 h-4" />
+          直接生成文章
+        </button>
       </div>
     </div>
   );
