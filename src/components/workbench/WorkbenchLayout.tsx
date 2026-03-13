@@ -18,7 +18,7 @@ export default function WorkbenchLayout() {
   const searchParams = useSearchParams();
   const sceneParam = searchParams.get("scene") || "novel";
   const workId = searchParams.get("id"); // 如果有 id 参数，说明是打开已有作品
-  const { leftCollapsed, rightCollapsed, toast, scene, resetToEmpty } =
+  const { leftCollapsed, rightCollapsed, leftPanelExpanded, toast, scene, resetToEmpty } =
     useEditorStore();
 
   const hasInitialized = useRef(false);
@@ -74,7 +74,7 @@ export default function WorkbenchLayout() {
         <div
           className={cn(
             "border-r border-gray-100 transition-all duration-300 overflow-hidden flex-shrink-0",
-            leftCollapsed ? "w-0" : "w-72"
+            leftCollapsed ? "w-0" : leftPanelExpanded ? "w-[576px]" : "w-72"
           )}
         >
           {renderLeftPanel()}
@@ -110,18 +110,15 @@ export default function WorkbenchLayout() {
 }
 
 function ToggleButtons() {
-  const { leftCollapsed, rightCollapsed, toggleLeft, toggleRight } =
+  const { leftCollapsed, rightCollapsed, leftPanelExpanded, toggleLeft, toggleRight } =
     useEditorStore();
 
   return (
     <>
       <button
         onClick={toggleLeft}
-        className={cn(
-          "fixed top-1/2 -translate-y-1/2 z-30 w-5 h-10 bg-white border border-gray-200 rounded-r-md flex items-center justify-center hover:bg-gray-50 transition shadow-sm",
-          leftCollapsed ? "left-0" : "left-[288px]"
-        )}
-        style={{ transition: "left 0.3s" }}
+        className="fixed top-1/2 -translate-y-1/2 z-30 w-5 h-10 bg-white border border-gray-200 rounded-r-md flex items-center justify-center hover:bg-gray-50 transition shadow-sm"
+        style={{ left: leftCollapsed ? 0 : leftPanelExpanded ? 576 : 288, transition: "left 0.3s" }}
       >
         <span className="text-gray-400 text-xs">
           {leftCollapsed ? "›" : "‹"}

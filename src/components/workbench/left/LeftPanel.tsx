@@ -89,7 +89,7 @@ const writingTagGroups = [
 ];
 
 export default function LeftPanel() {
-  const { showToast } = useEditorStore();
+  const { showToast, setLeftPanelExpanded } = useEditorStore();
 
   // 上传的文件
   const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
@@ -126,23 +126,25 @@ export default function LeftPanel() {
   // 篇幅选择
   const [length, setLength] = useState<"short" | "medium" | "long">("short");
 
-  // 浮层状态
-  const [showContentPopup, setShowContentPopup] = useState(false);
-  const [showWritingPopup, setShowWritingPopup] = useState(false);
-  const [showCharacterPopup, setShowCharacterPopup] = useState(false);
-  const [popupTop, setPopupTop] = useState(56);
+  // 展开的面板
+  const [expandedSection, setExpandedSection] = useState<"content" | "writing" | "character" | null>(null);
   const [newCharacter, setNewCharacter] = useState({ name: "", desc: "" });
 
-  // 打开浮层并计算位置
-  const openPopup = (type: "content" | "character" | "writing", e: React.MouseEvent) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    // 限制 top 不超出屏幕底部，至少留 300px 给浮层
-    const maxTop = window.innerHeight - 300;
-    const clampedTop = Math.max(56, Math.min(rect.top, maxTop));
-    setPopupTop(clampedTop);
-    setShowContentPopup(type === "content" ? !showContentPopup : false);
-    setShowCharacterPopup(type === "character" ? !showCharacterPopup : false);
-    setShowWritingPopup(type === "writing" ? !showWritingPopup : false);
+  // 切换展开面板
+  const toggleSection = (section: "content" | "writing" | "character") => {
+    if (expandedSection === section) {
+      setExpandedSection(null);
+      setLeftPanelExpanded(false);
+    } else {
+      setExpandedSection(section);
+      setLeftPanelExpanded(true);
+    }
+  };
+
+  // 关闭展开面板
+  const closeExpansion = () => {
+    setExpandedSection(null);
+    setLeftPanelExpanded(false);
   };
 
   // 模拟上传
@@ -203,7 +205,6 @@ export default function LeftPanel() {
     }
     setCharacters((prev) => [...prev, { ...newCharacter }]);
     setNewCharacter({ name: "", desc: "" });
-    setShowCharacterPopup(false);
     showToast("角色添加成功");
   };
 
@@ -232,12 +233,10 @@ export default function LeftPanel() {
       return;
     }
     setIsGenerating(true);
-    // 模拟生成
     setTimeout(() => {
       setIsGenerating(false);
       setIsGenerated(true);
       showToast("设定生成成功");
-      // 如果是从文件生成，模拟填充梗概
       if (uploadedFiles.length > 0 && !synopsis.trim()) {
         setSynopsis(`【故事线】顶流影后苏瑾意外穿越到1985年的小镇，成为供销社售货员的女儿。她需要在这个没有互联网、没有智能手机的年代重新开始...
 
@@ -268,433 +267,449 @@ export default function LeftPanel() {
   };
 
   return (
-    <div className="h-full flex flex-col overflow-hidden w-72 bg-white">
-      {/* 可滚动内容区 */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="p-4 space-y-4">
-          {/* 标题 */}
-          <div className="flex items-center gap-2">
-            <FileText className="w-4 h-4 text-gray-500" />
-            <span className="text-sm font-medium text-gray-700">设定</span>
-          </div>
+    <div className="h-full flex">
+      {/* 左列 - 设定 */}
+      <div className="w-72 flex-shrink-0 h-full flex flex-col bg-white">
+        {/* 可滚动内容区 */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="p-4 space-y-4">
+            {/* 标题 */}
+            <div className="flex items-center gap-2">
+              <FileText className="w-4 h-4 text-gray-500" />
+              <span className="text-sm font-medium text-gray-700">设定</span>
+            </div>
 
-          {/* 上传参考材料 */}
-          <div>
-            <button
-              onClick={handleUpload}
-              className="w-full flex items-center justify-center gap-2 px-3 py-2.5 border border-dashed border-gray-200 rounded-lg text-sm text-gray-500 hover:border-indigo-300 hover:text-indigo-600 hover:bg-indigo-50/30 transition"
-            >
-              <Upload className="w-4 h-4" />
-              <span>+ 上传参考材料</span>
-            </button>
-            <p className="text-[10px] text-gray-400 mt-1.5">可选，上传后 AI 将参考您的资料生成设定</p>
+            {/* 上传参考材料 */}
+            <div>
+              <button
+                onClick={handleUpload}
+                className="w-full flex items-center justify-center gap-2 px-3 py-2.5 border border-dashed border-gray-200 rounded-lg text-sm text-gray-500 hover:border-indigo-300 hover:text-indigo-600 hover:bg-indigo-50/30 transition"
+              >
+                <Upload className="w-4 h-4" />
+                <span>+ 上传参考材料</span>
+              </button>
+              <p className="text-[10px] text-gray-400 mt-1.5">可选，上传后 AI 将参考您的资料生成设定</p>
 
-            {/* 已上传文件 */}
-            {uploadedFiles.length > 0 && (
-              <div className="mt-2 flex flex-wrap gap-2">
-                {uploadedFiles.map((file, i) => (
-                  <div
-                    key={i}
-                    className="flex items-center gap-1.5 px-2 py-1 bg-gray-50 rounded-lg text-xs text-gray-600 max-w-full"
-                  >
-                    <FileText className="w-3 h-3 flex-shrink-0" />
-                    <span className="truncate max-w-[140px]">{file}</span>
-                    <button
-                      onClick={() => removeFile(i)}
-                      className="p-0.5 hover:bg-gray-200 rounded transition flex-shrink-0"
+              {uploadedFiles.length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {uploadedFiles.map((file, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center gap-1.5 px-2 py-1 bg-gray-50 rounded-lg text-xs text-gray-600 max-w-full"
                     >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+                      <FileText className="w-3 h-3 flex-shrink-0" />
+                      <span className="truncate max-w-[140px]">{file}</span>
+                      <button
+                        onClick={() => removeFile(i)}
+                        className="p-0.5 hover:bg-gray-200 rounded transition flex-shrink-0"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
 
-          {/* 故事梗概 */}
-          <div>
-            <textarea
-              value={synopsis}
-              onChange={(e) => {
-                setSynopsis(e.target.value);
-                setIsGenerated(false);
-              }}
-              placeholder={`【故事线】请输入故事的主要情节走向...
+            {/* 故事梗概 */}
+            <div>
+              <textarea
+                value={synopsis}
+                onChange={(e) => {
+                  setSynopsis(e.target.value);
+                  setIsGenerated(false);
+                }}
+                placeholder={`【故事线】请输入故事的主要情节走向...
 
 【核心冲突】故事的主要矛盾和冲突...
 
 【情感设定】角色之间的情感关系...`}
-              className={cn(
-                "w-full h-[180px] text-sm border rounded-lg p-3 resize-none focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 placeholder:text-gray-300 leading-relaxed",
-                isGenerated ? "border-green-300 bg-green-50/30" : "border-gray-200"
-              )}
-            />
-
-            {/* 生成设定按钮 */}
-            <button
-              onClick={handleGenerate}
-              disabled={isGenerating}
-              className={cn(
-                "w-full mt-2 py-2 text-sm rounded-lg transition flex items-center justify-center gap-2",
-                isGenerated
-                  ? "bg-green-50 text-green-600 border border-green-200"
-                  : "bg-indigo-50 text-indigo-600 hover:bg-indigo-100 border border-indigo-200"
-              )}
-            >
-              {isGenerating ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  生成中...
-                </>
-              ) : isGenerated ? (
-                <>
-                  <Sparkles className="w-4 h-4" />
-                  已生成设定（点击重新生成）
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-4 h-4" />
-                  生成设定
-                </>
-              )}
-            </button>
-          </div>
-
-          {/* 篇幅选择 */}
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-xs font-medium text-gray-600">篇幅</span>
-              <span className="text-[10px] text-red-400">*必选</span>
-            </div>
-            <div className="flex gap-2">
-              {[
-                { id: "short" as const, label: "短篇", desc: "<5000字" },
-                { id: "medium" as const, label: "中篇", desc: "5000-2万字" },
-                { id: "long" as const, label: "长篇", desc: "≥2万字" },
-              ].map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => setLength(item.id)}
-                  className={cn(
-                    "flex-1 py-2 px-2 rounded-lg border transition text-center",
-                    length === item.id
-                      ? "border-indigo-300 bg-indigo-50 text-indigo-700"
-                      : "border-gray-200 text-gray-500 hover:border-gray-300"
-                  )}
-                >
-                  <div className="text-xs font-medium">{item.label}</div>
-                  <div className="text-[10px] text-gray-400 mt-0.5">{item.desc}</div>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* +写作要素 按钮 */}
-          <div className="relative">
-            <button
-              onClick={(e) => openPopup("content", e)}
-              className={cn(
-                "w-full flex items-center justify-between px-3 py-2.5 rounded-lg border transition text-sm",
-                getSelectedCount() > 0
-                  ? "border-indigo-200 bg-indigo-50/50 text-indigo-700"
-                  : "border-gray-200 text-gray-500 hover:border-gray-300"
-              )}
-            >
-              <div className="flex items-center gap-2">
-                <Plus className="w-4 h-4" />
-                <span>写作要素</span>
-                {getSelectedCount() > 0 && (
-                  <span className="text-xs text-indigo-500">
-                    已选 {getSelectedCount()} 项
-                  </span>
-                )}
-              </div>
-              <ChevronRight
                 className={cn(
-                  "w-4 h-4 transition-transform",
-                  showContentPopup && "rotate-90"
+                  "w-full h-[180px] text-sm border rounded-lg p-3 resize-none focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 placeholder:text-gray-300 leading-relaxed",
+                  isGenerated ? "border-green-300 bg-green-50/30" : "border-gray-200"
                 )}
               />
-            </button>
 
-            {/* 已选标签预览 */}
-            {getSelectedCount() > 0 && !showContentPopup && (
-              <div className="mt-2 flex flex-wrap gap-1.5">
-                {Object.entries(selectedTags).flatMap(([, tags]) =>
-                  tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="px-2 py-0.5 bg-indigo-50 text-indigo-600 text-xs rounded-full"
-                    >
-                      {tag}
-                    </span>
-                  ))
+              {/* 生成设定按钮 */}
+              <button
+                onClick={handleGenerate}
+                disabled={isGenerating}
+                className={cn(
+                  "w-full mt-2 py-2 text-sm rounded-lg transition flex items-center justify-center gap-2",
+                  isGenerated
+                    ? "bg-green-50 text-green-600 border border-green-200"
+                    : "bg-indigo-50 text-indigo-600 hover:bg-indigo-100 border border-indigo-200"
                 )}
-              </div>
-            )}
+              >
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    生成中...
+                  </>
+                ) : isGenerated ? (
+                  <>
+                    <Sparkles className="w-4 h-4" />
+                    已生成设定（点击重新生成）
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4" />
+                    生成设定
+                  </>
+                )}
+              </button>
+            </div>
 
-            {/* 写作要素浮层 */}
-            {showContentPopup && (
-              <div style={{ top: popupTop, maxHeight: `calc(100vh - ${popupTop + 20}px)` }} className="fixed left-[296px] w-72 bg-white rounded-xl shadow-xl border border-gray-100 z-50 overflow-y-auto">
-                <div className="p-3 space-y-3">
-                  {contentTagGroups.map((group) => (
-                    <div key={group.id}>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-xs font-medium text-gray-600">
-                          {group.label}
-                        </span>
-                        <span className="text-xs text-gray-400">
-                          {selectedTags[group.id]?.length || 0}/{group.max}
+            {/* 篇幅选择 */}
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-xs font-medium text-gray-600">篇幅</span>
+                <span className="text-[10px] text-red-400">*必选</span>
+              </div>
+              <div className="flex gap-2">
+                {[
+                  { id: "short" as const, label: "短篇", desc: "<5000字" },
+                  { id: "medium" as const, label: "中篇", desc: "5000-2万字" },
+                  { id: "long" as const, label: "长篇", desc: "≥2万字" },
+                ].map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => setLength(item.id)}
+                    className={cn(
+                      "flex-1 py-2 px-2 rounded-lg border transition text-center",
+                      length === item.id
+                        ? "border-indigo-300 bg-indigo-50 text-indigo-700"
+                        : "border-gray-200 text-gray-500 hover:border-gray-300"
+                    )}
+                  >
+                    <div className="text-xs font-medium">{item.label}</div>
+                    <div className="text-[10px] text-gray-400 mt-0.5">{item.desc}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 写作要素 */}
+            <div>
+              <button
+                onClick={() => toggleSection("content")}
+                className={cn(
+                  "w-full flex items-center justify-between px-3 py-2.5 rounded-lg border transition text-sm",
+                  getSelectedCount() > 0
+                    ? "border-indigo-200 bg-indigo-50/50 text-indigo-700"
+                    : "border-gray-200 text-gray-500 hover:border-gray-300"
+                )}
+              >
+                <div className="flex items-center gap-2">
+                  <Plus className="w-4 h-4" />
+                  <span>写作要素</span>
+                  {getSelectedCount() > 0 && (
+                    <span className="text-xs text-indigo-500">
+                      已选 {getSelectedCount()} 项
+                    </span>
+                  )}
+                </div>
+                <ChevronRight
+                  className={cn(
+                    "w-4 h-4 transition-transform",
+                    expandedSection === "content" && "rotate-90"
+                  )}
+                />
+              </button>
+
+              {/* 已选标签预览 */}
+              {getSelectedCount() > 0 && expandedSection !== "content" && (
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {Object.entries(selectedTags).flatMap(([, tags]) =>
+                    tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="px-2 py-0.5 bg-indigo-50 text-indigo-600 text-xs rounded-full"
+                      >
+                        {tag}
+                      </span>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* 写作方式 */}
+            <div>
+              <button
+                onClick={() => toggleSection("writing")}
+                className={cn(
+                  "w-full flex items-center justify-between px-3 py-2.5 rounded-lg border transition text-sm",
+                  getWritingSelectedCount() > 0
+                    ? "border-indigo-200 bg-indigo-50/50 text-indigo-700"
+                    : "border-gray-200 text-gray-500 hover:border-gray-300"
+                )}
+              >
+                <div className="flex items-center gap-2">
+                  <Plus className="w-4 h-4" />
+                  <span>写作方式</span>
+                  {getWritingSelectedCount() > 0 && (
+                    <span className="text-xs text-indigo-500">
+                      已选 {getWritingSelectedCount()} 项
+                    </span>
+                  )}
+                </div>
+                <ChevronRight
+                  className={cn(
+                    "w-4 h-4 transition-transform",
+                    expandedSection === "writing" && "rotate-90"
+                  )}
+                />
+              </button>
+
+              {/* 已选写作方式预览 */}
+              {getWritingSelectedCount() > 0 && expandedSection !== "writing" && (
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {Object.entries(selectedWritingTags).flatMap(([, tags]) =>
+                    tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="px-2 py-0.5 bg-indigo-50 text-indigo-600 text-xs rounded-full"
+                      >
+                        {tag}
+                      </span>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* 角色 */}
+            <div>
+              <button
+                onClick={() => toggleSection("character")}
+                className={cn(
+                  "w-full flex items-center justify-between px-3 py-2.5 rounded-lg border transition text-sm",
+                  characters.length > 0
+                    ? "border-indigo-200 bg-indigo-50/50 text-indigo-700"
+                    : "border-gray-200 text-gray-500 hover:border-gray-300"
+                )}
+              >
+                <div className="flex items-center gap-2">
+                  <Users className="w-4 h-4" />
+                  <span>角色</span>
+                  {characters.length > 0 && (
+                    <span className="text-xs text-indigo-500">
+                      {characters.length} 个角色
+                    </span>
+                  )}
+                </div>
+                <ChevronRight
+                  className={cn(
+                    "w-4 h-4 transition-transform",
+                    expandedSection === "character" && "rotate-90"
+                  )}
+                />
+              </button>
+
+              {/* 已添加角色预览 */}
+              {characters.length > 0 && expandedSection !== "character" && (
+                <div className="mt-2 space-y-1.5">
+                  {characters.map((char, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center justify-between px-2.5 py-1.5 bg-gray-50 rounded-lg"
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <div className="w-6 h-6 rounded-full bg-indigo-100 flex items-center justify-center text-xs text-indigo-600 flex-shrink-0">
+                          {char.name[0]}
+                        </div>
+                        <span className="text-xs text-gray-700 truncate">
+                          {char.name}
                         </span>
                       </div>
-                      <div className="flex flex-wrap gap-1.5">
-                        {group.tags.map((tag) => (
-                          <button
-                            key={tag}
-                            onClick={() => toggleTag(group.id, tag, group.max)}
-                            className={cn(
-                              "px-2 py-1 text-xs rounded-full border transition",
-                              selectedTags[group.id]?.includes(tag)
-                                ? "border-indigo-300 bg-indigo-50 text-indigo-700"
-                                : "border-gray-200 text-gray-500 hover:border-gray-300"
-                            )}
-                          >
-                            {tag}
-                          </button>
-                        ))}
-                      </div>
+                      <button
+                        onClick={() => removeCharacter(i)}
+                        className="p-1 hover:bg-gray-200 rounded transition"
+                      >
+                        <X className="w-3 h-3 text-gray-400" />
+                      </button>
                     </div>
                   ))}
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
+        </div>
 
-          {/* +角色 按钮 */}
-          <div className="relative">
+        {/* 底部操作栏 */}
+        <div className="p-4 border-t border-gray-100">
+          {length === "short" ? (
             <button
-              onClick={(e) => openPopup("character", e)}
+              onClick={handleCreateArticle}
+              disabled={!isGenerated}
               className={cn(
-                "w-full flex items-center justify-between px-3 py-2.5 rounded-lg border transition text-sm",
-                characters.length > 0
-                  ? "border-indigo-200 bg-indigo-50/50 text-indigo-700"
-                  : "border-gray-200 text-gray-500 hover:border-gray-300"
+                "w-full py-2.5 text-sm font-medium rounded-lg transition flex items-center justify-center gap-2",
+                isGenerated
+                  ? "text-white bg-indigo-600 hover:bg-indigo-700"
+                  : "text-gray-400 bg-gray-100 cursor-not-allowed"
               )}
             >
-              <div className="flex items-center gap-2">
-                <Users className="w-4 h-4" />
-                <span>角色</span>
-                {characters.length > 0 && (
-                  <span className="text-xs text-indigo-500">
-                    {characters.length} 个角色
-                  </span>
-                )}
-              </div>
-              <ChevronRight
-                className={cn(
-                  "w-4 h-4 transition-transform",
-                  showCharacterPopup && "rotate-90"
-                )}
-              />
+              <Sparkles className="w-4 h-4" />
+              直接生成文章
             </button>
+          ) : (
+            <button
+              onClick={handleCreateOutline}
+              disabled={!isGenerated}
+              className={cn(
+                "w-full py-2.5 text-sm font-medium rounded-lg transition flex items-center justify-center gap-2",
+                isGenerated
+                  ? "text-white bg-indigo-600 hover:bg-indigo-700"
+                  : "text-gray-400 bg-gray-100 cursor-not-allowed"
+              )}
+            >
+              <FileText className="w-4 h-4" />
+              先生成大纲
+            </button>
+          )}
+        </div>
+      </div>
 
-            {/* 已添加角色预览 */}
-            {characters.length > 0 && !showCharacterPopup && (
-              <div className="mt-2 space-y-1.5">
-                {characters.map((char, i) => (
-                  <div
-                    key={i}
-                    className="flex items-center justify-between px-2.5 py-1.5 bg-gray-50 rounded-lg"
-                  >
-                    <div className="flex items-center gap-2 min-w-0">
-                      <div className="w-6 h-6 rounded-full bg-indigo-100 flex items-center justify-center text-xs text-indigo-600 flex-shrink-0">
-                        {char.name[0]}
-                      </div>
-                      <span className="text-xs text-gray-700 truncate">
-                        {char.name}
+      {/* 右列 - 展开面板 */}
+      {expandedSection && (
+        <div className="w-72 flex-shrink-0 h-full border-l border-gray-100 overflow-y-auto bg-gray-50/30">
+          <div className="p-4 space-y-4">
+            {/* 面板标题 */}
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-gray-700">
+                {expandedSection === "content" ? "写作要素" : expandedSection === "writing" ? "写作方式" : "角色"}
+              </span>
+              <button
+                onClick={closeExpansion}
+                className="p-1 hover:bg-gray-200 rounded transition"
+              >
+                <X className="w-4 h-4 text-gray-400" />
+              </button>
+            </div>
+
+            {/* 写作要素标签 */}
+            {expandedSection === "content" && (
+              <div className="space-y-3">
+                {contentTagGroups.map((group) => (
+                  <div key={group.id}>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-medium text-gray-600">
+                        {group.label}
+                      </span>
+                      <span className="text-xs text-gray-400">
+                        {selectedTags[group.id]?.length || 0}/{group.max}
                       </span>
                     </div>
-                    <button
-                      onClick={() => removeCharacter(i)}
-                      className="p-1 hover:bg-gray-200 rounded transition"
-                    >
-                      <X className="w-3 h-3 text-gray-400" />
-                    </button>
+                    <div className="flex flex-wrap gap-1.5">
+                      {group.tags.map((tag) => (
+                        <button
+                          key={tag}
+                          onClick={() => toggleTag(group.id, tag, group.max)}
+                          className={cn(
+                            "px-2 py-1 text-xs rounded-full border transition",
+                            selectedTags[group.id]?.includes(tag)
+                              ? "border-indigo-300 bg-indigo-50 text-indigo-700"
+                              : "border-gray-200 text-gray-500 hover:border-gray-300 bg-white"
+                          )}
+                        >
+                          {tag}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 ))}
               </div>
             )}
 
-            {/* 角色浮层 */}
-            {showCharacterPopup && (
-              <div style={{ top: popupTop, maxHeight: `calc(100vh - ${popupTop + 20}px)` }} className="fixed left-[296px] w-64 bg-white rounded-xl shadow-xl border border-gray-100 z-50 overflow-y-auto">
-                <div className="p-3 space-y-3">
-                  <div className="text-xs font-medium text-gray-600">添加角色</div>
-                  <input
-                    type="text"
-                    value={newCharacter.name}
-                    onChange={(e) =>
-                      setNewCharacter((p) => ({ ...p, name: e.target.value }))
-                    }
-                    placeholder="角色名称"
-                    className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-indigo-300"
-                  />
-                  <textarea
-                    value={newCharacter.desc}
-                    onChange={(e) =>
-                      setNewCharacter((p) => ({ ...p, desc: e.target.value }))
-                    }
-                    placeholder="角色简介（选填）"
-                    className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 resize-none focus:outline-none focus:border-indigo-300"
-                    rows={2}
-                  />
-                  <button
-                    onClick={addCharacter}
-                    className="w-full py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition"
-                  >
-                    添加
-                  </button>
-
-                  {/* 已有角色列表 */}
-                  {characters.length > 0 && (
-                    <div className="border-t border-gray-100 pt-3 space-y-1.5">
-                      <div className="text-xs text-gray-400">已添加角色</div>
-                      {characters.map((char, i) => (
-                        <div
-                          key={i}
-                          className="flex items-center justify-between px-2 py-1.5 bg-gray-50 rounded-lg"
+            {/* 写作方式标签 */}
+            {expandedSection === "writing" && (
+              <div className="space-y-3">
+                {writingTagGroups.map((group) => (
+                  <div key={group.id}>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-medium text-gray-600">
+                        {group.label}
+                      </span>
+                      <span className="text-xs text-gray-400">
+                        {selectedWritingTags[group.id]?.length || 0}/{group.max}
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {group.tags.map((tag) => (
+                        <button
+                          key={tag}
+                          onClick={() => toggleWritingTag(group.id, tag, group.max)}
+                          className={cn(
+                            "px-2 py-1 text-xs rounded-full border transition",
+                            selectedWritingTags[group.id]?.includes(tag)
+                              ? "border-indigo-300 bg-indigo-50 text-indigo-700"
+                              : "border-gray-200 text-gray-500 hover:border-gray-300 bg-white"
+                          )}
                         >
-                          <span className="text-xs text-gray-600">{char.name}</span>
-                          <button
-                            onClick={() => removeCharacter(i)}
-                            className="p-0.5 hover:bg-gray-200 rounded"
-                          >
-                            <X className="w-3 h-3 text-gray-400" />
-                          </button>
-                        </div>
+                          {tag}
+                        </button>
                       ))}
                     </div>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* +写作方式 按钮 */}
-          <div className="relative">
-            <button
-              onClick={(e) => openPopup("writing", e)}
-              className={cn(
-                "w-full flex items-center justify-between px-3 py-2.5 rounded-lg border transition text-sm",
-                getWritingSelectedCount() > 0
-                  ? "border-indigo-200 bg-indigo-50/50 text-indigo-700"
-                  : "border-gray-200 text-gray-500 hover:border-gray-300"
-              )}
-            >
-              <div className="flex items-center gap-2">
-                <Plus className="w-4 h-4" />
-                <span>写作方式</span>
-                {getWritingSelectedCount() > 0 && (
-                  <span className="text-xs text-indigo-500">
-                    已选 {getWritingSelectedCount()} 项
-                  </span>
-                )}
-              </div>
-              <ChevronRight
-                className={cn(
-                  "w-4 h-4 transition-transform",
-                  showWritingPopup && "rotate-90"
-                )}
-              />
-            </button>
-
-            {/* 已选写作方式预览 */}
-            {getWritingSelectedCount() > 0 && !showWritingPopup && (
-              <div className="mt-2 flex flex-wrap gap-1.5">
-                {Object.entries(selectedWritingTags).flatMap(([, tags]) =>
-                  tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="px-2 py-0.5 bg-indigo-50 text-indigo-600 text-xs rounded-full"
-                    >
-                      {tag}
-                    </span>
-                  ))
-                )}
+                  </div>
+                ))}
               </div>
             )}
 
-            {/* 写作方式浮层 */}
-            {showWritingPopup && (
-              <div style={{ top: popupTop, maxHeight: `calc(100vh - ${popupTop + 20}px)` }} className="fixed left-[296px] w-64 bg-white rounded-xl shadow-xl border border-gray-100 z-50 overflow-y-auto">
-                <div className="p-3 space-y-3">
-                  {writingTagGroups.map((group) => (
-                    <div key={group.id}>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-xs font-medium text-gray-600">
-                          {group.label}
-                        </span>
-                        <span className="text-xs text-gray-400">
-                          {selectedWritingTags[group.id]?.length || 0}/{group.max}
-                        </span>
+            {/* 角色管理 */}
+            {expandedSection === "character" && (
+              <div className="space-y-3">
+                <div className="text-xs font-medium text-gray-600">添加角色</div>
+                <input
+                  type="text"
+                  value={newCharacter.name}
+                  onChange={(e) =>
+                    setNewCharacter((p) => ({ ...p, name: e.target.value }))
+                  }
+                  placeholder="角色名称"
+                  className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-indigo-300 bg-white"
+                />
+                <textarea
+                  value={newCharacter.desc}
+                  onChange={(e) =>
+                    setNewCharacter((p) => ({ ...p, desc: e.target.value }))
+                  }
+                  placeholder="角色简介（选填）"
+                  className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 resize-none focus:outline-none focus:border-indigo-300 bg-white"
+                  rows={2}
+                />
+                <button
+                  onClick={addCharacter}
+                  className="w-full py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition"
+                >
+                  添加
+                </button>
+
+                {/* 已有角色列表 */}
+                {characters.length > 0 && (
+                  <div className="border-t border-gray-200 pt-3 space-y-1.5">
+                    <div className="text-xs text-gray-400">已添加角色</div>
+                    {characters.map((char, i) => (
+                      <div
+                        key={i}
+                        className="flex items-center justify-between px-2 py-1.5 bg-white rounded-lg"
+                      >
+                        <span className="text-xs text-gray-600">{char.name}</span>
+                        <button
+                          onClick={() => removeCharacter(i)}
+                          className="p-0.5 hover:bg-gray-200 rounded"
+                        >
+                          <X className="w-3 h-3 text-gray-400" />
+                        </button>
                       </div>
-                      <div className="flex flex-wrap gap-1.5">
-                        {group.tags.map((tag) => (
-                          <button
-                            key={tag}
-                            onClick={() => toggleWritingTag(group.id, tag, group.max)}
-                            className={cn(
-                              "px-2 py-1 text-xs rounded-full border transition",
-                              selectedWritingTags[group.id]?.includes(tag)
-                                ? "border-indigo-300 bg-indigo-50 text-indigo-700"
-                                : "border-gray-200 text-gray-500 hover:border-gray-300"
-                            )}
-                          >
-                            {tag}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </div>
         </div>
-      </div>
-
-      {/* 底部操作栏 */}
-      <div className="p-4 border-t border-gray-100">
-        {length === "short" ? (
-          <button
-            onClick={handleCreateArticle}
-            disabled={!isGenerated}
-            className={cn(
-              "w-full py-2.5 text-sm font-medium rounded-lg transition flex items-center justify-center gap-2",
-              isGenerated
-                ? "text-white bg-indigo-600 hover:bg-indigo-700"
-                : "text-gray-400 bg-gray-100 cursor-not-allowed"
-            )}
-          >
-            <Sparkles className="w-4 h-4" />
-            直接生成文章
-          </button>
-        ) : (
-          <button
-            onClick={handleCreateOutline}
-            disabled={!isGenerated}
-            className={cn(
-              "w-full py-2.5 text-sm font-medium rounded-lg transition flex items-center justify-center gap-2",
-              isGenerated
-                ? "text-white bg-indigo-600 hover:bg-indigo-700"
-                : "text-gray-400 bg-gray-100 cursor-not-allowed"
-            )}
-          >
-            <FileText className="w-4 h-4" />
-            先生成大纲
-          </button>
-        )}
-      </div>
+      )}
     </div>
   );
 }

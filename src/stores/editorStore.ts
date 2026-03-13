@@ -44,6 +44,8 @@ interface EditorState {
   // 面板折叠
   leftCollapsed: boolean;
   rightCollapsed: boolean;
+  leftPanelExpanded: boolean;
+  setLeftPanelExpanded: (expanded: boolean) => void;
   toggleLeft: () => void;
   toggleRight: () => void;
   focusMode: boolean;
@@ -135,7 +137,9 @@ export const useEditorStore = create<EditorState>((set) => ({
 
   leftCollapsed: false,
   rightCollapsed: false,
-  toggleLeft: () => set((s) => ({ leftCollapsed: !s.leftCollapsed })),
+  leftPanelExpanded: false,
+  setLeftPanelExpanded: (expanded) => set({ leftPanelExpanded: expanded }),
+  toggleLeft: () => set((s) => ({ leftCollapsed: !s.leftCollapsed, leftPanelExpanded: !s.leftCollapsed ? false : s.leftPanelExpanded })),
   toggleRight: () => set((s) => ({ rightCollapsed: !s.rightCollapsed })),
   focusMode: false,
   toggleFocusMode: () =>
@@ -372,6 +376,7 @@ export const useEditorStore = create<EditorState>((set) => ({
       scene: sceneType,
       title: sceneNames[sceneType] || "未命名文档",
       titleManuallyEdited: false,
+      leftPanelExpanded: false,
       chapters: [defaultChapter],
       currentChapterId: defaultChapter.id,
       outline: "",
