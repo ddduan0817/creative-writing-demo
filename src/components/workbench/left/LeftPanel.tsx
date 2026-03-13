@@ -700,7 +700,7 @@ export default function LeftPanel() {
                   onClick={addCharacter}
                   className="w-full py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition"
                 >
-                  添加
+                  添加角色
                 </button>
 
                 {/* 已有角色列表 */}
