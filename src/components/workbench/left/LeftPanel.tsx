@@ -14,7 +14,7 @@ import {
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
-// 内容设定标签数据
+// 写作要素标签数据
 const contentTagGroups = [
   {
     id: "audience",
@@ -101,7 +101,7 @@ export default function LeftPanel() {
   const [isGenerated, setIsGenerated] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
 
-  // 选中的内容设定标签
+  // 选中的写作要素标签
   const [selectedTags, setSelectedTags] = useState<Record<string, string[]>>({
     audience: [],
     genre: [],
@@ -212,7 +212,7 @@ export default function LeftPanel() {
     setCharacters((prev) => prev.filter((_, i) => i !== index));
   };
 
-  // 获取已选内容设定标签数量
+  // 获取已选写作要素标签数量
   const getSelectedCount = () => {
     return Object.values(selectedTags).flat().length;
   };
@@ -389,7 +389,7 @@ export default function LeftPanel() {
             </div>
           </div>
 
-          {/* +内容设定 按钮 */}
+          {/* +写作要素 按钮 */}
           <div className="relative">
             <button
               onClick={(e) => openPopup("content", e)}
@@ -402,7 +402,7 @@ export default function LeftPanel() {
             >
               <div className="flex items-center gap-2">
                 <Plus className="w-4 h-4" />
-                <span>内容设定</span>
+                <span>写作要素</span>
                 {getSelectedCount() > 0 && (
                   <span className="text-xs text-indigo-500">
                     已选 {getSelectedCount()} 项
@@ -433,7 +433,7 @@ export default function LeftPanel() {
               </div>
             )}
 
-            {/* 内容设定浮层 */}
+            {/* 写作要素浮层 */}
             {showContentPopup && (
               <div style={{ top: popupTop, maxHeight: `calc(100vh - ${popupTop + 20}px)` }} className="fixed left-[296px] w-72 bg-white rounded-xl shadow-xl border border-gray-100 z-50 overflow-y-auto">
                 <div className="p-3 space-y-3">
