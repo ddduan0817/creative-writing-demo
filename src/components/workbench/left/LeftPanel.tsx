@@ -72,7 +72,7 @@ const writingTagGroups = [
     id: "structure",
     label: "叙事结构",
     max: 1,
-    tags: ["线性叙事", "倒叙", "插叙", "多线并行", "环形结构", "碎片化叙事"],
+    tags: ["线性叙事", "倒叙", "插叙", "多线并行"],
   },
   {
     id: "writingStyle",
