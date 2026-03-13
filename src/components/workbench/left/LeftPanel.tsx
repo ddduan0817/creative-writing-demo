@@ -382,51 +382,6 @@ export default function LeftPanel() {
               </div>
             </div>
 
-            {/* 写作要素 */}
-            <div>
-              <button
-                onClick={() => toggleSection("content")}
-                className={cn(
-                  "w-full flex items-center justify-between px-3 py-2.5 rounded-lg border transition text-sm",
-                  getSelectedCount() > 0
-                    ? "border-indigo-200 bg-indigo-50/50 text-indigo-700"
-                    : "border-gray-200 text-gray-500 hover:border-gray-300"
-                )}
-              >
-                <div className="flex items-center gap-2">
-                  <Plus className="w-4 h-4" />
-                  <span>写作要素</span>
-                  {getSelectedCount() > 0 && (
-                    <span className="text-xs text-indigo-500">
-                      已选 {getSelectedCount()} 项
-                    </span>
-                  )}
-                </div>
-                <ChevronRight
-                  className={cn(
-                    "w-4 h-4 transition-transform",
-                    expandedSection === "content" && "rotate-90"
-                  )}
-                />
-              </button>
-
-              {/* 已选标签预览 */}
-              {getSelectedCount() > 0 && expandedSection !== "content" && (
-                <div className="mt-2 flex flex-wrap gap-1.5">
-                  {Object.entries(selectedTags).flatMap(([, tags]) =>
-                    tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="px-2 py-0.5 bg-indigo-50 text-indigo-600 text-xs rounded-full"
-                      >
-                        {tag}
-                      </span>
-                    ))
-                  )}
-                </div>
-              )}
-            </div>
-
             {/* 写作方式 */}
             <div>
               <button
@@ -459,6 +414,51 @@ export default function LeftPanel() {
               {getWritingSelectedCount() > 0 && expandedSection !== "writing" && (
                 <div className="mt-2 flex flex-wrap gap-1.5">
                   {Object.entries(selectedWritingTags).flatMap(([, tags]) =>
+                    tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="px-2 py-0.5 bg-indigo-50 text-indigo-600 text-xs rounded-full"
+                      >
+                        {tag}
+                      </span>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* 写作要素 */}
+            <div>
+              <button
+                onClick={() => toggleSection("content")}
+                className={cn(
+                  "w-full flex items-center justify-between px-3 py-2.5 rounded-lg border transition text-sm",
+                  getSelectedCount() > 0
+                    ? "border-indigo-200 bg-indigo-50/50 text-indigo-700"
+                    : "border-gray-200 text-gray-500 hover:border-gray-300"
+                )}
+              >
+                <div className="flex items-center gap-2">
+                  <Plus className="w-4 h-4" />
+                  <span>写作要素</span>
+                  {getSelectedCount() > 0 && (
+                    <span className="text-xs text-indigo-500">
+                      已选 {getSelectedCount()} 项
+                    </span>
+                  )}
+                </div>
+                <ChevronRight
+                  className={cn(
+                    "w-4 h-4 transition-transform",
+                    expandedSection === "content" && "rotate-90"
+                  )}
+                />
+              </button>
+
+              {/* 已选标签预览 */}
+              {getSelectedCount() > 0 && expandedSection !== "content" && (
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {Object.entries(selectedTags).flatMap(([, tags]) =>
                     tags.map((tag) => (
                       <span
                         key={tag}
