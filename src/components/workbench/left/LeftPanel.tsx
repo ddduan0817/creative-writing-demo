@@ -130,7 +130,17 @@ export default function LeftPanel() {
   const [showContentPopup, setShowContentPopup] = useState(false);
   const [showWritingPopup, setShowWritingPopup] = useState(false);
   const [showCharacterPopup, setShowCharacterPopup] = useState(false);
+  const [popupTop, setPopupTop] = useState(56);
   const [newCharacter, setNewCharacter] = useState({ name: "", desc: "" });
+
+  // 打开浮层并计算位置
+  const openPopup = (type: "content" | "character" | "writing", e: React.MouseEvent) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setPopupTop(rect.top);
+    setShowContentPopup(type === "content" ? !showContentPopup : false);
+    setShowCharacterPopup(type === "character" ? !showCharacterPopup : false);
+    setShowWritingPopup(type === "writing" ? !showWritingPopup : false);
+  };
 
   // 模拟上传
   const handleUpload = () => {
@@ -379,7 +389,7 @@ export default function LeftPanel() {
           {/* +内容设定 按钮 */}
           <div className="relative">
             <button
-              onClick={() => { setShowContentPopup(!showContentPopup); setShowWritingPopup(false); setShowCharacterPopup(false); }}
+              onClick={(e) => openPopup("content", e)}
               className={cn(
                 "w-full flex items-center justify-between px-3 py-2.5 rounded-lg border transition text-sm",
                 getSelectedCount() > 0
@@ -422,7 +432,7 @@ export default function LeftPanel() {
 
             {/* 内容设定浮层 */}
             {showContentPopup && (
-              <div className="fixed left-[296px] top-[56px] w-72 bg-white rounded-xl shadow-xl border border-gray-100 z-50 max-h-[calc(100vh-80px)] overflow-y-auto">
+              <div style={{ top: popupTop }} className="fixed left-[296px] w-72 bg-white rounded-xl shadow-xl border border-gray-100 z-50 max-h-[calc(100vh-80px)] overflow-y-auto">
                 <div className="p-3 space-y-3">
                   {contentTagGroups.map((group) => (
                     <div key={group.id}>
@@ -460,7 +470,7 @@ export default function LeftPanel() {
           {/* +角色 按钮 */}
           <div className="relative">
             <button
-              onClick={() => { setShowCharacterPopup(!showCharacterPopup); setShowContentPopup(false); setShowWritingPopup(false); }}
+              onClick={(e) => openPopup("character", e)}
               className={cn(
                 "w-full flex items-center justify-between px-3 py-2.5 rounded-lg border transition text-sm",
                 characters.length > 0
@@ -514,7 +524,7 @@ export default function LeftPanel() {
 
             {/* 角色浮层 */}
             {showCharacterPopup && (
-              <div className="fixed left-[296px] top-[56px] w-64 bg-white rounded-xl shadow-xl border border-gray-100 z-50 max-h-[calc(100vh-80px)] overflow-y-auto">
+              <div style={{ top: popupTop }} className="fixed left-[296px] w-64 bg-white rounded-xl shadow-xl border border-gray-100 z-50 max-h-[calc(100vh-80px)] overflow-y-auto">
                 <div className="p-3 space-y-3">
                   <div className="text-xs font-medium text-gray-600">添加角色</div>
                   <input
@@ -570,7 +580,7 @@ export default function LeftPanel() {
           {/* +写作方式 按钮 */}
           <div className="relative">
             <button
-              onClick={() => { setShowWritingPopup(!showWritingPopup); setShowContentPopup(false); setShowCharacterPopup(false); }}
+              onClick={(e) => openPopup("writing", e)}
               className={cn(
                 "w-full flex items-center justify-between px-3 py-2.5 rounded-lg border transition text-sm",
                 getWritingSelectedCount() > 0
@@ -613,7 +623,7 @@ export default function LeftPanel() {
 
             {/* 写作方式浮层 */}
             {showWritingPopup && (
-              <div className="fixed left-[296px] top-[56px] w-64 bg-white rounded-xl shadow-xl border border-gray-100 z-50 max-h-[calc(100vh-80px)] overflow-y-auto">
+              <div style={{ top: popupTop }} className="fixed left-[296px] w-64 bg-white rounded-xl shadow-xl border border-gray-100 z-50 max-h-[calc(100vh-80px)] overflow-y-auto">
                 <div className="p-3 space-y-3">
                   {writingTagGroups.map((group) => (
                     <div key={group.id}>
