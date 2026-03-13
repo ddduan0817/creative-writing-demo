@@ -66,7 +66,7 @@ const writingTagGroups = [
     id: "perspective",
     label: "叙事视角",
     max: 1,
-    tags: ["第一人称", "第三人称限知", "第三人称全知", "多视角切换", "第二人称"],
+    tags: ["第一人称", "第二人称", "第三人称"],
   },
   {
     id: "structure",
