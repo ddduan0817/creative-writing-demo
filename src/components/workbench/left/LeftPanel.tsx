@@ -379,7 +379,7 @@ export default function LeftPanel() {
           {/* +内容设定 按钮 */}
           <div className="relative">
             <button
-              onClick={() => { setShowContentPopup(!showContentPopup); setShowWritingPopup(false); }}
+              onClick={() => { setShowContentPopup(!showContentPopup); setShowWritingPopup(false); setShowCharacterPopup(false); }}
               className={cn(
                 "w-full flex items-center justify-between px-3 py-2.5 rounded-lg border transition text-sm",
                 getSelectedCount() > 0
@@ -460,7 +460,7 @@ export default function LeftPanel() {
           {/* +角色 按钮 */}
           <div className="relative">
             <button
-              onClick={() => setShowCharacterPopup(!showCharacterPopup)}
+              onClick={() => { setShowCharacterPopup(!showCharacterPopup); setShowContentPopup(false); setShowWritingPopup(false); }}
               className={cn(
                 "w-full flex items-center justify-between px-3 py-2.5 rounded-lg border transition text-sm",
                 characters.length > 0
@@ -570,7 +570,7 @@ export default function LeftPanel() {
           {/* +写作方式 按钮 */}
           <div className="relative">
             <button
-              onClick={() => { setShowWritingPopup(!showWritingPopup); setShowContentPopup(false); }}
+              onClick={() => { setShowWritingPopup(!showWritingPopup); setShowContentPopup(false); setShowCharacterPopup(false); }}
               className={cn(
                 "w-full flex items-center justify-between px-3 py-2.5 rounded-lg border transition text-sm",
                 getWritingSelectedCount() > 0
