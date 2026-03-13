@@ -136,7 +136,10 @@ export default function LeftPanel() {
   // 打开浮层并计算位置
   const openPopup = (type: "content" | "character" | "writing", e: React.MouseEvent) => {
     const rect = e.currentTarget.getBoundingClientRect();
-    setPopupTop(rect.top);
+    // 限制 top 不超出屏幕底部，至少留 300px 给浮层
+    const maxTop = window.innerHeight - 300;
+    const clampedTop = Math.max(56, Math.min(rect.top, maxTop));
+    setPopupTop(clampedTop);
     setShowContentPopup(type === "content" ? !showContentPopup : false);
     setShowCharacterPopup(type === "character" ? !showCharacterPopup : false);
     setShowWritingPopup(type === "writing" ? !showWritingPopup : false);
@@ -432,7 +435,7 @@ export default function LeftPanel() {
 
             {/* 内容设定浮层 */}
             {showContentPopup && (
-              <div style={{ top: popupTop }} className="fixed left-[296px] w-72 bg-white rounded-xl shadow-xl border border-gray-100 z-50 max-h-[calc(100vh-80px)] overflow-y-auto">
+              <div style={{ top: popupTop, maxHeight: `calc(100vh - ${popupTop + 20}px)` }} className="fixed left-[296px] w-72 bg-white rounded-xl shadow-xl border border-gray-100 z-50 overflow-y-auto">
                 <div className="p-3 space-y-3">
                   {contentTagGroups.map((group) => (
                     <div key={group.id}>
@@ -524,7 +527,7 @@ export default function LeftPanel() {
 
             {/* 角色浮层 */}
             {showCharacterPopup && (
-              <div style={{ top: popupTop }} className="fixed left-[296px] w-64 bg-white rounded-xl shadow-xl border border-gray-100 z-50 max-h-[calc(100vh-80px)] overflow-y-auto">
+              <div style={{ top: popupTop, maxHeight: `calc(100vh - ${popupTop + 20}px)` }} className="fixed left-[296px] w-64 bg-white rounded-xl shadow-xl border border-gray-100 z-50 overflow-y-auto">
                 <div className="p-3 space-y-3">
                   <div className="text-xs font-medium text-gray-600">添加角色</div>
                   <input
@@ -623,7 +626,7 @@ export default function LeftPanel() {
 
             {/* 写作方式浮层 */}
             {showWritingPopup && (
-              <div style={{ top: popupTop }} className="fixed left-[296px] w-64 bg-white rounded-xl shadow-xl border border-gray-100 z-50 max-h-[calc(100vh-80px)] overflow-y-auto">
+              <div style={{ top: popupTop, maxHeight: `calc(100vh - ${popupTop + 20}px)` }} className="fixed left-[296px] w-64 bg-white rounded-xl shadow-xl border border-gray-100 z-50 overflow-y-auto">
                 <div className="p-3 space-y-3">
                   {writingTagGroups.map((group) => (
                     <div key={group.id}>
