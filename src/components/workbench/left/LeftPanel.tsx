@@ -114,14 +114,14 @@ export default function LeftPanel() {
   });
 
   // 角色列表
-  const [characters, setCharacters] = useState<{ name: string; desc: string }[]>([]);
+  const [characters, setCharacters] = useState<{ name: string; desc: string; role: "主角" | "配角" }[]>([]);
 
   // 篇幅选择
   const [length, setLength] = useState<"short" | "medium" | "long">("short");
 
   // 展开的面板
   const [expandedSection, setExpandedSection] = useState<"content" | "writing" | "character" | null>(null);
-  const [newCharacter, setNewCharacter] = useState({ name: "", desc: "" });
+  const [newCharacter, setNewCharacter] = useState({ name: "", desc: "", role: "主角" as "主角" | "配角" });
 
   // 切换展开面板
   const toggleSection = (section: "content" | "writing" | "character") => {
@@ -197,7 +197,7 @@ export default function LeftPanel() {
       return;
     }
     setCharacters((prev) => [...prev, { ...newCharacter }]);
-    setNewCharacter({ name: "", desc: "" });
+    setNewCharacter({ name: "", desc: "", role: "主角" });
     showToast("角色添加成功");
   };
 
@@ -509,11 +509,20 @@ export default function LeftPanel() {
                       className="flex items-center justify-between px-2.5 py-1.5 bg-gray-50 rounded-lg"
                     >
                       <div className="flex items-center gap-2 min-w-0">
-                        <div className="w-6 h-6 rounded-full bg-indigo-100 flex items-center justify-center text-xs text-indigo-600 flex-shrink-0">
+                        <div className={cn(
+                          "w-6 h-6 rounded-full flex items-center justify-center text-xs flex-shrink-0",
+                          char.role === "主角" ? "bg-indigo-100 text-indigo-600" : "bg-gray-200 text-gray-500"
+                        )}>
                           {char.name[0]}
                         </div>
                         <span className="text-xs text-gray-700 truncate">
                           {char.name}
+                        </span>
+                        <span className={cn(
+                          "text-[10px] px-1.5 py-0.5 rounded-full flex-shrink-0",
+                          char.role === "主角" ? "bg-indigo-50 text-indigo-500" : "bg-gray-100 text-gray-400"
+                        )}>
+                          {char.role}
                         </span>
                       </div>
                       <button
@@ -566,7 +575,7 @@ export default function LeftPanel() {
 
       {/* 右列 - 展开面板 */}
       {expandedSection && (
-        <div className="w-96 flex-shrink-0 h-full border-l border-gray-100 overflow-y-auto bg-gray-50/30">
+        <div className="w-[480px] flex-shrink-0 h-full border-l border-gray-100 overflow-y-auto bg-gray-50/30">
           <div className="p-4 space-y-4">
             {/* 面板标题 */}
             <div className="flex items-center justify-between">
@@ -653,6 +662,22 @@ export default function LeftPanel() {
             {expandedSection === "character" && (
               <div className="space-y-3">
                 <div className="text-xs font-medium text-gray-600">添加角色</div>
+                <div className="flex gap-2">
+                  {(["主角", "配角"] as const).map((role) => (
+                    <button
+                      key={role}
+                      onClick={() => setNewCharacter((p) => ({ ...p, role }))}
+                      className={cn(
+                        "flex-1 py-1.5 text-xs rounded-lg border transition",
+                        newCharacter.role === role
+                          ? "border-indigo-300 bg-indigo-50 text-indigo-700"
+                          : "border-gray-200 text-gray-500 hover:border-gray-300 bg-white"
+                      )}
+                    >
+                      {role}
+                    </button>
+                  ))}
+                </div>
                 <input
                   type="text"
                   value={newCharacter.name}
@@ -687,7 +712,15 @@ export default function LeftPanel() {
                         key={i}
                         className="flex items-center justify-between px-2 py-1.5 bg-white rounded-lg"
                       >
-                        <span className="text-xs text-gray-600">{char.name}</span>
+                        <div className="flex items-center gap-1.5">
+                          <span className={cn(
+                            "text-[10px] px-1.5 py-0.5 rounded-full",
+                            char.role === "主角" ? "bg-indigo-50 text-indigo-500" : "bg-gray-100 text-gray-400"
+                          )}>
+                            {char.role}
+                          </span>
+                          <span className="text-xs text-gray-600">{char.name}</span>
+                        </div>
                         <button
                           onClick={() => removeCharacter(i)}
                           className="p-0.5 hover:bg-gray-200 rounded"

@@ -74,7 +74,7 @@ export default function WorkbenchLayout() {
         <div
           className={cn(
             "border-r border-gray-100 transition-all duration-300 overflow-hidden flex-shrink-0",
-            leftCollapsed ? "w-0" : leftPanelExpanded ? "w-[672px]" : "w-72"
+            leftCollapsed ? "w-0" : leftPanelExpanded ? "w-[768px]" : "w-72"
           )}
         >
           {renderLeftPanel()}
@@ -118,7 +118,7 @@ function ToggleButtons() {
       <button
         onClick={toggleLeft}
         className="fixed top-1/2 -translate-y-1/2 z-30 w-5 h-10 bg-white border border-gray-200 rounded-r-md flex items-center justify-center hover:bg-gray-50 transition shadow-sm"
-        style={{ left: leftCollapsed ? 0 : leftPanelExpanded ? 672 : 288, transition: "left 0.3s" }}
+        style={{ left: leftCollapsed ? 0 : leftPanelExpanded ? 768 : 288, transition: "left 0.3s" }}
       >
         <span className="text-gray-400 text-xs">
           {leftCollapsed ? "›" : "‹"}
