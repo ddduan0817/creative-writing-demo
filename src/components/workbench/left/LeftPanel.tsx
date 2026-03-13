@@ -566,7 +566,7 @@ export default function LeftPanel() {
 
       {/* 右列 - 展开面板 */}
       {expandedSection && (
-        <div className="w-72 flex-shrink-0 h-full border-l border-gray-100 overflow-y-auto bg-gray-50/30">
+        <div className="w-96 flex-shrink-0 h-full border-l border-gray-100 overflow-y-auto bg-gray-50/30">
           <div className="p-4 space-y-4">
             {/* 面板标题 */}
             <div className="flex items-center justify-between">
