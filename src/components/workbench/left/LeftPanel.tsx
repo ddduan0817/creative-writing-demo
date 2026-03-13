@@ -78,13 +78,7 @@ const writingTagGroups = [
     id: "writingStyle",
     label: "文风",
     max: 1,
-    tags: ["白话通俗", "文艺抒情", "幽默诙谐", "冷峻克制", "华丽辞藻", "简洁凝练", "口语化", "古风"],
-  },
-  {
-    id: "pace",
-    label: "节奏",
-    max: 1,
-    tags: ["慢", "中", "快"],
+    tags: ["文艺抒情", "幽默诙谐", "华丽辞藻", "简洁凝练", "口语化", "古风"],
   },
 ];
 
@@ -117,7 +111,6 @@ export default function LeftPanel() {
     perspective: [],
     structure: [],
     writingStyle: [],
-    pace: [],
   });
 
   // 角色列表
