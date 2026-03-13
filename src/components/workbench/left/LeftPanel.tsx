@@ -14,8 +14,14 @@ import {
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
-// 标签数据
-const tagGroups = [
+// 内容设定标签数据
+const contentTagGroups = [
+  {
+    id: "audience",
+    label: "受众",
+    max: 1,
+    tags: ["男频", "女频", "全年龄", "青少年", "成人"],
+  },
   {
     id: "genre",
     label: "题材",
@@ -23,10 +29,22 @@ const tagGroups = [
     tags: ["言情", "悬疑", "惊悚", "科幻", "武侠", "仙侠", "历史", "玄幻", "奇幻", "都市", "军事", "电竞", "体育", "现实", "游戏", "末日"],
   },
   {
+    id: "timespace",
+    label: "时空",
+    max: 1,
+    tags: ["古代", "现代", "近现代", "未来", "架空", "末世"],
+  },
+  {
     id: "elements",
-    label: "元素",
+    label: "剧情元素",
     max: 3,
-    tags: ["权谋", "婚姻", "家庭", "校园", "职场", "娱乐圈", "重生", "穿越", "犯罪", "丧尸", "探险", "宫斗宅斗", "克苏鲁", "系统", "规则怪谈", "团宠", "囤物资", "先婚后爱", "追妻火葬场", "破镜重圆"],
+    tags: ["权谋", "婚姻", "家庭", "校园", "职场", "娱乐圈", "重生", "穿越", "犯罪", "丧尸", "探险", "宫斗宅斗", "克苏鲁", "系统", "规则怪谈", "团宠", "囤物资"],
+  },
+  {
+    id: "relationship",
+    label: "人物关系",
+    max: 2,
+    tags: ["先婚后爱", "追妻火葬场", "破镜重圆", "青梅竹马", "欢喜冤家", "师徒", "主仆", "双强", "强弱", "兄弟情义", "宿敌"],
   },
   {
     id: "style",
@@ -40,11 +58,33 @@ const tagGroups = [
     max: 1,
     tags: ["HE", "BE", "开放式"],
   },
+];
+
+// 写作方式标签数据
+const writingTagGroups = [
   {
-    id: "timespace",
-    label: "时空",
+    id: "perspective",
+    label: "叙事视角",
     max: 1,
-    tags: ["古代", "现代", "近现代", "未来", "架空", "末世"],
+    tags: ["第一人称", "第三人称限知", "第三人称全知", "多视角切换", "第二人称"],
+  },
+  {
+    id: "structure",
+    label: "叙事结构",
+    max: 1,
+    tags: ["线性叙事", "倒叙", "插叙", "多线并行", "环形结构", "碎片化叙事"],
+  },
+  {
+    id: "writingStyle",
+    label: "文风",
+    max: 1,
+    tags: ["白话通俗", "文艺抒情", "幽默诙谐", "冷峻克制", "华丽辞藻", "简洁凝练", "口语化", "古风"],
+  },
+  {
+    id: "pace",
+    label: "节奏",
+    max: 1,
+    tags: ["慢", "中", "快"],
   },
 ];
 
@@ -61,13 +101,23 @@ export default function LeftPanel() {
   const [isGenerated, setIsGenerated] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
 
-  // 选中的标签
+  // 选中的内容设定标签
   const [selectedTags, setSelectedTags] = useState<Record<string, string[]>>({
+    audience: [],
     genre: [],
+    timespace: [],
     elements: [],
+    relationship: [],
     style: [],
     ending: [],
-    timespace: [],
+  });
+
+  // 选中的写作方式标签
+  const [selectedWritingTags, setSelectedWritingTags] = useState<Record<string, string[]>>({
+    perspective: [],
+    structure: [],
+    writingStyle: [],
+    pace: [],
   });
 
   // 角色列表
@@ -77,7 +127,8 @@ export default function LeftPanel() {
   const [length, setLength] = useState<"short" | "medium" | "long">("short");
 
   // 浮层状态
-  const [showStylePopup, setShowStylePopup] = useState(false);
+  const [showContentPopup, setShowContentPopup] = useState(false);
+  const [showWritingPopup, setShowWritingPopup] = useState(false);
   const [showCharacterPopup, setShowCharacterPopup] = useState(false);
   const [newCharacter, setNewCharacter] = useState({ name: "", desc: "" });
 
@@ -103,7 +154,24 @@ export default function LeftPanel() {
         return { ...prev, [groupId]: current.filter((t) => t !== tag) };
       }
       if (current.length >= max) {
-        // 单选时替换，多选时提示
+        if (max === 1) {
+          return { ...prev, [groupId]: [tag] };
+        }
+        showToast(`最多选择 ${max} 个`);
+        return prev;
+      }
+      return { ...prev, [groupId]: [...current, tag] };
+    });
+  };
+
+  // 切换写作方式标签
+  const toggleWritingTag = (groupId: string, tag: string, max: number) => {
+    setSelectedWritingTags((prev) => {
+      const current = prev[groupId] || [];
+      if (current.includes(tag)) {
+        return { ...prev, [groupId]: current.filter((t) => t !== tag) };
+      }
+      if (current.length >= max) {
         if (max === 1) {
           return { ...prev, [groupId]: [tag] };
         }
@@ -131,9 +199,14 @@ export default function LeftPanel() {
     setCharacters((prev) => prev.filter((_, i) => i !== index));
   };
 
-  // 获取已选标签数量
+  // 获取已选内容设定标签数量
   const getSelectedCount = () => {
     return Object.values(selectedTags).flat().length;
+  };
+
+  // 获取已选写作方式标签数量
+  const getWritingSelectedCount = () => {
+    return Object.values(selectedWritingTags).flat().length;
   };
 
   // 检查是否有内容（上传文件或输入梗概）
@@ -303,10 +376,10 @@ export default function LeftPanel() {
             </div>
           </div>
 
-          {/* +风格 按钮 */}
+          {/* +内容设定 按钮 */}
           <div className="relative">
             <button
-              onClick={() => setShowStylePopup(!showStylePopup)}
+              onClick={() => { setShowContentPopup(!showContentPopup); setShowWritingPopup(false); }}
               className={cn(
                 "w-full flex items-center justify-between px-3 py-2.5 rounded-lg border transition text-sm",
                 getSelectedCount() > 0
@@ -316,7 +389,7 @@ export default function LeftPanel() {
             >
               <div className="flex items-center gap-2">
                 <Plus className="w-4 h-4" />
-                <span>风格</span>
+                <span>内容设定</span>
                 {getSelectedCount() > 0 && (
                   <span className="text-xs text-indigo-500">
                     已选 {getSelectedCount()} 项
@@ -326,13 +399,13 @@ export default function LeftPanel() {
               <ChevronRight
                 className={cn(
                   "w-4 h-4 transition-transform",
-                  showStylePopup && "rotate-90"
+                  showContentPopup && "rotate-90"
                 )}
               />
             </button>
 
             {/* 已选标签预览 */}
-            {getSelectedCount() > 0 && !showStylePopup && (
+            {getSelectedCount() > 0 && !showContentPopup && (
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {Object.entries(selectedTags).flatMap(([, tags]) =>
                   tags.map((tag) => (
@@ -347,11 +420,11 @@ export default function LeftPanel() {
               </div>
             )}
 
-            {/* 风格浮层 */}
-            {showStylePopup && (
-              <div className="absolute left-full top-0 ml-2 w-72 bg-white rounded-xl shadow-xl border border-gray-100 z-50 max-h-[400px] overflow-y-auto">
+            {/* 内容设定浮层 */}
+            {showContentPopup && (
+              <div className="fixed left-[296px] top-[56px] w-72 bg-white rounded-xl shadow-xl border border-gray-100 z-50 max-h-[calc(100vh-80px)] overflow-y-auto">
                 <div className="p-3 space-y-3">
-                  {tagGroups.map((group) => (
+                  {contentTagGroups.map((group) => (
                     <div key={group.id}>
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-xs font-medium text-gray-600">
@@ -441,7 +514,7 @@ export default function LeftPanel() {
 
             {/* 角色浮层 */}
             {showCharacterPopup && (
-              <div className="absolute left-full top-0 ml-2 w-64 bg-white rounded-xl shadow-xl border border-gray-100 z-50">
+              <div className="fixed left-[296px] top-[56px] w-64 bg-white rounded-xl shadow-xl border border-gray-100 z-50 max-h-[calc(100vh-80px)] overflow-y-auto">
                 <div className="p-3 space-y-3">
                   <div className="text-xs font-medium text-gray-600">添加角色</div>
                   <input
@@ -489,6 +562,87 @@ export default function LeftPanel() {
                       ))}
                     </div>
                   )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* +写作方式 按钮 */}
+          <div className="relative">
+            <button
+              onClick={() => { setShowWritingPopup(!showWritingPopup); setShowContentPopup(false); }}
+              className={cn(
+                "w-full flex items-center justify-between px-3 py-2.5 rounded-lg border transition text-sm",
+                getWritingSelectedCount() > 0
+                  ? "border-indigo-200 bg-indigo-50/50 text-indigo-700"
+                  : "border-gray-200 text-gray-500 hover:border-gray-300"
+              )}
+            >
+              <div className="flex items-center gap-2">
+                <Plus className="w-4 h-4" />
+                <span>写作方式</span>
+                {getWritingSelectedCount() > 0 && (
+                  <span className="text-xs text-indigo-500">
+                    已选 {getWritingSelectedCount()} 项
+                  </span>
+                )}
+              </div>
+              <ChevronRight
+                className={cn(
+                  "w-4 h-4 transition-transform",
+                  showWritingPopup && "rotate-90"
+                )}
+              />
+            </button>
+
+            {/* 已选写作方式预览 */}
+            {getWritingSelectedCount() > 0 && !showWritingPopup && (
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {Object.entries(selectedWritingTags).flatMap(([, tags]) =>
+                  tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="px-2 py-0.5 bg-indigo-50 text-indigo-600 text-xs rounded-full"
+                    >
+                      {tag}
+                    </span>
+                  ))
+                )}
+              </div>
+            )}
+
+            {/* 写作方式浮层 */}
+            {showWritingPopup && (
+              <div className="fixed left-[296px] top-[56px] w-64 bg-white rounded-xl shadow-xl border border-gray-100 z-50 max-h-[calc(100vh-80px)] overflow-y-auto">
+                <div className="p-3 space-y-3">
+                  {writingTagGroups.map((group) => (
+                    <div key={group.id}>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs font-medium text-gray-600">
+                          {group.label}
+                        </span>
+                        <span className="text-xs text-gray-400">
+                          {selectedWritingTags[group.id]?.length || 0}/{group.max}
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {group.tags.map((tag) => (
+                          <button
+                            key={tag}
+                            onClick={() => toggleWritingTag(group.id, tag, group.max)}
+                            className={cn(
+                              "px-2 py-1 text-xs rounded-full border transition",
+                              selectedWritingTags[group.id]?.includes(tag)
+                                ? "border-indigo-300 bg-indigo-50 text-indigo-700"
+                                : "border-gray-200 text-gray-500 hover:border-gray-300"
+                            )}
+                          >
+                            {tag}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
