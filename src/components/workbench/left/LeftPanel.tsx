@@ -20,7 +20,7 @@ const contentTagGroups = [
     id: "audience",
     label: "受众",
     max: 1,
-    tags: ["男频", "女频", "全年龄", "青少年", "成人"],
+    tags: ["男频", "女频", "全年龄"],
   },
   {
     id: "genre",
