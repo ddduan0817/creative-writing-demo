@@ -20,6 +20,7 @@ import {
   Milestone,
   Sparkles,
   Loader2,
+  ChevronLeft,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ScreenplaySettingsPanel from "./ScreenplaySettingsPanel";
@@ -28,8 +29,10 @@ import CharactersPanel from "./CharactersPanel";
 import ChapterList from "./ChapterList";
 import { simulateAIStream } from "@/lib/aiSimulator";
 import { mockScreenplayOutline } from "@/data/mockChapters";
+import type { LucideIcon } from "lucide-react";
 
-const subScenes = [
+// 剧本子类型定义
+const subSceneCategories = [
   { id: "movie", label: "影视剧本", icon: Film, desc: "标准电影/电视剧本" },
   { id: "short", label: "短剧剧本", icon: Clapperboard, desc: "快节奏卡点本" },
   { id: "comic", label: "漫剧剧本", icon: BookImage, desc: "动态漫画故事本" },
@@ -37,20 +40,17 @@ const subScenes = [
   { id: "comic_script", label: "漫剧脚本", icon: Layers, desc: "画师执行指令" },
 ];
 
-type AccordionSection = "subscene" | "tags" | "characters" | "outline" | "scenes" | null;
+type ViewLevel = "category" | "form";
 
 export default function ScreenplayLeftPanel() {
   const { showToast } = useEditorStore();
-  const [expandedSection, setExpandedSection] = useState<AccordionSection>("subscene");
-  const [activeSubScene, setActiveSubScene] = useState("");
-  const [isSelectingType, setIsSelectingType] = useState(true);
+  const [activeCategory, setActiveCategory] = useState("movie");
+  const [viewLevel, setViewLevel] = useState<ViewLevel>("category");
   const [outlineContent, setOutlineContent] = useState("");
   const [generating, setGenerating] = useState(false);
   const [outlineStructure, setOutlineStructure] = useState("three-act");
 
-  const toggleSection = (section: AccordionSection) => {
-    setExpandedSection((prev) => (prev === section ? null : section));
-  };
+  const activeCategoryObj = subSceneCategories.find((c) => c.id === activeCategory);
 
   const handleGenerateOutline = () => {
     setGenerating(true);
@@ -64,12 +64,159 @@ export default function ScreenplayLeftPanel() {
     }, 20);
   };
 
+  // 选择类型后进入表单
+  const handleSelectCategory = (categoryId: string) => {
+    setActiveCategory(categoryId);
+    setViewLevel("form");
+  };
+
+  // 返回上一级
+  const handleBack = () => {
+    setViewLevel("category");
+  };
+
+  // 渲染类型列表（category 视图）
+  const renderCategoryView = () => (
+    <div className="flex-1 overflow-y-auto">
+      <div className="px-3 py-3 border-b border-gray-50">
+        <p className="text-xs text-gray-400">
+          选择剧本类型
+        </p>
+      </div>
+      <div className="p-2 space-y-1.5">
+        {subSceneCategories.map((cat) => {
+          const Icon = cat.icon;
+          return (
+            <button
+              key={cat.id}
+              onClick={() => handleSelectCategory(cat.id)}
+              className={cn(
+                "w-full flex items-start gap-2.5 p-2.5 rounded-lg text-left transition group",
+                activeCategory === cat.id
+                  ? "bg-indigo-50 ring-1 ring-indigo-200"
+                  : "hover:bg-gray-50"
+              )}
+            >
+              <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+                <Icon className="w-4 h-4 text-blue-600" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <span className="text-sm font-medium text-gray-800 truncate block">
+                  {cat.label}
+                </span>
+                <p className="text-[11px] text-gray-400 leading-relaxed mt-0.5">
+                  {cat.desc}
+                </p>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+
+  // 渲染表单视图（form 视图）
+  const renderFormView = () => {
+    const Icon = activeCategoryObj?.icon || Film;
+    return (
+      <div className="flex-1 overflow-y-auto">
+        {/* Header with back button */}
+        <div className="px-3 py-3 border-b border-gray-50 flex items-center gap-2">
+          <button
+            onClick={handleBack}
+            className="p-1 hover:bg-gray-100 rounded transition"
+          >
+            <ChevronLeft className="w-4 h-4 text-gray-500" />
+          </button>
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded bg-blue-50 flex items-center justify-center flex-shrink-0">
+              <Icon className="w-3.5 h-3.5 text-blue-600" />
+            </div>
+            <span className="text-sm font-medium text-gray-800">
+              {activeCategoryObj?.label}
+            </span>
+          </div>
+        </div>
+
+        {/* 表单内容 - 使用折叠面板 */}
+        <div className="p-3">
+          <ScreenplayFormContent
+            subScene={activeCategory}
+            outlineContent={outlineContent}
+            generating={generating}
+            outlineStructure={outlineStructure}
+            setOutlineStructure={setOutlineStructure}
+            onGenerate={handleGenerateOutline}
+          />
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="h-full flex overflow-hidden w-72">
+      {/* 左侧 Tab - 只在 category 视图显示 */}
+      {viewLevel === "category" && (
+        <div className="w-14 flex-shrink-0 border-r border-gray-100 py-2 flex flex-col items-center gap-0.5 overflow-y-auto">
+          {subSceneCategories.map((cat) => {
+            const Icon = cat.icon;
+            const isActive = activeCategory === cat.id;
+            return (
+              <button
+                key={cat.id}
+                onClick={() => setActiveCategory(cat.id)}
+                className={cn(
+                  "w-12 flex flex-col items-center gap-0.5 py-2 rounded-lg text-[10px] transition",
+                  isActive
+                    ? "bg-indigo-50 text-indigo-600 font-medium"
+                    : "text-gray-500 hover:bg-gray-50"
+                )}
+              >
+                <Icon className="w-4 h-4" />
+                <span className="leading-tight text-center">{cat.label.slice(0, 2)}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Content area */}
+      {viewLevel === "category" && renderCategoryView()}
+      {viewLevel === "form" && renderFormView()}
+    </div>
+  );
+}
+
+// 折叠面板内容组件
+type AccordionSection = "settings" | "tags" | "characters" | "outline" | "scenes" | null;
+
+function ScreenplayFormContent({
+  subScene,
+  outlineContent,
+  generating,
+  outlineStructure,
+  setOutlineStructure,
+  onGenerate,
+}: {
+  subScene: string;
+  outlineContent: string;
+  generating: boolean;
+  outlineStructure: string;
+  setOutlineStructure: (v: string) => void;
+  onGenerate: () => void;
+}) {
+  const [expandedSection, setExpandedSection] = useState<AccordionSection>("settings");
+
+  const toggleSection = (section: AccordionSection) => {
+    setExpandedSection((prev) => (prev === section ? null : section));
+  };
+
   const sections: {
     id: AccordionSection;
     label: string;
-    icon: React.ElementType;
+    icon: LucideIcon;
   }[] = [
-    { id: "subscene", label: "剧本/分镜", icon: Film },
+    { id: "settings", label: "剧本设定", icon: LayoutTemplate },
     { id: "tags", label: "标签", icon: Tag },
     { id: "characters", label: "角色", icon: Users },
     { id: "outline", label: "内容大纲", icon: FileText },
@@ -77,149 +224,95 @@ export default function ScreenplayLeftPanel() {
   ];
 
   return (
-    <div className="h-full flex flex-col overflow-hidden w-72">
-      <div className="flex-1 overflow-y-auto">
-        {sections.map((section) => (
-          <div key={section.id} className="border-b border-gray-50">
-            {/* Accordion header */}
-            <button
-              onClick={() => toggleSection(section.id)}
+    <div className="space-y-0">
+      {sections.map((section) => (
+        <div key={section.id} className="border-b border-gray-50 last:border-b-0">
+          {/* Accordion header */}
+          <button
+            onClick={() => toggleSection(section.id)}
+            className={cn(
+              "w-full flex items-center gap-2 px-3 py-2.5 text-sm transition hover:bg-gray-50 rounded-lg",
+              expandedSection === section.id
+                ? "text-indigo-700 font-medium bg-indigo-50/50"
+                : "text-gray-600"
+            )}
+          >
+            <section.icon className="w-4 h-4" />
+            <span className="flex-1 text-left">{section.label}</span>
+            {section.id === "scenes" && expandedSection !== "scenes" && (
+              <span
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const num = useEditorStore.getState().chapters.length + 1;
+                  useEditorStore.getState().addChapter(`第${num}场 新场次`);
+                  useEditorStore.getState().showToast("已添加新场次");
+                }}
+                className="p-1 text-gray-400 hover:text-indigo-600 rounded hover:bg-gray-100 transition"
+              >
+                <Plus className="w-3.5 h-3.5" />
+              </span>
+            )}
+            <ChevronDown
               className={cn(
-                "w-full flex items-center gap-2 px-4 py-3 text-sm transition hover:bg-gray-50",
-                expandedSection === section.id
-                  ? "text-indigo-700 font-medium bg-indigo-50/50"
-                  : "text-gray-600"
+                "w-3.5 h-3.5 text-gray-400 transition-transform duration-200",
+                expandedSection === section.id ? "rotate-0" : "-rotate-90"
               )}
-            >
-              <section.icon className="w-4 h-4" />
-              <span className="flex-1 text-left">{section.label}</span>
-              {section.id === "scenes" && expandedSection !== "scenes" && (
-                <span
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    const num = useEditorStore.getState().chapters.length + 1;
-                    useEditorStore.getState().addChapter(`第${num}场 新场次`);
-                    useEditorStore.getState().showToast("已添加新场次");
-                  }}
-                  className="p-1 text-gray-400 hover:text-indigo-600 rounded hover:bg-gray-100 transition"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                </span>
-              )}
-              <ChevronDown
-                className={cn(
-                  "w-3.5 h-3.5 text-gray-400 transition-transform duration-200",
-                  expandedSection === section.id ? "rotate-0" : "-rotate-90"
-                )}
+            />
+          </button>
+
+          {/* Accordion content */}
+          <div
+            className={cn(
+              "overflow-hidden transition-all duration-200",
+              expandedSection === section.id ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
+            )}
+          >
+            {/* 剧本设定 */}
+            {section.id === "settings" && (
+              <div className="ml-2 border-l-2 border-indigo-100">
+                <ScreenplaySettingsPanel subScene={subScene} />
+              </div>
+            )}
+
+            {/* 标签 */}
+            {section.id === "tags" && <TagsPanel />}
+
+            {/* 角色 */}
+            {section.id === "characters" && <CharactersPanel />}
+
+            {/* 内容大纲 */}
+            {section.id === "outline" && (
+              <ScreenplayOutlinePanel
+                outlineContent={outlineContent}
+                generating={generating}
+                outlineStructure={outlineStructure}
+                setOutlineStructure={setOutlineStructure}
+                onGenerate={onGenerate}
               />
-            </button>
+            )}
 
-            {/* Accordion content */}
-            <div
-              className={cn(
-                "overflow-hidden transition-all duration-200",
-                expandedSection === section.id ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
-              )}
-            >
-              {/* 剧本/分镜 子类型 */}
-              {section.id === "subscene" && (
-                <div className="px-2 pb-2">
-                  {isSelectingType ? (
-                    // 选择模式：显示所有类型
-                    <div className="space-y-0.5">
-                      {subScenes.map((sub) => (
-                        <button
-                          key={sub.id}
-                          onClick={() => {
-                            setActiveSubScene(sub.id);
-                            setIsSelectingType(false);
-                          }}
-                          className={cn(
-                            "w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition",
-                            activeSubScene === sub.id
-                              ? "bg-blue-50 text-blue-700 font-medium"
-                              : "text-gray-600 hover:bg-gray-50"
-                          )}
-                        >
-                          <sub.icon className="w-4 h-4" />
-                          <div className="flex-1 text-left">
-                            <span className="block">{sub.label}</span>
-                            <span className="text-[10px] text-gray-400 font-normal">{sub.desc}</span>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  ) : (
-                    // 已选模式：只显示当前类型 + 设定
-                    <div>
-                      {(() => {
-                        const current = subScenes.find((s) => s.id === activeSubScene);
-                        return current ? (
-                          <div>
-                            <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 rounded-lg">
-                              <current.icon className="w-4 h-4 text-blue-600" />
-                              <div className="flex-1">
-                                <span className="block text-sm font-medium text-blue-700">{current.label}</span>
-                                <span className="text-[10px] text-gray-400">{current.desc}</span>
-                              </div>
-                              <button
-                                onClick={() => setIsSelectingType(true)}
-                                className="text-xs text-blue-600 hover:text-blue-700 px-2 py-1 rounded hover:bg-blue-100 transition"
-                              >
-                                更换
-                              </button>
-                            </div>
-                            <div className="mt-2 ml-2 border-l-2 border-blue-100">
-                              <ScreenplaySettingsPanel subScene={current.id} />
-                            </div>
-                          </div>
-                        ) : null;
-                      })()}
-                    </div>
-                  )}
+            {/* 场次信息 */}
+            {section.id === "scenes" && (
+              <div>
+                <div className="flex items-center justify-end px-4 py-1">
+                  <button
+                    onClick={() => {
+                      const num = useEditorStore.getState().chapters.length + 1;
+                      useEditorStore.getState().addChapter(`第${num}场 新场次`);
+                      useEditorStore.getState().showToast("已添加新场次");
+                    }}
+                    className="flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-700 px-2 py-1 rounded hover:bg-indigo-50 transition"
+                  >
+                    <Plus className="w-3 h-3" />
+                    添加场次
+                  </button>
                 </div>
-              )}
-
-              {/* 标签 */}
-              {section.id === "tags" && <TagsPanel />}
-
-              {/* 角色 */}
-              {section.id === "characters" && <CharactersPanel />}
-
-              {/* 内容大纲 */}
-              {section.id === "outline" && (
-                <ScreenplayOutlinePanel
-                  outlineContent={outlineContent}
-                  generating={generating}
-                  outlineStructure={outlineStructure}
-                  setOutlineStructure={setOutlineStructure}
-                  onGenerate={handleGenerateOutline}
-                />
-              )}
-
-              {/* 场次信息 */}
-              {section.id === "scenes" && (
-                <div>
-                  <div className="flex items-center justify-end px-4 py-1">
-                    <button
-                      onClick={() => {
-                        const num = useEditorStore.getState().chapters.length + 1;
-                        useEditorStore.getState().addChapter(`第${num}场 新场次`);
-                        useEditorStore.getState().showToast("已添加新场次");
-                      }}
-                      className="flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-700 px-2 py-1 rounded hover:bg-indigo-50 transition"
-                    >
-                      <Plus className="w-3 h-3" />
-                      添加场次
-                    </button>
-                  </div>
-                  <ChapterList sceneType="screenplay" />
-                </div>
-              )}
-            </div>
+                <ChapterList sceneType="screenplay" />
+              </div>
+            )}
           </div>
-        ))}
-      </div>
+        </div>
+      ))}
     </div>
   );
 }
