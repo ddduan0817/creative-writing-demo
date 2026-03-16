@@ -8,7 +8,7 @@ import {
   FileText,
   List,
   Plus,
-  ChevronDown,
+  ChevronRight,
   Film,
   Clapperboard,
   BookImage,
@@ -20,6 +20,7 @@ import {
   Milestone,
   Sparkles,
   Loader2,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ScreenplaySettingsPanel from "./ScreenplaySettingsPanel";
@@ -37,19 +38,31 @@ const subScenes = [
   { id: "comic_script", label: "漫剧脚本", icon: Layers, desc: "画师执行指令" },
 ];
 
-type AccordionSection = "subscene" | "tags" | "characters" | "outline" | "scenes" | null;
+type ExpandedSection = "subscene" | "tags" | "characters" | "outline" | "scenes" | null;
 
 export default function ScreenplayLeftPanel() {
-  const { showToast } = useEditorStore();
-  const [expandedSection, setExpandedSection] = useState<AccordionSection>("subscene");
+  const { showToast, setLeftPanelExpanded } = useEditorStore();
+  const [expandedSection, setExpandedSection] = useState<ExpandedSection>(null);
   const [activeSubScene, setActiveSubScene] = useState("");
-  const [isSelectingType, setIsSelectingType] = useState(true);
   const [outlineContent, setOutlineContent] = useState("");
   const [generating, setGenerating] = useState(false);
   const [outlineStructure, setOutlineStructure] = useState("three-act");
 
-  const toggleSection = (section: AccordionSection) => {
-    setExpandedSection((prev) => (prev === section ? null : section));
+  // 切换展开面板（类似小说的展开方式）
+  const toggleSection = (section: ExpandedSection) => {
+    if (expandedSection === section) {
+      setExpandedSection(null);
+      setLeftPanelExpanded(false);
+    } else {
+      setExpandedSection(section);
+      setLeftPanelExpanded(true);
+    }
+  };
+
+  // 关闭展开面板
+  const closeExpansion = () => {
+    setExpandedSection(null);
+    setLeftPanelExpanded(false);
   };
 
   const handleGenerateOutline = () => {
@@ -65,7 +78,7 @@ export default function ScreenplayLeftPanel() {
   };
 
   const sections: {
-    id: AccordionSection;
+    id: ExpandedSection;
     label: string;
     icon: React.ElementType;
   }[] = [
@@ -76,150 +89,147 @@ export default function ScreenplayLeftPanel() {
     { id: "scenes", label: "场次信息", icon: List },
   ];
 
+  // 获取当前选中的子场景
+  const currentSubScene = subScenes.find((s) => s.id === activeSubScene);
+
   return (
-    <div className="h-full flex flex-col overflow-hidden w-72">
-      <div className="flex-1 overflow-y-auto">
-        {sections.map((section) => (
-          <div key={section.id} className="border-b border-gray-50">
-            {/* Accordion header */}
-            <button
-              onClick={() => toggleSection(section.id)}
-              className={cn(
-                "w-full flex items-center gap-2 px-4 py-3 text-sm transition hover:bg-gray-50",
-                expandedSection === section.id
-                  ? "text-indigo-700 font-medium bg-indigo-50/50"
-                  : "text-gray-600"
-              )}
-            >
-              <section.icon className="w-4 h-4" />
-              <span className="flex-1 text-left">{section.label}</span>
-              {section.id === "scenes" && expandedSection !== "scenes" && (
-                <span
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    const num = useEditorStore.getState().chapters.length + 1;
-                    useEditorStore.getState().addChapter(`第${num}场 新场次`);
-                    useEditorStore.getState().showToast("已添加新场次");
-                  }}
-                  className="p-1 text-gray-400 hover:text-indigo-600 rounded hover:bg-gray-100 transition"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                </span>
-              )}
-              <ChevronDown
-                className={cn(
-                  "w-3.5 h-3.5 text-gray-400 transition-transform duration-200",
-                  expandedSection === section.id ? "rotate-0" : "-rotate-90"
-                )}
-              />
-            </button>
-
-            {/* Accordion content */}
-            <div
-              className={cn(
-                "overflow-hidden transition-all duration-200",
-                expandedSection === section.id ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
-              )}
-            >
-              {/* 剧本/分镜 子类型 */}
-              {section.id === "subscene" && (
-                <div className="px-2 pb-2">
-                  {isSelectingType ? (
-                    // 选择模式：显示所有类型
-                    <div className="space-y-0.5">
-                      {subScenes.map((sub) => (
-                        <button
-                          key={sub.id}
-                          onClick={() => {
-                            setActiveSubScene(sub.id);
-                            setIsSelectingType(false);
-                          }}
-                          className={cn(
-                            "w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition",
-                            activeSubScene === sub.id
-                              ? "bg-blue-50 text-blue-700 font-medium"
-                              : "text-gray-600 hover:bg-gray-50"
-                          )}
-                        >
-                          <sub.icon className="w-4 h-4" />
-                          <div className="flex-1 text-left">
-                            <span className="block">{sub.label}</span>
-                            <span className="text-[10px] text-gray-400 font-normal">{sub.desc}</span>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  ) : (
-                    // 已选模式：只显示当前类型 + 设定
-                    <div>
-                      {(() => {
-                        const current = subScenes.find((s) => s.id === activeSubScene);
-                        return current ? (
-                          <div>
-                            <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 rounded-lg">
-                              <current.icon className="w-4 h-4 text-blue-600" />
-                              <div className="flex-1">
-                                <span className="block text-sm font-medium text-blue-700">{current.label}</span>
-                                <span className="text-[10px] text-gray-400">{current.desc}</span>
-                              </div>
-                              <button
-                                onClick={() => setIsSelectingType(true)}
-                                className="text-xs text-blue-600 hover:text-blue-700 px-2 py-1 rounded hover:bg-blue-100 transition"
-                              >
-                                更换
-                              </button>
-                            </div>
-                            <div className="mt-2 ml-2 border-l-2 border-blue-100">
-                              <ScreenplaySettingsPanel subScene={current.id} />
-                            </div>
-                          </div>
-                        ) : null;
-                      })()}
-                    </div>
+    <div className="h-full flex">
+      {/* 左列 - 主面板 */}
+      <div className="w-72 flex-shrink-0 h-full flex flex-col bg-white">
+        <div className="flex-1 overflow-y-auto">
+          <div className="p-4 space-y-3">
+            {sections.map((section) => (
+              <div key={section.id}>
+                <button
+                  onClick={() => toggleSection(section.id)}
+                  className={cn(
+                    "w-full flex items-center justify-between px-3 py-2.5 rounded-lg border transition text-sm",
+                    expandedSection === section.id
+                      ? "border-indigo-300 bg-indigo-50 text-indigo-700"
+                      : "border-gray-200 text-gray-600 hover:border-gray-300"
                   )}
-                </div>
-              )}
-
-              {/* 标签 */}
-              {section.id === "tags" && <TagsPanel />}
-
-              {/* 角色 */}
-              {section.id === "characters" && <CharactersPanel />}
-
-              {/* 内容大纲 */}
-              {section.id === "outline" && (
-                <ScreenplayOutlinePanel
-                  outlineContent={outlineContent}
-                  generating={generating}
-                  outlineStructure={outlineStructure}
-                  setOutlineStructure={setOutlineStructure}
-                  onGenerate={handleGenerateOutline}
-                />
-              )}
-
-              {/* 场次信息 */}
-              {section.id === "scenes" && (
-                <div>
-                  <div className="flex items-center justify-end px-4 py-1">
-                    <button
-                      onClick={() => {
-                        const num = useEditorStore.getState().chapters.length + 1;
-                        useEditorStore.getState().addChapter(`第${num}场 新场次`);
-                        useEditorStore.getState().showToast("已添加新场次");
-                      }}
-                      className="flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-700 px-2 py-1 rounded hover:bg-indigo-50 transition"
-                    >
-                      <Plus className="w-3 h-3" />
-                      添加场次
-                    </button>
+                >
+                  <div className="flex items-center gap-2">
+                    <section.icon className="w-4 h-4" />
+                    <span>{section.label}</span>
+                    {/* 显示已选信息 */}
+                    {section.id === "subscene" && currentSubScene && (
+                      <span className="text-xs text-indigo-500">
+                        {currentSubScene.label}
+                      </span>
+                    )}
                   </div>
-                  <ChapterList sceneType="screenplay" />
-                </div>
-              )}
-            </div>
+                  <ChevronRight
+                    className={cn(
+                      "w-4 h-4 transition-transform",
+                      expandedSection === section.id && "rotate-90"
+                    )}
+                  />
+                </button>
+
+                {/* 已选子场景预览 */}
+                {section.id === "subscene" && currentSubScene && expandedSection !== "subscene" && (
+                  <div className="mt-2 px-3 py-2 bg-blue-50 rounded-lg flex items-center gap-2">
+                    <currentSubScene.icon className="w-4 h-4 text-blue-600" />
+                    <div className="flex-1">
+                      <span className="text-sm font-medium text-blue-700">{currentSubScene.label}</span>
+                      <span className="text-[10px] text-gray-400 ml-2">{currentSubScene.desc}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
       </div>
+
+      {/* 右列 - 展开面板 */}
+      {expandedSection && (
+        <div className="w-[480px] flex-shrink-0 h-full border-l border-gray-100 overflow-y-auto bg-gray-50/30">
+          <div className="p-4">
+            {/* 面板标题 */}
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-sm font-medium text-gray-700">
+                {sections.find((s) => s.id === expandedSection)?.label}
+              </span>
+              <button
+                onClick={closeExpansion}
+                className="p-1 hover:bg-gray-200 rounded transition"
+              >
+                <X className="w-4 h-4 text-gray-400" />
+              </button>
+            </div>
+
+            {/* 剧本/分镜 子类型 */}
+            {expandedSection === "subscene" && (
+              <div className="space-y-2">
+                {subScenes.map((sub) => (
+                  <button
+                    key={sub.id}
+                    onClick={() => setActiveSubScene(sub.id)}
+                    className={cn(
+                      "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition",
+                      activeSubScene === sub.id
+                        ? "bg-blue-50 text-blue-700 border border-blue-200"
+                        : "text-gray-600 hover:bg-gray-100 border border-transparent"
+                    )}
+                  >
+                    <sub.icon className="w-4 h-4" />
+                    <div className="flex-1 text-left">
+                      <span className="block font-medium">{sub.label}</span>
+                      <span className="text-[11px] text-gray-400">{sub.desc}</span>
+                    </div>
+                  </button>
+                ))}
+
+                {/* 选中后显示设定 */}
+                {activeSubScene && (
+                  <div className="mt-4 pt-4 border-t border-gray-200">
+                    <ScreenplaySettingsPanel subScene={activeSubScene} />
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* 标签 */}
+            {expandedSection === "tags" && <TagsPanel />}
+
+            {/* 角色 */}
+            {expandedSection === "characters" && <CharactersPanel />}
+
+            {/* 内容大纲 */}
+            {expandedSection === "outline" && (
+              <ScreenplayOutlinePanel
+                outlineContent={outlineContent}
+                generating={generating}
+                outlineStructure={outlineStructure}
+                setOutlineStructure={setOutlineStructure}
+                onGenerate={handleGenerateOutline}
+              />
+            )}
+
+            {/* 场次信息 */}
+            {expandedSection === "scenes" && (
+              <div>
+                <div className="flex items-center justify-end mb-2">
+                  <button
+                    onClick={() => {
+                      const num = useEditorStore.getState().chapters.length + 1;
+                      useEditorStore.getState().addChapter(`第${num}场 新场次`);
+                      useEditorStore.getState().showToast("已添加新场次");
+                    }}
+                    className="flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-700 px-2 py-1 rounded hover:bg-indigo-50 transition"
+                  >
+                    <Plus className="w-3 h-3" />
+                    添加场次
+                  </button>
+                </div>
+                <ChapterList sceneType="screenplay" />
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -253,7 +263,7 @@ function ScreenplayOutlinePanel({
   ];
 
   return (
-    <div className="px-4 pb-4 space-y-4">
+    <div className="space-y-4">
       {/* 上传大纲文档 */}
       <div>
         <div className="flex items-center gap-2 mb-2">
@@ -262,7 +272,7 @@ function ScreenplayOutlinePanel({
         </div>
         <button
           onClick={() => showToast("上传功能演示中...")}
-          className="w-full border border-dashed border-gray-200 rounded-lg py-3 text-xs text-gray-400 hover:border-indigo-300 hover:text-indigo-500 hover:bg-indigo-50/30 transition flex items-center justify-center gap-1.5"
+          className="w-full border border-dashed border-gray-200 rounded-lg py-3 text-xs text-gray-400 hover:border-indigo-300 hover:text-indigo-500 hover:bg-indigo-50/30 transition flex items-center justify-center gap-1.5 bg-white"
         >
           <Upload className="w-3.5 h-3.5" />
           点击上传或拖拽文件
@@ -285,7 +295,7 @@ function ScreenplayOutlinePanel({
                 showToast(`已选择「${s.label}」结构`);
               }}
               className={cn(
-                "flex-1 px-2 py-1.5 text-xs rounded-lg border transition",
+                "flex-1 px-2 py-1.5 text-xs rounded-lg border transition bg-white",
                 outlineStructure === s.id
                   ? "border-indigo-300 bg-indigo-50 text-indigo-700 font-medium"
                   : "border-gray-200 text-gray-500 hover:bg-gray-50"
@@ -307,7 +317,7 @@ function ScreenplayOutlinePanel({
           value={sceneNotes}
           onChange={(e) => setSceneNotes(e.target.value)}
           placeholder="每场核心事件、伏笔埋设..."
-          className="w-full text-xs border border-gray-200 rounded-lg p-2.5 resize-none focus:outline-none focus:border-indigo-300 focus:ring-1 focus:ring-indigo-100 placeholder:text-gray-300"
+          className="w-full text-xs border border-gray-200 rounded-lg p-2.5 resize-none focus:outline-none focus:border-indigo-300 focus:ring-1 focus:ring-indigo-100 placeholder:text-gray-300 bg-white"
           rows={3}
         />
       </div>
@@ -336,7 +346,7 @@ function ScreenplayOutlinePanel({
                   setKeyNodes((prev) => ({ ...prev, [node.key]: e.target.value }))
                 }
                 placeholder={`填写${node.label}...`}
-                className="w-full text-xs border border-gray-200 rounded-lg px-2.5 py-2 focus:outline-none focus:border-indigo-300 focus:ring-1 focus:ring-indigo-100 placeholder:text-gray-300"
+                className="w-full text-xs border border-gray-200 rounded-lg px-2.5 py-2 focus:outline-none focus:border-indigo-300 focus:ring-1 focus:ring-indigo-100 placeholder:text-gray-300 bg-white"
               />
             </div>
           ))}
@@ -358,7 +368,7 @@ function ScreenplayOutlinePanel({
           生成总纲
         </button>
         {outlineContent && (
-          <div className="mt-3 p-3 bg-gray-50 rounded-lg">
+          <div className="mt-3 p-3 bg-white rounded-lg border border-gray-200">
             <pre className="whitespace-pre-wrap text-xs text-gray-600 leading-relaxed font-sans">
               {outlineContent}
               {generating && <span className="ai-cursor" />}
