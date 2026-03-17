@@ -132,7 +132,7 @@ export default function ScreenplayLeftPanel() {
 
   // 模拟上传
   const handleUpload = () => {
-    const mockFiles = ["逆袭甜宠短剧梗概.docx", "悬疑短剧参考剧本.pdf"];
+    const mockFiles = ["悬疑短剧剧本梗概.docx", "雨夜追凶参考剧本.pdf"];
     const randomFile = mockFiles[Math.floor(Math.random() * mockFiles.length)];
     setUploadedFiles((prev) => [...prev, randomFile]);
     showToast("文件上传成功");

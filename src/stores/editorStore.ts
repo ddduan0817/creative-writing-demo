@@ -380,7 +380,7 @@ export const useEditorStore = create<EditorState>((set) => ({
 
     set({
       scene: sceneType,
-      title: isScreenplay ? "逆袭甜宠短剧" : (sceneNames[sceneType] || "未命名文档"),
+      title: isScreenplay ? "雨夜追凶" : (sceneNames[sceneType] || "未命名文档"),
       titleManuallyEdited: false,
       leftPanelExpanded: false,
       chapters: defaultChapters,

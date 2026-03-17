@@ -113,10 +113,10 @@ export const mockScreenplayScenes: Chapter[] = [
   },
 ];
 
-export const mockScreenplayOutline = `# 《逆袭甜宠短剧》总纲
+export const mockScreenplayOutline = `# 《雨夜追凶》总纲
 
 ## 核心设定
-- **类型**：现代都市 / 悬疑 / 甜宠
+- **类型**：现代都市 / 悬疑
 - **集数**：12集，每集约8分钟
 - **核心悬念**：女主发现未婚夫的双重身份
 
