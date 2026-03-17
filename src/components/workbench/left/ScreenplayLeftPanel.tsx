@@ -116,8 +116,11 @@ export default function ScreenplayLeftPanel() {
   // 角色列表
   const [characters, setCharacters] = useState<{ name: string; desc: string; role: "主角" | "配角" }[]>([]);
 
-  // 篇幅选择
-  const [length, setLength] = useState<"short" | "medium" | "long">("short");
+  // 场景选择
+  const [sceneType, setSceneType] = useState<"short_drama" | "comic_drama">("short_drama");
+
+  // 类型选择
+  const [scriptType, setScriptType] = useState<"script" | "storyboard">("script");
 
   // 展开的面板
   const [expandedSection, setExpandedSection] = useState<"content" | "writing" | "character" | null>(null);
@@ -269,7 +272,7 @@ export default function ScreenplayLeftPanel() {
             {/* 标题 */}
             <div className="flex items-center gap-2">
               <FileText className="w-4 h-4 text-gray-500" />
-              <span className="text-sm font-medium text-gray-700">【剧本测试】设定</span>
+              <span className="text-sm font-medium text-gray-700">设定</span>
             </div>
 
             {/* 上传参考材料 */}
@@ -353,30 +356,55 @@ export default function ScreenplayLeftPanel() {
               </button>
             </div>
 
-            {/* 篇幅选择 */}
+            {/* 场景选择 */}
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-xs font-medium text-gray-600">篇幅</span>
+                <span className="text-xs font-medium text-gray-600">场景</span>
                 <span className="text-[10px] text-red-400">*必选</span>
               </div>
               <div className="flex gap-2">
                 {[
-                  { id: "short" as const, label: "短篇", desc: "<5000字" },
-                  { id: "medium" as const, label: "中篇", desc: "5000-2万字" },
-                  { id: "long" as const, label: "长篇", desc: "≥2万字" },
+                  { id: "short_drama" as const, label: "短剧" },
+                  { id: "comic_drama" as const, label: "漫剧" },
                 ].map((item) => (
                   <button
                     key={item.id}
-                    onClick={() => setLength(item.id)}
+                    onClick={() => setSceneType(item.id)}
                     className={cn(
                       "flex-1 py-2 px-2 rounded-lg border transition text-center",
-                      length === item.id
+                      sceneType === item.id
                         ? "border-indigo-300 bg-indigo-50 text-indigo-700"
                         : "border-gray-200 text-gray-500 hover:border-gray-300"
                     )}
                   >
                     <div className="text-xs font-medium">{item.label}</div>
-                    <div className="text-[10px] text-gray-400 mt-0.5">{item.desc}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 类型选择 */}
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-xs font-medium text-gray-600">类型</span>
+                <span className="text-[10px] text-red-400">*必选</span>
+              </div>
+              <div className="flex gap-2">
+                {[
+                  { id: "script" as const, label: "剧本" },
+                  { id: "storyboard" as const, label: "脚本" },
+                ].map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => setScriptType(item.id)}
+                    className={cn(
+                      "flex-1 py-2 px-2 rounded-lg border transition text-center",
+                      scriptType === item.id
+                        ? "border-indigo-300 bg-indigo-50 text-indigo-700"
+                        : "border-gray-200 text-gray-500 hover:border-gray-300"
+                    )}
+                  >
+                    <div className="text-xs font-medium">{item.label}</div>
                   </button>
                 ))}
               </div>
@@ -541,35 +569,19 @@ export default function ScreenplayLeftPanel() {
 
         {/* 底部操作栏 */}
         <div className="p-4 border-t border-gray-100">
-          {length === "short" ? (
-            <button
-              onClick={handleCreateArticle}
-              disabled={!isGenerated}
-              className={cn(
-                "w-full py-2.5 text-sm font-medium rounded-lg transition flex items-center justify-center gap-2",
-                isGenerated
-                  ? "text-white bg-indigo-600 hover:bg-indigo-700"
-                  : "text-gray-400 bg-gray-100 cursor-not-allowed"
-              )}
-            >
-              <Sparkles className="w-4 h-4" />
-              直接生成文章
-            </button>
-          ) : (
-            <button
-              onClick={handleCreateOutline}
-              disabled={!isGenerated}
-              className={cn(
-                "w-full py-2.5 text-sm font-medium rounded-lg transition flex items-center justify-center gap-2",
-                isGenerated
-                  ? "text-white bg-indigo-600 hover:bg-indigo-700"
-                  : "text-gray-400 bg-gray-100 cursor-not-allowed"
-              )}
-            >
-              <FileText className="w-4 h-4" />
-              先生成大纲
-            </button>
-          )}
+          <button
+            onClick={handleCreateOutline}
+            disabled={!isGenerated}
+            className={cn(
+              "w-full py-2.5 text-sm font-medium rounded-lg transition flex items-center justify-center gap-2",
+              isGenerated
+                ? "text-white bg-indigo-600 hover:bg-indigo-700"
+                : "text-gray-400 bg-gray-100 cursor-not-allowed"
+            )}
+          >
+            <Sparkles className="w-4 h-4" />
+            生成集纲
+          </button>
         </div>
       </div>
 
