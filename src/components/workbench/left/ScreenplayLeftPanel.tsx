@@ -132,7 +132,7 @@ export default function ScreenplayLeftPanel() {
 
   // 模拟上传
   const handleUpload = () => {
-    const mockFiles = ["小说初稿大明星穿到80年代...", "穿到80年代参考资料.docx"];
+    const mockFiles = ["逆袭甜宠短剧梗概.docx", "悬疑短剧参考剧本.pdf"];
     const randomFile = mockFiles[Math.floor(Math.random() * mockFiles.length)];
     setUploadedFiles((prev) => [...prev, randomFile]);
     showToast("文件上传成功");
@@ -203,13 +203,13 @@ export default function ScreenplayLeftPanel() {
       setIsGenerated(true);
       showToast("设定生成成功");
       if (uploadedFiles.length > 0 && !synopsis.trim()) {
-        setSynopsis(`【故事线】顶流影后苏瑾意外穿越到1985年的小镇，成为供销社售货员的女儿。她需要在这个没有互联网、没有智能手机的年代重新开始...
+        setSynopsis(`【故事线】刑侦记者林晓在一次线人接头中获得神秘文件，却意外发现未婚夫陈深的名字出现在嫌疑人名单上。她必须在真相与感情之间做出抉择...
 
-【核心冲突】1. 现代娱乐理念VS80年代文艺体制的碰撞
-2. 身份隐藏与真相揭露的悬念
-3. 新旧观念的冲突与融合
+【核心卖点】1. 悬疑反转：每集结尾设置钩子，身边最信任的人竟是最大的谜团
+2. 情感博弈：爱情与真相的双线拉扯，虐心又上头
+3. 强节奏：短剧快节奏叙事，信息密度高，无注水
 
-【情感设定】与镇上文艺青年的纯真爱情，从相互看不顺眼到惺惺相惜...`);
+【人物关系】林晓（刑侦记者）× 陈深（双重身份未婚夫）× 陈队长（刑侦队长），三方视角交叉推进...`);
       }
     }, 1500);
   };
