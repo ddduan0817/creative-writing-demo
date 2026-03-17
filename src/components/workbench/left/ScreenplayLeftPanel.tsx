@@ -269,7 +269,7 @@ export default function ScreenplayLeftPanel() {
             {/* 标题 */}
             <div className="flex items-center gap-2">
               <FileText className="w-4 h-4 text-gray-500" />
-              <span className="text-sm font-medium text-gray-700">设定</span>
+              <span className="text-sm font-medium text-gray-700">【剧本测试】设定</span>
             </div>
 
             {/* 上传参考材料 */}
