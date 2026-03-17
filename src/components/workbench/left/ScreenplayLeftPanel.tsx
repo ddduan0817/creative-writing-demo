@@ -106,6 +106,9 @@ export default function ScreenplayLeftPanel() {
   // 类型选择
   const [scriptType, setScriptType] = useState<"script" | "storyboard">("script");
 
+  // 横竖屏选择（漫剧专用）
+  const [screenOrientation, setScreenOrientation] = useState<"horizontal" | "vertical" | null>(null);
+
   // 展开的面板
   const [expandedSection, setExpandedSection] = useState<"content" | "writing" | "character" | null>(null);
   const [newCharacter, setNewCharacter] = useState({ name: "", desc: "", role: "主角" as "主角" | "配角" });
@@ -182,7 +185,7 @@ export default function ScreenplayLeftPanel() {
 
   // 获取已选写作方式数量
   const getWritingSelectedCount = () => {
-    return (episodeRange ? 1 : 0) + (episodeDuration ? 1 : 0);
+    return (episodeRange ? 1 : 0) + (episodeDuration ? 1 : 0) + (screenOrientation ? 1 : 0);
   };
 
   // 检查是否有内容（上传文件或输入梗概）
@@ -407,6 +410,11 @@ export default function ScreenplayLeftPanel() {
                   {episodeDuration && (
                     <span className="px-2 py-0.5 bg-indigo-50 text-indigo-600 text-xs rounded-full">
                       单集{episodeDuration}
+                    </span>
+                  )}
+                  {screenOrientation && (
+                    <span className="px-2 py-0.5 bg-indigo-50 text-indigo-600 text-xs rounded-full">
+                      {screenOrientation === "horizontal" ? "横屏" : "竖屏"}
                     </span>
                   )}
                 </div>
@@ -664,10 +672,37 @@ export default function ScreenplayLeftPanel() {
                     ))}
                   </div>
                 </div>
+
+                {/* 横竖屏 - 仅漫剧显示 */}
+                {sceneType === "comic_drama" && (
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-medium text-gray-600">画面方向</span>
+                      <span className="text-xs text-gray-400">单选</span>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {([
+                        { id: "horizontal" as const, label: "横屏" },
+                        { id: "vertical" as const, label: "竖屏" },
+                      ]).map((item) => (
+                        <button
+                          key={item.id}
+                          onClick={() => setScreenOrientation(item.id)}
+                          className={cn(
+                            "px-3 py-1.5 text-xs rounded-full border transition",
+                            screenOrientation === item.id
+                              ? "border-indigo-300 bg-indigo-50 text-indigo-700"
+                              : "border-gray-200 text-gray-500 hover:border-gray-300 bg-white"
+                          )}
+                        >
+                          {item.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
-
-            {/* 角色管理 */}
             {expandedSection === "character" && (
               <div className="space-y-3">
                 <div className="text-xs font-medium text-gray-600">添加角色</div>
