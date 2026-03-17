@@ -9,6 +9,42 @@ export interface Character {
   arc: string;
 }
 
+export const mockScreenplayCharacters: Character[] = [
+  {
+    id: "sc1",
+    name: "林晓",
+    role: "main",
+    identity: "刑侦记者",
+    motivation: "追查未婚夫的双重身份，揭开隐藏的真相",
+    personality: ["敏锐", "执着", "外柔内刚"],
+    background:
+      "28岁，某都市报社深度调查记者。一次偶然的线人接头，让她卷入一桩远超预期的阴谋，而所有线索都指向她最信任的人。",
+    arc: "从信任他人到独立求真",
+  },
+  {
+    id: "sc2",
+    name: "陈深",
+    role: "main",
+    identity: "林晓的未婚夫 / 神秘组织成员",
+    motivation: "在感情与任务之间艰难抉择",
+    personality: ["沉稳", "矛盾", "深情"],
+    background:
+      "表面是科技公司高管，实际隐藏着另一重身份。深爱林晓，却无法坦白自己的秘密。当林晓的调查越来越接近真相时，他被迫做出选择。",
+    arc: "从隐瞒者到坦诚面对",
+  },
+  {
+    id: "sc3",
+    name: "陈队长",
+    role: "secondary",
+    identity: "市局刑侦队队长",
+    motivation: "破获连环案件，维护城市安全",
+    personality: ["老练", "正直", "不苟言笑"],
+    background:
+      "从警二十年的老刑警，在监控室发现了关键时间线矛盾。他看似站在林晓的对立面，实际上也在追查同一个真相。",
+    arc: "从例行公事到深入追查",
+  },
+];
+
 export const mockCharacters: Character[] = [
   {
     id: "c1",

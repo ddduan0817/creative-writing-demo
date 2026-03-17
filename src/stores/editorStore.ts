@@ -1,6 +1,6 @@
 import { create } from "zustand";
-import { mockChapters, mockOutline, type Chapter } from "@/data/mockChapters";
-import { mockCharacters, type Character } from "@/data/mockCharacters";
+import { mockChapters, mockScreenplayScenes, mockOutline, mockScreenplayOutline, type Chapter } from "@/data/mockChapters";
+import { mockCharacters, mockScreenplayCharacters, type Character } from "@/data/mockCharacters";
 
 interface SettingItem {
   key: string;
@@ -366,21 +366,27 @@ export const useEditorStore = create<EditorState>((set) => ({
       knowledge: "未命名专栏",
       general: "未命名文档",
     };
-    const defaultChapter = {
-      id: `ch${Date.now()}`,
-      title: sceneType === "screenplay" ? "第1场 开场" : "第一章",
-      content: "",
-      wordCount: 0,
-    };
+
+    const isScreenplay = sceneType === "screenplay";
+
+    const defaultChapters = isScreenplay
+      ? mockScreenplayScenes
+      : [{
+          id: `ch${Date.now()}`,
+          title: "第一章",
+          content: "",
+          wordCount: 0,
+        }];
+
     set({
       scene: sceneType,
-      title: sceneNames[sceneType] || "未命名文档",
+      title: isScreenplay ? "逆袭甜宠短剧" : (sceneNames[sceneType] || "未命名文档"),
       titleManuallyEdited: false,
       leftPanelExpanded: false,
-      chapters: [defaultChapter],
-      currentChapterId: defaultChapter.id,
-      outline: "",
-      characters: [],
+      chapters: defaultChapters,
+      currentChapterId: defaultChapters[0]?.id || "",
+      outline: isScreenplay ? mockScreenplayOutline : "",
+      characters: isScreenplay ? mockScreenplayCharacters : [],
       selectedTags: {
         genre: null,
         elements: [],
