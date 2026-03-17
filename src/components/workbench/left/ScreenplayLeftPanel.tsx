@@ -66,6 +66,9 @@ const episodeRangeOptions = ["20-40", "40-60", "60-80", "80-100", "100-120"] as 
 // 单集时长选项
 const durationOptions = ["30s", "60s", "90s", "120s", "150s", "180s"] as const;
 
+// 单集镜头数选项（脚本专用）
+const shotCountOptions = ["6-8", "8-12", "12-16"] as const;
+
 export default function ScreenplayLeftPanel() {
   const { showToast, setLeftPanelExpanded } = useEditorStore();
 
@@ -108,6 +111,9 @@ export default function ScreenplayLeftPanel() {
 
   // 横竖屏选择（漫剧专用）
   const [screenOrientation, setScreenOrientation] = useState<"horizontal" | "vertical" | null>(null);
+
+  // 单集镜头数（脚本专用）
+  const [shotCount, setShotCount] = useState<string | null>(null);
 
   // 展开的面板
   const [expandedSection, setExpandedSection] = useState<"content" | "writing" | "character" | null>(null);
@@ -185,7 +191,7 @@ export default function ScreenplayLeftPanel() {
 
   // 获取已选剧集规格数量
   const getWritingSelectedCount = () => {
-    return (episodeRange ? 1 : 0) + (episodeDuration ? 1 : 0) + (screenOrientation ? 1 : 0);
+    return (episodeRange ? 1 : 0) + (episodeDuration ? 1 : 0) + (screenOrientation ? 1 : 0) + (shotCount ? 1 : 0);
   };
 
   // 检查是否有内容（上传文件或输入梗概）
@@ -415,6 +421,11 @@ export default function ScreenplayLeftPanel() {
                   {screenOrientation && (
                     <span className="px-2 py-0.5 bg-indigo-50 text-indigo-600 text-xs rounded-full">
                       {screenOrientation === "horizontal" ? "横屏" : "竖屏"}
+                    </span>
+                  )}
+                  {shotCount && (
+                    <span className="px-2 py-0.5 bg-indigo-50 text-indigo-600 text-xs rounded-full">
+                      {shotCount}镜/集
                     </span>
                   )}
                 </div>
@@ -696,6 +707,32 @@ export default function ScreenplayLeftPanel() {
                           )}
                         >
                           {item.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* 单集镜头数 - 仅脚本显示 */}
+                {scriptType === "storyboard" && (
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-medium text-gray-600">单集镜头数</span>
+                      <span className="text-xs text-gray-400">单选</span>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {shotCountOptions.map((opt) => (
+                        <button
+                          key={opt}
+                          onClick={() => setShotCount(shotCount === opt ? null : opt)}
+                          className={cn(
+                            "px-3 py-1.5 text-xs rounded-full border transition",
+                            shotCount === opt
+                              ? "border-indigo-300 bg-indigo-50 text-indigo-700"
+                              : "border-gray-200 text-gray-500 hover:border-gray-300 bg-white"
+                          )}
+                        >
+                          {opt}
                         </button>
                       ))}
                     </div>
