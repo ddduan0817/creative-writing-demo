@@ -60,27 +60,11 @@ const contentTagGroups = [
   },
 ];
 
-// 写作方式标签数据
-const writingTagGroups = [
-  {
-    id: "perspective",
-    label: "叙事视角",
-    max: 1,
-    tags: ["第一人称", "第二人称", "第三人称"],
-  },
-  {
-    id: "structure",
-    label: "叙事结构",
-    max: 1,
-    tags: ["线性叙事", "倒叙", "插叙", "多线并行"],
-  },
-  {
-    id: "writingStyle",
-    label: "文风",
-    max: 1,
-    tags: ["文艺抒情", "幽默诙谐", "华丽辞藻", "简洁凝练", "口语化", "古风"],
-  },
-];
+// 集数范围选项
+const episodeRangeOptions = ["20-40", "40-60", "60-80", "80-100", "100-120"] as const;
+
+// 单集时长选项
+const durationOptions = ["30s", "60s", "90s", "120s", "150s", "180s"] as const;
 
 export default function ScreenplayLeftPanel() {
   const { showToast, setLeftPanelExpanded } = useEditorStore();
@@ -106,12 +90,12 @@ export default function ScreenplayLeftPanel() {
     ending: [],
   });
 
-  // 选中的写作方式标签
-  const [selectedWritingTags, setSelectedWritingTags] = useState<Record<string, string[]>>({
-    perspective: [],
-    structure: [],
-    writingStyle: [],
-  });
+  // 集数选择
+  const [episodeRange, setEpisodeRange] = useState<string | null>(null);
+  const [customEpisodes, setCustomEpisodes] = useState("");
+
+  // 单集时长选择
+  const [episodeDuration, setEpisodeDuration] = useState<string | null>(null);
 
   // 角色列表
   const [characters, setCharacters] = useState<{ name: string; desc: string; role: "主角" | "配角" }[]>([]);
@@ -175,24 +159,6 @@ export default function ScreenplayLeftPanel() {
     });
   };
 
-  // 切换写作方式标签
-  const toggleWritingTag = (groupId: string, tag: string, max: number) => {
-    setSelectedWritingTags((prev) => {
-      const current = prev[groupId] || [];
-      if (current.includes(tag)) {
-        return { ...prev, [groupId]: current.filter((t) => t !== tag) };
-      }
-      if (current.length >= max) {
-        if (max === 1) {
-          return { ...prev, [groupId]: [tag] };
-        }
-        showToast(`最多选择 ${max} 个`);
-        return prev;
-      }
-      return { ...prev, [groupId]: [...current, tag] };
-    });
-  };
-
   // 添加角色
   const addCharacter = () => {
     if (!newCharacter.name.trim()) {
@@ -214,9 +180,9 @@ export default function ScreenplayLeftPanel() {
     return Object.values(selectedTags).flat().length;
   };
 
-  // 获取已选写作方式标签数量
+  // 获取已选写作方式数量
   const getWritingSelectedCount = () => {
-    return Object.values(selectedWritingTags).flat().length;
+    return (episodeRange ? 1 : 0) + (episodeDuration ? 1 : 0);
   };
 
   // 检查是否有内容（上传文件或输入梗概）
@@ -311,7 +277,7 @@ export default function ScreenplayLeftPanel() {
 
 【核心冲突】故事的主要矛盾和冲突...
 
-【情感设定】角色之间的情感关系...`}
+【核心卖点】一句话提炼最抓人的卖点...`}
                 className={cn(
                   "w-full h-[180px] text-sm border rounded-lg p-3 resize-none focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 placeholder:text-gray-300 leading-relaxed",
                   isGenerated ? "border-green-300 bg-green-50/30" : "border-gray-200"
@@ -433,15 +399,15 @@ export default function ScreenplayLeftPanel() {
               {/* 已选写作方式预览 */}
               {getWritingSelectedCount() > 0 && expandedSection !== "writing" && (
                 <div className="mt-2 flex flex-wrap gap-1.5">
-                  {Object.entries(selectedWritingTags).flatMap(([, tags]) =>
-                    tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="px-2 py-0.5 bg-indigo-50 text-indigo-600 text-xs rounded-full"
-                      >
-                        {tag}
-                      </span>
-                    ))
+                  {episodeRange && (
+                    <span className="px-2 py-0.5 bg-indigo-50 text-indigo-600 text-xs rounded-full">
+                      {episodeRange === "custom" ? `${customEpisodes}集` : `${episodeRange}集`}
+                    </span>
+                  )}
+                  {episodeDuration && (
+                    <span className="px-2 py-0.5 bg-indigo-50 text-indigo-600 text-xs rounded-full">
+                      单集{episodeDuration}
+                    </span>
                   )}
                 </div>
               )}
@@ -628,37 +594,76 @@ export default function ScreenplayLeftPanel() {
               </div>
             )}
 
-            {/* 写作方式标签 */}
+            {/* 写作方式 - 集数 & 单集时长 */}
             {expandedSection === "writing" && (
-              <div className="space-y-3">
-                {writingTagGroups.map((group) => (
-                  <div key={group.id}>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-medium text-gray-600">
-                        {group.label}
-                      </span>
-                      <span className="text-xs text-gray-400">
-                        {selectedWritingTags[group.id]?.length || 0}/{group.max}
-                      </span>
-                    </div>
-                    <div className="flex flex-wrap gap-1.5">
-                      {group.tags.map((tag) => (
-                        <button
-                          key={tag}
-                          onClick={() => toggleWritingTag(group.id, tag, group.max)}
-                          className={cn(
-                            "px-2 py-1 text-xs rounded-full border transition",
-                            selectedWritingTags[group.id]?.includes(tag)
-                              ? "border-indigo-300 bg-indigo-50 text-indigo-700"
-                              : "border-gray-200 text-gray-500 hover:border-gray-300 bg-white"
-                          )}
-                        >
-                          {tag}
-                        </button>
-                      ))}
-                    </div>
+              <div className="space-y-4">
+                {/* 集数 */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-medium text-gray-600">集数</span>
+                    <span className="text-xs text-gray-400">单选</span>
                   </div>
-                ))}
+                  <div className="flex flex-wrap gap-1.5">
+                    {episodeRangeOptions.map((range) => (
+                      <button
+                        key={range}
+                        onClick={() => setEpisodeRange(range)}
+                        className={cn(
+                          "px-3 py-1.5 text-xs rounded-full border transition",
+                          episodeRange === range
+                            ? "border-indigo-300 bg-indigo-50 text-indigo-700"
+                            : "border-gray-200 text-gray-500 hover:border-gray-300 bg-white"
+                        )}
+                      >
+                        {range}集
+                      </button>
+                    ))}
+                    <button
+                      onClick={() => setEpisodeRange("custom")}
+                      className={cn(
+                        "px-3 py-1.5 text-xs rounded-full border transition",
+                        episodeRange === "custom"
+                          ? "border-indigo-300 bg-indigo-50 text-indigo-700"
+                          : "border-gray-200 text-gray-500 hover:border-gray-300 bg-white"
+                      )}
+                    >
+                      自定义
+                    </button>
+                  </div>
+                  {episodeRange === "custom" && (
+                    <input
+                      type="text"
+                      value={customEpisodes}
+                      onChange={(e) => setCustomEpisodes(e.target.value.replace(/\D/g, ""))}
+                      placeholder="输入集数"
+                      className="mt-2 w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-indigo-300 bg-white"
+                    />
+                  )}
+                </div>
+
+                {/* 单集时长 */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-medium text-gray-600">单集时长</span>
+                    <span className="text-xs text-gray-400">单选</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {durationOptions.map((dur) => (
+                      <button
+                        key={dur}
+                        onClick={() => setEpisodeDuration(dur)}
+                        className={cn(
+                          "px-3 py-1.5 text-xs rounded-full border transition",
+                          episodeDuration === dur
+                            ? "border-indigo-300 bg-indigo-50 text-indigo-700"
+                            : "border-gray-200 text-gray-500 hover:border-gray-300 bg-white"
+                        )}
+                      >
+                        {dur}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
             )}
 
