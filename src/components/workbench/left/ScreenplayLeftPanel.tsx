@@ -14,7 +14,7 @@ import {
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
-// 写作要素标签数据
+// 内容要素标签数据
 const contentTagGroups = [
   {
     id: "audience",
@@ -79,7 +79,7 @@ export default function ScreenplayLeftPanel() {
   const [isGenerated, setIsGenerated] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
 
-  // 选中的写作要素标签
+  // 选中的内容要素标签
   const [selectedTags, setSelectedTags] = useState<Record<string, string[]>>({
     audience: [],
     genre: [],
@@ -178,12 +178,12 @@ export default function ScreenplayLeftPanel() {
     setCharacters((prev) => prev.filter((_, i) => i !== index));
   };
 
-  // 获取已选写作要素标签数量
+  // 获取已选内容要素标签数量
   const getSelectedCount = () => {
     return Object.values(selectedTags).flat().length;
   };
 
-  // 获取已选写作方式数量
+  // 获取已选剧集规格数量
   const getWritingSelectedCount = () => {
     return (episodeRange ? 1 : 0) + (episodeDuration ? 1 : 0) + (screenOrientation ? 1 : 0);
   };
@@ -371,7 +371,7 @@ export default function ScreenplayLeftPanel() {
               </div>
             </div>
 
-            {/* 写作方式 */}
+            {/* 剧集规格 */}
             <div>
               <button
                 onClick={() => toggleSection("writing")}
@@ -384,7 +384,7 @@ export default function ScreenplayLeftPanel() {
               >
                 <div className="flex items-center gap-2">
                   <Plus className="w-4 h-4" />
-                  <span>写作方式</span>
+                  <span>剧集规格</span>
                   {getWritingSelectedCount() > 0 && (
                     <span className="text-xs text-indigo-500">
                       已选 {getWritingSelectedCount()} 项
@@ -399,7 +399,7 @@ export default function ScreenplayLeftPanel() {
                 />
               </button>
 
-              {/* 已选写作方式预览 */}
+              {/* 已选剧集规格预览 */}
               {getWritingSelectedCount() > 0 && expandedSection !== "writing" && (
                 <div className="mt-2 flex flex-wrap gap-1.5">
                   {episodeRange && (
@@ -421,7 +421,7 @@ export default function ScreenplayLeftPanel() {
               )}
             </div>
 
-            {/* 写作要素 */}
+            {/* 内容要素 */}
             <div>
               <button
                 onClick={() => toggleSection("content")}
@@ -434,7 +434,7 @@ export default function ScreenplayLeftPanel() {
               >
                 <div className="flex items-center gap-2">
                   <Plus className="w-4 h-4" />
-                  <span>写作要素</span>
+                  <span>内容要素</span>
                   {getSelectedCount() > 0 && (
                     <span className="text-xs text-indigo-500">
                       已选 {getSelectedCount()} 项
@@ -558,7 +558,7 @@ export default function ScreenplayLeftPanel() {
             {/* 面板标题 */}
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-gray-700">
-                {expandedSection === "content" ? "写作要素" : expandedSection === "writing" ? "写作方式" : "角色"}
+                {expandedSection === "content" ? "内容要素" : expandedSection === "writing" ? "剧集规格" : "角色"}
               </span>
               <button
                 onClick={closeExpansion}
@@ -568,7 +568,7 @@ export default function ScreenplayLeftPanel() {
               </button>
             </div>
 
-            {/* 写作要素标签 */}
+            {/* 内容要素标签 */}
             {expandedSection === "content" && (
               <div className="space-y-3">
                 {contentTagGroups.map((group) => (
@@ -602,7 +602,7 @@ export default function ScreenplayLeftPanel() {
               </div>
             )}
 
-            {/* 写作方式 - 集数 & 单集时长 */}
+            {/* 剧集规格 - 集数 & 单集时长 */}
             {expandedSection === "writing" && (
               <div className="space-y-4">
                 {/* 集数 */}
