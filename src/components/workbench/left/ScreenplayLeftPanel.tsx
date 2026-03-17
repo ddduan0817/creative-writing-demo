@@ -254,14 +254,6 @@ export default function ScreenplayLeftPanel() {
     showToast("正在生成大纲...");
   };
 
-  const handleCreateArticle = () => {
-    if (!isGenerated) {
-      showToast("请先点击「生成设定」按钮");
-      return;
-    }
-    showToast("正在生成文章...");
-  };
-
   return (
     <div className="h-full flex">
       {/* 左列 - 设定 */}
