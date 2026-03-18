@@ -35,7 +35,7 @@ export default function RecentWorks() {
       (a, b) =>
         new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
     )
-    .slice(0, 3);
+    .slice(0, 4);
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
