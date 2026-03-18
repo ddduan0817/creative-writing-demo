@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import SceneCards from "@/components/home/SceneCards";
 import SceneCards2 from "@/components/home/SceneCards2";
 import RecentWorks from "@/components/home/RecentWorks";
@@ -9,10 +10,11 @@ import CreationStats from "@/components/home/CreationStats";
 import CreationStats2 from "@/components/home/CreationStats2";
 import CaseRecommend from "@/components/home/CaseRecommend";
 import Sidebar from "@/components/home/Sidebar";
-import { Monitor, Bell, Plus, User } from "lucide-react";
+import { Plus, User, Monitor, Bell } from "lucide-react";
 
-export default function Home() {
-  const [activeVersion, setActiveVersion] = useState<1 | 2>(1);
+function HomeContent() {
+  const searchParams = useSearchParams();
+  const isBackup = searchParams.get("v") === "backup";
 
   return (
     <div className="min-h-screen bg-[#f7f8fa] flex">
@@ -56,31 +58,7 @@ export default function Home() {
         </div>
 
         <main className="max-w-[960px] mx-auto px-8 pb-8 space-y-6">
-          {/* Version Tabs */}
-          <div className="flex items-center gap-2 mb-2">
-            <button
-              onClick={() => setActiveVersion(1)}
-              className={`px-4 py-2 text-sm font-medium rounded-lg transition ${
-                activeVersion === 1
-                  ? "bg-indigo-600 text-white"
-                  : "bg-white text-gray-600 hover:bg-gray-50 border border-gray-200"
-              }`}
-            >
-              创意写作 1 (改版中)
-            </button>
-            <button
-              onClick={() => setActiveVersion(2)}
-              className={`px-4 py-2 text-sm font-medium rounded-lg transition ${
-                activeVersion === 2
-                  ? "bg-indigo-600 text-white"
-                  : "bg-white text-gray-600 hover:bg-gray-50 border border-gray-200"
-              }`}
-            >
-              创意写作 2 (备份)
-            </button>
-          </div>
-
-          {activeVersion === 1 ? (
+          {!isBackup ? (
             <>
               {/* Scene Cards + Creation Stats */}
               <div className="grid grid-cols-[2fr_1fr] gap-5 items-start">
@@ -107,5 +85,13 @@ export default function Home() {
         </main>
       </div>
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense>
+      <HomeContent />
+    </Suspense>
   );
 }

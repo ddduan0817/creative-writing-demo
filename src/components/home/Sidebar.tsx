@@ -1,6 +1,7 @@
 "use client";
 
-import { useRouter, usePathname } from "next/navigation";
+import { Suspense } from "react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import {
   MessageSquarePlus,
   PenLine,
@@ -10,12 +11,15 @@ import {
   FolderKanban,
   MessageCircle,
   ChevronDown,
+  Copy,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export default function Sidebar() {
+function SidebarContent() {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const isBackup = searchParams.get("v") === "backup";
 
   return (
     <div className="w-[200px] h-screen bg-white border-r border-gray-100 flex flex-col flex-shrink-0 sticky top-0">
@@ -41,13 +45,25 @@ export default function Sidebar() {
           onClick={() => router.push("/")}
           className={cn(
             "w-full flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition",
-            pathname === "/"
+            pathname === "/" && !isBackup
               ? "bg-blue-50 text-blue-600 font-medium"
               : "text-gray-600 hover:bg-gray-50"
           )}
         >
           <PenLine className="w-4 h-4" />
           创意写作
+        </button>
+        <button
+          onClick={() => router.push("/?v=backup")}
+          className={cn(
+            "w-full flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition",
+            pathname === "/" && isBackup
+              ? "bg-blue-50 text-blue-600 font-medium"
+              : "text-gray-600 hover:bg-gray-50"
+          )}
+        >
+          <Copy className="w-4 h-4" />
+          创意写作备份
         </button>
         <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-50 transition">
           <BookOpen className="w-4 h-4" />
@@ -84,5 +100,13 @@ export default function Sidebar() {
         </button>
       </div>
     </div>
+  );
+}
+
+export default function Sidebar() {
+  return (
+    <Suspense>
+      <SidebarContent />
+    </Suspense>
   );
 }
