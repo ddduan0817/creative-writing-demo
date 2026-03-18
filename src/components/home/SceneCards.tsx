@@ -18,20 +18,6 @@ const scenes = [
     illustration: "🎬",
   },
   {
-    id: "marketing",
-    name: "种草文案",
-    subtitle: "带货种草·高转化",
-    bg: "bg-green-50",
-    illustration: "🌿",
-  },
-  {
-    id: "knowledge",
-    name: "知识专栏",
-    subtitle: "拆书解读·观点输出",
-    bg: "bg-amber-50",
-    illustration: "📚",
-  },
-  {
     id: "general",
     name: "通用写作",
     subtitle: "自由创作·不限场景",

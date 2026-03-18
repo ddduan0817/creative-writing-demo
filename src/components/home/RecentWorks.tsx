@@ -29,11 +29,13 @@ export default function RecentWorks() {
     return () => document.removeEventListener("mousedown", handler);
   }, [activeMenu]);
 
-  // Sort by updatedAt descending
-  const sorted = [...mockWorks].sort(
-    (a, b) =>
-      new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-  );
+  // Sort by updatedAt descending, show top 3
+  const sorted = [...mockWorks]
+    .sort(
+      (a, b) =>
+        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+    )
+    .slice(0, 3);
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
