@@ -375,54 +375,50 @@ export default function RichTextEditor() {
 
       {/* Floating Bottom Action Bar */}
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10">
-        <div className="flex items-center gap-1 bg-white rounded-full shadow-lg border border-gray-200 px-2 py-1.5">
-          <div className="relative group/style">
-            <button
-              onClick={() => showToast("调整风格功能演示中...")}
-              className="flex items-center gap-1 px-3 py-1.5 text-xs text-gray-600 rounded-full hover:bg-gray-100 transition"
-            >
-              <Palette className="w-3.5 h-3.5" />
-              调整风格
-              <ChevronDown className="w-3 h-3" />
-            </button>
-          </div>
-          <div className="relative group/length">
-            <button
-              onClick={() => showToast("调整长度功能演示中...")}
-              className="flex items-center gap-1 px-3 py-1.5 text-xs text-gray-600 rounded-full hover:bg-gray-100 transition"
-            >
-              <MoveHorizontal className="w-3.5 h-3.5" />
-              调整长度
-              <ChevronDown className="w-3 h-3" />
-            </button>
-          </div>
+        <div className="flex items-center gap-0.5 bg-white/95 backdrop-blur-sm rounded-2xl shadow-[0_2px_16px_rgba(0,0,0,0.08)] border border-gray-100 px-1.5 py-1">
+          <button
+            onClick={() => showToast("调整风格功能演示中...")}
+            className="flex items-center gap-1.5 px-3.5 py-2 text-[13px] text-gray-600 rounded-xl hover:bg-gray-50 transition"
+          >
+            <Palette className="w-4 h-4 text-gray-400" />
+            调整风格
+            <ChevronDown className="w-3 h-3 text-gray-400" />
+          </button>
+          <button
+            onClick={() => showToast("调整长度功能演示中...")}
+            className="flex items-center gap-1.5 px-3.5 py-2 text-[13px] text-gray-600 rounded-xl hover:bg-gray-50 transition"
+          >
+            <MoveHorizontal className="w-4 h-4 text-gray-400" />
+            调整长度
+            <ChevronDown className="w-3 h-3 text-gray-400" />
+          </button>
           <button
             onClick={() => showToast("全文润色中...")}
-            className="flex items-center gap-1 px-3 py-1.5 text-xs text-gray-600 rounded-full hover:bg-gray-100 transition"
+            className="flex items-center gap-1.5 px-3.5 py-2 text-[13px] text-gray-600 rounded-xl hover:bg-gray-50 transition"
           >
-            <Sparkles className="w-3.5 h-3.5" />
+            <Sparkles className="w-4 h-4 text-gray-400" />
             全文润色
           </button>
           <button
             onClick={() => showToast("重新生成中...")}
-            className="flex items-center gap-1 px-3 py-1.5 text-xs text-gray-600 rounded-full hover:bg-gray-100 transition"
+            className="flex items-center gap-1.5 px-3.5 py-2 text-[13px] text-gray-600 rounded-xl hover:bg-gray-50 transition"
           >
-            <RefreshCw className="w-3.5 h-3.5" />
+            <RefreshCw className="w-4 h-4 text-gray-400" />
             重新生成
           </button>
           <div className="w-px h-5 bg-gray-200 mx-1" />
           <button
             onClick={() => showToast("卡文锦囊功能演示中...")}
-            className="flex items-center gap-1 px-3 py-1.5 text-xs text-gray-600 rounded-full hover:bg-gray-100 transition"
+            className="flex items-center gap-1.5 px-3.5 py-2 text-[13px] font-medium text-amber-700 bg-amber-50 rounded-xl hover:bg-amber-100 transition"
           >
-            <Lightbulb className="w-3.5 h-3.5" />
+            <Lightbulb className="w-4 h-4 text-amber-500" />
             卡文锦囊
           </button>
           <button
             onClick={() => showToast("校对功能演示中...")}
-            className="flex items-center gap-1 px-3 py-1.5 text-xs text-gray-600 rounded-full hover:bg-gray-100 transition"
+            className="flex items-center gap-1.5 px-3.5 py-2 text-[13px] text-gray-600 rounded-xl hover:bg-gray-50 transition"
           >
-            <FileCheck className="w-3.5 h-3.5" />
+            <FileCheck className="w-4 h-4 text-gray-400" />
             校对
           </button>
         </div>
