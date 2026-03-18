@@ -4,11 +4,8 @@ import { useEditorStore } from "@/stores/editorStore";
 import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
-  Save,
   Download,
   Star,
-  Eye,
-  Bot,
   Check,
   Loader2,
   AlertCircle,
@@ -18,6 +15,7 @@ import {
   FileText,
   Sparkles,
   Pencil,
+  Save,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
@@ -29,8 +27,6 @@ export default function TopBar() {
     saveStatus,
     chapters,
     currentChapterId,
-    layoutMode,
-    setLayoutMode,
     showToast,
     scene,
     historyItems,
@@ -49,10 +45,6 @@ export default function TopBar() {
 
   const currentChapter = chapters.find((c) => c.id === currentChapterId);
   const totalWords = chapters.reduce((sum, c) => sum + c.wordCount, 0);
-
-  const handleSave = () => {
-    showToast("已保存");
-  };
 
   const handleExport = (format: string) => {
     showToast(`正在导出 ${format} 格式...`);
@@ -146,42 +138,11 @@ export default function TopBar() {
       {/* Spacer */}
       <div className="flex-1" />
 
-      {/* Right: Actions */}
-      <button
-        onClick={() => setLayoutMode(layoutMode === "ai-assist" ? "normal" : "ai-assist")}
-        className={`px-2 py-1 text-xs rounded transition ${
-          layoutMode === "ai-assist"
-            ? "bg-blue-100 text-blue-700"
-            : "text-gray-500 hover:bg-gray-100"
-        }`}
-      >
-        <Bot className="w-3.5 h-3.5 inline mr-1" />
-        AI辅助
-      </button>
-
-      <button
-        onClick={() => setLayoutMode(layoutMode === "focus" ? "normal" : "focus")}
-        className={`px-2 py-1 text-xs rounded transition ${
-          layoutMode === "focus"
-            ? "bg-indigo-100 text-indigo-700"
-            : "text-gray-500 hover:bg-gray-100"
-        }`}
-      >
-        <Eye className="w-3.5 h-3.5 inline mr-1" />
-        专注模式
-      </button>
-
-      <button
-        onClick={handleSave}
-        className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded transition"
-        title="保存"
-      >
-        <Save className="w-4 h-4" />
-      </button>
-
+      {/* Right: 导出 / 收藏 / 历史记录 */}
       <div className="relative group">
-        <button className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded transition">
-          <Download className="w-4 h-4" />
+        <button className="flex items-center gap-1 px-2.5 py-1.5 text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition">
+          <Download className="w-3.5 h-3.5" />
+          导出
         </button>
         <div className="absolute right-0 top-full mt-1 bg-white rounded-lg shadow-lg border py-1 z-20 w-24 hidden group-hover:block">
           {["txt", "doc", "pdf"].map((f) => (
@@ -198,19 +159,20 @@ export default function TopBar() {
 
       <button
         onClick={handleStar}
-        className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded transition"
+        className="flex items-center gap-1 px-2.5 py-1.5 text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition"
       >
         <Star
-          className={`w-4 h-4 ${starred ? "fill-amber-400 text-amber-400" : ""}`}
+          className={`w-3.5 h-3.5 ${starred ? "fill-amber-400 text-amber-400" : ""}`}
         />
+        收藏
       </button>
 
       <button
         onClick={() => setShowHistoryPanel(true)}
-        className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded transition"
-        title="历史记录"
+        className="flex items-center gap-1 px-2.5 py-1.5 text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition"
       >
-        <History className="w-4 h-4" />
+        <History className="w-3.5 h-3.5" />
+        历史记录
       </button>
 
       {/* History Panel */}

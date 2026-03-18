@@ -22,6 +22,8 @@ import {
   MoveHorizontal,
   Palette,
   Sparkles,
+  Lightbulb,
+  FileCheck,
 } from "lucide-react";
 
 export default function RichTextEditor() {
@@ -371,37 +373,59 @@ export default function RichTextEditor() {
         </div>
       </div>
 
-      {/* Bottom Action Bar */}
-      <div className="flex items-center gap-2 px-4 py-2.5 border-t border-gray-100 bg-gray-50/50 flex-shrink-0">
-        <button
-          onClick={() => showToast("重新生成中...")}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-600 border border-gray-200 rounded-lg hover:bg-white hover:border-gray-300 transition"
-        >
-          <RefreshCw className="w-3.5 h-3.5" />
-          重新生成
-        </button>
-        <button
-          onClick={() => showToast("调整长度功能演示中...")}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-600 border border-gray-200 rounded-lg hover:bg-white hover:border-gray-300 transition"
-        >
-          <MoveHorizontal className="w-3.5 h-3.5" />
-          调整长度
-        </button>
-        <button
-          onClick={() => showToast("调整风格功能演示中...")}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-600 border border-gray-200 rounded-lg hover:bg-white hover:border-gray-300 transition"
-        >
-          <Palette className="w-3.5 h-3.5" />
-          调整风格
-        </button>
-        <div className="flex-1" />
-        <button
-          onClick={() => showToast("全文润色中...")}
-          className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition"
-        >
-          <Sparkles className="w-3.5 h-3.5" />
-          全文润色
-        </button>
+      {/* Floating Bottom Action Bar */}
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10">
+        <div className="flex items-center gap-1 bg-white rounded-full shadow-lg border border-gray-200 px-2 py-1.5">
+          <div className="relative group/style">
+            <button
+              onClick={() => showToast("调整风格功能演示中...")}
+              className="flex items-center gap-1 px-3 py-1.5 text-xs text-gray-600 rounded-full hover:bg-gray-100 transition"
+            >
+              <Palette className="w-3.5 h-3.5" />
+              调整风格
+              <ChevronDown className="w-3 h-3" />
+            </button>
+          </div>
+          <div className="relative group/length">
+            <button
+              onClick={() => showToast("调整长度功能演示中...")}
+              className="flex items-center gap-1 px-3 py-1.5 text-xs text-gray-600 rounded-full hover:bg-gray-100 transition"
+            >
+              <MoveHorizontal className="w-3.5 h-3.5" />
+              调整长度
+              <ChevronDown className="w-3 h-3" />
+            </button>
+          </div>
+          <button
+            onClick={() => showToast("全文润色中...")}
+            className="flex items-center gap-1 px-3 py-1.5 text-xs text-gray-600 rounded-full hover:bg-gray-100 transition"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            全文润色
+          </button>
+          <button
+            onClick={() => showToast("重新生成中...")}
+            className="flex items-center gap-1 px-3 py-1.5 text-xs text-gray-600 rounded-full hover:bg-gray-100 transition"
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+            重新生成
+          </button>
+          <div className="w-px h-5 bg-gray-200 mx-1" />
+          <button
+            onClick={() => showToast("卡文锦囊功能演示中...")}
+            className="flex items-center gap-1 px-3 py-1.5 text-xs text-gray-600 rounded-full hover:bg-gray-100 transition"
+          >
+            <Lightbulb className="w-3.5 h-3.5" />
+            卡文锦囊
+          </button>
+          <button
+            onClick={() => showToast("校对功能演示中...")}
+            className="flex items-center gap-1 px-3 py-1.5 text-xs text-gray-600 rounded-full hover:bg-gray-100 transition"
+          >
+            <FileCheck className="w-3.5 h-3.5" />
+            校对
+          </button>
+        </div>
       </div>
 
       {/* Atmosphere Enhancement Dialog */}

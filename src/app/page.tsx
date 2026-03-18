@@ -10,7 +10,7 @@ import CreationStats from "@/components/home/CreationStats";
 import CreationStats2 from "@/components/home/CreationStats2";
 import CaseRecommend from "@/components/home/CaseRecommend";
 import Sidebar from "@/components/home/Sidebar";
-import { Plus, User, Monitor, Bell } from "lucide-react";
+import { Monitor, Bell } from "lucide-react";
 
 function HomeContent() {
   const searchParams = useSearchParams();
@@ -30,11 +30,6 @@ function HomeContent() {
           </button>
           <div className="relative group">
             <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition">
-              <Plus className="w-5 h-5" />
-            </button>
-          </div>
-          <div className="relative group">
-            <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition">
               <Monitor className="w-5 h-5" />
             </button>
             <div className="absolute right-0 top-full mt-1 px-2 py-1 bg-gray-800 text-white text-xs rounded whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
@@ -49,11 +44,6 @@ function HomeContent() {
             <div className="absolute right-0 top-full mt-1 px-2 py-1 bg-gray-800 text-white text-xs rounded whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
               功能上新
             </div>
-          </div>
-          <div className="relative group">
-            <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition">
-              <User className="w-5 h-5" />
-            </button>
           </div>
         </div>
 

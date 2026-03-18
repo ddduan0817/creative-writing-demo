@@ -9,16 +9,13 @@ import GeneralLeftPanel from "./left/GeneralLeftPanel";
 import SimpleLeftPanel from "./left/SimpleLeftPanel";
 import ScreenplayLeftPanel from "./left/ScreenplayLeftPanel";
 import RichTextEditor from "./editor/RichTextEditor";
-import RightPanel from "./right/RightPanel";
-import GeneralRightPanel from "./right/GeneralRightPanel";
-import SimpleRightPanel from "./right/SimpleRightPanel";
 import { cn } from "@/lib/utils";
 
 export default function WorkbenchLayout() {
   const searchParams = useSearchParams();
   const sceneParam = searchParams.get("scene") || "novel";
   const workId = searchParams.get("id"); // 如果有 id 参数，说明是打开已有作品
-  const { leftCollapsed, rightCollapsed, leftPanelExpanded, toast, scene, resetToEmpty } =
+  const { leftCollapsed, leftPanelExpanded, toast, scene, resetToEmpty } =
     useEditorStore();
 
   const hasInitialized = useRef(false);
@@ -60,12 +57,6 @@ export default function WorkbenchLayout() {
     return <LeftPanel />;
   };
 
-  const renderRightPanel = () => {
-    if (isGeneral) return <GeneralRightPanel />;
-    if (isSimple) return <SimpleRightPanel />;
-    return <RightPanel />;
-  };
-
   return (
     <div className="h-screen flex flex-col bg-white overflow-hidden">
       <TopBar />
@@ -84,16 +75,6 @@ export default function WorkbenchLayout() {
         <div className="flex-1 overflow-hidden">
           <RichTextEditor />
         </div>
-
-        {/* Right Panel */}
-        <div
-          className={cn(
-            "border-l border-gray-100 transition-all duration-300 overflow-hidden flex-shrink-0",
-            rightCollapsed ? "w-0" : "w-80"
-          )}
-        >
-          {renderRightPanel()}
-        </div>
       </div>
 
       {/* Collapse toggle buttons */}
@@ -110,32 +91,18 @@ export default function WorkbenchLayout() {
 }
 
 function ToggleButtons() {
-  const { leftCollapsed, rightCollapsed, leftPanelExpanded, toggleLeft, toggleRight } =
+  const { leftCollapsed, leftPanelExpanded, toggleLeft } =
     useEditorStore();
 
   return (
-    <>
-      <button
-        onClick={toggleLeft}
-        className="fixed top-1/2 -translate-y-1/2 z-30 w-5 h-10 bg-white border border-gray-200 rounded-r-md flex items-center justify-center hover:bg-gray-50 transition shadow-sm"
-        style={{ left: leftCollapsed ? 0 : leftPanelExpanded ? 768 : 288, transition: "left 0.3s" }}
-      >
-        <span className="text-gray-400 text-xs">
-          {leftCollapsed ? "›" : "‹"}
-        </span>
-      </button>
-      <button
-        onClick={toggleRight}
-        className={cn(
-          "fixed top-1/2 -translate-y-1/2 z-30 w-5 h-10 bg-white border border-gray-200 rounded-l-md flex items-center justify-center hover:bg-gray-50 transition shadow-sm",
-          rightCollapsed ? "right-0" : "right-[320px]"
-        )}
-        style={{ transition: "right 0.3s" }}
-      >
-        <span className="text-gray-400 text-xs">
-          {rightCollapsed ? "‹" : "›"}
-        </span>
-      </button>
-    </>
+    <button
+      onClick={toggleLeft}
+      className="fixed top-1/2 -translate-y-1/2 z-30 w-5 h-10 bg-white border border-gray-200 rounded-r-md flex items-center justify-center hover:bg-gray-50 transition shadow-sm"
+      style={{ left: leftCollapsed ? 0 : leftPanelExpanded ? 768 : 288, transition: "left 0.3s" }}
+    >
+      <span className="text-gray-400 text-xs">
+        {leftCollapsed ? "›" : "‹"}
+      </span>
+    </button>
   );
 }
