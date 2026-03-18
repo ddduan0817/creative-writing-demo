@@ -1,17 +1,12 @@
 "use client";
 
-import { useState } from "react";
 import SceneCards from "@/components/home/SceneCards";
-import SceneCards2 from "@/components/home/SceneCards2";
 import RecentWorks from "@/components/home/RecentWorks";
 import CreationStats from "@/components/home/CreationStats";
-import CaseRecommend from "@/components/home/CaseRecommend";
 import Sidebar from "@/components/home/Sidebar";
-import { Monitor, Bell } from "lucide-react";
+import { Plus, User } from "lucide-react";
 
 export default function Home() {
-  const [activeVersion, setActiveVersion] = useState<1 | 2>(1);
-
   return (
     <div className="min-h-screen bg-[#f7f8fa] flex">
       {/* Left Sidebar */}
@@ -19,68 +14,28 @@ export default function Home() {
 
       {/* Main Content */}
       <div className="flex-1 overflow-y-auto">
-        {/* Top Bar with right-side actions */}
+        {/* Top Bar */}
         <div className="flex justify-end items-center px-8 py-4 gap-3">
-          <div className="relative group">
-            <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition">
-              <Monitor className="w-5 h-5" />
-            </button>
-            <div className="absolute right-0 top-full mt-1 px-2 py-1 bg-gray-800 text-white text-xs rounded whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
-              下载多端应用
-            </div>
-          </div>
-          <div className="relative group">
-            <button className="relative p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition">
-              <Bell className="w-5 h-5" />
-              {/* 红点 */}
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />
-            </button>
-            <div className="absolute right-0 top-full mt-1 px-2 py-1 bg-gray-800 text-white text-xs rounded whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
-              功能上新
-            </div>
-          </div>
+          <button className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-50 text-orange-600 text-xs font-medium rounded-full hover:bg-orange-100 transition">
+            🎉 每日任务
+          </button>
+          <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition">
+            <Plus className="w-5 h-5" />
+          </button>
+          <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition">
+            <User className="w-5 h-5" />
+          </button>
         </div>
 
         <main className="max-w-[960px] mx-auto px-8 pb-8 space-y-6">
-          {/* Version Tabs */}
-          <div className="flex items-center gap-2 mb-2">
-            <button
-              onClick={() => setActiveVersion(1)}
-              className={`px-4 py-2 text-sm font-medium rounded-lg transition ${
-                activeVersion === 1
-                  ? "bg-indigo-600 text-white"
-                  : "bg-white text-gray-600 hover:bg-gray-50 border border-gray-200"
-              }`}
-            >
-              创意写作 1 (改版中)
-            </button>
-            <button
-              onClick={() => setActiveVersion(2)}
-              className={`px-4 py-2 text-sm font-medium rounded-lg transition ${
-                activeVersion === 2
-                  ? "bg-indigo-600 text-white"
-                  : "bg-white text-gray-600 hover:bg-gray-50 border border-gray-200"
-              }`}
-            >
-              创意写作 2 (备份)
-            </button>
-          </div>
-
-          {/* Scene Cards */}
-          <section>
-            {activeVersion === 1 ? <SceneCards /> : <SceneCards2 />}
-          </section>
-
-          {/* Stats + Recent Works side by side */}
-          <div className="grid grid-cols-2 gap-5">
+          {/* Scene Cards + Creation Stats */}
+          <div className="grid grid-cols-[2fr_1fr] gap-5 items-start">
+            <SceneCards />
             <CreationStats />
-            <RecentWorks />
           </div>
 
-          {/* Case Recommend */}
-          <section>
-            <CaseRecommend />
-          </section>
+          {/* Recent Works */}
+          <RecentWorks />
         </main>
       </div>
     </div>
