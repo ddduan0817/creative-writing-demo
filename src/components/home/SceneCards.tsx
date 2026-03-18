@@ -34,7 +34,7 @@ export default function SceneCards() {
   };
 
   return (
-    <div className="grid grid-cols-2 gap-4">
+    <div className="grid grid-cols-3 gap-4">
       {scenes.map((scene) => (
         <button
           key={scene.id}
@@ -43,9 +43,9 @@ export default function SceneCards() {
         >
           {/* Illustration area */}
           <div
-            className={`h-[88px] ${scene.bg} flex items-center justify-center`}
+            className={`h-[110px] ${scene.bg} flex items-center justify-center`}
           >
-            <span className="text-4xl">{scene.illustration}</span>
+            <span className="text-5xl">{scene.illustration}</span>
           </div>
           {/* Text area */}
           <div className="px-4 py-3">

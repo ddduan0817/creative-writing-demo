@@ -48,15 +48,23 @@ export default function RecentWorks() {
   };
 
   return (
-    <div>
-      <h2 className="text-sm font-semibold text-gray-800 mb-2">近期作品</h2>
+    <div className="bg-white rounded-2xl border border-gray-100 p-5 flex flex-col h-full">
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="text-sm font-semibold text-gray-800">近期作品</h2>
+        <button
+          onClick={() => router.push("/works")}
+          className="text-xs text-gray-400 hover:text-gray-600 transition"
+        >
+          查看更多 &gt;
+        </button>
+      </div>
 
-      <div>
+      <div className="flex-1">
         {sorted.map((work) => (
           <div
             key={work.id}
             onClick={() => router.push(`/workbench?scene=${work.scene}`)}
-            className="flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer hover:bg-gray-50/80 transition group"
+            className="flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer hover:bg-gray-50/80 transition group"
           >
             <span className="text-lg flex-shrink-0">{work.emoji}</span>
             <div className="flex-1 min-w-0">

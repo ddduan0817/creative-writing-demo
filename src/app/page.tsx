@@ -60,13 +60,13 @@ function HomeContent() {
         <main className="max-w-[960px] mx-auto px-8 pb-8 space-y-6">
           {!isBackup ? (
             <>
-              {/* Scene Cards + Creation Stats */}
-              <div className="grid grid-cols-[2fr_1fr] gap-5 items-start">
-                <SceneCards />
+              {/* Scene Cards - 3 in a row */}
+              <SceneCards />
+              {/* Stats + Recent Works side by side */}
+              <div className="grid grid-cols-[1fr_2fr] gap-5">
                 <CreationStats />
+                <RecentWorks />
               </div>
-              {/* Recent Works */}
-              <RecentWorks />
             </>
           ) : (
             <>
