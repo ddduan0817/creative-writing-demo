@@ -370,7 +370,7 @@ export const useEditorStore = create<EditorState>((set) => ({
     const isScreenplay = sceneType === "screenplay";
 
     const defaultChapters = isScreenplay
-      ? mockScreenplayScenes
+      ? mockScreenplayScenes.map(ch => ({ ...ch, content: "", wordCount: 0 }))
       : [{
           id: `ch${Date.now()}`,
           title: "第一章",

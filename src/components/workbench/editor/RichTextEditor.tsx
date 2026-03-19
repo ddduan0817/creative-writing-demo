@@ -346,14 +346,11 @@ export default function RichTextEditor() {
                   继续写点
                 </button>
                 <button
-                  onClick={() => showToast("调整风格功能演示中...")}
-                  className="w-full flex items-center justify-between px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
+                  onClick={() => handleAIAction("atmosphere")}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
                 >
-                  <span className="flex items-center gap-3">
-                    <Palette className="w-4 h-4 text-gray-400" />
-                    调整风格
-                  </span>
-                  <ChevronDown className="w-4 h-4 text-gray-400 -rotate-90" />
+                  <Palette className="w-4 h-4 text-gray-400" />
+                  氛围增强
                 </button>
               </div>
             </div>
@@ -425,11 +422,12 @@ export default function RichTextEditor() {
         <div className="inline-flex items-center gap-0.5 bg-white/95 backdrop-blur-sm rounded-full shadow-[0_2px_16px_rgba(0,0,0,0.08)] border border-gray-100/80 px-2.5 py-1.5 whitespace-nowrap">
           {/* Group 1: AI 调整功能 */}
           <button
-            onClick={() => showToast("氛围增强功能演示中...")}
+            onClick={() => showToast("调整风格功能演示中...")}
             className="inline-flex items-center gap-1 px-3 py-1.5 text-[13px] text-gray-600 rounded-full hover:bg-gray-50 transition"
           >
             <Palette className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-            <span>氛围增强</span>
+            <span>调整风格</span>
+            <ChevronDown className="w-3 h-3 text-gray-300 shrink-0" />
           </button>
           <button
             onClick={() => showToast("调整长度功能演示中...")}
