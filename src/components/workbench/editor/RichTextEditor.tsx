@@ -375,52 +375,60 @@ export default function RichTextEditor() {
 
       {/* Floating Bottom Action Bar */}
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10">
-        <div className="flex items-center gap-1 bg-white/95 backdrop-blur-sm rounded-2xl shadow-[0_2px_16px_rgba(0,0,0,0.08)] border border-gray-100 px-2 py-1.5 whitespace-nowrap">
-          <button
-            onClick={() => showToast("调整风格功能演示中...")}
-            className="flex items-center gap-1.5 px-4 py-2 text-[13px] text-gray-600 rounded-xl hover:bg-gray-50 transition shrink-0"
-          >
-            <Palette className="w-4 h-4 text-gray-400 shrink-0" />
-            调整风格
-            <ChevronDown className="w-3 h-3 text-gray-400 shrink-0" />
-          </button>
-          <button
-            onClick={() => showToast("调整长度功能演示中...")}
-            className="flex items-center gap-1.5 px-4 py-2 text-[13px] text-gray-600 rounded-xl hover:bg-gray-50 transition shrink-0"
-          >
-            <MoveHorizontal className="w-4 h-4 text-gray-400 shrink-0" />
-            调整长度
-            <ChevronDown className="w-3 h-3 text-gray-400 shrink-0" />
-          </button>
-          <button
-            onClick={() => showToast("全文润色中...")}
-            className="flex items-center gap-1.5 px-4 py-2 text-[13px] text-gray-600 rounded-xl hover:bg-gray-50 transition shrink-0"
-          >
-            <Sparkles className="w-4 h-4 text-gray-400 shrink-0" />
-            全文润色
-          </button>
-          <button
-            onClick={() => showToast("重新生成中...")}
-            className="flex items-center gap-1.5 px-4 py-2 text-[13px] text-gray-600 rounded-xl hover:bg-gray-50 transition shrink-0"
-          >
-            <RefreshCw className="w-4 h-4 text-gray-400 shrink-0" />
-            重新生成
-          </button>
-          <div className="w-px h-5 bg-gray-200 mx-1.5 shrink-0" />
-          <button
-            onClick={() => showToast("卡文锦囊功能演示中...")}
-            className="flex items-center gap-1.5 px-4 py-2 text-[13px] font-medium text-amber-700 bg-amber-50 rounded-xl hover:bg-amber-100 transition shrink-0"
-          >
-            <Lightbulb className="w-4 h-4 text-amber-500 shrink-0" />
-            卡文锦囊
-          </button>
-          <button
-            onClick={() => showToast("校对功能演示中...")}
-            className="flex items-center gap-1.5 px-4 py-2 text-[13px] text-gray-600 rounded-xl hover:bg-gray-50 transition shrink-0"
-          >
-            <FileCheck className="w-4 h-4 text-gray-400 shrink-0" />
-            校对
-          </button>
+        <div className="flex items-center gap-2 bg-white/95 backdrop-blur-sm rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.12)] border border-gray-100 px-4 py-2.5">
+          {/* Group 1: AI 调整功能 */}
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => showToast("调整风格功能演示中...")}
+              className="flex items-center gap-1.5 px-3.5 py-2 text-sm text-gray-600 rounded-xl hover:bg-gray-50 transition"
+            >
+              <Palette className="w-4 h-4 text-gray-400" />
+              调整风格
+              <ChevronDown className="w-3 h-3 text-gray-400" />
+            </button>
+            <button
+              onClick={() => showToast("调整长度功能演示中...")}
+              className="flex items-center gap-1.5 px-3.5 py-2 text-sm text-gray-600 rounded-xl hover:bg-gray-50 transition"
+            >
+              <MoveHorizontal className="w-4 h-4 text-gray-400" />
+              调整长度
+              <ChevronDown className="w-3 h-3 text-gray-400" />
+            </button>
+            <button
+              onClick={() => showToast("全文润色中...")}
+              className="flex items-center gap-1.5 px-3.5 py-2 text-sm text-gray-600 rounded-xl hover:bg-gray-50 transition"
+            >
+              <Sparkles className="w-4 h-4 text-gray-400" />
+              全文润色
+            </button>
+            <button
+              onClick={() => showToast("重新生成中...")}
+              className="flex items-center gap-1.5 px-3.5 py-2 text-sm text-gray-600 rounded-xl hover:bg-gray-50 transition"
+            >
+              <RefreshCw className="w-4 h-4 text-gray-400" />
+              重新生成
+            </button>
+          </div>
+
+          <div className="w-px h-6 bg-gray-200 mx-1" />
+
+          {/* Group 2: 辅助功能 */}
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => showToast("卡文锦囊功能演示中...")}
+              className="flex items-center gap-1.5 px-3.5 py-2 text-sm font-medium text-amber-700 bg-amber-50 rounded-xl hover:bg-amber-100 transition"
+            >
+              <Lightbulb className="w-4 h-4 text-amber-500" />
+              卡文锦囊
+            </button>
+            <button
+              onClick={() => showToast("校对功能演示中...")}
+              className="flex items-center gap-1.5 px-3.5 py-2 text-sm text-gray-600 rounded-xl hover:bg-gray-50 transition"
+            >
+              <FileCheck className="w-4 h-4 text-gray-400" />
+              校对
+            </button>
+          </div>
         </div>
       </div>
 
