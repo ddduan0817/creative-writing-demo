@@ -1,9 +1,6 @@
 "use client";
 
 import { type Editor } from "@tiptap/react";
-import { getSceneMockResponses } from "@/data/mockAIResponses";
-import { simulateAIStream } from "@/lib/aiSimulator";
-import { useEditorStore } from "@/stores/editorStore";
 import {
   Undo2,
   Redo2,
@@ -15,49 +12,9 @@ import {
   ListOrdered,
   Quote,
   Heading2,
-  Sparkles,
-  Loader2,
 } from "lucide-react";
-import { useState } from "react";
 
 export default function EditorToolbar({ editor }: { editor: Editor }) {
-  const { showToast, scene } = useEditorStore();
-  const mockData = getSceneMockResponses(scene);
-  const [continuing, setContinuing] = useState(false);
-
-  // Check if editor has meaningful content
-  const hasContent = editor.getText().trim().length > 0;
-
-  const handleContinue = () => {
-    setContinuing(true);
-    editor.commands.focus("end");
-
-    // 在开始生成前保存当前干净内容
-    const cleanContent = editor.getHTML();
-
-    simulateAIStream(mockData.continuation, (current, done) => {
-      const paragraphs = current
-        .split("\n\n")
-        .filter(Boolean)
-        .map((p) => `<p>${p}</p>`)
-        .join("");
-
-      // 每次都基于保存的干净内容来构建，而不是从当前 HTML 中提取
-      editor.commands.setContent(
-        cleanContent +
-          '<div class="border-l-2 border-indigo-300 pl-3 mt-4">' +
-          paragraphs +
-          (done ? "" : '<span class="ai-cursor"></span>') +
-          "</div>"
-      );
-
-      if (done) {
-        setContinuing(false);
-        showToast(hasContent ? "续写完成" : "生成完成");
-      }
-    });
-  };
-
   const btnClass =
     "p-1.5 rounded hover:bg-gray-100 text-gray-600 disabled:opacity-30 transition";
   const activeClass = "bg-gray-100";
@@ -162,21 +119,6 @@ export default function EditorToolbar({ editor }: { editor: Editor }) {
       </button>
 
       <div className="flex-1" />
-
-      {/* AI Quick Actions */}
-      <button
-        onClick={handleContinue}
-        disabled={continuing}
-        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition disabled:opacity-50"
-        title={hasContent ? "基于已有内容继续生成" : "根据设定和大纲一键生成正文"}
-      >
-        {continuing ? (
-          <Loader2 className="w-3.5 h-3.5 animate-spin" />
-        ) : (
-          <Sparkles className="w-3.5 h-3.5" />
-        )}
-        {hasContent ? "正文续写" : "AI 写作"}
-      </button>
     </div>
   );
 }
