@@ -55,6 +55,7 @@ export default function RichTextEditor() {
   const [helpText, setHelpText] = useState("");
   const [helpGenerating, setHelpGenerating] = useState(false);
   const helpInputRef = useRef<HTMLInputElement>(null);
+  const [editorFocused, setEditorFocused] = useState(false);
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -70,6 +71,13 @@ export default function RichTextEditor() {
       if (currentChapterId) {
         updateChapterContent(currentChapterId, e.getHTML());
       }
+    },
+    onFocus: () => setEditorFocused(true),
+    onBlur: ({ event }) => {
+      // Don't blur if clicking the "帮我写" button or help input
+      const relatedTarget = (event as FocusEvent).relatedTarget as HTMLElement | null;
+      if (relatedTarget?.closest('[data-help-write]')) return;
+      setEditorFocused(false);
     },
     onSelectionUpdate: ({ editor: e }) => {
       const { from, to } = e.state.selection;
@@ -358,10 +366,11 @@ export default function RichTextEditor() {
 
           <EditorContent editor={editor} />
 
-          {/* 帮我写按钮 - 仅编辑器为空时显示，与光标同一行 */}
-          {editorIsEmpty && !showHelpInput && (
+          {/* 帮我写按钮 - 仅编辑器聚焦且为空时显示 */}
+          {editorFocused && editorIsEmpty && !showHelpInput && (
             <div className="absolute top-0 left-0 right-0 pointer-events-none px-8 py-4">
               <button
+                data-help-write
                 onClick={() => {
                   setShowHelpInput(true);
                   setTimeout(() => helpInputRef.current?.focus(), 50);
@@ -376,7 +385,7 @@ export default function RichTextEditor() {
 
           {/* 帮我写输入框 */}
           {showHelpInput && (
-            <div className="absolute top-0 left-0 right-0 px-8 py-4 z-20">
+            <div className="absolute top-0 left-0 right-0 px-8 py-4 z-20" data-help-write>
               <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-3 flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-indigo-400 shrink-0" />
                 <input
