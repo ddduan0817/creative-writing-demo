@@ -11,12 +11,6 @@ import { getSceneMockResponses } from "@/data/mockAIResponses";
 import { simulateAIStream } from "@/lib/aiSimulator";
 import {
   Wand2,
-  Copy,
-  Bold,
-  Italic,
-  Underline as UnderlineIcon,
-  Strikethrough,
-  Type,
   ChevronDown,
   RefreshCw,
   MoveHorizontal,
@@ -44,7 +38,6 @@ export default function RichTextEditor() {
 
   const currentChapter = chapters.find((c) => c.id === currentChapterId);
   const isSimpleScene = scene === "marketing" || scene === "knowledge";
-  const [showAIMenu, setShowAIMenu] = useState(false);
   const [floatingToolbar, setFloatingToolbar] = useState<{
     show: boolean;
     top: number;
@@ -82,7 +75,6 @@ export default function RichTextEditor() {
       const { from, to } = e.state.selection;
       if (from === to) {
         setFloatingToolbar({ show: false, top: 0, left: 0 });
-        setShowAIMenu(false);
         return;
       }
       // Get position from the DOM
@@ -135,7 +127,6 @@ export default function RichTextEditor() {
   const handleAIAction = useCallback(
     (action: string) => {
       if (!editor) return;
-      setShowAIMenu(false);
       setFloatingToolbar((p) => ({ ...p, show: false }));
 
       const selectedText =
@@ -286,7 +277,7 @@ export default function RichTextEditor() {
 
       <div className="flex-1 overflow-y-auto" ref={editorWrapRef}>
         <div className="max-w-4xl mx-auto px-4 relative">
-          {scene !== "general" && !isSimpleScene && currentChapter && (
+          {scene !== "general" && !isSimpleScene && currentChapter && !editorIsEmpty && (
             <h2 className="text-lg font-bold text-gray-800 px-8 pt-6">
               {currentChapter.title}
             </h2>
@@ -295,112 +286,76 @@ export default function RichTextEditor() {
           {/* Custom Floating Toolbar */}
           {floatingToolbar.show && (
             <div
-              className="absolute z-20 bg-white rounded-lg shadow-xl border border-gray-200 flex items-center gap-0.5 p-1"
+              className="absolute z-20 w-[280px]"
               style={{
                 top: floatingToolbar.top,
-                left: Math.max(0, floatingToolbar.left),
+                left: Math.max(0, Math.min(floatingToolbar.left, 400)),
               }}
             >
-              {/* AI调整 first */}
-              <div className="relative">
-                <button
-                  onClick={() => setShowAIMenu(!showAIMenu)}
-                  className="flex items-center gap-1 px-2 py-1.5 rounded hover:bg-indigo-50 text-indigo-600 text-xs font-medium"
-                >
-                  <Wand2 className="w-3.5 h-3.5" />
-                  AI 调整
-                  <ChevronDown className="w-3 h-3" />
-                </button>
-                {showAIMenu && (
-                  <div className="absolute left-0 top-full mt-1 bg-white rounded-lg shadow-xl border py-1 z-30 w-32">
-                    <button
-                      onClick={() => handleAIAction("rewrite")}
-                      className="w-full text-left px-3 py-2 text-xs hover:bg-gray-50"
-                    >
-                      改写
-                    </button>
-                    <button
-                      onClick={() => handleAIAction("polish")}
-                      className="w-full text-left px-3 py-2 text-xs hover:bg-gray-50"
-                    >
-                      润色
-                    </button>
-                    <button
-                      onClick={() => handleAIAction("condense")}
-                      className="w-full text-left px-3 py-2 text-xs hover:bg-gray-50"
-                    >
-                      缩写
-                    </button>
-                    <div className="border-t border-gray-100 my-1" />
-                    <button
-                      onClick={() => handleAIAction(isSimpleScene ? "grassify" : "atmosphere")}
-                      className="w-full text-left px-3 py-2 text-xs hover:bg-indigo-50 text-indigo-600 font-medium"
-                    >
-                      {isSimpleScene ? "🌿 种草感增强" : "✨ 氛围增强"}
-                    </button>
-                  </div>
-                )}
+              {/* 输入改写要求 */}
+              <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-3 mb-2">
+                <div className="flex items-start gap-2">
+                  <textarea
+                    placeholder="输入改写要求"
+                    rows={2}
+                    className="flex-1 text-sm text-gray-700 placeholder-gray-400 outline-none bg-transparent resize-none"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
+                        e.preventDefault();
+                        showToast("改写功能演示中...");
+                      }
+                    }}
+                  />
+                  <button
+                    onClick={() => showToast("改写功能演示中...")}
+                    className="mt-auto p-2 bg-gray-900 text-white rounded-full hover:bg-gray-800 transition shrink-0"
+                  >
+                    <Send className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
 
-              <button
-                onClick={() => {
-                  const text = editor.state.doc.textBetween(
-                    editor.state.selection.from,
-                    editor.state.selection.to,
-                    " "
-                  );
-                  navigator.clipboard.writeText(text);
-                  showToast("已复制");
-                }}
-                className="flex items-center gap-1 px-2 py-1.5 rounded hover:bg-gray-100 text-xs text-gray-600"
-              >
-                <Copy className="w-3.5 h-3.5" />
-                复制
-              </button>
-
-              <div className="w-px h-4 bg-gray-200 mx-1" />
-
-              {/* Format buttons after */}
-              <button
-                onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-                className={`p-1.5 rounded hover:bg-gray-100 ${
-                  editor.isActive("heading", { level: 2 }) ? "bg-gray-100" : ""
-                }`}
-              >
-                <Type className="w-3.5 h-3.5" />
-              </button>
-              <button
-                onClick={() => editor.chain().focus().toggleBold().run()}
-                className={`p-1.5 rounded hover:bg-gray-100 ${
-                  editor.isActive("bold") ? "bg-gray-100" : ""
-                }`}
-              >
-                <Bold className="w-3.5 h-3.5" />
-              </button>
-              <button
-                onClick={() => editor.chain().focus().toggleItalic().run()}
-                className={`p-1.5 rounded hover:bg-gray-100 ${
-                  editor.isActive("italic") ? "bg-gray-100" : ""
-                }`}
-              >
-                <Italic className="w-3.5 h-3.5" />
-              </button>
-              <button
-                onClick={() => editor.chain().focus().toggleUnderline().run()}
-                className={`p-1.5 rounded hover:bg-gray-100 ${
-                  editor.isActive("underline") ? "bg-gray-100" : ""
-                }`}
-              >
-                <UnderlineIcon className="w-3.5 h-3.5" />
-              </button>
-              <button
-                onClick={() => editor.chain().focus().toggleStrike().run()}
-                className={`p-1.5 rounded hover:bg-gray-100 ${
-                  editor.isActive("strike") ? "bg-gray-100" : ""
-                }`}
-              >
-                <Strikethrough className="w-3.5 h-3.5" />
-              </button>
+              {/* 快捷操作列表 */}
+              <div className="bg-white rounded-xl shadow-lg border border-gray-200 py-1.5">
+                <button
+                  onClick={() => handleAIAction("polish")}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
+                >
+                  <Wand2 className="w-4 h-4 text-gray-400" />
+                  润色一下
+                </button>
+                <button
+                  onClick={() => handleAIAction("atmosphere")}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
+                >
+                  <Sparkles className="w-4 h-4 text-gray-400" />
+                  丰富一下
+                </button>
+                <button
+                  onClick={() => handleAIAction("condense")}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
+                >
+                  <MoveHorizontal className="w-4 h-4 text-gray-400" />
+                  写短一下
+                </button>
+                <button
+                  onClick={() => handleAIAction("rewrite")}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
+                >
+                  <RefreshCw className="w-4 h-4 text-gray-400" />
+                  继续写点
+                </button>
+                <button
+                  onClick={() => showToast("调整风格功能演示中...")}
+                  className="w-full flex items-center justify-between px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
+                >
+                  <span className="flex items-center gap-3">
+                    <Palette className="w-4 h-4 text-gray-400" />
+                    调整风格
+                  </span>
+                  <ChevronDown className="w-4 h-4 text-gray-400 -rotate-90" />
+                </button>
+              </div>
             </div>
           )}
 
@@ -470,12 +425,11 @@ export default function RichTextEditor() {
         <div className="inline-flex items-center gap-0.5 bg-white/95 backdrop-blur-sm rounded-full shadow-[0_2px_16px_rgba(0,0,0,0.08)] border border-gray-100/80 px-2.5 py-1.5 whitespace-nowrap">
           {/* Group 1: AI 调整功能 */}
           <button
-            onClick={() => showToast("调整风格功能演示中...")}
+            onClick={() => showToast("氛围增强功能演示中...")}
             className="inline-flex items-center gap-1 px-3 py-1.5 text-[13px] text-gray-600 rounded-full hover:bg-gray-50 transition"
           >
             <Palette className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-            <span>调整风格</span>
-            <ChevronDown className="w-3 h-3 text-gray-300 shrink-0" />
+            <span>氛围增强</span>
           </button>
           <button
             onClick={() => showToast("调整长度功能演示中...")}

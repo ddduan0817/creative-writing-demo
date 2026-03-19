@@ -239,7 +239,7 @@ export const useEditorStore = create<EditorState>((set) => ({
   outline: mockOutline,
   setOutline: (outline) => set({ outline }),
 
-  chapters: mockChapters,
+  chapters: mockChapters.map(ch => ({ ...ch, content: "", wordCount: 0 })),
   currentChapterId: "ch1",
   setCurrentChapter: (id) => set({ currentChapterId: id, leftView: "editor" }),
   setChapters: (chapters) => set({ chapters, currentChapterId: chapters[0]?.id || "" }),
