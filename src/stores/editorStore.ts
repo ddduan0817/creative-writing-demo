@@ -239,7 +239,7 @@ export const useEditorStore = create<EditorState>((set) => ({
   outline: mockOutline,
   setOutline: (outline) => set({ outline }),
 
-  chapters: mockChapters.map(ch => ({ ...ch, content: "", wordCount: 0 })),
+  chapters: mockChapters.map((ch, i) => ({ ...ch, title: `第${['一','二','三','四','五'][i] || i + 1}章`, content: "", wordCount: 0 })),
   currentChapterId: "ch1",
   setCurrentChapter: (id) => set({ currentChapterId: id, leftView: "editor" }),
   setChapters: (chapters) => set({ chapters, currentChapterId: chapters[0]?.id || "" }),
@@ -370,7 +370,7 @@ export const useEditorStore = create<EditorState>((set) => ({
     const isScreenplay = sceneType === "screenplay";
 
     const defaultChapters = isScreenplay
-      ? mockScreenplayScenes.map(ch => ({ ...ch, content: "", wordCount: 0 }))
+      ? mockScreenplayScenes.map((ch, i) => ({ ...ch, title: `第${['一','二','三','四'][i] || i + 1}场`, content: "", wordCount: 0 }))
       : [{
           id: `ch${Date.now()}`,
           title: "第一章",

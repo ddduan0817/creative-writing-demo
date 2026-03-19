@@ -85,8 +85,8 @@ export default function RichTextEditor() {
         const wrapRect = editorWrapRef.current.getBoundingClientRect();
         setFloatingToolbar({
           show: true,
-          top: rect.top - wrapRect.top - 44,
-          left: rect.left - wrapRect.left + rect.width / 2 - 120,
+          top: rect.bottom - wrapRect.top + editorWrapRef.current.scrollTop + 8,
+          left: rect.right - wrapRect.left - 280,
         });
       }
     },
@@ -358,9 +358,9 @@ export default function RichTextEditor() {
 
           <EditorContent editor={editor} />
 
-          {/* 帮我写按钮 - 仅编辑器为空时显示 */}
+          {/* 帮我写按钮 - 仅编辑器为空时显示，紧跟光标 */}
           {editorIsEmpty && !showHelpInput && (
-            <div className="absolute top-16 left-8">
+            <div className="absolute top-[3.2rem] left-[2.5rem]">
               <button
                 onClick={() => {
                   setShowHelpInput(true);
@@ -376,7 +376,7 @@ export default function RichTextEditor() {
 
           {/* 帮我写输入框 */}
           {showHelpInput && (
-            <div className="absolute top-16 left-8 right-8 z-20">
+            <div className="absolute top-[3.2rem] left-[2.5rem] right-8 z-20">
               <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-3 flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-indigo-400 shrink-0" />
                 <input
