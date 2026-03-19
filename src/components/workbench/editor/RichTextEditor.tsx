@@ -55,6 +55,7 @@ export default function RichTextEditor() {
   const [helpText, setHelpText] = useState("");
   const [helpGenerating, setHelpGenerating] = useState(false);
   const helpInputRef = useRef<HTMLInputElement>(null);
+  const [cursorPos, setCursorPos] = useState<{ top: number; left: number } | null>(null);
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -75,6 +76,17 @@ export default function RichTextEditor() {
       const { from, to } = e.state.selection;
       if (from === to) {
         setFloatingToolbar({ show: false, top: 0, left: 0 });
+        // Track cursor position for "帮我写" button
+        try {
+          const coords = e.view.coordsAtPos(from);
+          if (editorWrapRef.current) {
+            const wrapRect = editorWrapRef.current.getBoundingClientRect();
+            setCursorPos({
+              top: coords.top - wrapRect.top + editorWrapRef.current.scrollTop,
+              left: coords.left - wrapRect.left,
+            });
+          }
+        } catch { /* ignore */ }
         return;
       }
       // Get position from the DOM
@@ -106,6 +118,23 @@ export default function RichTextEditor() {
       }
     }
   }, [currentChapterId, editor, currentChapter]);
+
+  // Initialize cursor position after editor is ready
+  useEffect(() => {
+    if (editor && editorWrapRef.current) {
+      const timer = setTimeout(() => {
+        try {
+          const coords = editor.view.coordsAtPos(editor.state.selection.from);
+          const wrapRect = editorWrapRef.current!.getBoundingClientRect();
+          setCursorPos({
+            top: coords.top - wrapRect.top + editorWrapRef.current!.scrollTop,
+            left: coords.left - wrapRect.left,
+          });
+        } catch { /* ignore */ }
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [editor]);
 
   // Handle pending insert from inspiration cards
   useEffect(() => {
@@ -360,7 +389,13 @@ export default function RichTextEditor() {
 
           {/* 帮我写按钮 - 仅编辑器为空时显示，紧跟光标 */}
           {editorIsEmpty && !showHelpInput && (
-            <div className="absolute top-[3.2rem] left-[2.5rem]">
+            <div
+              className="absolute z-10"
+              style={{
+                top: cursorPos ? cursorPos.top : 16,
+                left: cursorPos ? cursorPos.left + 4 : 32,
+              }}
+            >
               <button
                 onClick={() => {
                   setShowHelpInput(true);
@@ -376,7 +411,14 @@ export default function RichTextEditor() {
 
           {/* 帮我写输入框 */}
           {showHelpInput && (
-            <div className="absolute top-[3.2rem] left-[2.5rem] right-8 z-20">
+            <div
+              className="absolute z-20"
+              style={{
+                top: cursorPos ? cursorPos.top : 16,
+                left: cursorPos ? cursorPos.left : 32,
+                right: 32,
+              }}
+            >
               <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-3 flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-indigo-400 shrink-0" />
                 <input
