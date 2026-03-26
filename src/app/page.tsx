@@ -93,7 +93,7 @@ function HomeContent() {
               {/* Input Box */}
               <div className="relative bg-white rounded-2xl border border-gray-200 shadow-sm px-5 py-4">
                 <textarea
-                  placeholder="选择模版后填写写作要求；支持基于上传文档写作"
+                  placeholder="想写点什么？描述你的需求，或点击下方场景开始"
                   className="w-full text-sm text-gray-700 placeholder-gray-400 resize-none outline-none bg-transparent min-h-[60px]"
                   rows={2}
                 />
