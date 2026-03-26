@@ -113,21 +113,21 @@ function HomeContent() {
                           { icon: AudioLines, label: "音频", color: "text-purple-500" },
                           { icon: Video, label: "视频", color: "text-red-500" },
                         ].map((item) => (
-                          <button key={item.label} className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
+                          <button key={item.label} className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition">
                             <item.icon className={`w-4 h-4 ${item.color}`} />
                             {item.label}
                           </button>
                         ))}
                         <div className="border-t border-gray-100 my-1" />
-                        <button className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
+                        <button className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition">
                           <span className="w-4 h-4 text-blue-500 text-sm leading-4">☁️</span>
                           网盘
                         </button>
-                        <button className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
+                        <button className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition">
                           <Star className="w-4 h-4 text-gray-500" />
                           收藏
                         </button>
-                        <button className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
+                        <button className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition">
                           <Clock className="w-4 h-4 text-gray-500" />
                           最近
                         </button>
