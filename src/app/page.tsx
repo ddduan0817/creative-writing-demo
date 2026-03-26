@@ -94,7 +94,7 @@ function HomeContent() {
               <div className="relative bg-white rounded-2xl border border-gray-200 shadow-sm px-5 py-4">
                 <textarea
                   placeholder="想写点什么？描述你的需求，或点击下方场景开始"
-                  className="w-full text-sm text-gray-700 placeholder-gray-400 resize-none outline-none bg-transparent min-h-[60px]"
+                  className="w-full text-base text-gray-700 placeholder-gray-400 resize-none outline-none bg-transparent min-h-[60px]"
                   rows={2}
                 />
                 <div className="flex items-center justify-between mt-2">

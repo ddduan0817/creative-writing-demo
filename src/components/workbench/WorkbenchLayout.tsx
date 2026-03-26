@@ -9,19 +9,19 @@ import GeneralLeftPanel from "./left/GeneralLeftPanel";
 import SimpleLeftPanel from "./left/SimpleLeftPanel";
 import ScreenplayLeftPanel from "./left/ScreenplayLeftPanel";
 import RichTextEditor from "./editor/RichTextEditor";
+import ChatPanel from "./chat/ChatPanel";
 import { cn } from "@/lib/utils";
 
 export default function WorkbenchLayout() {
   const searchParams = useSearchParams();
   const sceneParam = searchParams.get("scene") || "novel";
-  const workId = searchParams.get("id"); // 如果有 id 参数，说明是打开已有作品
+  const workId = searchParams.get("id");
   const { leftCollapsed, leftPanelExpanded, toast, scene, resetToEmpty } =
     useEditorStore();
 
   const hasInitialized = useRef(false);
 
   useEffect(() => {
-    // 防止 React StrictMode 下重复执行
     if (hasInitialized.current) return;
     hasInitialized.current = true;
 
@@ -35,18 +35,11 @@ export default function WorkbenchLayout() {
 
     if (validScenes.includes(sceneParam as (typeof validScenes)[number])) {
       const s = sceneParam as (typeof validScenes)[number];
-
-      if (workId) {
-        // TODO: 有 id 参数时，从存储加载已有作品
-        // 目前 demo 阶段直接重置为空白
-        resetToEmpty(s);
-      } else {
-        // 没有 id 参数，说明是新建作品，重置为空白文档
-        resetToEmpty(s);
-      }
+      resetToEmpty(s);
     }
   }, [sceneParam, workId, resetToEmpty]);
 
+  const isNovel = scene === "novel";
   const isGeneral = scene === "general";
   const isSimple = scene === "marketing" || scene === "knowledge";
 
@@ -57,6 +50,34 @@ export default function WorkbenchLayout() {
     return <LeftPanel />;
   };
 
+  // Novel scene: editor + chat panel (new layout)
+  if (isNovel) {
+    return (
+      <div className="h-screen flex flex-col bg-white overflow-hidden">
+        <TopBar />
+        <div className="flex-1 flex overflow-hidden">
+          {/* Left: Editor */}
+          <div className="flex-1 overflow-hidden border-r border-gray-100">
+            <RichTextEditor />
+          </div>
+
+          {/* Right: Chat Panel */}
+          <div className="w-[420px] flex-shrink-0 overflow-hidden">
+            <ChatPanel />
+          </div>
+        </div>
+
+        {/* Toast */}
+        {toast && (
+          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 px-4 py-2 bg-gray-800 text-white text-sm rounded-lg shadow-lg toast-enter z-50">
+            {toast}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Other scenes: keep original layout
   return (
     <div className="h-screen flex flex-col bg-white overflow-hidden">
       <TopBar />
