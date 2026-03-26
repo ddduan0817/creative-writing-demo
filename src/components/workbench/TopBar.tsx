@@ -3,6 +3,7 @@
 import { useEditorStore } from "@/stores/editorStore";
 import { useRouter } from "next/navigation";
 import {
+  ArrowLeft,
   Download,
   Star,
   Loader2,
@@ -13,8 +14,6 @@ import {
   Sparkles,
   Pencil,
   Save,
-  PanelLeft,
-  FilePlus,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
@@ -66,18 +65,12 @@ export default function TopBar() {
 
   return (
     <div className="h-12 border-b border-gray-100 flex items-center px-4 gap-2 bg-white flex-shrink-0">
-      {/* Left: Panel toggle + New */}
+      {/* Left: Back */}
       <button
-        className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition"
-        onClick={() => showToast("侧边栏功能")}
+        onClick={() => router.push("/")}
+        className="flex items-center gap-1 text-gray-500 hover:text-gray-700 transition text-sm"
       >
-        <PanelLeft className="w-5 h-5" />
-      </button>
-      <button
-        className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition"
-        onClick={() => showToast("新建文档")}
-      >
-        <FilePlus className="w-5 h-5" />
+        <ArrowLeft className="w-4 h-4" />
       </button>
 
       <div className="w-px h-5 bg-gray-200 mx-1" />

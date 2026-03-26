@@ -16,9 +16,7 @@ import {
   MoveHorizontal,
   Palette,
   Sparkles,
-  Loader2,
   Send,
-  X,
 } from "lucide-react";
 
 export default function RichTextEditor() {
@@ -49,11 +47,6 @@ export default function RichTextEditor() {
     actionLabel: string;
   }>({ show: false, text: "", generating: false, result: "", actionLabel: "" });
   const editorWrapRef = useRef<HTMLDivElement>(null);
-  const [showHelpInput, setShowHelpInput] = useState(false);
-  const [helpText, setHelpText] = useState("");
-  const [helpGenerating, setHelpGenerating] = useState(false);
-  const helpInputRef = useRef<HTMLInputElement>(null);
-  const [editorFocused, setEditorFocused] = useState(false);
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -69,13 +62,6 @@ export default function RichTextEditor() {
       if (currentChapterId) {
         updateChapterContent(currentChapterId, e.getHTML());
       }
-    },
-    onFocus: () => setEditorFocused(true),
-    onBlur: ({ event }) => {
-      // Don't blur if clicking the "帮我写" button or help input
-      const relatedTarget = (event as FocusEvent).relatedTarget as HTMLElement | null;
-      if (relatedTarget?.closest('[data-help-write]')) return;
-      setEditorFocused(false);
     },
     onSelectionUpdate: ({ editor: e }) => {
       const { from, to } = e.state.selection;
@@ -236,31 +222,6 @@ export default function RichTextEditor() {
   // Check if editor is empty
   const editorIsEmpty = !editor?.getText().trim();
 
-  const handleHelpWrite = () => {
-    if (!helpText.trim() || !editor) return;
-    setHelpGenerating(true);
-    const mockData = getSceneMockResponses(scene);
-    simulateAIStream(mockData.continuation, (current, done) => {
-      const paragraphs = current
-        .split("\n\n")
-        .filter(Boolean)
-        .map((p) => `<p>${p}</p>`)
-        .join("");
-      editor.commands.setContent(
-        '<div class="border-l-2 border-indigo-300 pl-3">' +
-          paragraphs +
-          (done ? "" : '<span class="ai-cursor"></span>') +
-          "</div>"
-      );
-      if (done) {
-        setHelpGenerating(false);
-        setShowHelpInput(false);
-        setHelpText("");
-        showToast("生成完成");
-      }
-    });
-  };
-
   // Show outline if in outline mode (novel only)
   if (leftView === "outline" && scene !== "general" && !isSimpleScene) {
     return (
@@ -363,64 +324,6 @@ export default function RichTextEditor() {
           )}
 
           <EditorContent editor={editor} />
-
-          {/* 帮我写按钮 - 仅编辑器聚焦且为空时显示 */}
-          {editorFocused && editorIsEmpty && !showHelpInput && (
-            <div className="absolute top-0 left-0 right-0 pointer-events-none px-8 py-4">
-              <button
-                data-help-write
-                onClick={() => {
-                  setShowHelpInput(true);
-                  setTimeout(() => helpInputRef.current?.focus(), 50);
-                }}
-                className="pointer-events-auto inline-flex items-center gap-1.5 px-3 py-1 text-sm text-gray-500 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 hover:text-gray-700 transition ml-1"
-              >
-                <Sparkles className="w-3.5 h-3.5" />
-                帮我写
-              </button>
-            </div>
-          )}
-
-          {/* 帮我写输入框 */}
-          {showHelpInput && (
-            <div className="absolute top-0 left-0 right-0 px-8 py-4 z-20" data-help-write>
-              <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-3 flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-indigo-400 shrink-0" />
-                <input
-                  ref={helpInputRef}
-                  type="text"
-                  value={helpText}
-                  onChange={(e) => setHelpText(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.nativeEvent.isComposing) handleHelpWrite();
-                    if (e.key === "Escape") { setShowHelpInput(false); setHelpText(""); }
-                  }}
-                  placeholder="告诉我你想写什么..."
-                  className="flex-1 text-sm text-gray-700 placeholder-gray-400 outline-none bg-transparent"
-                  disabled={helpGenerating}
-                />
-                {helpGenerating ? (
-                  <Loader2 className="w-4 h-4 text-indigo-400 animate-spin shrink-0" />
-                ) : (
-                  <>
-                    <button
-                      onClick={() => { setShowHelpInput(false); setHelpText(""); }}
-                      className="p-1 text-gray-400 hover:text-gray-600 rounded transition"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={handleHelpWrite}
-                      disabled={!helpText.trim()}
-                      className="p-1.5 text-white bg-indigo-500 rounded-lg hover:bg-indigo-600 transition disabled:opacity-40"
-                    >
-                      <Send className="w-3.5 h-3.5" />
-                    </button>
-                  </>
-                )}
-              </div>
-            </div>
-          )}
         </div>
       </div>
 
