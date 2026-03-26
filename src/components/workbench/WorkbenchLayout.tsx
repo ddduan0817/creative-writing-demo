@@ -53,18 +53,18 @@ export default function WorkbenchLayout() {
   // Novel scene: editor + chat panel (new layout)
   if (isNovel) {
     return (
-      <div className="h-screen flex flex-col bg-white overflow-hidden">
-        <TopBar />
-        <div className="flex-1 flex overflow-hidden">
-          {/* Left: Editor */}
-          <div className="flex-1 overflow-hidden border-r border-gray-100">
+      <div className="h-screen flex bg-white overflow-hidden">
+        {/* Left: TopBar + Editor */}
+        <div className="flex-1 flex flex-col overflow-hidden border-r border-gray-100">
+          <TopBar />
+          <div className="flex-1 overflow-hidden">
             <RichTextEditor />
           </div>
+        </div>
 
-          {/* Right: Chat Panel */}
-          <div className="flex-1 overflow-hidden">
-            <ChatPanel />
-          </div>
+        {/* Right: Chat Panel */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <ChatPanel />
         </div>
 
         {/* Toast */}
