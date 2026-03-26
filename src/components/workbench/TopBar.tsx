@@ -3,7 +3,6 @@
 import { useEditorStore } from "@/stores/editorStore";
 import { useRouter } from "next/navigation";
 import {
-  ArrowLeft,
   Download,
   Star,
   Check,
@@ -16,6 +15,8 @@ import {
   Sparkles,
   Pencil,
   Save,
+  PanelLeft,
+  FilePlus,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
@@ -25,10 +26,7 @@ export default function TopBar() {
     title,
     setTitle,
     saveStatus,
-    chapters,
-    currentChapterId,
     showToast,
-    scene,
     historyItems,
     showHistoryPanel,
     setShowHistoryPanel,
@@ -43,9 +41,6 @@ export default function TopBar() {
     setEditTitle(title);
   }, [title]);
 
-  const currentChapter = chapters.find((c) => c.id === currentChapterId);
-  const totalWords = chapters.reduce((sum, c) => sum + c.wordCount, 0);
-
   const handleExport = (format: string) => {
     showToast(`正在导出 ${format} 格式...`);
   };
@@ -56,14 +51,19 @@ export default function TopBar() {
   };
 
   return (
-    <div className="h-12 border-b border-gray-100 flex items-center px-4 gap-3 bg-white flex-shrink-0">
-      {/* Left: Back + Title */}
+    <div className="h-12 border-b border-gray-100 flex items-center px-4 gap-2 bg-white flex-shrink-0">
+      {/* Left: Panel toggle + New */}
       <button
-        onClick={() => router.push("/")}
-        className="flex items-center gap-1 text-gray-500 hover:text-gray-700 transition text-sm"
+        className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition"
+        onClick={() => showToast("侧边栏功能")}
       >
-        <ArrowLeft className="w-4 h-4" />
-        <span>退出</span>
+        <PanelLeft className="w-5 h-5" />
+      </button>
+      <button
+        className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition"
+        onClick={() => showToast("新建文档")}
+      >
+        <FilePlus className="w-5 h-5" />
       </button>
 
       <div className="w-px h-5 bg-gray-200 mx-1" />
@@ -99,23 +99,23 @@ export default function TopBar() {
               : "text-gray-900 hover:text-indigo-600"
           }`}
         >
-          {title.startsWith("未命名") ? `${title}（点击编辑）` : title}
+          {title}
         </button>
       )}
 
-      {/* Center: Save status + Word count */}
-      <div className="flex items-center gap-3 text-xs text-gray-400 ml-4">
+      {/* Save status only */}
+      <div className="flex items-center text-xs text-gray-400 ml-2">
         <span className="flex items-center gap-1">
           {saveStatus === "saved" && (
             <>
               <Check className="w-3 h-3 text-green-500" />
-              已保存到云端
+              已保存
             </>
           )}
           {saveStatus === "saving" && (
             <>
               <Loader2 className="w-3 h-3 animate-spin" />
-              保存中...
+              保存中
             </>
           )}
           {saveStatus === "failed" && (
@@ -125,14 +125,6 @@ export default function TopBar() {
             </>
           )}
         </span>
-        {scene === "general" || scene === "marketing" || scene === "knowledge" ? (
-          <span>总字数 {totalWords}</span>
-        ) : (
-          <>
-            <span>本章 {currentChapter?.wordCount || 0} 字</span>
-            <span>总计 {totalWords} 字</span>
-          </>
-        )}
       </div>
 
       {/* Spacer */}
@@ -173,6 +165,13 @@ export default function TopBar() {
       >
         <History className="w-3.5 h-3.5" />
         历史记录
+      </button>
+
+      <button
+        onClick={() => router.push("/")}
+        className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition ml-1"
+      >
+        <X className="w-4 h-4" />
       </button>
 
       {/* History Panel */}
