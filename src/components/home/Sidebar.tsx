@@ -19,7 +19,9 @@ function SidebarContent() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const isBackup = searchParams.get("v") === "backup";
+  const v = searchParams.get("v");
+  const isBackup1 = v === "backup1";
+  const isBackup2 = v === "backup";
 
   return (
     <div className="w-[200px] h-screen bg-white border-r border-gray-100 flex flex-col flex-shrink-0 sticky top-0">
@@ -45,7 +47,7 @@ function SidebarContent() {
           onClick={() => router.push("/")}
           className={cn(
             "w-full flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition",
-            pathname === "/" && !isBackup
+            pathname === "/" && !isBackup1 && !isBackup2
               ? "bg-blue-50 text-blue-600 font-medium"
               : "text-gray-600 hover:bg-gray-50"
           )}
@@ -54,16 +56,28 @@ function SidebarContent() {
           创意写作
         </button>
         <button
-          onClick={() => router.push("/?v=backup")}
+          onClick={() => router.push("/?v=backup1")}
           className={cn(
             "w-full flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition",
-            pathname === "/" && isBackup
+            pathname === "/" && isBackup1
               ? "bg-blue-50 text-blue-600 font-medium"
               : "text-gray-600 hover:bg-gray-50"
           )}
         >
           <Copy className="w-4 h-4" />
-          创意写作备份
+          创意写作备份1
+        </button>
+        <button
+          onClick={() => router.push("/?v=backup")}
+          className={cn(
+            "w-full flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition",
+            pathname === "/" && isBackup2
+              ? "bg-blue-50 text-blue-600 font-medium"
+              : "text-gray-600 hover:bg-gray-50"
+          )}
+        >
+          <Copy className="w-4 h-4" />
+          创意写作备份2
         </button>
         <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-50 transition">
           <BookOpen className="w-4 h-4" />

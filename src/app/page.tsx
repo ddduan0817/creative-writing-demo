@@ -14,7 +14,9 @@ import { Monitor, Bell } from "lucide-react";
 
 function HomeContent() {
   const searchParams = useSearchParams();
-  const isBackup = searchParams.get("v") === "backup";
+  const v = searchParams.get("v");
+  const isBackup1 = v === "backup1";
+  const isBackup2 = v === "backup";
 
   return (
     <div className="min-h-screen bg-[#f7f8fa] flex">
@@ -48,17 +50,7 @@ function HomeContent() {
         </div>
 
         <main className="max-w-[960px] mx-auto px-8 pb-8 space-y-6">
-          {!isBackup ? (
-            <>
-              {/* Scene Cards - 3 in a row */}
-              <SceneCards />
-              {/* Stats + Recent Works side by side */}
-              <div className="grid grid-cols-[1fr_2fr] gap-5">
-                <CreationStats />
-                <RecentWorks />
-              </div>
-            </>
-          ) : (
+          {isBackup2 ? (
             <>
               <section>
                 <SceneCards2 />
@@ -70,6 +62,16 @@ function HomeContent() {
               <section>
                 <CaseRecommend />
               </section>
+            </>
+          ) : (
+            <>
+              {/* Scene Cards - 3 in a row */}
+              <SceneCards />
+              {/* Stats + Recent Works side by side */}
+              <div className="grid grid-cols-[1fr_2fr] gap-5">
+                <CreationStats />
+                <RecentWorks />
+              </div>
             </>
           )}
         </main>
