@@ -46,9 +46,9 @@ export default function SceneCards() {
         >
           {/* Illustration area */}
           <div
-            className={`h-[110px] ${scene.bg} flex items-center justify-center`}
+            className={`h-[70px] ${scene.bg} flex items-center justify-center`}
           >
-            <span className="text-5xl opacity-70 group-hover:scale-110 transition-transform duration-300">
+            <span className="text-3xl opacity-70 group-hover:scale-110 transition-transform duration-300">
               {scene.illustration}
             </span>
           </div>

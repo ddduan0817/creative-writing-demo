@@ -10,7 +10,7 @@ import CreationStats from "@/components/home/CreationStats";
 import CreationStats2 from "@/components/home/CreationStats2";
 import CaseRecommend from "@/components/home/CaseRecommend";
 import Sidebar from "@/components/home/Sidebar";
-import { Monitor, Bell } from "lucide-react";
+import { Monitor, Bell, Mic, Send, Plus } from "lucide-react";
 
 function HomeContent() {
   const searchParams = useSearchParams();
@@ -63,8 +63,37 @@ function HomeContent() {
             </>
           ) : (
             <>
-              {/* Scene Cards - 3 in a row */}
+              {/* Hero Title */}
+              <div className="text-center pt-8 pb-2">
+                <h1 className="text-3xl font-bold text-gray-900">高效解决写作问题</h1>
+              </div>
+
+              {/* Input Box */}
+              <div className="relative bg-white rounded-2xl border border-gray-200 shadow-sm px-5 py-4">
+                <textarea
+                  placeholder="选择模版后填写写作要求；支持基于上传文档写作"
+                  className="w-full text-sm text-gray-700 placeholder-gray-400 resize-none outline-none bg-transparent min-h-[60px]"
+                  rows={2}
+                />
+                <div className="flex items-center justify-between mt-2">
+                  <button className="flex items-center gap-1.5 px-4 py-1.5 text-sm text-gray-600 bg-gray-50 rounded-full border border-gray-200 hover:bg-gray-100 transition">
+                    <Plus className="w-4 h-4" />
+                    文档
+                  </button>
+                  <div className="flex items-center gap-2">
+                    <button className="p-2 text-gray-400 hover:text-gray-600 transition">
+                      <Mic className="w-5 h-5" />
+                    </button>
+                    <button className="p-2 bg-gray-900 text-white rounded-full hover:bg-gray-800 transition">
+                      <Send className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Scene Cards - compact */}
               <SceneCards />
+
               {/* Stats + Recent Works side by side */}
               <div className="grid grid-cols-[1fr_2fr] gap-5">
                 <CreationStats />
