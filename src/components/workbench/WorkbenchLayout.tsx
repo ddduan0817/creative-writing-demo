@@ -62,7 +62,7 @@ export default function WorkbenchLayout() {
           </div>
 
           {/* Right: Chat Panel */}
-          <div className="w-[420px] flex-shrink-0 overflow-hidden">
+          <div className="flex-1 overflow-hidden">
             <ChatPanel />
           </div>
         </div>

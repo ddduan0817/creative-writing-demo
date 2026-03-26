@@ -1,29 +1,35 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
-  ChevronDown,
   Send,
   Mic,
   Plus,
+  FileUp,
+  ImageIcon,
+  AudioLines,
+  Video,
+  Star,
+  Clock,
 } from "lucide-react";
 
 export default function ChatPanel() {
   const [input, setInput] = useState("");
-  const [modelOpen, setModelOpen] = useState(false);
+  const [showAttachMenu, setShowAttachMenu] = useState(false);
+  const attachRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (attachRef.current && !attachRef.current.contains(e.target as Node)) {
+        setShowAttachMenu(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <div className="h-full flex flex-col bg-gray-50/50">
-      {/* Model Selector */}
-      <div className="px-4 py-3 border-b border-gray-100 bg-white">
-        <button
-          onClick={() => setModelOpen(!modelOpen)}
-          className="flex items-center gap-1.5 text-sm font-semibold text-gray-800"
-        >
-          文心 4.5 Turbo
-          <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
-        </button>
-      </div>
 
       {/* Messages Area */}
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
@@ -44,9 +50,42 @@ export default function ChatPanel() {
             rows={1}
           />
           <div className="flex items-center justify-between mt-2">
-            <button className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 text-gray-400 hover:bg-gray-50 transition">
-              <Plus className="w-4 h-4" />
-            </button>
+            <div className="relative" ref={attachRef}>
+              <button
+                onClick={() => setShowAttachMenu(!showAttachMenu)}
+                className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 text-gray-400 hover:bg-gray-50 transition"
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+              {showAttachMenu && (
+                <div className="absolute left-0 bottom-full mb-2 bg-white rounded-xl shadow-lg border border-gray-100 py-2 w-28 z-20">
+                  {[
+                    { icon: FileUp, label: "文档", color: "text-blue-500" },
+                    { icon: ImageIcon, label: "图片", color: "text-green-500" },
+                    { icon: AudioLines, label: "音频", color: "text-purple-500" },
+                    { icon: Video, label: "视频", color: "text-red-500" },
+                  ].map((item) => (
+                    <button key={item.label} className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition">
+                      <item.icon className={`w-4 h-4 ${item.color}`} />
+                      {item.label}
+                    </button>
+                  ))}
+                  <div className="border-t border-gray-100 my-1" />
+                  <button className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition">
+                    <span className="w-4 h-4 text-blue-500 text-sm leading-4">☁️</span>
+                    网盘
+                  </button>
+                  <button className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition">
+                    <Star className="w-4 h-4 text-gray-500" />
+                    收藏
+                  </button>
+                  <button className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition">
+                    <Clock className="w-4 h-4 text-gray-500" />
+                    最近
+                  </button>
+                </div>
+              )}
+            </div>
             <div className="flex items-center gap-1.5">
               <button className="p-1.5 text-gray-400 hover:text-gray-600 transition">
                 <Mic className="w-4 h-4" />

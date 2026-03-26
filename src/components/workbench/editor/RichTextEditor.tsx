@@ -16,8 +16,6 @@ import {
   MoveHorizontal,
   Palette,
   Sparkles,
-  Lightbulb,
-  FileCheck,
   Loader2,
   Send,
   X,
@@ -459,24 +457,6 @@ export default function RichTextEditor() {
           >
             <RefreshCw className="w-3.5 h-3.5 text-gray-400 shrink-0" />
             <span>重新生成</span>
-          </button>
-
-          <div className="w-px h-5 bg-gray-200 mx-1.5 shrink-0" />
-
-          {/* Group 2: 辅助功能 */}
-          <button
-            onClick={() => showToast("卡文锦囊功能演示中...")}
-            className="inline-flex items-center gap-1 px-3 py-1.5 text-[13px] font-medium text-amber-700 bg-amber-50 rounded-full hover:bg-amber-100 transition"
-          >
-            <Lightbulb className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-            <span>卡文锦囊</span>
-          </button>
-          <button
-            onClick={() => showToast("校对功能演示中...")}
-            className="inline-flex items-center gap-1 px-3 py-1.5 text-[13px] text-gray-600 rounded-full hover:bg-gray-50 transition"
-          >
-            <FileCheck className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-            <span>校对</span>
           </button>
         </div>
       </div>
