@@ -14,6 +14,7 @@ import { Monitor, Bell, Mic, Send, Plus, FileUp, ImageIcon, AudioLines, Video, S
 
 function HomeContent() {
   const searchParams = useSearchParams();
+  const isBackup1 = searchParams.get("v") === "backup1";
   const isBackup2 = searchParams.get("v") === "backup";
   const [showAttachMenu, setShowAttachMenu] = useState(false);
   const attachRef = useRef<HTMLDivElement>(null);
@@ -72,6 +73,15 @@ function HomeContent() {
               <section>
                 <CaseRecommend />
               </section>
+            </>
+          ) : isBackup1 ? (
+            <>
+              {/* 备份1：保持旧布局不动 */}
+              <SceneCards />
+              <div className="grid grid-cols-[1fr_2fr] gap-5">
+                <CreationStats />
+                <RecentWorks />
+              </div>
             </>
           ) : (
             <>
