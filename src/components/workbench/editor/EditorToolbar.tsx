@@ -8,9 +8,6 @@ import {
   Italic,
   Underline,
   Strikethrough,
-  List,
-  ListOrdered,
-  Quote,
   Heading2,
 } from "lucide-react";
 
@@ -20,7 +17,7 @@ export default function EditorToolbar({ editor }: { editor: Editor }) {
   const activeClass = "bg-gray-100";
 
   return (
-    <div className="flex items-center gap-0.5 px-4 py-2 border-b border-gray-100 flex-shrink-0 flex-wrap">
+    <div className="flex items-center justify-center gap-0.5 px-4 py-2 border-b border-gray-100 flex-shrink-0">
       <button
         onClick={() => editor.chain().focus().undo().run()}
         disabled={!editor.can().undo()}
@@ -87,38 +84,6 @@ export default function EditorToolbar({ editor }: { editor: Editor }) {
       >
         <Strikethrough className="w-4 h-4" />
       </button>
-
-      <div className="w-px h-5 bg-gray-200 mx-1" />
-
-      <button
-        onClick={() => editor.chain().focus().toggleBulletList().run()}
-        className={`${btnClass} ${
-          editor.isActive("bulletList") ? activeClass : ""
-        }`}
-        title="无序列表"
-      >
-        <List className="w-4 h-4" />
-      </button>
-      <button
-        onClick={() => editor.chain().focus().toggleOrderedList().run()}
-        className={`${btnClass} ${
-          editor.isActive("orderedList") ? activeClass : ""
-        }`}
-        title="有序列表"
-      >
-        <ListOrdered className="w-4 h-4" />
-      </button>
-      <button
-        onClick={() => editor.chain().focus().toggleBlockquote().run()}
-        className={`${btnClass} ${
-          editor.isActive("blockquote") ? activeClass : ""
-        }`}
-        title="引用"
-      >
-        <Quote className="w-4 h-4" />
-      </button>
-
-      <div className="flex-1" />
     </div>
   );
 }
