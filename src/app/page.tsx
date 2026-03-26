@@ -14,9 +14,7 @@ import { Monitor, Bell } from "lucide-react";
 
 function HomeContent() {
   const searchParams = useSearchParams();
-  const v = searchParams.get("v");
-  const isBackup1 = v === "backup1";
-  const isBackup2 = v === "backup";
+  const isBackup2 = searchParams.get("v") === "backup";
 
   return (
     <div className="min-h-screen bg-[#f7f8fa] flex">
