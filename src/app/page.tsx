@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useState, useRef, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import SceneCards from "@/components/home/SceneCards";
 import SceneCards2 from "@/components/home/SceneCards2";
@@ -10,11 +10,23 @@ import CreationStats from "@/components/home/CreationStats";
 import CreationStats2 from "@/components/home/CreationStats2";
 import CaseRecommend from "@/components/home/CaseRecommend";
 import Sidebar from "@/components/home/Sidebar";
-import { Monitor, Bell, Mic, Send, Plus } from "lucide-react";
+import { Monitor, Bell, Mic, Send, Plus, FileUp, ImageIcon, AudioLines, Video, Star, Clock } from "lucide-react";
 
 function HomeContent() {
   const searchParams = useSearchParams();
   const isBackup2 = searchParams.get("v") === "backup";
+  const [showAttachMenu, setShowAttachMenu] = useState(false);
+  const attachRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (attachRef.current && !attachRef.current.contains(e.target as Node)) {
+        setShowAttachMenu(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#f7f8fa] flex">
@@ -76,10 +88,42 @@ function HomeContent() {
                   rows={2}
                 />
                 <div className="flex items-center justify-between mt-2">
-                  <button className="flex items-center gap-1.5 px-4 py-1.5 text-sm text-gray-600 bg-gray-50 rounded-full border border-gray-200 hover:bg-gray-100 transition">
-                    <Plus className="w-4 h-4" />
-                    文档
-                  </button>
+                  <div className="relative" ref={attachRef}>
+                    <button
+                      onClick={() => setShowAttachMenu(!showAttachMenu)}
+                      className="w-9 h-9 flex items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:bg-gray-50 transition"
+                    >
+                      <Plus className="w-5 h-5" />
+                    </button>
+                    {showAttachMenu && (
+                      <div className="absolute left-0 bottom-full mb-2 bg-white rounded-xl shadow-lg border border-gray-100 py-2 w-36 z-20">
+                        {[
+                          { icon: FileUp, label: "文档", color: "text-blue-500" },
+                          { icon: ImageIcon, label: "图片", color: "text-green-500" },
+                          { icon: AudioLines, label: "音频", color: "text-purple-500" },
+                          { icon: Video, label: "视频", color: "text-red-500" },
+                        ].map((item) => (
+                          <button key={item.label} className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
+                            <item.icon className={`w-4 h-4 ${item.color}`} />
+                            {item.label}
+                          </button>
+                        ))}
+                        <div className="border-t border-gray-100 my-1" />
+                        <button className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
+                          <span className="w-4 h-4 text-blue-500 text-sm leading-4">☁️</span>
+                          网盘
+                        </button>
+                        <button className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
+                          <Star className="w-4 h-4 text-gray-500" />
+                          收藏
+                        </button>
+                        <button className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
+                          <Clock className="w-4 h-4 text-gray-500" />
+                          最近
+                        </button>
+                      </div>
+                    )}
+                  </div>
                   <div className="flex items-center gap-2">
                     <button className="p-2 text-gray-400 hover:text-gray-600 transition">
                       <Mic className="w-5 h-5" />
