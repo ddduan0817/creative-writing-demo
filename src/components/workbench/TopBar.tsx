@@ -5,9 +5,7 @@ import { useRouter } from "next/navigation";
 import {
   Download,
   Star,
-  Check,
   Loader2,
-  AlertCircle,
   History,
   X,
   RotateCcw,
@@ -35,11 +33,27 @@ export default function TopBar() {
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(title);
   const [starred, setStarred] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date>(new Date());
 
   // 同步 store 中的 title 到 editTitle
   useEffect(() => {
     setEditTitle(title);
   }, [title]);
+
+  // 监听 saveStatus 变化，记录保存时间
+  useEffect(() => {
+    if (saveStatus === "saved") {
+      setLastSaved(new Date());
+    }
+  }, [saveStatus]);
+
+  const formatSaveTime = (date: Date) => {
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    const hours = date.getHours().toString().padStart(2, "0");
+    const minutes = date.getMinutes().toString().padStart(2, "0");
+    return `${month}月${day}日${hours}:${minutes}`;
+  };
 
   const handleExport = (format: string) => {
     showToast(`正在导出 ${format} 格式...`);
@@ -103,25 +117,18 @@ export default function TopBar() {
         </button>
       )}
 
-      {/* Save status only */}
+      {/* Save status */}
       <div className="flex items-center text-xs text-gray-400 ml-2">
         <span className="flex items-center gap-1">
-          {saveStatus === "saved" && (
-            <>
-              <Check className="w-3 h-3 text-green-500" />
-              已保存
-            </>
-          )}
-          {saveStatus === "saving" && (
+          {saveStatus === "saving" ? (
             <>
               <Loader2 className="w-3 h-3 animate-spin" />
               保存中
             </>
-          )}
-          {saveStatus === "failed" && (
+          ) : (
             <>
-              <AlertCircle className="w-3 h-3 text-red-500" />
-              保存失败
+              <Pencil className="w-3 h-3" />
+              修改于{formatSaveTime(lastSaved)}
             </>
           )}
         </span>

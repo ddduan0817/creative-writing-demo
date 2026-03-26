@@ -430,30 +430,30 @@ export default function RichTextEditor() {
           {/* Group 1: AI 调整功能 */}
           <button
             onClick={() => showToast("调整风格功能演示中...")}
-            className="inline-flex items-center gap-1 px-3 py-1.5 text-[13px] text-gray-600 rounded-full hover:bg-gray-50 transition"
+            className="inline-flex items-center gap-1 px-3 py-1.5 text-[13px] text-gray-800 rounded-full hover:bg-gray-50 transition"
           >
-            <Palette className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+            <Palette className="w-3.5 h-3.5 text-gray-500 shrink-0" />
             <span>调整风格</span>
-            <ChevronDown className="w-3 h-3 text-gray-300 shrink-0" />
+            <ChevronDown className="w-3 h-3 text-gray-400 shrink-0" />
           </button>
           <button
             onClick={() => showToast("调整长度功能演示中...")}
-            className="inline-flex items-center gap-1 px-3 py-1.5 text-[13px] text-gray-600 rounded-full hover:bg-gray-50 transition"
+            className="inline-flex items-center gap-1 px-3 py-1.5 text-[13px] text-gray-800 rounded-full hover:bg-gray-50 transition"
           >
-            <MoveHorizontal className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+            <MoveHorizontal className="w-3.5 h-3.5 text-gray-500 shrink-0" />
             <span>调整长度</span>
-            <ChevronDown className="w-3 h-3 text-gray-300 shrink-0" />
+            <ChevronDown className="w-3 h-3 text-gray-400 shrink-0" />
           </button>
           <button
             onClick={() => showToast("全文润色中...")}
-            className="inline-flex items-center gap-1 px-3 py-1.5 text-[13px] text-gray-600 rounded-full hover:bg-gray-50 transition"
+            className="inline-flex items-center gap-1 px-3 py-1.5 text-[13px] text-gray-800 rounded-full hover:bg-gray-50 transition"
           >
-            <Sparkles className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+            <Sparkles className="w-3.5 h-3.5 text-gray-500 shrink-0" />
             <span>全文润色</span>
           </button>
           <button
             onClick={() => showToast("重新生成中...")}
-            className="inline-flex items-center gap-1 px-3 py-1.5 text-[13px] text-gray-600 rounded-full hover:bg-gray-50 transition"
+            className="inline-flex items-center gap-1 px-3 py-1.5 text-[13px] text-gray-800 rounded-full hover:bg-gray-50 transition"
           >
             <RefreshCw className="w-3.5 h-3.5 text-gray-400 shrink-0" />
             <span>重新生成</span>
