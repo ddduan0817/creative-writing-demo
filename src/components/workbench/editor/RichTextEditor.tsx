@@ -239,10 +239,13 @@ export default function RichTextEditor() {
   if (!editor) return null;
 
   return (
-    <div className="h-full flex flex-col overflow-hidden relative">
-      <EditorToolbar editor={editor} />
+    <div className="h-full flex flex-col relative">
+      <div className="relative z-10">
+        <EditorToolbar editor={editor} />
+      </div>
 
-      <div className="flex-1 overflow-y-auto" ref={editorWrapRef}>
+      <div className="flex-1 overflow-hidden relative flex flex-col">
+        <div className="flex-1 overflow-y-auto" ref={editorWrapRef}>
         <div className="max-w-4xl mx-auto px-4 relative">
           {scene !== "general" && !isSimpleScene && currentChapter && !editorIsEmpty && (
             <h2 className="text-lg font-bold text-gray-800 px-8 pt-6">
@@ -439,6 +442,7 @@ export default function RichTextEditor() {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }
