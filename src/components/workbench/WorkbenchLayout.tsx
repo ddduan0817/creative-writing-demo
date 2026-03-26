@@ -16,6 +16,7 @@ export default function WorkbenchLayout() {
   const searchParams = useSearchParams();
   const sceneParam = searchParams.get("scene") || "novel";
   const workId = searchParams.get("id");
+  const isBackup = searchParams.get("v") === "backup1";
   const { leftCollapsed, leftPanelExpanded, toast, scene, resetToEmpty } =
     useEditorStore();
 
@@ -50,8 +51,8 @@ export default function WorkbenchLayout() {
     return <LeftPanel />;
   };
 
-  // Novel scene: editor + chat panel (new layout)
-  if (isNovel) {
+  // Novel scene: editor + chat panel (new layout) — only for non-backup
+  if (isNovel && !isBackup) {
     return (
       <div className="h-screen flex bg-white overflow-hidden">
         {/* Left: TopBar + Editor */}

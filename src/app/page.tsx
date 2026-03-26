@@ -3,6 +3,7 @@
 import { Suspense, useState, useRef, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import SceneCards from "@/components/home/SceneCards";
+import SceneCards1 from "@/components/home/SceneCards1";
 import SceneCards2 from "@/components/home/SceneCards2";
 import RecentWorks from "@/components/home/RecentWorks";
 import RecentWorks2 from "@/components/home/RecentWorks2";
@@ -77,7 +78,7 @@ function HomeContent() {
           ) : isBackup1 ? (
             <>
               {/* 备份1：保持旧布局不动 */}
-              <SceneCards />
+              <SceneCards1 />
               <div className="grid grid-cols-[1fr_2fr] gap-5">
                 <CreationStats />
                 <RecentWorks />
