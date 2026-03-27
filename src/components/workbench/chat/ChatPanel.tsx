@@ -46,14 +46,18 @@ const inspirationRounds = [
 
 // ─── Mock Settings Data (based on round selections) ─────────
 
-// Each key in settingsMap corresponds to round1 card index
-// In real app this would be AI-generated; here we pre-define for card 0
 const mockSettings: Record<string, { label: string; value: string }[]> = {
+  "故事概念": [
+    { label: "核心设定", value: "一位当红影后在事业巅峰突然失忆，被迫隐居南方小镇。没有聚光灯的日子里，她发现这里藏着她遗忘的童年和一段未完的缘分。" },
+    { label: "故事基调", value: "甜宠日常，慢节奏温暖治愈。主角在小镇开了一家面馆，与隔壁沉默寡言的馆主从互相看不顺眼到每天给对方留饭，小镇居民看在眼里急在心里。" },
+    { label: "故事走向", value: "明线甜恋暗线揭秘。当主角终于想起一切，要在复仇和眼前的幸福之间做选择。最终选择放下执念，用新的方式重新定义成功。" },
+    { label: "核心冲突", value: "失忆真相 × 新旧生活的抉择 × 过去的伤害与当下的温暖" },
+  ],
   "写作要素": [
     { label: "受众", value: "女频" },
     { label: "题材", value: "言情 · 都市" },
     { label: "时空", value: "现代" },
-    { label: "剧情元素", value: "失忆 · 重生 · 娱乐圈 · 治愈" },
+    { label: "剧情元素", value: "失忆 · 娱乐圈 · 治愈 · 美食" },
     { label: "人物关系", value: "欢喜冤家 · 青梅竹马" },
     { label: "风格调性", value: "甜宠 · 治愈 · 慢热" },
     { label: "结局", value: "HE" },
@@ -62,6 +66,7 @@ const mockSettings: Record<string, { label: string; value: string }[]> = {
     { label: "叙事视角", value: "第三人称" },
     { label: "叙事结构", value: "线性叙事（穿插记忆闪回）" },
     { label: "文风", value: "文艺抒情" },
+    { label: "篇幅", value: "中长篇（8-15万字）" },
   ],
 };
 

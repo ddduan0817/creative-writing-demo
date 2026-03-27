@@ -227,12 +227,23 @@ export default function RichTextEditor() {
   if (scene === "novel" && creationStage >= 1 && creationStage < 5) {
     const settingsData = [
       {
+        group: "故事概念",
+        type: "text" as const,
+        items: [
+          { label: "核心设定", value: "一位当红影后在事业巅峰突然失忆，被迫隐居南方小镇。没有聚光灯的日子里，她发现这里藏着她遗忘的童年和一段未完的缘分。" },
+          { label: "故事基调", value: "甜宠日常，慢节奏温暖治愈。主角在小镇开了一家面馆，与隔壁沉默寡言的馆主从互相看不顺眼到每天给对方留饭，小镇居民看在眼里急在心里。" },
+          { label: "故事走向", value: "明线甜恋暗线揭秘。当主角终于想起一切，要在复仇和眼前的幸福之间做选择。最终选择放下执念，用新的方式重新定义成功。" },
+          { label: "核心冲突", value: "失忆真相 × 新旧生活的抉择 × 过去的伤害与当下的温暖" },
+        ],
+      },
+      {
         group: "写作要素",
+        type: "tags" as const,
         items: [
           { label: "受众", value: "女频" },
           { label: "题材", value: "言情 · 都市" },
           { label: "时空", value: "现代" },
-          { label: "剧情元素", value: "失忆 · 重生 · 娱乐圈 · 治愈" },
+          { label: "剧情元素", value: "失忆 · 娱乐圈 · 治愈 · 美食" },
           { label: "人物关系", value: "欢喜冤家 · 青梅竹马" },
           { label: "风格调性", value: "甜宠 · 治愈 · 慢热" },
           { label: "结局", value: "HE" },
@@ -240,17 +251,19 @@ export default function RichTextEditor() {
       },
       {
         group: "写作方式",
+        type: "tags" as const,
         items: [
           { label: "叙事视角", value: "第三人称" },
           { label: "叙事结构", value: "线性叙事（穿插记忆闪回）" },
           { label: "文风", value: "文艺抒情" },
+          { label: "篇幅", value: "中长篇（8-15万字）" },
         ],
       },
     ];
 
     return (
       <div className="h-full flex flex-col">
-        <EditorToolbar editor={editor!} />
+        {editor && <EditorToolbar editor={editor} />}
         <div className="flex-1 overflow-y-auto px-10 py-8">
           <div className="max-w-2xl mx-auto space-y-8">
             <div>
@@ -263,23 +276,34 @@ export default function RichTextEditor() {
                 <h3 className="text-sm font-semibold text-gray-700 mb-4 pb-2 border-b border-gray-100">
                   {section.group}
                 </h3>
-                <div className="space-y-3">
-                  {section.items.map((item) => (
-                    <div key={item.label} className="flex items-start gap-4">
-                      <span className="text-sm text-gray-400 w-20 shrink-0">{item.label}</span>
-                      <div className="flex flex-wrap gap-1.5">
-                        {item.value.split(" · ").map((tag) => (
-                          <span
-                            key={tag}
-                            className="px-2.5 py-1 bg-indigo-50 text-indigo-600 text-sm rounded-full"
-                          >
-                            {tag}
-                          </span>
-                        ))}
+                {section.type === "text" ? (
+                  <div className="space-y-4">
+                    {section.items.map((item) => (
+                      <div key={item.label}>
+                        <span className="text-xs font-medium text-gray-400 block mb-1">{item.label}</span>
+                        <p className="text-sm text-gray-700 leading-relaxed">{item.value}</p>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {section.items.map((item) => (
+                      <div key={item.label} className="flex items-start gap-4">
+                        <span className="text-sm text-gray-400 w-20 shrink-0">{item.label}</span>
+                        <div className="flex flex-wrap gap-1.5">
+                          {item.value.split(" · ").map((tag) => (
+                            <span
+                              key={tag}
+                              className="px-2.5 py-1 bg-indigo-50 text-indigo-600 text-sm rounded-full"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
 
