@@ -27,6 +27,8 @@ interface EditorState {
   // 创作阶段进度（novel agent flow）
   creationStage: number; // 0=灵感, 1=设定, 2=世界观, 3=角色, 4=大纲, 5=正文
   setCreationStage: (stage: number) => void;
+  stageProgress: number; // 0-1, sub-progress within current stage (for line fill animation)
+  setStageProgress: (progress: number) => void;
 
   // 通用写作 - 选中模板
   selectedTemplateId: string | null;
@@ -126,7 +128,9 @@ export const useEditorStore = create<EditorState>((set) => ({
   setScene: (scene) => set({ scene }),
 
   creationStage: 0,
-  setCreationStage: (stage) => set({ creationStage: stage }),
+  setCreationStage: (stage) => set({ creationStage: stage, stageProgress: 0 }),
+  stageProgress: 0,
+  setStageProgress: (progress) => set({ stageProgress: progress }),
 
   selectedTemplateId: null,
   setSelectedTemplate: (id) => set({ selectedTemplateId: id }),
@@ -388,6 +392,7 @@ export const useEditorStore = create<EditorState>((set) => ({
     set({
       scene: sceneType,
       creationStage: 0,
+      stageProgress: 0,
       title: isScreenplay ? "雨夜追凶" : (sceneNames[sceneType] || "未命名文档"),
       titleManuallyEdited: false,
       leftPanelExpanded: false,

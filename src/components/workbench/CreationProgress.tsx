@@ -12,6 +12,7 @@ const stages = [
 
 export default function CreationProgress() {
   const creationStage = useEditorStore((s) => s.creationStage);
+  const stageProgress = useEditorStore((s) => s.stageProgress);
 
   return (
     <div className="h-full flex flex-col items-center py-8">
@@ -19,17 +20,24 @@ export default function CreationProgress() {
         const isCompleted = creationStage > stage.id;
         const isCurrent = creationStage === stage.id;
 
+        // Line between dot i-1 and dot i
+        // The line ABOVE this dot fills based on:
+        // - Fully blue if this stage is completed (creationStage > stage.id)
+        // - Partially blue if working towards this stage (creationStage === stage.id - 1)
+        // - Gray otherwise
+        const isLineCompleted = creationStage >= stage.id;
+        const isLineFilling = creationStage === stage.id - 1;
+        const lineHeight = isLineCompleted ? 100 : isLineFilling ? stageProgress * 100 : 0;
+
         return (
           <div key={stage.id} className={`flex flex-col items-center ${i > 0 ? "flex-1" : ""}`}>
-            {/* Connecting line — flex-1 to fill available space */}
+            {/* Connecting line */}
             {i > 0 && (
               <div className="w-px flex-1 relative">
                 <div className="absolute inset-0 bg-gray-200" />
                 <div
                   className="absolute top-0 left-0 w-full bg-blue-400 transition-all duration-700 ease-out"
-                  style={{
-                    height: isCompleted || isCurrent ? "100%" : "0%",
-                  }}
+                  style={{ height: `${lineHeight}%` }}
                 />
               </div>
             )}

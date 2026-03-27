@@ -385,6 +385,7 @@ type Message =
 
 export default function ChatPanel() {
   const setCreationStage = useEditorStore((s) => s.setCreationStage);
+  const setStageProgress = useEditorStore((s) => s.setStageProgress);
   const [messages, setMessages] = useState<Message[]>([]);
   const [selections, setSelections] = useState<Record<number, number>>({}); // round → selected card index
   const [currentRound, setCurrentRound] = useState(0); // 0=welcome, 1-3=inspiration, 4=confirm stage
@@ -417,6 +418,33 @@ export default function ChatPanel() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // Track sub-progress within each stage for the progress bar line fill
+  useEffect(() => {
+    // Map currentRound to stageProgress (0-1) for the NEXT line to fill
+    // Stage 0→1 (设定): rounds 0-4, line fills during inspiration rounds
+    // Stage 1→2 (世界观): rounds 4-8, line fills during worldbuilding rounds
+    // Stage 2→3 (角色): rounds 8-12, line fills during character rounds
+    // Stage 3→4 (大纲): rounds 12-13, line fills during outline generation
+    const progressMap: Record<number, number> = {
+      0: 0,     // welcome
+      1: 0.25,  // inspiration round 1
+      2: 0.50,  // inspiration round 2
+      3: 0.75,  // inspiration round 3
+      4: 0,     // settings confirmed, reset for next line
+      5: 0.25,  // worldbuilding round 1
+      6: 0.50,  // worldbuilding round 2
+      7: 0.75,  // worldbuilding round 3
+      8: 0,     // worldbuilding confirmed, reset
+      9: 0.25,  // character round 1
+      10: 0.50, // character round 2
+      11: 0.75, // character round 3
+      12: 0,    // characters confirmed, reset
+      13: 0,    // outline confirmed, reset
+      14: 0,    // writing mode
+    };
+    setStageProgress(progressMap[currentRound] ?? 0);
+  }, [currentRound, setStageProgress]);
 
   // Scene card entry: model sends welcome message
   useEffect(() => {
@@ -754,6 +782,7 @@ export default function ChatPanel() {
       }, 300);
 
       if (stageEntry === "worldbuilding") {
+        setStageProgress(0.5);
         setTimeout(() => {
           setMessages((prev) => [
             ...prev.filter((m) => m.id !== thinkingId),
@@ -774,6 +803,7 @@ export default function ChatPanel() {
         }, 1200);
         setStageEntry(null);
       } else if (stageEntry === "characters") {
+        setStageProgress(0.5);
         setTimeout(() => {
           setMessages((prev) => [
             ...prev.filter((m) => m.id !== thinkingId),
@@ -794,6 +824,7 @@ export default function ChatPanel() {
         }, 1200);
         setStageEntry(null);
       } else if (stageEntry === "outline") {
+        setStageProgress(0.5);
         setTimeout(() => {
           setMessages((prev) => [
             ...prev.filter((m) => m.id !== thinkingId),
@@ -836,6 +867,7 @@ export default function ChatPanel() {
           },
         ]);
         setStageEntry("worldbuilding");
+        setStageProgress(0.1);
       }, 1500);
       return;
     }
@@ -859,6 +891,7 @@ export default function ChatPanel() {
           },
         ]);
         setStageEntry("characters");
+        setStageProgress(0.1);
       }, 1500);
       return;
     }
@@ -882,6 +915,7 @@ export default function ChatPanel() {
           },
         ]);
         setStageEntry("outline");
+        setStageProgress(0.1);
       }, 1500);
       return;
     }
@@ -956,7 +990,7 @@ export default function ChatPanel() {
         }, 2500);
       }
     }
-  }, [input, awaitingAdjust, adjustRound, currentRound, flowMode, freeformStep, stageEntry, setCreationStage, proceedToNextRound, handleStageInspiration]);
+  }, [input, awaitingAdjust, adjustRound, currentRound, flowMode, freeformStep, stageEntry, setCreationStage, setStageProgress, proceedToNextRound, handleStageInspiration]);
 
   // Collect all keywords from all rounds for the "fav bar"
   const allFavKeywords = Array.from(favKeywords);
