@@ -30,6 +30,7 @@ export default function RichTextEditor() {
     scene,
     pendingInsert,
     setPendingInsert,
+    creationStage,
   } = useEditorStore();
 
   const currentChapter = chapters.find((c) => c.id === currentChapterId);
@@ -221,6 +222,80 @@ export default function RichTextEditor() {
 
   // Check if editor is empty
   const editorIsEmpty = !editor?.getText().trim();
+
+  // Novel agent flow: show settings/worldbuilding in editor (read-only)
+  if (scene === "novel" && creationStage >= 1 && creationStage < 5) {
+    const settingsData = [
+      {
+        group: "写作要素",
+        items: [
+          { label: "受众", value: "女频" },
+          { label: "题材", value: "言情 · 都市" },
+          { label: "时空", value: "现代" },
+          { label: "剧情元素", value: "失忆 · 重生 · 娱乐圈 · 治愈" },
+          { label: "人物关系", value: "欢喜冤家 · 青梅竹马" },
+          { label: "风格调性", value: "甜宠 · 治愈 · 慢热" },
+          { label: "结局", value: "HE" },
+        ],
+      },
+      {
+        group: "写作方式",
+        items: [
+          { label: "叙事视角", value: "第三人称" },
+          { label: "叙事结构", value: "线性叙事（穿插记忆闪回）" },
+          { label: "文风", value: "文艺抒情" },
+        ],
+      },
+    ];
+
+    return (
+      <div className="h-full flex flex-col">
+        <EditorToolbar editor={editor!} />
+        <div className="flex-1 overflow-y-auto px-10 py-8">
+          <div className="max-w-2xl mx-auto space-y-8">
+            <div>
+              <h2 className="text-lg font-bold text-gray-900 mb-1">创作设定</h2>
+              <p className="text-xs text-gray-400">基于灵感方向自动生成，可在对话中修改</p>
+            </div>
+
+            {settingsData.map((section) => (
+              <div key={section.group}>
+                <h3 className="text-sm font-semibold text-gray-700 mb-4 pb-2 border-b border-gray-100">
+                  {section.group}
+                </h3>
+                <div className="space-y-3">
+                  {section.items.map((item) => (
+                    <div key={item.label} className="flex items-start gap-4">
+                      <span className="text-sm text-gray-400 w-20 shrink-0">{item.label}</span>
+                      <div className="flex flex-wrap gap-1.5">
+                        {item.value.split(" · ").map((tag) => (
+                          <span
+                            key={tag}
+                            className="px-2.5 py-1 bg-indigo-50 text-indigo-600 text-sm rounded-full"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+
+            {creationStage >= 2 && (
+              <div>
+                <h3 className="text-sm font-semibold text-gray-700 mb-4 pb-2 border-b border-gray-100">
+                  世界观
+                </h3>
+                <p className="text-sm text-gray-500">待生成...</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Show outline if in outline mode (novel only)
   if (leftView === "outline" && scene !== "general" && !isSimpleScene) {
