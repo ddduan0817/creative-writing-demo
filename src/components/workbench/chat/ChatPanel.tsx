@@ -43,12 +43,34 @@ const inspirationRounds = [
   },
 ];
 
+// ─── Mock Settings Data (based on round selections) ─────────
+
+// Each key in settingsMap corresponds to round1 card index
+// In real app this would be AI-generated; here we pre-define for card 0
+const mockSettings: Record<string, { label: string; value: string }[]> = {
+  "写作要素": [
+    { label: "受众", value: "女频" },
+    { label: "题材", value: "言情 · 都市" },
+    { label: "时空", value: "现代" },
+    { label: "剧情元素", value: "失忆 · 重生 · 娱乐圈 · 治愈" },
+    { label: "人物关系", value: "欢喜冤家 · 青梅竹马" },
+    { label: "风格调性", value: "甜宠 · 治愈 · 慢热" },
+    { label: "结局", value: "HE" },
+  ],
+  "写作方式": [
+    { label: "叙事视角", value: "第三人称" },
+    { label: "叙事结构", value: "线性叙事（穿插记忆闪回）" },
+    { label: "文风", value: "文艺抒情" },
+  ],
+};
+
 // ─── Types ───────────────────────────────────────────────────
 
 type Message =
   | { id: string; sender: "model"; type: "inspiration"; prompt: string; cards: string[]; round: number }
   | { id: string; sender: "model"; type: "thinking" }
   | { id: string; sender: "model"; type: "text"; content: string }
+  | { id: string; sender: "model"; type: "settings-card"; prompt: string; settings: Record<string, { label: string; value: string }[]> }
   | { id: string; sender: "user"; type: "card-selection"; content: string }
   | { id: string; sender: "user"; type: "text"; content: string };
 
@@ -191,7 +213,7 @@ export default function ChatPanel() {
       { id: `user-${Date.now()}`, sender: "user", type: "text", content: text },
     ]);
 
-    // If at confirm stage, start world-building
+    // If at confirm stage, generate settings card
     if (currentRound === 4) {
       const thinkingId = `thinking-wb`;
       setTimeout(() => {
@@ -202,13 +224,15 @@ export default function ChatPanel() {
         setMessages((prev) => [
           ...prev.filter((m) => m.id !== thinkingId),
           {
-            id: "model-worldbuilding",
+            id: "model-settings",
             sender: "model",
-            type: "text",
-            content: "好的，正在为你生成世界观设定…（世界观设定卡片 — 待实现）",
+            type: "settings-card",
+            prompt: "根据你的灵感方向，我为你整理了以下创作设定。确认无误就可以开始生成世界观了，你也可以告诉我需要调整的地方。",
+            settings: mockSettings,
           },
         ]);
-      }, 2000);
+        setCurrentRound(5);
+      }, 2500);
     }
   }, [input, currentRound]);
 
@@ -327,6 +351,52 @@ export default function ChatPanel() {
               <div key={msg.id} className="flex justify-end">
                 <div className="bg-indigo-600 text-white rounded-2xl rounded-tr-sm px-4 py-3 max-w-[85%] shadow-sm">
                   <p className="text-sm leading-relaxed">{msg.content}</p>
+                </div>
+              </div>
+            );
+          }
+
+          // ── Model: settings card ──
+          if (msg.sender === "model" && msg.type === "settings-card") {
+            return (
+              <div key={msg.id} className="space-y-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                    <span className="text-white text-[10px] font-bold">AI</span>
+                  </div>
+                  <span className="text-xs text-gray-400">文心</span>
+                </div>
+                <p className="text-sm text-gray-700 leading-relaxed pl-8">{msg.prompt}</p>
+
+                {/* Settings Card */}
+                <div className="pl-8">
+                  <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    {Object.entries(msg.settings).map(([group, items], gi) => (
+                      <div key={group}>
+                        {gi > 0 && <div className="border-t border-gray-100" />}
+                        <div className="px-4 py-3">
+                          <h4 className="text-xs font-semibold text-gray-500 mb-2.5">{group}</h4>
+                          <div className="space-y-2">
+                            {items.map((item) => (
+                              <div key={item.label} className="flex items-start gap-2">
+                                <span className="text-xs text-gray-400 w-16 shrink-0 pt-0.5">{item.label}</span>
+                                <div className="flex flex-wrap gap-1">
+                                  {item.value.split(" · ").map((tag) => (
+                                    <span
+                                      key={tag}
+                                      className="px-2 py-0.5 bg-indigo-50 text-indigo-600 text-xs rounded-full"
+                                    >
+                                      {tag}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             );
