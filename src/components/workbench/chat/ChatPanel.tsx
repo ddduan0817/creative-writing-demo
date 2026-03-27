@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import {
   Send,
   Mic,
@@ -11,13 +11,67 @@ import {
   Video,
   Star,
   Clock,
+  RefreshCw,
 } from "lucide-react";
 
+// ─── Mock Data ───────────────────────────────────────────────
+
+const inspirationRounds = [
+  {
+    prompt: "你好！我来帮你构思一个精彩的故事。先看看这几个方向，哪个更打动你？",
+    cards: [
+      "现代都市，当红影后苏瑾在事业巅峰突然失忆，被迫隐居在南方小镇。没有聚光灯的日子里，她意外发现这里藏着她遗忘的童年和一段未完的缘分。",
+      "架空古代，被退婚的废材郡主在绝境中觉醒前世记忆，发现自己曾是镇压妖族的大祭司。重活一世，她要用前世的知识改写命运、逆袭朝堂。",
+      "近未来末世，一场全球性的信号中断让文明倒退五十年。前AI工程师带着最后一台能运行的终端，在废墟中寻找重建网络的可能，却发现断网背后是一个更大的阴谋。",
+    ],
+  },
+  {
+    prompt: "好方向！在这个基础上，你更偏好哪种风格走向？",
+    cards: [
+      "甜宠日常：她在小镇开了一家面馆，和隔壁沉默寡言的中医馆馆主从互相看不顺眼到每天给对方留饭，小镇居民看在眼里急在心里。温暖治愈的慢节奏故事。",
+      "悬疑暗线：小镇看似平静，但她的记忆碎片指向一个惊人的真相——她的失忆并非意外，身边最亲近的人可能就是幕后推手。每一章都有反转的烧脑叙事。",
+      "爽文逆袭：她用娱乐圈摸爬滚打练出的手段，把小镇文艺汇演搞成了全网爆款，从此一路开挂重返巅峰。但这次她选择按自己的规则来，不再为资本低头。",
+    ],
+  },
+  {
+    prompt: "快要成型了！最后确认一下故事的走向和结局：",
+    cards: [
+      "明线甜恋暗线揭秘，当她终于想起一切，要在复仇和眼前的幸福之间做选择。她选择放下执念，和他在小镇安定下来，用新的方式重新定义成功。温暖HE。",
+      "层层反转，每个角色都有不可告人的秘密，真相像洋葱一样一层层剥开。最后她看清了所有人的面目，独自踏上新的旅程。开放式结局，余韵悠长。",
+      "治愈成长线，从迷失到被小镇的人情味治愈，重新理解「成功」的意义。她带着全新的自己回归，在事业和生活之间找到了属于自己的平衡点。温暖HE。",
+    ],
+  },
+];
+
+// ─── Types ───────────────────────────────────────────────────
+
+type Message =
+  | { id: string; sender: "model"; type: "inspiration"; prompt: string; cards: string[]; round: number }
+  | { id: string; sender: "model"; type: "thinking" }
+  | { id: string; sender: "model"; type: "text"; content: string }
+  | { id: string; sender: "user"; type: "card-selection"; content: string }
+  | { id: string; sender: "user"; type: "text"; content: string };
+
+// ─── Component ───────────────────────────────────────────────
+
 export default function ChatPanel() {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [selections, setSelections] = useState<Record<number, number>>({}); // round → selected card index
+  const [currentRound, setCurrentRound] = useState(0); // 0=not started, 1-3=inspiration, 4=confirm stage
   const [input, setInput] = useState("");
   const [showAttachMenu, setShowAttachMenu] = useState(false);
   const attachRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const hasInit = useRef(false);
 
+  // Auto-scroll
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages]);
+
+  // Click outside attach menu
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (attachRef.current && !attachRef.current.contains(e.target as Node)) {
@@ -28,15 +82,258 @@ export default function ChatPanel() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Auto-scroll
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages]);
+
+  // Scene card entry: model sends first round automatically
+  useEffect(() => {
+    if (hasInit.current) return;
+    hasInit.current = true;
+
+    const thinkingId = `thinking-init`;
+    setMessages([{ id: thinkingId, sender: "model", type: "thinking" }]);
+
+    setTimeout(() => {
+      const round = inspirationRounds[0];
+      setMessages([
+        {
+          id: "model-r1",
+          sender: "model",
+          type: "inspiration",
+          prompt: round.prompt,
+          cards: round.cards,
+          round: 1,
+        },
+      ]);
+      setCurrentRound(1);
+    }, 1200);
+  }, []);
+
+  // Handle card selection
+  const handleCardSelect = useCallback(
+    (round: number, cardIndex: number) => {
+      if (selections[round] !== undefined) return; // already selected
+      const cardText = inspirationRounds[round - 1].cards[cardIndex];
+
+      // Record selection
+      setSelections((prev) => ({ ...prev, [round]: cardIndex }));
+
+      // Add user message
+      setMessages((prev) => [
+        ...prev,
+        { id: `user-r${round}`, sender: "user", type: "card-selection", content: cardText },
+      ]);
+
+      if (round < 3) {
+        // Show thinking, then next round
+        const thinkingId = `thinking-r${round + 1}`;
+        setTimeout(() => {
+          setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+        }, 300);
+
+        setTimeout(() => {
+          const nextRound = inspirationRounds[round];
+          setMessages((prev) => [
+            ...prev.filter((m) => m.id !== thinkingId),
+            {
+              id: `model-r${round + 1}`,
+              sender: "model",
+              type: "inspiration",
+              prompt: nextRound.prompt,
+              cards: nextRound.cards,
+              round: round + 1,
+            },
+          ]);
+          setCurrentRound(round + 1);
+        }, 1500);
+      } else {
+        // Round 3 done → ask to generate settings
+        const thinkingId = `thinking-confirm`;
+        setTimeout(() => {
+          setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+        }, 300);
+
+        setTimeout(() => {
+          setMessages((prev) => [
+            ...prev.filter((m) => m.id !== thinkingId),
+            {
+              id: "model-confirm",
+              sender: "model",
+              type: "text",
+              content: "灵感方向已确认！接下来我会为你生成完整的世界观设定。准备好了就告诉我，或者你也可以补充更多想法。",
+            },
+          ]);
+          setCurrentRound(4);
+        }, 1500);
+      }
+    },
+    [selections]
+  );
+
+  // Handle refresh
+  const handleRefresh = useCallback(() => {
+    // Mock: just show a toast-like effect, in real app would regenerate
+    // For now we do nothing visible
+  }, []);
+
+  // Handle send
+  const handleSend = useCallback(() => {
+    if (!input.trim()) return;
+    const text = input.trim();
+    setInput("");
+
+    setMessages((prev) => [
+      ...prev,
+      { id: `user-${Date.now()}`, sender: "user", type: "text", content: text },
+    ]);
+
+    // If at confirm stage, start world-building
+    if (currentRound === 4) {
+      const thinkingId = `thinking-wb`;
+      setTimeout(() => {
+        setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+      }, 300);
+
+      setTimeout(() => {
+        setMessages((prev) => [
+          ...prev.filter((m) => m.id !== thinkingId),
+          {
+            id: "model-worldbuilding",
+            sender: "model",
+            type: "text",
+            content: "好的，正在为你生成世界观设定…（世界观设定卡片 — 待实现）",
+          },
+        ]);
+      }, 2000);
+    }
+  }, [input, currentRound]);
+
   return (
     <div className="h-full flex flex-col bg-gray-50/50">
-
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
-        {/* Empty state */}
-        <div className="flex items-center justify-center h-full text-gray-400 text-sm">
-          开始和 AI 对话，辅助你的创作
-        </div>
+      <div className="flex-1 overflow-y-auto px-5 py-5 space-y-5" ref={scrollRef}>
+        {messages.map((msg) => {
+          // ── Thinking indicator ──
+          if (msg.type === "thinking") {
+            return (
+              <div key={msg.id} className="flex items-center gap-2 text-gray-400 text-sm">
+                <div className="flex gap-1">
+                  <span className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                  <span className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                  <span className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                </div>
+              </div>
+            );
+          }
+
+          // ── Model: inspiration cards ──
+          if (msg.sender === "model" && msg.type === "inspiration") {
+            const isActive = currentRound === msg.round && selections[msg.round] === undefined;
+            return (
+              <div key={msg.id} className="space-y-3">
+                {/* Model header */}
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                    <span className="text-white text-[10px] font-bold">AI</span>
+                  </div>
+                  <span className="text-xs text-gray-400">文心</span>
+                </div>
+                <p className="text-sm text-gray-700 leading-relaxed pl-8">{msg.prompt}</p>
+
+                {/* Cards */}
+                <div className="pl-8 space-y-2">
+                  {msg.cards.map((card, i) => {
+                    const isSelected = selections[msg.round] === i;
+                    const isOther = selections[msg.round] !== undefined && !isSelected;
+                    return (
+                      <button
+                        key={i}
+                        onClick={() => isActive && handleCardSelect(msg.round, i)}
+                        disabled={!isActive}
+                        className={`w-full text-left p-3.5 rounded-xl border-2 transition-all duration-200 ${
+                          isSelected
+                            ? "border-indigo-400 bg-indigo-50/80 shadow-sm"
+                            : isOther
+                            ? "border-transparent bg-gray-50 opacity-40"
+                            : "border-gray-100 bg-white hover:border-indigo-200 hover:shadow-sm cursor-pointer"
+                        }`}
+                      >
+                        <div className="flex items-start gap-2.5">
+                          <span
+                            className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-medium shrink-0 mt-0.5 ${
+                              isSelected
+                                ? "bg-indigo-500 text-white"
+                                : "bg-gray-100 text-gray-400"
+                            }`}
+                          >
+                            {i + 1}
+                          </span>
+                          <p className={`text-sm leading-relaxed ${isSelected ? "text-gray-800" : "text-gray-600"}`}>
+                            {card}
+                          </p>
+                        </div>
+                      </button>
+                    );
+                  })}
+
+                  {/* Refresh button */}
+                  {isActive && (
+                    <button
+                      onClick={() => handleRefresh()}
+                      className="flex items-center gap-1.5 px-2 py-1.5 text-xs text-gray-400 hover:text-indigo-500 transition mt-1"
+                    >
+                      <RefreshCw className="w-3 h-3" />
+                      换一换
+                    </button>
+                  )}
+                </div>
+              </div>
+            );
+          }
+
+          // ── Model: text message ──
+          if (msg.sender === "model" && msg.type === "text") {
+            return (
+              <div key={msg.id} className="space-y-2">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                    <span className="text-white text-[10px] font-bold">AI</span>
+                  </div>
+                  <span className="text-xs text-gray-400">文心</span>
+                </div>
+                <p className="text-sm text-gray-700 leading-relaxed pl-8">{msg.content}</p>
+              </div>
+            );
+          }
+
+          // ── User: card selection ──
+          if (msg.sender === "user" && msg.type === "card-selection") {
+            return (
+              <div key={msg.id} className="flex justify-end">
+                <div className="bg-indigo-600 text-white rounded-2xl rounded-tr-sm px-4 py-3 max-w-[85%] shadow-sm">
+                  <p className="text-sm leading-relaxed">{msg.content}</p>
+                </div>
+              </div>
+            );
+          }
+
+          // ── User: text message ──
+          if (msg.sender === "user" && msg.type === "text") {
+            return (
+              <div key={msg.id} className="flex justify-end">
+                <div className="bg-indigo-600 text-white rounded-2xl rounded-tr-sm px-4 py-3 max-w-[85%] shadow-sm">
+                  <p className="text-sm leading-relaxed">{msg.content}</p>
+                </div>
+              </div>
+            );
+          }
+
+          return null;
+        })}
       </div>
 
       {/* Input Area */}
@@ -45,7 +342,13 @@ export default function ChatPanel() {
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="自动适配需求，复杂问题自动深析，有什么可以帮助你？"
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
+                e.preventDefault();
+                handleSend();
+              }
+            }}
+            placeholder="输入你的想法..."
             className="w-full text-sm text-gray-700 placeholder-gray-400 resize-none outline-none bg-transparent min-h-[40px]"
             rows={1}
           />
@@ -90,7 +393,10 @@ export default function ChatPanel() {
               <button className="p-1.5 text-gray-400 hover:text-gray-600 transition">
                 <Mic className="w-4 h-4" />
               </button>
-              <button className="p-1.5 bg-gray-900 text-white rounded-full hover:bg-gray-800 transition">
+              <button
+                onClick={handleSend}
+                className="p-1.5 bg-gray-900 text-white rounded-full hover:bg-gray-800 transition"
+              >
                 <Send className="w-3.5 h-3.5" />
               </button>
             </div>
