@@ -57,7 +57,7 @@ export default function WorkbenchLayout() {
     return (
       <div className="h-screen flex bg-white overflow-hidden">
         {/* Far Left: Creation Progress */}
-        <div className="w-16 flex-shrink-0 border-r border-gray-100">
+        <div className="w-10 flex-shrink-0">
           <CreationProgress />
         </div>
 
