@@ -308,12 +308,89 @@ export default function RichTextEditor() {
             ))}
 
             {creationStage >= 2 && (
-              <div>
-                <h3 className="text-sm font-semibold text-gray-700 mb-4 pb-2 border-b border-gray-100">
-                  世界观
-                </h3>
-                <p className="text-sm text-gray-500">待生成...</p>
-              </div>
+              <>
+                {/* 世界观 - 故事世界 */}
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-700 mb-4 pb-2 border-b border-gray-100">
+                    世界观
+                  </h3>
+                  <div className="space-y-5">
+                    <div>
+                      <span className="text-xs font-medium text-gray-400 block mb-1">故事世界</span>
+                      <p className="text-sm text-gray-700 leading-relaxed">
+                        当代中国南方小镇「清岚镇」——一个依山傍水的千年古镇，青石板路、白墙黑瓦，手机信号时有时无。年轻人大多外出谋生，留下的都是老人和几个「不愿离开的怪人」。
+                      </p>
+                    </div>
+                    <div>
+                      <span className="text-xs font-medium text-gray-400 block mb-1">时间线</span>
+                      <p className="text-sm text-gray-700 leading-relaxed">
+                        故事跨越一年四季，从盛夏到次年初夏。四季变化推动情感发展：夏天相遇→秋天暧昧→冬天误会→春天和解→初夏告白。
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 核心场景 */}
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-700 mb-4 pb-2 border-b border-gray-100">
+                    核心场景
+                  </h3>
+                  <div className="space-y-4">
+                    {[
+                      { name: "清岚镇·主街", desc: "唯一的主街，两侧是各种老字号店铺。早上有赶早市的吆喝声，傍晚有归家的炊烟。街尾是一棵三百年的老榕树，树下有石桌石凳，是全镇的八卦中心。" },
+                      { name: "一碗春面馆", desc: "女主盘下的老面馆，前店后院。院子里有棵百年老桂花树，秋天整条街都能闻到香气。面馆只卖六种面，每天限量，卖完就关门。" },
+                      { name: "济世堂中医馆", desc: "男主经营的祖传中医馆，就在面馆隔壁。一墙之隔，药香和面香混在一起。男主话少但医术高明，半个镇子的人都找他看病。" },
+                      { name: "古戏台", desc: "镇中心的百年老戏台，逢年过节唱戏。后来成了女主组织文艺汇演的舞台，也是两人关系转折的重要场所。戏台背后有一间废弃的化妆间，藏着女主童年的秘密。" },
+                      { name: "后山竹林", desc: "镇子背后的大片竹林，有一条隐秘的小路通向山顶的废弃凉亭。这里是男主独处的地方，也是两人第一次敞开心扉的场所。" },
+                    ].map((scene) => (
+                      <div key={scene.name} className="bg-gray-50/60 rounded-lg p-3.5">
+                        <span className="text-sm font-medium text-emerald-600 block mb-1">{scene.name}</span>
+                        <p className="text-sm text-gray-600 leading-relaxed">{scene.desc}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 社会生态 */}
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-700 mb-4 pb-2 border-b border-gray-100">
+                    社会生态
+                  </h3>
+                  <ul className="space-y-2">
+                    {[
+                      "镇上人际关系极其紧密，任何新鲜事半小时内全镇皆知",
+                      "每周日早上有赶集，是全镇最热闹的时候，也是获取信息的重要渠道",
+                      "镇长王婶是个爱管闲事的热心肠，暗中撮合各种姻缘，是推动主线的关键配角",
+                      "镇上有个「三巨头」聊天团：王婶、杂货店老张、茶馆陈老，他们的对话是读者了解小镇的窗口",
+                    ].map((item, i) => (
+                      <li key={i} className="text-sm text-gray-700 leading-relaxed flex gap-2">
+                        <span className="text-gray-300 shrink-0">•</span>
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* 隐藏线索 */}
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-700 mb-4 pb-2 border-b border-gray-100">
+                    隐藏线索
+                  </h3>
+                  <ul className="space-y-2">
+                    {[
+                      "女主小时候在清岚镇生活过三年，镇上有人认出了她但选择沉默守护",
+                      "失忆的真相与一场十五年前的车祸有关，肇事者与女主的经纪人有关联",
+                      "男主的爷爷曾经是女主母亲的主治医生，两家有一段未了的恩情",
+                      "面馆的院子里埋着一个时间胶囊，是女主童年时亲手埋下的",
+                    ].map((item, i) => (
+                      <li key={i} className="text-sm text-gray-700 leading-relaxed flex gap-2">
+                        <span className="text-amber-400 shrink-0">🔍</span>
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </>
             )}
           </div>
         </div>

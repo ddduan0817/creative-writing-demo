@@ -112,6 +112,45 @@ const mockSettings: Record<string, { label: string; value: string }[]> = {
   ],
 };
 
+// ─── Mock Worldbuilding Data ─────────────────────────────────
+
+interface WorldbuildingScene {
+  name: string;
+  description: string;
+}
+
+interface WorldbuildingData {
+  summary: string;
+  timeline: string;
+  scenes: WorldbuildingScene[];
+  socialEcology: string[];
+  hiddenClues: string[];
+}
+
+const mockWorldbuilding: WorldbuildingData = {
+  summary: "当代中国南方小镇「清岚镇」——一个依山傍水的千年古镇，青石板路、白墙黑瓦，手机信号时有时无。年轻人大多外出谋生，留下的都是老人和几个「不愿离开的怪人」。",
+  timeline: "故事跨越一年四季，从盛夏到次年初夏。四季变化推动情感发展：夏天相遇→秋天暧昧→冬天误会→春天和解→初夏告白。",
+  scenes: [
+    { name: "清岚镇·主街", description: "唯一的主街，两侧是各种老字号店铺。早上有赶早市的吆喝声，傍晚有归家的炊烟。街尾是一棵三百年的老榕树，树下有石桌石凳，是全镇的八卦中心。" },
+    { name: "一碗春面馆", description: "女主盘下的老面馆，前店后院。院子里有棵百年老桂花树，秋天整条街都能闻到香气。面馆只卖六种面，每天限量，卖完就关门。" },
+    { name: "济世堂中医馆", description: "男主经营的祖传中医馆，就在面馆隔壁。一墙之隔，药香和面香混在一起。男主话少但医术高明，半个镇子的人都找他看病。" },
+    { name: "古戏台", description: "镇中心的百年老戏台，逢年过节唱戏。后来成了女主组织文艺汇演的舞台，也是两人关系转折的重要场所。戏台背后有一间废弃的化妆间，藏着女主童年的秘密。" },
+    { name: "后山竹林", description: "镇子背后的大片竹林，有一条隐秘的小路通向山顶的废弃凉亭。这里是男主独处的地方，也是两人第一次敞开心扉的场所。" },
+  ],
+  socialEcology: [
+    "镇上人际关系极其紧密，任何新鲜事半小时内全镇皆知",
+    "每周日早上有赶集，是全镇最热闹的时候，也是获取信息的重要渠道",
+    "镇长王婶是个爱管闲事的热心肠，暗中撮合各种姻缘，是推动主线的关键配角",
+    "镇上有个「三巨头」聊天团：王婶、杂货店老张、茶馆陈老，他们的对话是读者了解小镇的窗口",
+  ],
+  hiddenClues: [
+    "女主小时候在清岚镇生活过三年，镇上有人认出了她但选择沉默守护",
+    "失忆的真相与一场十五年前的车祸有关，肇事者与女主的经纪人有关联",
+    "男主的爷爷曾经是女主母亲的主治医生，两家有一段未了的恩情",
+    "面馆的院子里埋着一个时间胶囊，是女主童年时亲手埋下的",
+  ],
+};
+
 // ─── Mock: free-input guided flow ────────────────────────────
 
 const guidedFollowUps = [
@@ -132,6 +171,7 @@ type Message =
   | { id: string; sender: "model"; type: "thinking" }
   | { id: string; sender: "model"; type: "text"; content: string }
   | { id: string; sender: "model"; type: "settings-card"; prompt: string; settings: Record<string, { label: string; value: string }[]> }
+  | { id: string; sender: "model"; type: "worldbuilding-card"; prompt: string; data: WorldbuildingData }
   | { id: string; sender: "model"; type: "welcome"; prompt: string }
   | { id: string; sender: "model"; type: "micro-adjust"; prompt: string; round: number }
   | { id: string; sender: "user"; type: "card-selection"; content: string }
@@ -356,7 +396,7 @@ export default function ChatPanel() {
       return;
     }
 
-    // If at confirm stage (after settings card shown), user confirmed → start world-building
+    // If at confirm stage (after settings card shown), user confirmed → generate world-building
     if (currentRound === 4) {
       const thinkingId = `thinking-wb`;
       setTimeout(() => {
@@ -369,12 +409,36 @@ export default function ChatPanel() {
           {
             id: "model-worldbuilding",
             sender: "model",
-            type: "text",
-            content: "好的，正在为你生成世界观设定…（世界观 — 待实现）",
+            type: "worldbuilding-card",
+            prompt: "世界观构建完成！我为「清岚镇」搭建了完整的场景和社会生态。你可以在编辑区查看完整内容，觉得没问题就可以开始创建角色了。",
+            data: mockWorldbuilding,
           },
         ]);
         setCurrentRound(5);
         setCreationStage(2);
+      }, 2500);
+      return;
+    }
+
+    // If at worldbuilding confirm stage, user confirmed → start character stage
+    if (currentRound === 5) {
+      const thinkingId = `thinking-char`;
+      setTimeout(() => {
+        setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+      }, 300);
+
+      setTimeout(() => {
+        setMessages((prev) => [
+          ...prev.filter((m) => m.id !== thinkingId),
+          {
+            id: "model-characters",
+            sender: "model",
+            type: "text",
+            content: "好的，正在为你创建角色设定…（角色 — 待实现）",
+          },
+        ]);
+        setCurrentRound(6);
+        setCreationStage(3);
       }, 2500);
       return;
     }
@@ -695,6 +759,57 @@ export default function ChatPanel() {
                     {/* View full in editor hint */}
                     <div className="relative px-4 py-2.5 text-center border-t border-gray-50">
                       <span className="text-[11px] text-gray-400">查看完整设定请点击编辑区</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          }
+
+          // ── Model: worldbuilding card ──
+          if (msg.sender === "model" && msg.type === "worldbuilding-card") {
+            return (
+              <div key={msg.id} className="space-y-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                    <span className="text-white text-[10px] font-bold">AI</span>
+                  </div>
+                  <span className="text-xs text-gray-400">文心</span>
+                </div>
+                <p className="text-sm text-gray-700 leading-relaxed pl-8">{msg.prompt}</p>
+
+                {/* Worldbuilding Card - truncated with fade */}
+                <div className="pl-8">
+                  <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden relative">
+                    <div className="max-h-[200px] overflow-hidden">
+                      {/* Summary */}
+                      <div className="px-4 py-3">
+                        <h4 className="text-xs font-semibold text-gray-500 mb-2">故事世界</h4>
+                        <p className="text-sm text-gray-700 leading-relaxed">{msg.data.summary}</p>
+                      </div>
+                      <div className="border-t border-gray-100" />
+                      {/* Scenes preview */}
+                      <div className="px-4 py-3">
+                        <h4 className="text-xs font-semibold text-gray-500 mb-2">核心场景</h4>
+                        <div className="flex flex-wrap gap-1.5">
+                          {msg.data.scenes.map((s) => (
+                            <span key={s.name} className="px-2.5 py-1 bg-emerald-50 text-emerald-600 text-xs rounded-full">
+                              {s.name}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="border-t border-gray-100" />
+                      {/* Timeline */}
+                      <div className="px-4 py-3">
+                        <h4 className="text-xs font-semibold text-gray-500 mb-2">时间线</h4>
+                        <p className="text-sm text-gray-700 leading-relaxed">{msg.data.timeline}</p>
+                      </div>
+                    </div>
+                    {/* Gradient fade */}
+                    <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
+                    <div className="relative px-4 py-2.5 text-center border-t border-gray-50">
+                      <span className="text-[11px] text-gray-400">查看完整世界观请点击编辑区</span>
                     </div>
                   </div>
                 </div>
