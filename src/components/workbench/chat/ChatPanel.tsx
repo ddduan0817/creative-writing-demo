@@ -112,6 +112,65 @@ const mockSettings: Record<string, { label: string; value: string }[]> = {
   ],
 };
 
+// ─── Mock Worldbuilding Rounds ───────────────────────────────
+
+const worldbuildingRounds: InspirationRound[] = [
+  {
+    prompt: "设定确认！接下来我们构建故事发生的世界。你希望这个小镇是什么样的？",
+    cards: [
+      {
+        text: "南方水乡古镇：依山傍水、青石板路、白墙黑瓦、小桥流水。手机信号时有时无，年轻人外出谋生，留下的都是老人和几个不愿离开的「怪人」。慢节奏，烟火气十足。",
+        keywords: ["水乡", "古镇", "烟火气", "慢生活"],
+      },
+      {
+        text: "山间避世小镇：四面环山的盆地小镇，常年云雾缭绕，只有一条公路通往外界。镇上有天然温泉、百年茶园和一座废弃的小学，像是被时间遗忘的地方。",
+        keywords: ["山间", "避世", "云雾", "温泉"],
+      },
+      {
+        text: "海边渔港小镇：东南沿海的老渔港，咸湿的海风、斑驳的灯塔、清晨出海的渔船。镇上有妈祖庙和一个年久失修的小码头，旺季会有零星的游客。",
+        keywords: ["海边", "渔港", "灯塔", "海风"],
+      },
+    ],
+    adjustPrompt: "想微调什么？比如「加个竹林」「镇上要有集市」之类的，或者跳过继续～",
+  },
+  {
+    prompt: "很有画面感！小镇的核心场景你更喜欢哪种组合？",
+    cards: [
+      {
+        text: "烟火美食线：女主的面馆「一碗春」+ 男主的中医馆「济世堂」+ 镇中心的百年古戏台。面香和药香隔墙混在一起，古戏台是全镇社交中心。",
+        keywords: ["面馆", "中医馆", "古戏台", "邻里"],
+      },
+      {
+        text: "文艺慢生活：女主的旧书咖啡馆 + 男主的陶艺工作室 + 镇尾的老电影院（只在周末放映）。文艺气息浓厚，日常细节丰富，适合慢热叙事。",
+        keywords: ["书店", "陶艺", "电影院", "文艺"],
+      },
+      {
+        text: "自然治愈线：女主的山脚花店 + 男主的竹林茶舍 + 湖边的废弃小木屋。大量自然描写，四季轮转推动情节发展和情感变化。",
+        keywords: ["花店", "竹林", "湖边", "四季"],
+      },
+    ],
+    adjustPrompt: "场景还想加什么？比如「后山要有个秘密基地」「再加一个赶集场景」，没有就跳过～",
+  },
+  {
+    prompt: "最后确认一下小镇的人文氛围和暗线方向：",
+    cards: [
+      {
+        text: "温暖人情味：热心的王婶当非官方媒人、每周日赶集全镇出动、「三巨头」聊天团八卦一切。暗线是女主童年曾在此生活，有人认出她但选择守护她的平静。",
+        keywords: ["人情味", "赶集", "八卦", "守护"],
+      },
+      {
+        text: "表面平静暗流涌动：镇上每个人都有不为人知的过去，老一辈之间有未解的恩怨。失忆真相与十五年前一场事故有关，线索散落在小镇各个角落。",
+        keywords: ["秘密", "恩怨", "事故", "线索"],
+      },
+      {
+        text: "世外桃源渐被打破：小镇像时间胶囊般宁静，直到外界的人（经纪人、记者）开始闯入。宁静与喧嚣的碰撞推动故事走向高潮。",
+        keywords: ["桃源", "打破", "碰撞", "高潮"],
+      },
+    ],
+    adjustPrompt: "最后还想补充什么？比如「隐藏线索再多一条」「氛围再温暖一点」，没有的话我开始整理世界观了～",
+  },
+];
+
 // ─── Mock Worldbuilding Data ─────────────────────────────────
 
 interface WorldbuildingScene {
@@ -268,12 +327,14 @@ export default function ChatPanel() {
   }, []);
 
   // Proceed to next round (after adjust or skip)
+  // Rounds 1-3: inspiration → settings card at end
+  // Rounds 5-7: worldbuilding → worldbuilding card at end
   const proceedToNextRound = useCallback(
     (fromRound: number) => {
       setAwaitingAdjust(false);
 
-      if (fromRound < 3) {
-        // Show thinking, then next round
+      // Inspiration rounds (1-3)
+      if (fromRound >= 1 && fromRound < 3) {
         const thinkingId = `thinking-r${fromRound + 1}`;
         setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
 
@@ -292,8 +353,11 @@ export default function ChatPanel() {
           ]);
           setCurrentRound(fromRound + 1);
         }, 1500);
-      } else {
-        // Round 3 done → generate settings card
+        return;
+      }
+
+      // Inspiration round 3 done → generate settings card
+      if (fromRound === 3) {
         const thinkingId = `thinking-settings`;
         setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
 
@@ -304,13 +368,59 @@ export default function ChatPanel() {
               id: "model-settings",
               sender: "model",
               type: "settings-card",
-              prompt: "根据你的灵感方向，我为你整理了以下创作设定。确认无误就可以开始生成世界观了，你也可以告诉我需要调整的地方。",
+              prompt: "根据你的灵感方向，我为你整理了以下创作设定。确认无误就可以开始构建世界观了，你也可以告诉我需要调整的地方。",
               settings: mockSettings,
             },
           ]);
           setCurrentRound(4);
           setCreationStage(1);
         }, 2500);
+        return;
+      }
+
+      // Worldbuilding rounds (5-7)
+      if (fromRound >= 5 && fromRound < 7) {
+        const thinkingId = `thinking-r${fromRound + 1}`;
+        setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+
+        setTimeout(() => {
+          const nextWb = worldbuildingRounds[fromRound - 5 + 1];
+          setMessages((prev) => [
+            ...prev.filter((m) => m.id !== thinkingId),
+            {
+              id: `model-r${fromRound + 1}`,
+              sender: "model",
+              type: "inspiration",
+              prompt: nextWb.prompt,
+              cards: nextWb.cards,
+              round: fromRound + 1,
+            },
+          ]);
+          setCurrentRound(fromRound + 1);
+        }, 1500);
+        return;
+      }
+
+      // Worldbuilding round 7 done → generate worldbuilding card
+      if (fromRound === 7) {
+        const thinkingId = `thinking-wb-card`;
+        setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+
+        setTimeout(() => {
+          setMessages((prev) => [
+            ...prev.filter((m) => m.id !== thinkingId),
+            {
+              id: "model-worldbuilding",
+              sender: "model",
+              type: "worldbuilding-card",
+              prompt: "世界观构建完成！你可以在编辑区查看完整内容，觉得没问题就可以开始创建角色了，有想调整的也可以直接告诉我。",
+              data: mockWorldbuilding,
+            },
+          ]);
+          setCurrentRound(8);
+          setCreationStage(2);
+        }, 2500);
+        return;
       }
     },
     [setCreationStage]
@@ -320,7 +430,13 @@ export default function ChatPanel() {
   const handleCardSelect = useCallback(
     (round: number, cardIndex: number) => {
       if (selections[round] !== undefined) return;
-      const cardText = inspirationRounds[round - 1].cards[cardIndex].text;
+
+      // Get card data from the right source
+      const isWb = round >= 5;
+      const roundData = isWb
+        ? worldbuildingRounds[round - 5]
+        : inspirationRounds[round - 1];
+      const cardText = roundData.cards[cardIndex].text;
 
       setSelections((prev) => ({ ...prev, [round]: cardIndex }));
 
@@ -342,7 +458,7 @@ export default function ChatPanel() {
             id: `model-adj-${round}`,
             sender: "model",
             type: "micro-adjust",
-            prompt: inspirationRounds[round - 1].adjustPrompt,
+            prompt: roundData.adjustPrompt,
             round,
           },
         ]);
@@ -396,32 +512,33 @@ export default function ChatPanel() {
       return;
     }
 
-    // If at confirm stage (after settings card shown), user confirmed → generate world-building
+    // If at confirm stage (after settings card shown), user confirmed → start worldbuilding rounds
     if (currentRound === 4) {
-      const thinkingId = `thinking-wb`;
+      const thinkingId = `thinking-wb-start`;
       setTimeout(() => {
         setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
       }, 300);
 
       setTimeout(() => {
+        const wb1 = worldbuildingRounds[0];
         setMessages((prev) => [
           ...prev.filter((m) => m.id !== thinkingId),
           {
-            id: "model-worldbuilding",
+            id: "model-r5",
             sender: "model",
-            type: "worldbuilding-card",
-            prompt: "世界观构建完成！我为「清岚镇」搭建了完整的场景和社会生态。你可以在编辑区查看完整内容，觉得没问题就可以开始创建角色了。",
-            data: mockWorldbuilding,
+            type: "inspiration",
+            prompt: wb1.prompt,
+            cards: wb1.cards,
+            round: 5,
           },
         ]);
         setCurrentRound(5);
-        setCreationStage(2);
-      }, 2500);
+      }, 1500);
       return;
     }
 
     // If at worldbuilding confirm stage, user confirmed → start character stage
-    if (currentRound === 5) {
+    if (currentRound === 8) {
       const thinkingId = `thinking-char`;
       setTimeout(() => {
         setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
@@ -434,10 +551,10 @@ export default function ChatPanel() {
             id: "model-characters",
             sender: "model",
             type: "text",
-            content: "好的，正在为你创建角色设定…（角色 — 待实现）",
+            content: "好的，接下来我们来创建角色…（角色 — 待实现）",
           },
         ]);
-        setCurrentRound(6);
+        setCurrentRound(9);
         setCreationStage(3);
       }, 2500);
       return;

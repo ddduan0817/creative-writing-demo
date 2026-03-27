@@ -225,6 +225,9 @@ export default function RichTextEditor() {
 
   // Novel agent flow: show settings/worldbuilding in editor (read-only)
   if (scene === "novel" && creationStage >= 1 && creationStage < 5) {
+    // creationStage 1 = 设定, creationStage >= 2 = 世界观 (覆盖设定)
+    const showWorldbuilding = creationStage >= 2;
+
     const settingsData = [
       {
         group: "故事概念",
@@ -266,57 +269,22 @@ export default function RichTextEditor() {
         {editor && <EditorToolbar editor={editor} />}
         <div className="flex-1 overflow-y-auto px-10 py-8">
           <div className="max-w-2xl mx-auto space-y-8">
-            <div>
-              <h2 className="text-lg font-bold text-gray-900 mb-1">创作设定</h2>
-              <p className="text-xs text-gray-400">基于灵感方向自动生成，可在对话中修改</p>
-            </div>
-
-            {settingsData.map((section) => (
-              <div key={section.group}>
-                <h3 className="text-sm font-semibold text-gray-700 mb-4 pb-2 border-b border-gray-100">
-                  {section.group}
-                </h3>
-                {section.type === "text" ? (
-                  <div className="space-y-4">
-                    {section.items.map((item) => (
-                      <div key={item.label}>
-                        <span className="text-xs font-medium text-gray-400 block mb-1">{item.label}</span>
-                        <p className="text-sm text-gray-700 leading-relaxed">{item.value}</p>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {section.items.map((item) => (
-                      <div key={item.label} className="flex items-start gap-4">
-                        <span className="text-sm text-gray-400 w-20 shrink-0">{item.label}</span>
-                        <div className="flex flex-wrap gap-1.5">
-                          {item.value.split(" · ").map((tag) => (
-                            <span
-                              key={tag}
-                              className="px-2.5 py-1 bg-indigo-50 text-indigo-600 text-sm rounded-full"
-                            >
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
-
-            {creationStage >= 2 && (
+            {/* ── 世界观展示（覆盖设定） ── */}
+            {showWorldbuilding ? (
               <>
-                {/* 世界观 - 故事世界 */}
+                <div>
+                  <h2 className="text-lg font-bold text-gray-900 mb-1">世界观</h2>
+                  <p className="text-xs text-gray-400">基于创作设定自动生成，可在对话中修改</p>
+                </div>
+
+                {/* 故事世界 + 时间线 */}
                 <div>
                   <h3 className="text-sm font-semibold text-gray-700 mb-4 pb-2 border-b border-gray-100">
-                    世界观
+                    故事世界
                   </h3>
-                  <div className="space-y-5">
+                  <div className="space-y-4">
                     <div>
-                      <span className="text-xs font-medium text-gray-400 block mb-1">故事世界</span>
+                      <span className="text-xs font-medium text-gray-400 block mb-1">世界概述</span>
                       <p className="text-sm text-gray-700 leading-relaxed">
                         当代中国南方小镇「清岚镇」——一个依山傍水的千年古镇，青石板路、白墙黑瓦，手机信号时有时无。年轻人大多外出谋生，留下的都是老人和几个「不愿离开的怪人」。
                       </p>
@@ -335,7 +303,7 @@ export default function RichTextEditor() {
                   <h3 className="text-sm font-semibold text-gray-700 mb-4 pb-2 border-b border-gray-100">
                     核心场景
                   </h3>
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     {[
                       { name: "清岚镇·主街", desc: "唯一的主街，两侧是各种老字号店铺。早上有赶早市的吆喝声，傍晚有归家的炊烟。街尾是一棵三百年的老榕树，树下有石桌石凳，是全镇的八卦中心。" },
                       { name: "一碗春面馆", desc: "女主盘下的老面馆，前店后院。院子里有棵百年老桂花树，秋天整条街都能闻到香气。面馆只卖六种面，每天限量，卖完就关门。" },
@@ -390,6 +358,50 @@ export default function RichTextEditor() {
                     ))}
                   </ul>
                 </div>
+              </>
+            ) : (
+              /* ── 设定展示 ── */
+              <>
+                <div>
+                  <h2 className="text-lg font-bold text-gray-900 mb-1">创作设定</h2>
+                  <p className="text-xs text-gray-400">基于灵感方向自动生成，可在对话中修改</p>
+                </div>
+
+                {settingsData.map((section) => (
+                  <div key={section.group}>
+                    <h3 className="text-sm font-semibold text-gray-700 mb-4 pb-2 border-b border-gray-100">
+                      {section.group}
+                    </h3>
+                    {section.type === "text" ? (
+                      <div className="space-y-4">
+                        {section.items.map((item) => (
+                          <div key={item.label}>
+                            <span className="text-xs font-medium text-gray-400 block mb-1">{item.label}</span>
+                            <p className="text-sm text-gray-700 leading-relaxed">{item.value}</p>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {section.items.map((item) => (
+                          <div key={item.label} className="flex items-start gap-4">
+                            <span className="text-sm text-gray-400 w-20 shrink-0">{item.label}</span>
+                            <div className="flex flex-wrap gap-1.5">
+                              {item.value.split(" · ").map((tag) => (
+                                <span
+                                  key={tag}
+                                  className="px-2.5 py-1 bg-indigo-50 text-indigo-600 text-sm rounded-full"
+                                >
+                                  {tag}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
               </>
             )}
           </div>
