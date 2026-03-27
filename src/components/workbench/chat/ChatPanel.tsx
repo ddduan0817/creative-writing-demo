@@ -210,6 +210,109 @@ const mockWorldbuilding: WorldbuildingData = {
   ],
 };
 
+// ─── Mock Character Rounds ───────────────────────────────────
+
+const characterRounds: InspirationRound[] = [
+  {
+    prompt: "世界观搭建完毕！接下来创建角色。先看看女主角的性格方向：",
+    cards: [
+      {
+        text: "外柔内刚型：表面温柔随和，实则内心坚韧。失忆前在娱乐圈养成了察言观色的本能，失忆后反而展现出天然的亲和力。做面时专注认真，不服输，面馆被她经营得有声有色。",
+        keywords: ["温柔", "坚韧", "亲和力", "不服输"],
+      },
+      {
+        text: "毒舌傲娇型：嘴硬心软，失忆后依然保留了当影后时的犀利和高标准。面馆经营得一丝不苟，对男主嘴上不饶人，行动却很诚实。生气时会多做一碗面摔在桌上。",
+        keywords: ["毒舌", "傲娇", "犀利", "嘴硬心软"],
+      },
+      {
+        text: "元气治愈型：失忆后像换了个人，开朗热情、对一切充满好奇。把面馆变成了小镇的社交中心，用美食治愈所有人。笑起来像清晨的阳光，但偶尔会在深夜突然安静下来。",
+        keywords: ["元气", "治愈", "好奇", "反差"],
+      },
+    ],
+    adjustPrompt: "想调整女主性格吗？比如「再强势一点」「加点文艺气质」，或者跳过～",
+  },
+  {
+    prompt: "女主很有魅力！再来看看男主角的人设：",
+    cards: [
+      {
+        text: "沉默守护型：话少但行动力强，默默照顾女主却从不邀功。中医馆里严肃认真，面对女主时会不自觉地语气变软。有一段不愿提起的过去，深夜独自在后山竹林练八段锦。",
+        keywords: ["沉默", "守护", "反差萌", "过去"],
+      },
+      {
+        text: "毒舌闷骚型：表面冷漠毒舌，实则闷骚到不行。和女主的日常拌嘴是全镇的连续剧。会在深夜偷偷给面馆留一把新鲜草药，附纸条写「多的，别浪费」。",
+        keywords: ["毒舌", "闷骚", "拌嘴", "偷偷关心"],
+      },
+      {
+        text: "温润如玉型：温和有礼，医者仁心。对所有人都很好，但对女主有明显的不同——会记住她喝什么茶、哪天该换药。在女主失忆发作时永远第一个出现。",
+        keywords: ["温润", "细心", "医者仁心", "偏爱"],
+      },
+    ],
+    adjustPrompt: "想调整男主什么？比如「再高冷一点」「加点反派感」，或者跳过～",
+  },
+  {
+    prompt: "男女主搭配很有火花！最后确认关键配角和人物关系：",
+    cards: [
+      {
+        text: "热闹烟火型配角：王婶（热心媒人，全镇姻缘操碎心）、老张（杂货店话痨，情报中心）、陈老（茶馆智者，偶尔一句点醒所有人）、小鱼（16岁面馆学徒，萌系担当）。",
+        keywords: ["烟火气", "群像", "日常", "萌系"],
+      },
+      {
+        text: "暗线关联型配角：男主的青梅竹马（温柔表象下暗藏心机）、女主的前经纪人（掌握失忆真相）、神秘的镇长奶奶（知道所有人的秘密但从不主动开口）。每个人都是谜题的一块拼图。",
+        keywords: ["悬疑", "心机", "真相", "拼图"],
+      },
+      {
+        text: "成长陪伴型配角：小鱼（面馆学徒，治愈萌物）、花姐（隔壁花店老板娘，恋爱军师）、中医馆的老猫阿福（灵性十足，只亲近女主）。温馨日常为主，配角各有成长线。",
+        keywords: ["陪伴", "成长", "萌宠", "闺蜜"],
+      },
+    ],
+    adjustPrompt: "配角还想加谁？或者想调整关系设定？比如「加个反派」「闺蜜要更有存在感」，没有就跳过～",
+  },
+];
+
+// ─── Mock Character Card Data ────────────────────────────────
+
+interface CharacterProfile {
+  name: string;
+  identity: string;
+  personality: string;
+  appearance: string;
+  habit: string;
+  secret: string;
+}
+
+interface CharacterCardData {
+  femaleLead: CharacterProfile;
+  maleLead: CharacterProfile;
+  supporting: { name: string; role: string; desc: string }[];
+  relationships: string;
+}
+
+const mockCharacterCard: CharacterCardData = {
+  femaleLead: {
+    name: "苏念（小名念念）",
+    identity: "前当红影后，现清岚镇「一碗春」面馆老板娘",
+    personality: "外柔内刚，失忆后展现出天然的亲和力和不服输的韧劲",
+    appearance: "杏眼桃腮，常扎麻花辫，最爱穿素色棉麻围裙",
+    habit: "做面时会无意识哼歌，那首歌是她失忆前拍戏时的插曲",
+    secret: "随身带着一枚旧铜钥匙，不知道它能打开什么",
+  },
+  maleLead: {
+    name: "陆知行",
+    identity: "济世堂第四代传人，清岚镇唯一的中医",
+    personality: "沉默寡言但行动力强，面对苏念时语气会不自觉变软",
+    appearance: "清瘦高挑，常穿白衬衫，手指修长带着淡淡药香",
+    habit: "深夜在后山竹林练八段锦，是他唯一的独处时间",
+    secret: "认出了苏念的真实身份，但选择沉默守护她的平静生活",
+  },
+  supporting: [
+    { name: "王婶", role: "镇长 / 非官方媒人", desc: "热心到让人招架不住，全镇姻缘她操了一半的心。口头禅：'我看你俩啊…'" },
+    { name: "老张", role: "杂货店老板", desc: "话痨担当，消息灵通，是小镇的情报中心。什么事都瞒不过他的八卦雷达" },
+    { name: "陈老", role: "茶馆掌柜", desc: "看似糊涂的智者，泡茶时偶尔一句话就能点醒所有人" },
+    { name: "小鱼", role: "面馆学徒", desc: "16岁留守少年，把苏念当亲姐姐。是日常线的萌点担当，也是情感催化剂" },
+  ],
+  relationships: "苏念 × 陆知行：欢喜冤家 → 暗生情愫 → 互相守护\n王婶 → 全镇：操心一切，推动主线发展\n小鱼 → 苏念：姐弟情深，治愈线担当\n陈老 → 陆知行：亦师亦友，关键时刻点拨",
+};
+
 // ─── Mock: free-input guided flow ────────────────────────────
 
 const guidedFollowUps = [
@@ -231,6 +334,7 @@ type Message =
   | { id: string; sender: "model"; type: "text"; content: string }
   | { id: string; sender: "model"; type: "settings-card"; prompt: string; settings: Record<string, { label: string; value: string }[]> }
   | { id: string; sender: "model"; type: "worldbuilding-card"; prompt: string; data: WorldbuildingData }
+  | { id: string; sender: "model"; type: "character-card"; prompt: string; data: CharacterCardData }
   | { id: string; sender: "model"; type: "welcome"; prompt: string }
   | { id: string; sender: "model"; type: "micro-adjust"; prompt: string; round: number }
   | { id: string; sender: "user"; type: "card-selection"; content: string }
@@ -422,6 +526,51 @@ export default function ChatPanel() {
         }, 2500);
         return;
       }
+
+      // Character rounds (9-11)
+      if (fromRound >= 9 && fromRound < 11) {
+        const thinkingId = `thinking-r${fromRound + 1}`;
+        setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+
+        setTimeout(() => {
+          const nextChar = characterRounds[fromRound - 9 + 1];
+          setMessages((prev) => [
+            ...prev.filter((m) => m.id !== thinkingId),
+            {
+              id: `model-r${fromRound + 1}`,
+              sender: "model",
+              type: "inspiration",
+              prompt: nextChar.prompt,
+              cards: nextChar.cards,
+              round: fromRound + 1,
+            },
+          ]);
+          setCurrentRound(fromRound + 1);
+        }, 1500);
+        return;
+      }
+
+      // Character round 11 done → generate character card
+      if (fromRound === 11) {
+        const thinkingId = `thinking-char-card`;
+        setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+
+        setTimeout(() => {
+          setMessages((prev) => [
+            ...prev.filter((m) => m.id !== thinkingId),
+            {
+              id: "model-characters",
+              sender: "model",
+              type: "character-card",
+              prompt: "角色创建完成！你可以在编辑区查看完整的角色档案，觉得没问题就可以开始生成大纲了，想调整随时告诉我。",
+              data: mockCharacterCard,
+            },
+          ]);
+          setCurrentRound(12);
+          setCreationStage(3);
+        }, 2500);
+        return;
+      }
     },
     [setCreationStage]
   );
@@ -432,8 +581,11 @@ export default function ChatPanel() {
       if (selections[round] !== undefined) return;
 
       // Get card data from the right source
-      const isWb = round >= 5;
-      const roundData = isWb
+      const isWb = round >= 5 && round <= 7;
+      const isChar = round >= 9 && round <= 11;
+      const roundData = isChar
+        ? characterRounds[round - 9]
+        : isWb
         ? worldbuildingRounds[round - 5]
         : inspirationRounds[round - 1];
       const cardText = roundData.cards[cardIndex].text;
@@ -537,9 +689,34 @@ export default function ChatPanel() {
       return;
     }
 
-    // If at worldbuilding confirm stage, user confirmed → start character stage
+    // If at worldbuilding confirm stage, user confirmed → start character rounds
     if (currentRound === 8) {
-      const thinkingId = `thinking-char`;
+      const thinkingId = `thinking-char-start`;
+      setTimeout(() => {
+        setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+      }, 300);
+
+      setTimeout(() => {
+        const ch1 = characterRounds[0];
+        setMessages((prev) => [
+          ...prev.filter((m) => m.id !== thinkingId),
+          {
+            id: "model-r9",
+            sender: "model",
+            type: "inspiration",
+            prompt: ch1.prompt,
+            cards: ch1.cards,
+            round: 9,
+          },
+        ]);
+        setCurrentRound(9);
+      }, 1500);
+      return;
+    }
+
+    // If at character confirm stage, user confirmed → start outline stage
+    if (currentRound === 12) {
+      const thinkingId = `thinking-outline`;
       setTimeout(() => {
         setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
       }, 300);
@@ -548,14 +725,14 @@ export default function ChatPanel() {
         setMessages((prev) => [
           ...prev.filter((m) => m.id !== thinkingId),
           {
-            id: "model-characters",
+            id: "model-outline",
             sender: "model",
             type: "text",
-            content: "好的，接下来我们来创建角色…（角色 — 待实现）",
+            content: "好的，接下来我们来生成故事大纲…（大纲 — 待实现）",
           },
         ]);
-        setCurrentRound(9);
-        setCreationStage(3);
+        setCurrentRound(13);
+        setCreationStage(4);
       }, 2500);
       return;
     }
@@ -927,6 +1104,61 @@ export default function ChatPanel() {
                     <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
                     <div className="relative px-4 py-2.5 text-center border-t border-gray-50">
                       <span className="text-[11px] text-gray-400">查看完整世界观请点击编辑区</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          }
+
+          // ── Model: character card ──
+          if (msg.sender === "model" && msg.type === "character-card") {
+            return (
+              <div key={msg.id} className="space-y-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                    <span className="text-white text-[10px] font-bold">AI</span>
+                  </div>
+                  <span className="text-xs text-gray-400">文心</span>
+                </div>
+                <p className="text-sm text-gray-700 leading-relaxed pl-8">{msg.prompt}</p>
+
+                {/* Character Card - truncated with fade */}
+                <div className="pl-8">
+                  <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden relative">
+                    <div className="max-h-[200px] overflow-hidden">
+                      {/* Female lead */}
+                      <div className="px-4 py-3">
+                        <h4 className="text-xs font-semibold text-gray-500 mb-2">女主角</h4>
+                        <p className="text-sm font-medium text-purple-600">{msg.data.femaleLead.name}</p>
+                        <p className="text-xs text-gray-500 mt-0.5">{msg.data.femaleLead.identity}</p>
+                        <p className="text-xs text-gray-600 mt-1">{msg.data.femaleLead.personality}</p>
+                      </div>
+                      <div className="border-t border-gray-100" />
+                      {/* Male lead */}
+                      <div className="px-4 py-3">
+                        <h4 className="text-xs font-semibold text-gray-500 mb-2">男主角</h4>
+                        <p className="text-sm font-medium text-blue-600">{msg.data.maleLead.name}</p>
+                        <p className="text-xs text-gray-500 mt-0.5">{msg.data.maleLead.identity}</p>
+                        <p className="text-xs text-gray-600 mt-1">{msg.data.maleLead.personality}</p>
+                      </div>
+                      <div className="border-t border-gray-100" />
+                      {/* Supporting */}
+                      <div className="px-4 py-3">
+                        <h4 className="text-xs font-semibold text-gray-500 mb-2">关键配角</h4>
+                        <div className="flex flex-wrap gap-1.5">
+                          {msg.data.supporting.map((c) => (
+                            <span key={c.name} className="px-2.5 py-1 bg-amber-50 text-amber-600 text-xs rounded-full">
+                              {c.name}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                    {/* Gradient fade */}
+                    <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
+                    <div className="relative px-4 py-2.5 text-center border-t border-gray-50">
+                      <span className="text-[11px] text-gray-400">查看完整角色档案请点击编辑区</span>
                     </div>
                   </div>
                 </div>

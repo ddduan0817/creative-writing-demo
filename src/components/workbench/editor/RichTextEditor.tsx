@@ -225,8 +225,9 @@ export default function RichTextEditor() {
 
   // Novel agent flow: show settings/worldbuilding in editor (read-only)
   if (scene === "novel" && creationStage >= 1 && creationStage < 5) {
-    // creationStage 1 = 设定, creationStage >= 2 = 世界观 (覆盖设定)
-    const showWorldbuilding = creationStage >= 2;
+    // creationStage 1 = 设定, creationStage 2 = 世界观, creationStage >= 3 = 角色
+    const showWorldbuilding = creationStage === 2;
+    const showCharacters = creationStage >= 3;
 
     const settingsData = [
       {
@@ -269,8 +270,99 @@ export default function RichTextEditor() {
         {editor && <EditorToolbar editor={editor} />}
         <div className="flex-1 overflow-y-auto px-10 py-8">
           <div className="max-w-2xl mx-auto space-y-8">
-            {/* ── 世界观展示（覆盖设定） ── */}
-            {showWorldbuilding ? (
+            {/* ── 角色档案展示（覆盖世界观） ── */}
+            {showCharacters ? (
+              <>
+                <div>
+                  <h2 className="text-lg font-bold text-gray-900 mb-1">角色档案</h2>
+                  <p className="text-xs text-gray-400">基于世界观自动生成，可在对话中修改</p>
+                </div>
+
+                {/* 女主角 */}
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-700 mb-4 pb-2 border-b border-gray-100">
+                    女主角
+                  </h3>
+                  <div className="bg-purple-50/50 rounded-lg p-4 space-y-3">
+                    <div>
+                      <span className="text-base font-bold text-purple-600">苏念</span>
+                      <span className="text-xs text-gray-400 ml-2">小名念念</span>
+                    </div>
+                    {[
+                      { label: "身份", value: "前当红影后，现清岚镇「一碗春」面馆老板娘" },
+                      { label: "性格", value: "外柔内刚，失忆后展现出天然的亲和力和不服输的韧劲" },
+                      { label: "外貌", value: "杏眼桃腮，常扎麻花辫，最爱穿素色棉麻围裙" },
+                      { label: "习惯", value: "做面时会无意识哼歌，那首歌是她失忆前拍戏时的插曲" },
+                      { label: "秘密", value: "随身带着一枚旧铜钥匙，不知道它能打开什么" },
+                    ].map((item) => (
+                      <div key={item.label} className="flex gap-3">
+                        <span className="text-xs text-purple-400 w-10 shrink-0 pt-0.5">{item.label}</span>
+                        <p className="text-sm text-gray-700 leading-relaxed">{item.value}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 男主角 */}
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-700 mb-4 pb-2 border-b border-gray-100">
+                    男主角
+                  </h3>
+                  <div className="bg-blue-50/50 rounded-lg p-4 space-y-3">
+                    <div>
+                      <span className="text-base font-bold text-blue-600">陆知行</span>
+                    </div>
+                    {[
+                      { label: "身份", value: "济世堂第四代传人，清岚镇唯一的中医" },
+                      { label: "性格", value: "沉默寡言但行动力强，面对苏念时语气会不自觉变软" },
+                      { label: "外貌", value: "清瘦高挑，常穿白衬衫，手指修长带着淡淡药香" },
+                      { label: "习惯", value: "深夜在后山竹林练八段锦，是他唯一的独处时间" },
+                      { label: "秘密", value: "认出了苏念的真实身份，但选择沉默守护她的平静生活" },
+                    ].map((item) => (
+                      <div key={item.label} className="flex gap-3">
+                        <span className="text-xs text-blue-400 w-10 shrink-0 pt-0.5">{item.label}</span>
+                        <p className="text-sm text-gray-700 leading-relaxed">{item.value}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 关键配角 */}
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-700 mb-4 pb-2 border-b border-gray-100">
+                    关键配角
+                  </h3>
+                  <div className="space-y-3">
+                    {[
+                      { name: "王婶", role: "镇长 / 非官方媒人", desc: "热心到让人招架不住，全镇姻缘她操了一半的心。口头禅：'我看你俩啊…'" },
+                      { name: "老张", role: "杂货店老板", desc: "话痨担当，消息灵通，是小镇的情报中心。什么事都瞒不过他的八卦雷达" },
+                      { name: "陈老", role: "茶馆掌柜", desc: "看似糊涂的智者，泡茶时偶尔一句话就能点醒所有人" },
+                      { name: "小鱼", role: "面馆学徒", desc: "16岁留守少年，把苏念当亲姐姐。是日常线的萌点担当，也是情感催化剂" },
+                    ].map((c) => (
+                      <div key={c.name} className="bg-gray-50/60 rounded-lg p-3.5">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-sm font-medium text-amber-600">{c.name}</span>
+                          <span className="text-[11px] text-gray-400">{c.role}</span>
+                        </div>
+                        <p className="text-sm text-gray-600 leading-relaxed">{c.desc}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 人物关系 */}
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-700 mb-4 pb-2 border-b border-gray-100">
+                    人物关系
+                  </h3>
+                  <div className="space-y-2">
+                    {"苏念 × 陆知行：欢喜冤家 → 暗生情愫 → 互相守护\n王婶 → 全镇：操心一切，推动主线发展\n小鱼 → 苏念：姐弟情深，治愈线担当\n陈老 → 陆知行：亦师亦友，关键时刻点拨".split("\n").map((line, i) => (
+                      <p key={i} className="text-sm text-gray-700 leading-relaxed">{line}</p>
+                    ))}
+                  </div>
+                </div>
+              </>
+            ) : showWorldbuilding ? (
               <>
                 <div>
                   <h2 className="text-lg font-bold text-gray-900 mb-1">世界观</h2>
