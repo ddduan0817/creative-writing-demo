@@ -372,34 +372,42 @@ export default function ChatPanel() {
                 </div>
                 <p className="text-sm text-gray-700 leading-relaxed pl-8">{msg.prompt}</p>
 
-                {/* Settings Card */}
+                {/* Settings Card - truncated with fade */}
                 <div className="pl-8">
-                  <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                    {Object.entries(msg.settings).map(([group, items], gi) => (
-                      <div key={group}>
-                        {gi > 0 && <div className="border-t border-gray-100" />}
-                        <div className="px-4 py-3">
-                          <h4 className="text-xs font-semibold text-gray-500 mb-2.5">{group}</h4>
-                          <div className="space-y-2">
-                            {items.map((item) => (
-                              <div key={item.label} className="flex items-start gap-2">
-                                <span className="text-xs text-gray-400 w-16 shrink-0 pt-0.5">{item.label}</span>
-                                <div className="flex flex-wrap gap-1">
-                                  {item.value.split(" · ").map((tag) => (
-                                    <span
-                                      key={tag}
-                                      className="px-2 py-0.5 bg-indigo-50 text-indigo-600 text-xs rounded-full"
-                                    >
-                                      {tag}
-                                    </span>
-                                  ))}
+                  <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden relative">
+                    <div className="max-h-[160px] overflow-hidden">
+                      {Object.entries(msg.settings).map(([group, items], gi) => (
+                        <div key={group}>
+                          {gi > 0 && <div className="border-t border-gray-100" />}
+                          <div className="px-4 py-3">
+                            <h4 className="text-xs font-semibold text-gray-500 mb-2.5">{group}</h4>
+                            <div className="space-y-2">
+                              {items.map((item) => (
+                                <div key={item.label} className="flex items-start gap-2">
+                                  <span className="text-xs text-gray-400 w-16 shrink-0 pt-0.5">{item.label}</span>
+                                  <div className="flex flex-wrap gap-1">
+                                    {item.value.split(" · ").map((tag) => (
+                                      <span
+                                        key={tag}
+                                        className="px-2 py-0.5 bg-indigo-50 text-indigo-600 text-xs rounded-full"
+                                      >
+                                        {tag}
+                                      </span>
+                                    ))}
+                                  </div>
                                 </div>
-                              </div>
-                            ))}
+                              ))}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
+                    {/* Gradient fade overlay */}
+                    <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
+                    {/* View full in editor hint */}
+                    <div className="relative px-4 py-2.5 text-center border-t border-gray-50">
+                      <span className="text-[11px] text-gray-400">查看完整设定请点击编辑区</span>
+                    </div>
                   </div>
                 </div>
               </div>
