@@ -376,6 +376,7 @@ type Message =
   | { id: string; sender: "model"; type: "character-card"; prompt: string; data: CharacterCardData }
   | { id: string; sender: "model"; type: "outline-card"; prompt: string; data: OutlineCardData }
   | { id: string; sender: "model"; type: "welcome"; prompt: string }
+  | { id: string; sender: "model"; type: "stage-intro"; prompt: string; stage: "worldbuilding" | "characters" | "outline" }
   | { id: string; sender: "model"; type: "micro-adjust"; prompt: string; round: number }
   | { id: string; sender: "user"; type: "card-selection"; content: string }
   | { id: string; sender: "user"; type: "text"; content: string };
@@ -392,6 +393,7 @@ export default function ChatPanel() {
   const [awaitingAdjust, setAwaitingAdjust] = useState(false); // waiting for user micro-adjust
   const [adjustRound, setAdjustRound] = useState(0); // which round is awaiting adjust
   const [favKeywords, setFavKeywords] = useState<Set<string>>(new Set());
+  const [stageEntry, setStageEntry] = useState<"worldbuilding" | "characters" | "outline" | null>(null);
   const [input, setInput] = useState("");
   const [showAttachMenu, setShowAttachMenu] = useState(false);
   const attachRef = useRef<HTMLDivElement>(null);
@@ -469,6 +471,46 @@ export default function ChatPanel() {
       setCurrentRound(1);
     }, 1500);
   }, []);
+
+  // Handle "帮我找灵感" button in stage intros
+  const handleStageInspiration = useCallback((stage: "worldbuilding" | "characters" | "outline") => {
+    setStageEntry(null);
+
+    if (stage === "worldbuilding") {
+      const thinkingId = `thinking-wb-r1`;
+      setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+      setTimeout(() => {
+        const wb1 = worldbuildingRounds[0];
+        setMessages((prev) => [
+          ...prev.filter((m) => m.id !== thinkingId),
+          { id: "model-r5", sender: "model", type: "inspiration", prompt: wb1.prompt, cards: wb1.cards, round: 5 },
+        ]);
+        setCurrentRound(5);
+      }, 1500);
+    } else if (stage === "characters") {
+      const thinkingId = `thinking-ch-r1`;
+      setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+      setTimeout(() => {
+        const ch1 = characterRounds[0];
+        setMessages((prev) => [
+          ...prev.filter((m) => m.id !== thinkingId),
+          { id: "model-r9", sender: "model", type: "inspiration", prompt: ch1.prompt, cards: ch1.cards, round: 9 },
+        ]);
+        setCurrentRound(9);
+      }, 1500);
+    } else if (stage === "outline") {
+      const thinkingId = `thinking-outline-gen`;
+      setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+      setTimeout(() => {
+        setMessages((prev) => [
+          ...prev.filter((m) => m.id !== thinkingId),
+          { id: "model-outline", sender: "model", type: "outline-card", prompt: "大纲生成完毕！16章完整故事线已就绪，你可以在编辑区查看每章详情。确认后就可以开始正文创作了，有想调整的随时告诉我。", data: mockOutlineCard },
+        ]);
+        setCurrentRound(13);
+        setCreationStage(4);
+      }, 3000);
+    }
+  }, [setCreationStage]);
 
   // Proceed to next round (after adjust or skip)
   // Rounds 1-3: inspiration → settings card at end
@@ -704,59 +746,126 @@ export default function ChatPanel() {
       return;
     }
 
-    // If at confirm stage (after settings card shown), user confirmed → start worldbuilding rounds
+    // If user is at a stage-intro and types text → directly generate the card for that stage
+    if (stageEntry) {
+      const thinkingId = `thinking-${stageEntry}-direct`;
+      setTimeout(() => {
+        setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+      }, 300);
+
+      if (stageEntry === "worldbuilding") {
+        setTimeout(() => {
+          setMessages((prev) => [
+            ...prev.filter((m) => m.id !== thinkingId),
+            { id: `model-${stageEntry}-ack`, sender: "model", type: "text", content: "好的，我根据你的描述来构建世界观——" },
+          ]);
+          setTimeout(() => {
+            const thinkingId2 = `thinking-wb-card-direct`;
+            setMessages((prev) => [...prev, { id: thinkingId2, sender: "model", type: "thinking" }]);
+            setTimeout(() => {
+              setMessages((prev) => [
+                ...prev.filter((m) => m.id !== thinkingId2),
+                { id: "model-worldbuilding", sender: "model", type: "worldbuilding-card", prompt: "世界观构建完成！你可以在编辑区查看完整内容，觉得没问题就可以开始创建角色了。", data: mockWorldbuilding },
+              ]);
+              setCurrentRound(8);
+              setCreationStage(2);
+            }, 2500);
+          }, 500);
+        }, 1200);
+        setStageEntry(null);
+      } else if (stageEntry === "characters") {
+        setTimeout(() => {
+          setMessages((prev) => [
+            ...prev.filter((m) => m.id !== thinkingId),
+            { id: `model-${stageEntry}-ack`, sender: "model", type: "text", content: "好的，我根据你的想法来创建角色——" },
+          ]);
+          setTimeout(() => {
+            const thinkingId2 = `thinking-char-card-direct`;
+            setMessages((prev) => [...prev, { id: thinkingId2, sender: "model", type: "thinking" }]);
+            setTimeout(() => {
+              setMessages((prev) => [
+                ...prev.filter((m) => m.id !== thinkingId2),
+                { id: "model-characters", sender: "model", type: "character-card", prompt: "角色创建完成！你可以在编辑区查看完整的角色档案，想调整随时告诉我。", data: mockCharacterCard },
+              ]);
+              setCurrentRound(12);
+              setCreationStage(3);
+            }, 2500);
+          }, 500);
+        }, 1200);
+        setStageEntry(null);
+      } else if (stageEntry === "outline") {
+        setTimeout(() => {
+          setMessages((prev) => [
+            ...prev.filter((m) => m.id !== thinkingId),
+            { id: `model-${stageEntry}-ack`, sender: "model", type: "text", content: "好的，我根据你的思路来拟定大纲——" },
+          ]);
+          setTimeout(() => {
+            const thinkingId2 = `thinking-outline-direct`;
+            setMessages((prev) => [...prev, { id: thinkingId2, sender: "model", type: "thinking" }]);
+            setTimeout(() => {
+              setMessages((prev) => [
+                ...prev.filter((m) => m.id !== thinkingId2),
+                { id: "model-outline", sender: "model", type: "outline-card", prompt: "大纲生成完毕！16章完整故事线已就绪，确认后就可以开始正文创作了。", data: mockOutlineCard },
+              ]);
+              setCurrentRound(13);
+              setCreationStage(4);
+            }, 3000);
+          }, 500);
+        }, 1200);
+        setStageEntry(null);
+      }
+      return;
+    }
+
+    // If at confirm stage (after settings card shown), user confirmed → show worldbuilding intro
     if (currentRound === 4) {
-      const thinkingId = `thinking-wb-start`;
+      const thinkingId = `thinking-wb-intro`;
       setTimeout(() => {
         setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
       }, 300);
 
       setTimeout(() => {
-        const wb1 = worldbuildingRounds[0];
         setMessages((prev) => [
           ...prev.filter((m) => m.id !== thinkingId),
           {
-            id: "model-r5",
+            id: "model-wb-intro",
             sender: "model",
-            type: "inspiration",
-            prompt: wb1.prompt,
-            cards: wb1.cards,
-            round: 5,
+            type: "stage-intro",
+            prompt: "设定确认！接下来我们构建故事发生的世界。\n\n你对世界观有自己的想法吗？可以直接描述你心目中的场景、地点、社会背景等——也可以让我来给你灵感。",
+            stage: "worldbuilding",
           },
         ]);
-        setCurrentRound(5);
+        setStageEntry("worldbuilding");
       }, 1500);
       return;
     }
 
-    // If at worldbuilding confirm stage, user confirmed → start character rounds
+    // If at worldbuilding confirm stage, user confirmed → show characters intro
     if (currentRound === 8) {
-      const thinkingId = `thinking-char-start`;
+      const thinkingId = `thinking-char-intro`;
       setTimeout(() => {
         setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
       }, 300);
 
       setTimeout(() => {
-        const ch1 = characterRounds[0];
         setMessages((prev) => [
           ...prev.filter((m) => m.id !== thinkingId),
           {
-            id: "model-r9",
+            id: "model-char-intro",
             sender: "model",
-            type: "inspiration",
-            prompt: ch1.prompt,
-            cards: ch1.cards,
-            round: 9,
+            type: "stage-intro",
+            prompt: "世界观就位！接下来创建角色。\n\n你心里有主角的样子了吗？可以告诉我你想要的角色性格、身份、关系——或者让我来给你灵感。",
+            stage: "characters",
           },
         ]);
-        setCurrentRound(9);
+        setStageEntry("characters");
       }, 1500);
       return;
     }
 
-    // If at character confirm stage, user confirmed → directly generate outline
+    // If at character confirm stage, user confirmed → show outline intro
     if (currentRound === 12) {
-      const thinkingId = `thinking-outline`;
+      const thinkingId = `thinking-outline-intro`;
       setTimeout(() => {
         setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
       }, 300);
@@ -765,16 +874,15 @@ export default function ChatPanel() {
         setMessages((prev) => [
           ...prev.filter((m) => m.id !== thinkingId),
           {
-            id: "model-outline",
+            id: "model-outline-intro",
             sender: "model",
-            type: "outline-card",
-            prompt: "大纲生成完毕！16章完整故事线已就绪，你可以在编辑区查看每章详情。确认后就可以开始正文创作了，有想调整的随时告诉我。",
-            data: mockOutlineCard,
+            type: "stage-intro",
+            prompt: "角色档案完成！最后一步——搭建故事骨架。\n\n你对故事走向和章节安排有想法吗？可以描述你希望的结构、转折点、节奏——或者我来帮你规划。",
+            stage: "outline",
           },
         ]);
-        setCurrentRound(13);
-        setCreationStage(4);
-      }, 3000);
+        setStageEntry("outline");
+      }, 1500);
       return;
     }
 
@@ -848,7 +956,7 @@ export default function ChatPanel() {
         }, 2500);
       }
     }
-  }, [input, awaitingAdjust, adjustRound, currentRound, flowMode, freeformStep, setCreationStage, proceedToNextRound]);
+  }, [input, awaitingAdjust, adjustRound, currentRound, flowMode, freeformStep, stageEntry, setCreationStage, proceedToNextRound, handleStageInspiration]);
 
   // Collect all keywords from all rounds for the "fav bar"
   const allFavKeywords = Array.from(favKeywords);
@@ -1038,6 +1146,33 @@ export default function ChatPanel() {
                   <div className="pl-8 mt-2">
                     <button
                       onClick={handleStartInspiration}
+                      className="px-4 py-2.5 bg-indigo-50 text-indigo-600 text-sm font-medium rounded-xl border border-indigo-100 hover:bg-indigo-100 transition"
+                    >
+                      ✨ 帮我找灵感
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          }
+
+          // ── Model: stage intro ──
+          if (msg.sender === "model" && msg.type === "stage-intro") {
+            const isActive = stageEntry === msg.stage;
+            return (
+              <div key={msg.id} className="space-y-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                    <span className="text-white text-[10px] font-bold">AI</span>
+                  </div>
+                  <span className="text-xs text-gray-400">文心</span>
+                </div>
+                <div className="text-sm text-gray-700 leading-relaxed pl-8 whitespace-pre-wrap">{msg.prompt}</div>
+
+                {isActive && (
+                  <div className="pl-8 mt-2">
+                    <button
+                      onClick={() => handleStageInspiration(msg.stage)}
                       className="px-4 py-2.5 bg-indigo-50 text-indigo-600 text-sm font-medium rounded-xl border border-indigo-100 hover:bg-indigo-100 transition"
                     >
                       ✨ 帮我找灵感
@@ -1293,7 +1428,13 @@ export default function ChatPanel() {
               }
             }}
             placeholder={
-              flowMode === "none"
+              stageEntry === "worldbuilding"
+                ? "描述你想象中的世界：场景、地点、社会背景..."
+                : stageEntry === "characters"
+                ? "描述你心中的角色：性格、身份、人物关系..."
+                : stageEntry === "outline"
+                ? "描述你的故事走向：结构、转折点、章节安排..."
+                : flowMode === "none"
                 ? "描述你的故事构思，一段梗概、一个画面、甚至一句话..."
                 : awaitingAdjust
                 ? "想微调什么？直接说就行，或者点「就这样」跳过"
