@@ -70,6 +70,19 @@ const mockSettings: Record<string, { label: string; value: string }[]> = {
   ],
 };
 
+// ─── Mock: free-input guided flow ────────────────────────────
+
+const guidedFollowUps = [
+  {
+    analysis: "很棒的构思！我从你的描述中提取到了以下信息：\n\n• **题材方向**：都市言情\n• **核心设定**：影后失忆隐居小镇\n• **故事基调**：治愈温暖\n\n还有几个关键信息需要确认一下：",
+    question: "你希望故事的**剧情元素**侧重哪些方面？比如：失忆、娱乐圈、美食、重生、职场等。另外，男女主之间是什么样的关系设定？",
+  },
+  {
+    analysis: "明白了！我更新一下设定：\n\n• **剧情元素**：失忆 · 娱乐圈 · 美食 · 治愈\n• **人物关系**：欢喜冤家 · 青梅竹马\n\n最后确认一下：",
+    question: "你想要什么样的**结局**？（HE / BE / 开放式）篇幅大概多长？叙事视角有偏好吗？",
+  },
+];
+
 // ─── Types ───────────────────────────────────────────────────
 
 type Message =
@@ -77,6 +90,7 @@ type Message =
   | { id: string; sender: "model"; type: "thinking" }
   | { id: string; sender: "model"; type: "text"; content: string }
   | { id: string; sender: "model"; type: "settings-card"; prompt: string; settings: Record<string, { label: string; value: string }[]> }
+  | { id: string; sender: "model"; type: "welcome"; prompt: string }
   | { id: string; sender: "user"; type: "card-selection"; content: string }
   | { id: string; sender: "user"; type: "text"; content: string };
 
@@ -86,7 +100,9 @@ export default function ChatPanel() {
   const setCreationStage = useEditorStore((s) => s.setCreationStage);
   const [messages, setMessages] = useState<Message[]>([]);
   const [selections, setSelections] = useState<Record<number, number>>({}); // round → selected card index
-  const [currentRound, setCurrentRound] = useState(0); // 0=not started, 1-3=inspiration, 4=confirm stage
+  const [currentRound, setCurrentRound] = useState(0); // 0=welcome, 1-3=inspiration, 4=confirm stage
+  const [flowMode, setFlowMode] = useState<"none" | "inspiration" | "freeform">("none"); // none=welcome, inspiration=card flow, freeform=guided input
+  const [freeformStep, setFreeformStep] = useState(0); // 0=user first input, 1-2=follow-ups, 3=settings generated
   const [input, setInput] = useState("");
   const [showAttachMenu, setShowAttachMenu] = useState(false);
   const attachRef = useRef<HTMLDivElement>(null);
@@ -118,7 +134,7 @@ export default function ChatPanel() {
     }
   }, [messages]);
 
-  // Scene card entry: model sends first round automatically
+  // Scene card entry: model sends welcome message
   useEffect(() => {
     if (hasInit.current) return;
     hasInit.current = true;
@@ -127,8 +143,28 @@ export default function ChatPanel() {
     setMessages([{ id: thinkingId, sender: "model", type: "thinking" }]);
 
     setTimeout(() => {
-      const round = inspirationRounds[0];
       setMessages([
+        {
+          id: "model-welcome",
+          sender: "model",
+          type: "welcome",
+          prompt: "你好！欢迎来到小说创作工作台 ✨\n\n你可以选择让我帮你找灵感，也可以直接告诉我你的故事构思——哪怕只是一个模糊的想法也没关系，我们一起把它变成完整的创作蓝图。",
+        },
+      ]);
+    }, 1200);
+  }, []);
+
+  // Handle "帮我找灵感" button click
+  const handleStartInspiration = useCallback(() => {
+    setFlowMode("inspiration");
+
+    const thinkingId = `thinking-r1`;
+    setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+
+    setTimeout(() => {
+      const round = inspirationRounds[0];
+      setMessages((prev) => [
+        ...prev.filter((m) => m.id !== thinkingId),
         {
           id: "model-r1",
           sender: "model",
@@ -139,7 +175,7 @@ export default function ChatPanel() {
         },
       ]);
       setCurrentRound(1);
-    }, 1200);
+    }, 1500);
   }, []);
 
   // Handle card selection
@@ -222,7 +258,7 @@ export default function ChatPanel() {
       { id: `user-${Date.now()}`, sender: "user", type: "text", content: text },
     ]);
 
-    // If at confirm stage, user confirmed settings → start world-building
+    // If at confirm stage (after settings card shown), user confirmed → start world-building
     if (currentRound === 4) {
       const thinkingId = `thinking-wb`;
       setTimeout(() => {
@@ -240,10 +276,61 @@ export default function ChatPanel() {
           },
         ]);
         setCurrentRound(5);
-        setCreationStage(2); // 世界观完成，进入角色阶段
+        setCreationStage(2);
       }, 2500);
+      return;
     }
-  }, [input, currentRound, setCreationStage]);
+
+    // Free-form input flow: user types something before choosing "帮我找灵感"
+    if (flowMode === "none" || flowMode === "freeform") {
+      setFlowMode("freeform");
+
+      if (freeformStep < guidedFollowUps.length) {
+        // Model analyzes and asks follow-up
+        const followUp = guidedFollowUps[freeformStep];
+        const thinkingId = `thinking-ff-${freeformStep}`;
+
+        setTimeout(() => {
+          setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+        }, 300);
+
+        setTimeout(() => {
+          setMessages((prev) => [
+            ...prev.filter((m) => m.id !== thinkingId),
+            {
+              id: `model-ff-${freeformStep}`,
+              sender: "model",
+              type: "text",
+              content: followUp.analysis + "\n\n" + followUp.question,
+            },
+          ]);
+          setFreeformStep((s) => s + 1);
+        }, 2000);
+      } else {
+        // All follow-ups done → generate settings card
+        const thinkingId = `thinking-ff-settings`;
+
+        setTimeout(() => {
+          setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+        }, 300);
+
+        setTimeout(() => {
+          setMessages((prev) => [
+            ...prev.filter((m) => m.id !== thinkingId),
+            {
+              id: "model-settings",
+              sender: "model",
+              type: "settings-card",
+              prompt: "根据你的描述，我为你整理了以下创作设定。确认无误就可以开始生成世界观了，你也可以告诉我需要调整的地方。",
+              settings: mockSettings,
+            },
+          ]);
+          setCurrentRound(4);
+          setCreationStage(1);
+        }, 2500);
+      }
+    }
+  }, [input, currentRound, flowMode, freeformStep, setCreationStage]);
 
   return (
     <div className="h-full flex flex-col bg-gray-50/50">
@@ -338,7 +425,40 @@ export default function ChatPanel() {
                   </div>
                   <span className="text-xs text-gray-400">文心</span>
                 </div>
-                <p className="text-sm text-gray-700 leading-relaxed pl-8">{msg.content}</p>
+                <div className="text-sm text-gray-700 leading-relaxed pl-8 whitespace-pre-wrap">{msg.content}</div>
+              </div>
+            );
+          }
+
+          // ── Model: welcome message ──
+          if (msg.sender === "model" && msg.type === "welcome") {
+            return (
+              <div key={msg.id} className="space-y-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                    <span className="text-white text-[10px] font-bold">AI</span>
+                  </div>
+                  <span className="text-xs text-gray-400">文心</span>
+                </div>
+                <div className="text-sm text-gray-700 leading-relaxed pl-8 whitespace-pre-wrap">{msg.prompt}</div>
+
+                {/* Entry buttons - only show when no flow mode chosen */}
+                {flowMode === "none" && (
+                  <div className="pl-8 flex gap-2 mt-2">
+                    <button
+                      onClick={handleStartInspiration}
+                      className="px-4 py-2.5 bg-indigo-50 text-indigo-600 text-sm font-medium rounded-xl border border-indigo-100 hover:bg-indigo-100 transition"
+                    >
+                      ✨ 帮我找灵感
+                    </button>
+                    <button
+                      onClick={() => setFlowMode("freeform")}
+                      className="px-4 py-2.5 bg-gray-50 text-gray-700 text-sm font-medium rounded-xl border border-gray-200 hover:bg-gray-100 transition"
+                    >
+                      💡 我有想法了
+                    </button>
+                  </div>
+                )}
               </div>
             );
           }
@@ -435,7 +555,9 @@ export default function ChatPanel() {
                 handleSend();
               }
             }}
-            placeholder="输入你的想法..."
+            placeholder={flowMode === "freeform" && freeformStep === 0
+              ? "描述你的故事构思，可以是一段梗概、一个灵感、甚至一句话..."
+              : "输入你的想法..."}
             className="w-full text-sm text-gray-700 placeholder-gray-400 resize-none outline-none bg-transparent min-h-[40px]"
             rows={1}
           />
