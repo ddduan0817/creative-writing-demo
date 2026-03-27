@@ -24,6 +24,10 @@ interface EditorState {
   scene: "novel" | "screenplay" | "marketing" | "knowledge" | "general";
   setScene: (scene: EditorState["scene"]) => void;
 
+  // 创作阶段进度（novel agent flow）
+  creationStage: number; // 0=灵感, 1=设定, 2=世界观, 3=角色, 4=大纲, 5=正文
+  setCreationStage: (stage: number) => void;
+
   // 通用写作 - 选中模板
   selectedTemplateId: string | null;
   setSelectedTemplate: (id: string | null) => void;
@@ -120,6 +124,9 @@ interface EditorState {
 export const useEditorStore = create<EditorState>((set) => ({
   scene: "novel",
   setScene: (scene) => set({ scene }),
+
+  creationStage: 0,
+  setCreationStage: (stage) => set({ creationStage: stage }),
 
   selectedTemplateId: null,
   setSelectedTemplate: (id) => set({ selectedTemplateId: id }),
@@ -380,6 +387,7 @@ export const useEditorStore = create<EditorState>((set) => ({
 
     set({
       scene: sceneType,
+      creationStage: 0,
       title: isScreenplay ? "雨夜追凶" : (sceneNames[sceneType] || "未命名文档"),
       titleManuallyEdited: false,
       leftPanelExpanded: false,

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import { useEditorStore } from "@/stores/editorStore";
 import {
   Send,
   Mic,
@@ -77,6 +78,7 @@ type Message =
 // ─── Component ───────────────────────────────────────────────
 
 export default function ChatPanel() {
+  const setCreationStage = useEditorStore((s) => s.setCreationStage);
   const [messages, setMessages] = useState<Message[]>([]);
   const [selections, setSelections] = useState<Record<number, number>>({}); // round → selected card index
   const [currentRound, setCurrentRound] = useState(0); // 0=not started, 1-3=inspiration, 4=confirm stage
@@ -191,10 +193,11 @@ export default function ChatPanel() {
             },
           ]);
           setCurrentRound(4);
+          setCreationStage(1); // 设定完成，进入世界观阶段
         }, 2500);
       }
     },
-    [selections]
+    [selections, setCreationStage]
   );
 
   // Handle refresh
@@ -232,9 +235,10 @@ export default function ChatPanel() {
           },
         ]);
         setCurrentRound(5);
+        setCreationStage(2); // 世界观完成，进入角色阶段
       }, 2500);
     }
-  }, [input, currentRound]);
+  }, [input, currentRound, setCreationStage]);
 
   return (
     <div className="h-full flex flex-col bg-gray-50/50">

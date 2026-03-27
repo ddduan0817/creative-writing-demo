@@ -10,6 +10,7 @@ import SimpleLeftPanel from "./left/SimpleLeftPanel";
 import ScreenplayLeftPanel from "./left/ScreenplayLeftPanel";
 import RichTextEditor from "./editor/RichTextEditor";
 import ChatPanel from "./chat/ChatPanel";
+import CreationProgress from "./CreationProgress";
 import { cn } from "@/lib/utils";
 
 export default function WorkbenchLayout() {
@@ -55,6 +56,11 @@ export default function WorkbenchLayout() {
   if (isNovel && !isBackup) {
     return (
       <div className="h-screen flex bg-white overflow-hidden">
+        {/* Far Left: Creation Progress */}
+        <div className="w-16 flex-shrink-0 border-r border-gray-100">
+          <CreationProgress />
+        </div>
+
         {/* Left: TopBar + Editor */}
         <div className="flex-1 flex flex-col overflow-hidden border-r border-gray-100">
           <TopBar />
