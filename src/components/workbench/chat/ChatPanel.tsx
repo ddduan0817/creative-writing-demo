@@ -352,6 +352,93 @@ const mockOutlineCard: OutlineCardData = {
   ],
 };
 
+// ─── Mock: chapter text content ──────────────────────────────
+
+const mockChapterTexts: Record<number, string> = {
+  0: `七月的清岚镇热得像一口蒸笼，连知了都懒得叫了。
+
+苏念拖着一只旧行李箱，站在镇口那棵三百年老榕树下，看着眼前这条窄窄的青石板路，觉得自己大概是疯了。
+
+一个月前，她还在北京最好的医院里，对着天花板数格子。医生说她因为车祸失去了大部分记忆，但身体已经恢复得差不多，可以出院了。出院去哪儿呢？她不记得自己住在哪里，不记得自己是谁，口袋里只有一把旧铜钥匙和一张写着"清岚镇"三个字的纸条。
+
+于是她来了。
+
+"让一让嘞！让一让！"一辆三轮车载着满满的青菜从她身边呼啸而过，溅起的水花打在她白色连衣裙上，留下好几个泥点子。
+
+苏念低头看了看裙子，又抬头看了看这条热气蒸腾的老街，突然就笑了。反正什么都不记得了，那就从头开始好了。
+
+她顺着主街往里走，两边是各种老字号店铺——李记杂货、王婶豆腐坊、济世堂中医馆。走到街中段的时候，她看到一间关着门的铺面，门上贴着褪了色的"转让"两个字。
+
+透过落满灰的玻璃往里看，是一间小面馆的格局。前面是堂食的位置，后面应该是厨房，再后面隐约能看到一个小院子。
+
+苏念的心突然跳了一下。她说不清为什么，但她觉得这个地方她认识。那种感觉就像——你忘了一首歌的名字，但旋律一响起来，身体比脑子先记住了。
+
+"看什么看呢？这铺子空了三年了，没人愿意接。"
+
+一个清冷的男声从旁边传来。苏念转头，看见隔壁"济世堂"的门口站着一个高瘦的年轻人，穿着白衬衫，袖口挽到小臂。他手里端着一杯凉茶，表情淡淡的，看她的眼神像在看一个不太聪明的游客。
+
+"我不是在看，"苏念不知道哪来的脾气，"我在想要不要盘下来。"
+
+年轻人挑了挑眉，喝了一口凉茶，转身进了中医馆。走到门口的时候，他头也不回地丢下一句：
+
+"劝你别，这条街的排水管是通的，你炒菜的油烟会飘到我店里。"
+
+苏念站在原地，看着他的背影消失在药柜后面，气得想笑。
+
+她低头看了看手里的旧铜钥匙，又看了看面馆紧闭的门。钥匙孔的形状，好像和这扇门上的锁，有点像。
+
+她把钥匙插了进去。
+
+咔嗒一声，门开了。`,
+  1: `面馆的盘下手续比苏念想象的简单得多。
+
+镇上的房东是个八十多岁的老爷子，耳朵不太好，苏念说了三遍"我要租这个铺子"，他才听清楚。然后老爷子激动地拍了拍桌子："好好好！三年了终于有人要了！房租随便给，你别让它空着就行！"
+
+随便给的意思是，一个月八百块。在北京，这个价格大概能租一个储物柜。
+
+接下来的两周，苏念把面馆从里到外翻新了一遍。她不知道自己为什么会刷墙、会修水管、会给灶台砌砖——这些技能就像呼吸一样自然，好像她上辈子就是个装修工。
+
+王婶是第一个来串门的。
+
+"哎呀！新来的姑娘！你一个人弄这些啊？"五十多岁的王婶围着围裙，端着一碗豆花就进来了，"来来来，先吃点东西，饿着肚子怎么干活！"
+
+苏念接过碗，豆花上面浇了一层红油，撒了花生碎和葱花。她尝了一口，眼睛就亮了——不是因为多好吃，而是因为这个味道她好像吃过。
+
+"好吃吗？"王婶期待地看着她。
+
+"好吃。"苏念点头，然后问了一句自己都没想到的话，"王婶，你这豆花的配方是不是变过？以前应该还放了一点点花椒油。"
+
+王婶愣住了。
+
+"你怎么知道的？十几年前确实放花椒油，后来老张说太麻了我就去掉了……你以前来过清岚镇？"
+
+苏念摇头："我不记得了。"
+
+王婶看了她好一会儿，眼神变得有些复杂，但很快又笑了起来："管它呢！能吃出花椒油的，都是有口福的人！你这面馆打算什么时候开张啊？"
+
+"下周吧。"苏念看着已经初具雏形的店面，"我只卖六种面，每天限量，卖完就关门。"
+
+"六种面？"王婶数了数手指，"够吗？"
+
+"够了。"苏念拿出一张手写的菜单，上面的字迹清秀工整：
+
+阳春面、雪菜肉丝面、番茄鸡蛋面、红烧牛肉面、三鲜馄饨面、桂花酒酿圆子面。
+
+"最后一个是什么？桂花酒酿圆子面？"王婶念着念着笑了，"这名字倒是好听，从来没见过这种搭配。"
+
+"我也不知道为什么会做这个，"苏念望向院子里那棵光秃秃的桂花树，"可能要等秋天桂花开了，才能做出正宗的味道吧。"
+
+开张那天是个周六，苏念在门口挂上了新招牌——"一碗春"。
+
+上午十点开门，到中午十二点，总共来了三个客人。一个是王婶（第一个冲进来的），一个是杂货店的老张（被王婶拉来的），还有一个是路过的快递小哥。
+
+但三个人吃完之后的反应都一样——愣了几秒，然后开始狂吃。
+
+"你这面……"老张嘴里塞满了红烧牛肉面，含含糊糊地说，"有鬼啊！怎么能这么好吃！"
+
+消息在半小时内传遍了全镇。`,
+};
+
 // ─── Mock: free-input guided flow ────────────────────────────
 
 const guidedFollowUps = [
@@ -377,6 +464,7 @@ type Message =
   | { id: string; sender: "model"; type: "outline-card"; prompt: string; data: OutlineCardData }
   | { id: string; sender: "model"; type: "welcome"; prompt: string }
   | { id: string; sender: "model"; type: "stage-intro"; prompt: string; stage: "worldbuilding" | "characters" | "outline" }
+  | { id: string; sender: "model"; type: "length-select"; prompt: string }
   | { id: string; sender: "model"; type: "micro-adjust"; prompt: string; round: number }
   | { id: string; sender: "user"; type: "card-selection"; content: string }
   | { id: string; sender: "user"; type: "text"; content: string };
@@ -386,6 +474,11 @@ type Message =
 export default function ChatPanel() {
   const setCreationStage = useEditorStore((s) => s.setCreationStage);
   const setStageProgress = useEditorStore((s) => s.setStageProgress);
+  const initNovelChapters = useEditorStore((s) => s.initNovelChapters);
+  const setNovelChapterStatus = useEditorStore((s) => s.setNovelChapterStatus);
+  const setNovelChapterContent = useEditorStore((s) => s.setNovelChapterContent);
+  const setCurrentNovelChapter = useEditorStore((s) => s.setCurrentNovelChapter);
+  const novelChapters = useEditorStore((s) => s.novelChapters);
   const [messages, setMessages] = useState<Message[]>([]);
   const [selections, setSelections] = useState<Record<number, number>>({}); // round → selected card index
   const [currentRound, setCurrentRound] = useState(0); // 0=welcome, 1-3=inspiration, 4=confirm stage
@@ -395,6 +488,7 @@ export default function ChatPanel() {
   const [adjustRound, setAdjustRound] = useState(0); // which round is awaiting adjust
   const [favKeywords, setFavKeywords] = useState<Set<string>>(new Set());
   const [stageEntry, setStageEntry] = useState<"worldbuilding" | "characters" | "outline" | null>(null);
+  const [writingChapter, setWritingChapter] = useState(-1); // -1 = not writing, 0+ = generating chapter index
   const [input, setInput] = useState("");
   const [showAttachMenu, setShowAttachMenu] = useState(false);
   const attachRef = useRef<HTMLDivElement>(null);
@@ -737,6 +831,52 @@ export default function ChatPanel() {
   }, [adjustRound, proceedToNextRound]);
 
   // Handle refresh
+  // Mock generate a chapter with streaming effect
+  const generateChapter = useCallback(
+    (chapterIndex: number) => {
+      setNovelChapterStatus(chapterIndex, "generating");
+      setCurrentNovelChapter(chapterIndex);
+
+      const fullText = mockChapterTexts[chapterIndex] || `这是第${chapterIndex + 1}章的正文内容。\n\n（mock内容）故事在这里继续展开...清岚镇的日子一天天过去，苏念在面馆里忙碌着，陆知行在隔壁的中医馆里安静地看诊。两个人的生活就像两条平行线，偶尔交叉，然后又各自延伸。\n\n但那些交叉的瞬间，却在不知不觉中改变着一切。`;
+
+      // Simulate streaming: add text chunk by chunk
+      const chars = fullText.split("");
+      let current = "";
+      const chunkSize = 3;
+      let i = 0;
+
+      const streamInterval = setInterval(() => {
+        if (i >= chars.length) {
+          clearInterval(streamInterval);
+          setNovelChapterStatus(chapterIndex, "done");
+          setNovelChapterContent(chapterIndex, fullText);
+          // Notify in chat
+          const chTitle = mockOutlineCard.chapters[chapterIndex]?.title || `第${chapterIndex + 1}章`;
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: `model-ch-done-${chapterIndex}`,
+              sender: "model" as const,
+              type: "text" as const,
+              content: chapterIndex < mockOutlineCard.chapters.length - 1
+                ? `**${chTitle}** 生成完毕！你可以在编辑区查看和修改。\n\n满意后说「继续」，我就开始写下一章。`
+                : `**${chTitle}** 生成完毕！这是最后一章。\n\n全部章节已完成，你可以自由编辑任何章节。`,
+            },
+          ]);
+          // Update progress bar for 正文 stage
+          const doneCount = chapterIndex + 1;
+          const total = mockOutlineCard.chapters.length;
+          setStageProgress(doneCount / total);
+          return;
+        }
+        current += chars.slice(i, i + chunkSize).join("");
+        i += chunkSize;
+        setNovelChapterContent(chapterIndex, current);
+      }, 30);
+    },
+    [setNovelChapterStatus, setNovelChapterContent, setCurrentNovelChapter, setStageProgress]
+  );
+
   const handleRefresh = useCallback(() => {
     // Mock: no-op
   }, []);
@@ -920,9 +1060,13 @@ export default function ChatPanel() {
       return;
     }
 
-    // If at outline confirm stage, user confirmed → unlock editor for writing
+    // If at outline confirm stage, user confirmed → init chapters and start generating
     if (currentRound === 13) {
-      const thinkingId = `thinking-write`;
+      // Init novel chapters from outline
+      const chapterTitles = mockOutlineCard.chapters.map((c) => c.title);
+      initNovelChapters(chapterTitles);
+
+      const thinkingId = `thinking-write-start`;
       setTimeout(() => {
         setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
       }, 300);
@@ -931,15 +1075,62 @@ export default function ChatPanel() {
         setMessages((prev) => [
           ...prev.filter((m) => m.id !== thinkingId),
           {
-            id: "model-writing",
+            id: "model-write-start",
             sender: "model",
             type: "text",
-            content: "编辑器已解锁！你可以在左侧开始正文创作了。我会一直在这里，随时可以帮你：\n\n• 续写下一段\n• 润色已有内容\n• 调整情节走向\n• 补充细节描写\n\n开始写吧，期待你的故事！",
+            content: `大纲确认！开始为你生成正文。\n\n我会逐章生成，每章完成后你可以在编辑区直接修改。满意后告诉我「继续」，我就接着写下一章。\n\n正在生成 **第一章 ${chapterTitles[0]?.replace(/^第.章\s*/, "")}**...`,
           },
         ]);
         setCurrentRound(14);
         setCreationStage(5);
+        // Start generating chapter 0
+        setWritingChapter(0);
+        generateChapter(0);
       }, 2000);
+      return;
+    }
+
+    // If in writing mode, user says "继续" → generate next chapter
+    if (currentRound === 14 && writingChapter >= 0) {
+      const nextChapter = novelChapters.findIndex((c) => c.status === "pending");
+      if (nextChapter >= 0) {
+        const thinkingId = `thinking-ch-${nextChapter}`;
+        setTimeout(() => {
+          setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+        }, 300);
+
+        setTimeout(() => {
+          const title = novelChapters[nextChapter]?.title || "";
+          setMessages((prev) => [
+            ...prev.filter((m) => m.id !== thinkingId),
+            {
+              id: `model-gen-ch-${nextChapter}`,
+              sender: "model",
+              type: "text",
+              content: `好的，正在生成 **${title}**...`,
+            },
+          ]);
+          setWritingChapter(nextChapter);
+          generateChapter(nextChapter);
+        }, 1500);
+      } else {
+        const thinkingId = `thinking-all-done`;
+        setTimeout(() => {
+          setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+        }, 300);
+
+        setTimeout(() => {
+          setMessages((prev) => [
+            ...prev.filter((m) => m.id !== thinkingId),
+            {
+              id: "model-all-done",
+              sender: "model",
+              type: "text",
+              content: "全部章节生成完毕！🎉\n\n你可以在编辑区点击左上角的目录图标查看和切换章节，随时修改任何内容。如果需要我帮忙润色、改写或调整某一章，直接告诉我就好。",
+            },
+          ]);
+        }, 1500);
+      }
       return;
     }
 
@@ -990,7 +1181,7 @@ export default function ChatPanel() {
         }, 2500);
       }
     }
-  }, [input, awaitingAdjust, adjustRound, currentRound, flowMode, freeformStep, stageEntry, setCreationStage, setStageProgress, proceedToNextRound, handleStageInspiration]);
+  }, [input, awaitingAdjust, adjustRound, currentRound, flowMode, freeformStep, stageEntry, writingChapter, novelChapters, setCreationStage, setStageProgress, proceedToNextRound, handleStageInspiration, initNovelChapters, generateChapter]);
 
   // Collect all keywords from all rounds for the "fav bar"
   const allFavKeywords = Array.from(favKeywords);

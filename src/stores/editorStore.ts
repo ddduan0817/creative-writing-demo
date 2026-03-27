@@ -30,6 +30,14 @@ interface EditorState {
   stageProgress: number; // 0-1, sub-progress within current stage (for line fill animation)
   setStageProgress: (progress: number) => void;
 
+  // 小说正文章节（novel agent flow - 正文阶段）
+  novelChapters: { title: string; content: string; status: "pending" | "generating" | "done" }[];
+  currentNovelChapter: number;
+  initNovelChapters: (titles: string[]) => void;
+  setCurrentNovelChapter: (index: number) => void;
+  setNovelChapterStatus: (index: number, status: "pending" | "generating" | "done") => void;
+  setNovelChapterContent: (index: number, content: string) => void;
+
   // 通用写作 - 选中模板
   selectedTemplateId: string | null;
   setSelectedTemplate: (id: string | null) => void;
@@ -131,6 +139,20 @@ export const useEditorStore = create<EditorState>((set) => ({
   setCreationStage: (stage) => set({ creationStage: stage, stageProgress: 0 }),
   stageProgress: 0,
   setStageProgress: (progress) => set({ stageProgress: progress }),
+  novelChapters: [],
+  currentNovelChapter: 0,
+  initNovelChapters: (titles) => set({ novelChapters: titles.map((t) => ({ title: t, content: "", status: "pending" as const })), currentNovelChapter: 0 }),
+  setCurrentNovelChapter: (index) => set({ currentNovelChapter: index }),
+  setNovelChapterStatus: (index, status) => set((state) => {
+    const chapters = [...state.novelChapters];
+    if (chapters[index]) chapters[index] = { ...chapters[index], status };
+    return { novelChapters: chapters };
+  }),
+  setNovelChapterContent: (index, content) => set((state) => {
+    const chapters = [...state.novelChapters];
+    if (chapters[index]) chapters[index] = { ...chapters[index], content };
+    return { novelChapters: chapters };
+  }),
 
   selectedTemplateId: null,
   setSelectedTemplate: (id) => set({ selectedTemplateId: id }),
@@ -393,6 +415,8 @@ export const useEditorStore = create<EditorState>((set) => ({
       scene: sceneType,
       creationStage: 0,
       stageProgress: 0,
+      novelChapters: [],
+      currentNovelChapter: 0,
       title: isScreenplay ? "雨夜追凶" : (sceneNames[sceneType] || "未命名文档"),
       titleManuallyEdited: false,
       leftPanelExpanded: false,

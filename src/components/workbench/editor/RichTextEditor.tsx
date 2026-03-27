@@ -17,6 +17,9 @@ import {
   Palette,
   Sparkles,
   Send,
+  List,
+  Check,
+  Loader2,
 } from "lucide-react";
 
 export default function RichTextEditor() {
@@ -31,10 +34,15 @@ export default function RichTextEditor() {
     pendingInsert,
     setPendingInsert,
     creationStage,
+    novelChapters,
+    currentNovelChapter,
+    setCurrentNovelChapter,
+    setNovelChapterContent,
   } = useEditorStore();
 
   const currentChapter = chapters.find((c) => c.id === currentChapterId);
   const isSimpleScene = scene === "marketing" || scene === "knowledge";
+  const [tocOpen, setTocOpen] = useState(false);
   const [floatingToolbar, setFloatingToolbar] = useState<{
     show: boolean;
     top: number;
@@ -551,6 +559,99 @@ export default function RichTextEditor() {
                 ))}
               </>
             )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Novel writing mode: chapter editor with collapsible TOC
+  if (scene === "novel" && creationStage >= 5 && novelChapters.length > 0) {
+    const currentCh = novelChapters[currentNovelChapter];
+    const isGenerating = currentCh?.status === "generating";
+
+    return (
+      <div className="h-full flex flex-col relative">
+        {editor && <EditorToolbar editor={editor} />}
+
+        <div className="flex-1 flex overflow-hidden relative">
+          {/* TOC toggle button */}
+          <button
+            onClick={() => setTocOpen(!tocOpen)}
+            className="absolute top-3 left-3 z-30 w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-gray-200 shadow-sm hover:bg-gray-50 transition text-gray-500"
+            title="章节目录"
+          >
+            <List className="w-4 h-4" />
+          </button>
+
+          {/* TOC overlay panel */}
+          {tocOpen && (
+            <>
+              <div className="absolute inset-0 z-20" onClick={() => setTocOpen(false)} />
+              <div className="absolute top-0 left-0 z-30 w-56 h-full bg-white border-r border-gray-200 shadow-lg overflow-y-auto">
+                <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+                  <span className="text-sm font-semibold text-gray-700">章节目录</span>
+                  <button onClick={() => setTocOpen(false)} className="text-gray-400 hover:text-gray-600 text-xs">
+                    收起
+                  </button>
+                </div>
+                <div className="py-1">
+                  {novelChapters.map((ch, i) => (
+                    <button
+                      key={i}
+                      onClick={() => { setCurrentNovelChapter(i); setTocOpen(false); }}
+                      className={`w-full text-left px-4 py-2.5 flex items-center gap-2.5 transition text-sm ${
+                        i === currentNovelChapter
+                          ? "bg-indigo-50 text-indigo-600"
+                          : "text-gray-600 hover:bg-gray-50"
+                      }`}
+                    >
+                      {ch.status === "done" ? (
+                        <Check className="w-3.5 h-3.5 text-green-500 shrink-0" />
+                      ) : ch.status === "generating" ? (
+                        <Loader2 className="w-3.5 h-3.5 text-blue-500 shrink-0 animate-spin" />
+                      ) : (
+                        <span className="w-3.5 h-3.5 rounded-full border border-gray-200 shrink-0" />
+                      )}
+                      <span className="truncate">{ch.title}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Editor area */}
+          <div className="flex-1 overflow-y-auto px-8 py-6 pl-14">
+            <div className="max-w-3xl mx-auto">
+              {/* Chapter title */}
+              <h2 className="text-lg font-bold text-gray-900 mb-1">{currentCh?.title}</h2>
+              <p className="text-xs text-gray-400 mb-6">
+                {isGenerating ? "正在生成中..." : currentCh?.status === "done" ? "已生成，可直接编辑" : "等待生成"}
+              </p>
+
+              {/* Chapter content */}
+              {currentCh?.content ? (
+                <div className="prose prose-sm max-w-none">
+                  {isGenerating ? (
+                    // Read-only streaming view
+                    <div className="text-sm text-gray-700 leading-[1.8] whitespace-pre-wrap">
+                      {currentCh.content}
+                      <span className="inline-block w-0.5 h-4 bg-indigo-500 animate-pulse ml-0.5 align-middle" />
+                    </div>
+                  ) : (
+                    // Editable textarea for done chapters
+                    <textarea
+                      value={currentCh.content}
+                      onChange={(e) => setNovelChapterContent(currentNovelChapter, e.target.value)}
+                      className="w-full text-sm text-gray-700 leading-[1.8] resize-none outline-none bg-transparent min-h-[60vh] whitespace-pre-wrap"
+                    />
+                  )}
+                </div>
+              ) : (
+                <div className="text-sm text-gray-300 italic">等待生成...</div>
+              )}
+            </div>
           </div>
         </div>
       </div>
