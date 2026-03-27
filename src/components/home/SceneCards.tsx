@@ -11,7 +11,7 @@ const scenes = [
   },
   {
     id: "reading",
-    name: "深度拆解",
+    name: "知识专栏",
     bg: "bg-emerald-50",
     illustration: "📚",
   },

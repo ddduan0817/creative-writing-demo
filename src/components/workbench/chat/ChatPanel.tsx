@@ -474,6 +474,7 @@ type Message =
 export default function ChatPanel() {
   const setCreationStage = useEditorStore((s) => s.setCreationStage);
   const setStageProgress = useEditorStore((s) => s.setStageProgress);
+  const setAutoTitle = useEditorStore((s) => s.setAutoTitle);
   const initNovelChapters = useEditorStore((s) => s.initNovelChapters);
   const setNovelChapterStatus = useEditorStore((s) => s.setNovelChapterStatus);
   const setNovelChapterContent = useEditorStore((s) => s.setNovelChapterContent);
@@ -990,6 +991,9 @@ export default function ChatPanel() {
 
     // If at confirm stage (after settings card shown), user confirmed → show worldbuilding intro
     if (currentRound === 4) {
+      // Auto-generate a fitting title based on the story settings
+      setAutoTitle("一碗春");
+
       const thinkingId = `thinking-wb-intro`;
       setTimeout(() => {
         setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
@@ -999,10 +1003,16 @@ export default function ChatPanel() {
         setMessages((prev) => [
           ...prev.filter((m) => m.id !== thinkingId),
           {
+            id: "model-auto-title",
+            sender: "model",
+            type: "text",
+            content: "设定确认！根据你的故事设定，我帮你起了个名字——**《一碗春》**，你随时可以在顶部修改。\n\n接下来我们构建故事发生的世界。",
+          },
+          {
             id: "model-wb-intro",
             sender: "model",
             type: "stage-intro",
-            prompt: "设定确认！接下来我们构建故事发生的世界。\n\n你对世界观有自己的想法吗？可以直接描述你心目中的场景、地点、社会背景等——也可以让我来给你灵感。",
+            prompt: "你对世界观有自己的想法吗？可以直接描述你心目中的场景、地点、社会背景等——也可以让我来给你灵感。",
             stage: "worldbuilding",
           },
         ]);
@@ -1181,7 +1191,7 @@ export default function ChatPanel() {
         }, 2500);
       }
     }
-  }, [input, awaitingAdjust, adjustRound, currentRound, flowMode, freeformStep, stageEntry, writingChapter, novelChapters, setCreationStage, setStageProgress, proceedToNextRound, handleStageInspiration, initNovelChapters, generateChapter]);
+  }, [input, awaitingAdjust, adjustRound, currentRound, flowMode, freeformStep, stageEntry, writingChapter, novelChapters, setCreationStage, setStageProgress, setAutoTitle, proceedToNextRound, handleStageInspiration, initNovelChapters, generateChapter]);
 
   // Collect all keywords from all rounds for the "fav bar"
   const allFavKeywords = Array.from(favKeywords);

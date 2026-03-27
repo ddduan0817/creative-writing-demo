@@ -278,13 +278,13 @@ export default function RichTextEditor() {
       <div className="h-full flex flex-col">
         {editor && <EditorToolbar editor={editor} />}
         <div className="flex-1 overflow-y-auto px-10 py-8">
-          <div className="max-w-2xl mx-auto space-y-8">
+          <div className="max-w-2xl mx-auto space-y-8" contentEditable suppressContentEditableWarning style={{ outline: "none" }}>
             {/* ── 各阶段内容展示 ── */}
             {showOutline ? (
               <>
                 <div>
                   <h2 className="text-lg font-bold text-gray-900 mb-1">故事大纲</h2>
-                  <p className="text-xs text-gray-400">基于角色设定自动生成，可在对话中修改</p>
+                  <p className="text-xs text-gray-400">可直接编辑修改，也可在对话中修改</p>
                 </div>
 
                 {/* 结构信息 */}
@@ -338,7 +338,7 @@ export default function RichTextEditor() {
               <>
                 <div>
                   <h2 className="text-lg font-bold text-gray-900 mb-1">角色档案</h2>
-                  <p className="text-xs text-gray-400">基于世界观自动生成，可在对话中修改</p>
+                  <p className="text-xs text-gray-400">可直接编辑修改，也可在对话中修改</p>
                 </div>
 
                 {/* 女主角 */}
@@ -429,7 +429,7 @@ export default function RichTextEditor() {
               <>
                 <div>
                   <h2 className="text-lg font-bold text-gray-900 mb-1">世界观</h2>
-                  <p className="text-xs text-gray-400">基于创作设定自动生成，可在对话中修改</p>
+                  <p className="text-xs text-gray-400">可直接编辑修改，也可在对话中修改</p>
                 </div>
 
                 {/* 故事世界 + 时间线 */}
@@ -519,7 +519,7 @@ export default function RichTextEditor() {
               <>
                 <div>
                   <h2 className="text-lg font-bold text-gray-900 mb-1">创作设定</h2>
-                  <p className="text-xs text-gray-400">基于灵感方向自动生成，可在对话中修改</p>
+                  <p className="text-xs text-gray-400">可直接编辑修改，也可在对话中修改</p>
                 </div>
 
                 {settingsData.map((section) => (
