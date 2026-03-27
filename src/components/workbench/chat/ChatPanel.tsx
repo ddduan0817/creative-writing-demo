@@ -313,6 +313,45 @@ const mockCharacterCard: CharacterCardData = {
   relationships: "苏念 × 陆知行：欢喜冤家 → 暗生情愫 → 互相守护\n王婶 → 全镇：操心一切，推动主线发展\n小鱼 → 苏念：姐弟情深，治愈线担当\n陈老 → 陆知行：亦师亦友，关键时刻点拨",
 };
 
+// ─── Mock Outline Card Data ──────────────────────────────────
+
+interface OutlineChapter {
+  title: string;
+  summary: string;
+  keyEvent: string;
+}
+
+interface OutlineCardData {
+  structure: string;
+  totalChapters: number;
+  estimatedWords: string;
+  chapters: OutlineChapter[];
+}
+
+const mockOutlineCard: OutlineCardData = {
+  structure: "四季章回 · 甜中带虐",
+  totalChapters: 16,
+  estimatedWords: "约12万字",
+  chapters: [
+    { title: "第一章 盛夏来客", summary: "苏念失忆后独自来到清岚镇，盘下破旧的面馆「一碗春」。第一次见到隔壁中医馆的陆知行，两人因为排水管道问题大吵一架。", keyEvent: "女主到达小镇 · 男女主初遇" },
+    { title: "第二章 面馆开张", summary: "苏念改造面馆，只卖六种面。开张当天只来了三个客人，但做出的面让全镇轰动。王婶成了第一个常客。", keyEvent: "面馆立足 · 王婶登场" },
+    { title: "第三章 隔墙药香", summary: "面馆和中医馆只隔一面墙。苏念发现陆知行会在深夜默默把治跌打的药膏放在她门口。两人的关系从敌对变成了别扭的邻居。", keyEvent: "关系破冰 · 日常拌嘴开始" },
+    { title: "第四章 赶集日", summary: "苏念第一次参加清岚镇赶集，被小镇的烟火气治愈。在集市上意外看到一张旧照片，上面的小女孩像极了自己。", keyEvent: "融入小镇 · 第一条线索出现" },
+    { title: "第五章 秋天的桂花", summary: "院子里的百年桂花树开了，整条街都是香气。苏念用桂花入面，创出新品爆款。陆知行第一次主动来面馆吃面。", keyEvent: "暧昧萌芽 · 秋季开始" },
+    { title: "第六章 古戏台", summary: "王婶筹划中秋文艺汇演，苏念被推举为总导演。排练中发现古戏台后面的废弃化妆间，触发一段模糊的记忆闪回。", keyEvent: "记忆碎片 · 古戏台线索" },
+    { title: "第七章 竹林月色", summary: "苏念失眠夜游，撞见在后山竹林练八段锦的陆知行。两人在月下第一次敞开心扉，聊了很多。", keyEvent: "感情升温 · 互相了解" },
+    { title: "第八章 汇演之夜", summary: "中秋文艺汇演大成功，全镇出动。苏念在舞台上的光芒让陆知行确认了她的身份，但他选择沉默。演出结束后两人在古戏台对视。", keyEvent: "高光时刻 · 陆知行确认身份" },
+    { title: "第九章 冬日来信", summary: "一封从北京寄来的信打破了平静——苏念的前经纪人找到了她。陆知行变得沉默寡言，苏念感觉到异样。", keyEvent: "外界入侵 · 冬季转折" },
+    { title: "第十章 真相碎片", summary: "经纪人来到小镇，试图带苏念回去。在争执中透露了失忆的部分真相：那场'意外'并不简单。陆知行挺身而出。", keyEvent: "真相浮现 · 冲突升级" },
+    { title: "第十一章 信任裂痕", summary: "苏念发现陆知行早就知道她的身份却一直隐瞒。愤怒和被背叛的感觉让她关上了面馆的门。", keyEvent: "信任危机 · 低谷" },
+    { title: "第十二章 小鱼的眼泪", summary: "小鱼偷偷跑去中医馆质问陆知行，陈老用一个故事化解了误会的一部分。苏念在面馆院子里发现了时间胶囊。", keyEvent: "催化剂 · 时间胶囊" },
+    { title: "第十三章 春暖花开", summary: "打开时间胶囊，苏念终于想起了一切——她小时候在清岚镇度过的三年，和一个叫'小行'的男孩的约定。", keyEvent: "记忆恢复 · 真相大白" },
+    { title: "第十四章 重逢与抉择", summary: "苏念面临选择：回到娱乐圈复仇，还是留在清岚镇。她选择先面对过去，用自己的方式解决问题。", keyEvent: "核心抉择 · 成长" },
+    { title: "第十五章 一碗春再开张", summary: "苏念以真实身份重新开张面馆。外界的关注带来了纷扰，但小镇的人们站在了她身边。", keyEvent: "回归 · 新的开始" },
+    { title: "第十六章 初夏的约定", summary: "一年轮回，又是盛夏。面馆门口多了一块新招牌：'一碗春·念念不忘'。陆知行在桂花树下说出了那句迟到的告白。", keyEvent: "告白 · HE" },
+  ],
+};
+
 // ─── Mock: free-input guided flow ────────────────────────────
 
 const guidedFollowUps = [
@@ -335,6 +374,7 @@ type Message =
   | { id: string; sender: "model"; type: "settings-card"; prompt: string; settings: Record<string, { label: string; value: string }[]> }
   | { id: string; sender: "model"; type: "worldbuilding-card"; prompt: string; data: WorldbuildingData }
   | { id: string; sender: "model"; type: "character-card"; prompt: string; data: CharacterCardData }
+  | { id: string; sender: "model"; type: "outline-card"; prompt: string; data: OutlineCardData }
   | { id: string; sender: "model"; type: "welcome"; prompt: string }
   | { id: string; sender: "model"; type: "micro-adjust"; prompt: string; round: number }
   | { id: string; sender: "user"; type: "card-selection"; content: string }
@@ -714,7 +754,7 @@ export default function ChatPanel() {
       return;
     }
 
-    // If at character confirm stage, user confirmed → start outline stage
+    // If at character confirm stage, user confirmed → directly generate outline
     if (currentRound === 12) {
       const thinkingId = `thinking-outline`;
       setTimeout(() => {
@@ -727,13 +767,37 @@ export default function ChatPanel() {
           {
             id: "model-outline",
             sender: "model",
-            type: "text",
-            content: "好的，接下来我们来生成故事大纲…（大纲 — 待实现）",
+            type: "outline-card",
+            prompt: "大纲生成完毕！16章完整故事线已就绪，你可以在编辑区查看每章详情。确认后就可以开始正文创作了，有想调整的随时告诉我。",
+            data: mockOutlineCard,
           },
         ]);
         setCurrentRound(13);
         setCreationStage(4);
-      }, 2500);
+      }, 3000);
+      return;
+    }
+
+    // If at outline confirm stage, user confirmed → unlock editor for writing
+    if (currentRound === 13) {
+      const thinkingId = `thinking-write`;
+      setTimeout(() => {
+        setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+      }, 300);
+
+      setTimeout(() => {
+        setMessages((prev) => [
+          ...prev.filter((m) => m.id !== thinkingId),
+          {
+            id: "model-writing",
+            sender: "model",
+            type: "text",
+            content: "编辑器已解锁！你可以在左侧开始正文创作了。我会一直在这里，随时可以帮你：\n\n• 续写下一段\n• 润色已有内容\n• 调整情节走向\n• 补充细节描写\n\n开始写吧，期待你的故事！",
+          },
+        ]);
+        setCurrentRound(14);
+        setCreationStage(5);
+      }, 2000);
       return;
     }
 
@@ -1159,6 +1223,52 @@ export default function ChatPanel() {
                     <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
                     <div className="relative px-4 py-2.5 text-center border-t border-gray-50">
                       <span className="text-[11px] text-gray-400">查看完整角色档案请点击编辑区</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          }
+
+          // ── Model: outline card ──
+          if (msg.sender === "model" && msg.type === "outline-card") {
+            return (
+              <div key={msg.id} className="space-y-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                    <span className="text-white text-[10px] font-bold">AI</span>
+                  </div>
+                  <span className="text-xs text-gray-400">文心</span>
+                </div>
+                <p className="text-sm text-gray-700 leading-relaxed pl-8">{msg.prompt}</p>
+
+                {/* Outline Card - truncated */}
+                <div className="pl-8">
+                  <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden relative">
+                    <div className="max-h-[220px] overflow-hidden">
+                      {/* Structure info */}
+                      <div className="px-4 py-3 flex items-center gap-3">
+                        <span className="px-2.5 py-1 bg-indigo-50 text-indigo-600 text-xs rounded-full font-medium">{msg.data.structure}</span>
+                        <span className="text-xs text-gray-400">{msg.data.totalChapters}章 · {msg.data.estimatedWords}</span>
+                      </div>
+                      <div className="border-t border-gray-100" />
+                      {/* Chapter list preview */}
+                      <div className="px-4 py-2">
+                        {msg.data.chapters.slice(0, 5).map((ch, i) => (
+                          <div key={i} className="flex items-start gap-2.5 py-2">
+                            <span className="text-xs text-gray-300 w-5 shrink-0 text-right">{i + 1}</span>
+                            <div>
+                              <p className="text-sm font-medium text-gray-700">{ch.title}</p>
+                              <p className="text-xs text-gray-400 mt-0.5">{ch.keyEvent}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    {/* Gradient fade */}
+                    <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
+                    <div className="relative px-4 py-2.5 text-center border-t border-gray-50">
+                      <span className="text-[11px] text-gray-400">查看完整大纲请点击编辑区</span>
                     </div>
                   </div>
                 </div>

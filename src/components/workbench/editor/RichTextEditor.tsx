@@ -224,10 +224,11 @@ export default function RichTextEditor() {
   const editorIsEmpty = !editor?.getText().trim();
 
   // Novel agent flow: show settings/worldbuilding in editor (read-only)
-  if (scene === "novel" && creationStage >= 1 && creationStage < 5) {
-    // creationStage 1 = 设定, creationStage 2 = 世界观, creationStage >= 3 = 角色
+  if (scene === "novel" && creationStage >= 1 && creationStage <= 4) {
+    // creationStage 1 = 设定, 2 = 世界观, 3 = 角色, 4 = 大纲, 5 = 正文(退出只读)
     const showWorldbuilding = creationStage === 2;
-    const showCharacters = creationStage >= 3;
+    const showCharacters = creationStage === 3;
+    const showOutline = creationStage >= 4;
 
     const settingsData = [
       {
@@ -270,8 +271,62 @@ export default function RichTextEditor() {
         {editor && <EditorToolbar editor={editor} />}
         <div className="flex-1 overflow-y-auto px-10 py-8">
           <div className="max-w-2xl mx-auto space-y-8">
-            {/* ── 角色档案展示（覆盖世界观） ── */}
-            {showCharacters ? (
+            {/* ── 各阶段内容展示 ── */}
+            {showOutline ? (
+              <>
+                <div>
+                  <h2 className="text-lg font-bold text-gray-900 mb-1">故事大纲</h2>
+                  <p className="text-xs text-gray-400">基于角色设定自动生成，可在对话中修改</p>
+                </div>
+
+                {/* 结构信息 */}
+                <div className="flex items-center gap-3 flex-wrap">
+                  <span className="px-3 py-1.5 bg-indigo-50 text-indigo-600 text-sm rounded-full font-medium">四季章回 · 甜中带虐</span>
+                  <span className="text-sm text-gray-400">16章 · 约12万字</span>
+                </div>
+
+                {/* 章节列表 */}
+                <div className="space-y-4">
+                  {[
+                    { title: "第一章 盛夏来客", summary: "苏念失忆后独自来到清岚镇，盘下破旧的面馆「一碗春」。第一次见到隔壁中医馆的陆知行，两人因为排水管道问题大吵一架。", keyEvent: "女主到达小镇 · 男女主初遇", season: "夏" },
+                    { title: "第二章 面馆开张", summary: "苏念改造面馆，只卖六种面。开张当天只来了三个客人，但做出的面让全镇轰动。王婶成了第一个常客。", keyEvent: "面馆立足 · 王婶登场", season: "夏" },
+                    { title: "第三章 隔墙药香", summary: "面馆和中医馆只隔一面墙。苏念发现陆知行会在深夜默默把治跌打的药膏放在她门口。两人的关系从敌对变成了别扭的邻居。", keyEvent: "关系破冰 · 日常拌嘴开始", season: "夏" },
+                    { title: "第四章 赶集日", summary: "苏念第一次参加清岚镇赶集，被小镇的烟火气治愈。在集市上意外看到一张旧照片，上面的小女孩像极了自己。", keyEvent: "融入小镇 · 第一条线索出现", season: "夏" },
+                    { title: "第五章 秋天的桂花", summary: "院子里的百年桂花树开了，整条街都是香气。苏念用桂花入面，创出新品爆款。陆知行第一次主动来面馆吃面。", keyEvent: "暧昧萌芽 · 秋季开始", season: "秋" },
+                    { title: "第六章 古戏台", summary: "王婶筹划中秋文艺汇演，苏念被推举为总导演。排练中发现古戏台后面的废弃化妆间，触发一段模糊的记忆闪回。", keyEvent: "记忆碎片 · 古戏台线索", season: "秋" },
+                    { title: "第七章 竹林月色", summary: "苏念失眠夜游，撞见在后山竹林练八段锦的陆知行。两人在月下第一次敞开心扉，聊了很多。", keyEvent: "感情升温 · 互相了解", season: "秋" },
+                    { title: "第八章 汇演之夜", summary: "中秋文艺汇演大成功，全镇出动。苏念在舞台上的光芒让陆知行确认了她的身份，但他选择沉默。演出结束后两人在古戏台对视。", keyEvent: "高光时刻 · 陆知行确认身份", season: "秋" },
+                    { title: "第九章 冬日来信", summary: "一封从北京寄来的信打破了平静——苏念的前经纪人找到了她。陆知行变得沉默寡言，苏念感觉到异样。", keyEvent: "外界入侵 · 冬季转折", season: "冬" },
+                    { title: "第十章 真相碎片", summary: "经纪人来到小镇，试图带苏念回去。在争执中透露了失忆的部分真相：那场'意外'并不简单。陆知行挺身而出。", keyEvent: "真相浮现 · 冲突升级", season: "冬" },
+                    { title: "第十一章 信任裂痕", summary: "苏念发现陆知行早就知道她的身份却一直隐瞒。愤怒和被背叛的感觉让她关上了面馆的门。", keyEvent: "信任危机 · 低谷", season: "冬" },
+                    { title: "第十二章 小鱼的眼泪", summary: "小鱼偷偷跑去中医馆质问陆知行，陈老用一个故事化解了误会的一部分。苏念在面馆院子里发现了时间胶囊。", keyEvent: "催化剂 · 时间胶囊", season: "冬" },
+                    { title: "第十三章 春暖花开", summary: "打开时间胶囊，苏念终于想起了一切——她小时候在清岚镇度过的三年，和一个叫'小行'的男孩的约定。", keyEvent: "记忆恢复 · 真相大白", season: "春" },
+                    { title: "第十四章 重逢与抉择", summary: "苏念面临选择：回到娱乐圈复仇，还是留在清岚镇。她选择先面对过去，用自己的方式解决问题。", keyEvent: "核心抉择 · 成长", season: "春" },
+                    { title: "第十五章 一碗春再开张", summary: "苏念以真实身份重新开张面馆。外界的关注带来了纷扰，但小镇的人们站在了她身边。", keyEvent: "回归 · 新的开始", season: "春" },
+                    { title: "第十六章 初夏的约定", summary: "一年轮回，又是盛夏。面馆门口多了一块新招牌：'一碗春·念念不忘'。陆知行在桂花树下说出了那句迟到的告白。", keyEvent: "告白 · HE", season: "春" },
+                  ].map((ch, i) => {
+                    const seasonColors: Record<string, string> = {
+                      "夏": "bg-orange-50 text-orange-500 border-orange-100",
+                      "秋": "bg-amber-50 text-amber-500 border-amber-100",
+                      "冬": "bg-sky-50 text-sky-500 border-sky-100",
+                      "春": "bg-green-50 text-green-500 border-green-100",
+                    };
+                    return (
+                      <div key={i} className="bg-gray-50/60 rounded-lg p-4">
+                        <div className="flex items-center gap-2.5 mb-2">
+                          <span className={`px-2 py-0.5 text-[10px] rounded-full border font-medium ${seasonColors[ch.season] || ""}`}>
+                            {ch.season}
+                          </span>
+                          <h4 className="text-sm font-semibold text-gray-800">{ch.title}</h4>
+                        </div>
+                        <p className="text-sm text-gray-600 leading-relaxed mb-2">{ch.summary}</p>
+                        <p className="text-xs text-indigo-400">{ch.keyEvent}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
+            ) : showCharacters ? (
               <>
                 <div>
                   <h2 className="text-lg font-bold text-gray-900 mb-1">角色档案</h2>
