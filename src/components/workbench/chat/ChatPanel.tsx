@@ -173,8 +173,8 @@ export default function ChatPanel() {
           setCurrentRound(round + 1);
         }, 1500);
       } else {
-        // Round 3 done → ask to generate settings
-        const thinkingId = `thinking-confirm`;
+        // Round 3 done → generate settings card directly
+        const thinkingId = `thinking-settings`;
         setTimeout(() => {
           setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
         }, 300);
@@ -183,14 +183,15 @@ export default function ChatPanel() {
           setMessages((prev) => [
             ...prev.filter((m) => m.id !== thinkingId),
             {
-              id: "model-confirm",
+              id: "model-settings",
               sender: "model",
-              type: "text",
-              content: "灵感方向已确认！接下来我会为你生成完整的世界观设定。准备好了就告诉我，或者你也可以补充更多想法。",
+              type: "settings-card",
+              prompt: "根据你的灵感方向，我为你整理了以下创作设定。确认无误就可以开始生成世界观了，你也可以告诉我需要调整的地方。",
+              settings: mockSettings,
             },
           ]);
           setCurrentRound(4);
-        }, 1500);
+        }, 2500);
       }
     },
     [selections]
@@ -213,7 +214,7 @@ export default function ChatPanel() {
       { id: `user-${Date.now()}`, sender: "user", type: "text", content: text },
     ]);
 
-    // If at confirm stage, generate settings card
+    // If at confirm stage, user confirmed settings → start world-building
     if (currentRound === 4) {
       const thinkingId = `thinking-wb`;
       setTimeout(() => {
@@ -224,11 +225,10 @@ export default function ChatPanel() {
         setMessages((prev) => [
           ...prev.filter((m) => m.id !== thinkingId),
           {
-            id: "model-settings",
+            id: "model-worldbuilding",
             sender: "model",
-            type: "settings-card",
-            prompt: "根据你的灵感方向，我为你整理了以下创作设定。确认无误就可以开始生成世界观了，你也可以告诉我需要调整的地方。",
-            settings: mockSettings,
+            type: "text",
+            content: "好的，正在为你生成世界观设定…（世界观 — 待实现）",
           },
         ]);
         setCurrentRound(5);
