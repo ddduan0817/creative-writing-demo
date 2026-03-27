@@ -56,12 +56,7 @@ export default function WorkbenchLayout() {
   if (isNovel && !isBackup) {
     return (
       <div className="h-screen flex bg-white overflow-hidden">
-        {/* Far Left: Creation Progress */}
-        <div className="w-10 flex-shrink-0">
-          <CreationProgress />
-        </div>
-
-        {/* Left: TopBar + Editor */}
+        {/* Left: TopBar + Editor — width unchanged */}
         <div className="flex-1 flex flex-col overflow-hidden border-r border-gray-100">
           <TopBar />
           <div className="flex-1 overflow-hidden">
@@ -69,9 +64,14 @@ export default function WorkbenchLayout() {
           </div>
         </div>
 
-        {/* Right: Chat Panel */}
-        <div className="flex-1 flex flex-col overflow-hidden">
-          <ChatPanel />
+        {/* Right: Progress + Chat Panel */}
+        <div className="flex-1 flex overflow-hidden">
+          <div className="w-10 flex-shrink-0">
+            <CreationProgress />
+          </div>
+          <div className="flex-1 flex flex-col overflow-hidden">
+            <ChatPanel />
+          </div>
         </div>
 
         {/* Toast */}

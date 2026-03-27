@@ -14,16 +14,16 @@ export default function CreationProgress() {
   const creationStage = useEditorStore((s) => s.creationStage);
 
   return (
-    <div className="h-full flex flex-col items-center justify-center">
+    <div className="h-full flex flex-col items-center py-8">
       {stages.map((stage, i) => {
         const isCompleted = creationStage > stage.id;
         const isCurrent = creationStage === stage.id;
 
         return (
-          <div key={stage.id} className="flex flex-col items-center">
-            {/* Connecting line (above dot, except first) */}
+          <div key={stage.id} className={`flex flex-col items-center ${i > 0 ? "flex-1" : ""}`}>
+            {/* Connecting line — flex-1 to fill available space */}
             {i > 0 && (
-              <div className="w-px h-6 relative">
+              <div className="w-px flex-1 relative">
                 <div className="absolute inset-0 bg-gray-200" />
                 <div
                   className="absolute top-0 left-0 w-full bg-blue-400 transition-all duration-700 ease-out"
@@ -35,7 +35,7 @@ export default function CreationProgress() {
             )}
 
             {/* Dot + Label below */}
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col items-center flex-shrink-0">
               <div
                 className={`w-2 h-2 rounded-full transition-all duration-500 ${
                   isCompleted
@@ -46,7 +46,7 @@ export default function CreationProgress() {
                 }`}
               />
               <span
-                className={`text-[9px] mt-1 leading-none transition-colors duration-500 ${
+                className={`text-[9px] mt-1.5 leading-none transition-colors duration-500 ${
                   isCompleted
                     ? "text-blue-500 font-medium"
                     : isCurrent
