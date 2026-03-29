@@ -10,6 +10,7 @@ import SimpleLeftPanel from "./left/SimpleLeftPanel";
 import ScreenplayLeftPanel from "./left/ScreenplayLeftPanel";
 import RichTextEditor from "./editor/RichTextEditor";
 import ChatPanel from "./chat/ChatPanel";
+import WorkflowChatPanel from "./chat/WorkflowChatPanel";
 import CreationProgress from "./CreationProgress";
 import { cn } from "@/lib/utils";
 
@@ -42,8 +43,10 @@ export default function WorkbenchLayout() {
   }, [sceneParam, workId, resetToEmpty]);
 
   const isNovel = scene === "novel";
+  const isScreenplay = scene === "screenplay";
   const isGeneral = scene === "general";
   const isSimple = scene === "marketing" || scene === "knowledge";
+  const isWorkflow = workMode === "workflow" && (isNovel || isScreenplay);
 
   const renderLeftPanel = () => {
     if (isGeneral) return <GeneralLeftPanel />;
@@ -101,6 +104,13 @@ export default function WorkbenchLayout() {
         <div className="flex-1 overflow-hidden">
           <RichTextEditor />
         </div>
+
+        {/* Right Chat Panel (Workflow mode) */}
+        {isWorkflow && (
+          <div className="w-[360px] flex-shrink-0 border-l border-gray-100 overflow-hidden">
+            <WorkflowChatPanel />
+          </div>
+        )}
       </div>
 
       {/* Collapse toggle buttons */}
