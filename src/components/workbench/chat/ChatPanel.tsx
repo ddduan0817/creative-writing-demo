@@ -27,6 +27,26 @@ import {
   screenplayMockOutlineCard,
   screenplayMockChapterTexts,
 } from "./screenplayMockData";
+import {
+  marketingInspirationRounds,
+  marketingMockSettings,
+  marketingWorldbuildingRounds,
+  marketingMockWorldbuilding,
+  marketingCharacterRounds,
+  marketingMockCharacterCard,
+  marketingMockOutlineCard,
+  marketingMockChapterTexts,
+} from "./marketingMockData";
+import {
+  knowledgeInspirationRounds,
+  knowledgeMockSettings,
+  knowledgeWorldbuildingRounds,
+  knowledgeMockWorldbuilding,
+  knowledgeCharacterRounds,
+  knowledgeMockCharacterCard,
+  knowledgeMockOutlineCard,
+  knowledgeMockChapterTexts,
+} from "./knowledgeMockData";
 
 // ─── Mock Data ───────────────────────────────────────────────
 
@@ -497,21 +517,70 @@ export default function ChatPanel() {
   const setWorkMode = useEditorStore((s) => s.setWorkMode);
   const scene = useEditorStore((s) => s.scene);
   const isScreenplay = scene === "screenplay";
+  const isMarketing = scene === "marketing";
+  const isKnowledge = scene === "knowledge";
 
   // Scene-aware mock data selectors
-  const sceneInspirationRounds = useMemo(() => isScreenplay ? screenplayInspirationRounds : inspirationRounds, [isScreenplay]);
-  const sceneSettingsCard = useMemo(() => isScreenplay ? screenplayMockSettings : mockSettings, [isScreenplay]);
-  const sceneWorldbuildingRounds = useMemo(() => isScreenplay ? screenplayWorldbuildingRounds : worldbuildingRounds, [isScreenplay]);
-  const sceneWorldbuilding = useMemo(() => isScreenplay ? screenplayMockWorldbuilding : mockWorldbuilding, [isScreenplay]);
-  const sceneCharacterRounds = useMemo(() => isScreenplay ? screenplayCharacterRounds : characterRounds, [isScreenplay]);
-  const sceneCharacterCard = useMemo(() => isScreenplay ? screenplayMockCharacterCard : mockCharacterCard, [isScreenplay]);
-  const sceneOutlineCard = useMemo(() => isScreenplay ? screenplayMockOutlineCard : mockOutlineCard, [isScreenplay]);
-  const sceneChapterTexts = useMemo(() => isScreenplay ? screenplayMockChapterTexts : mockChapterTexts, [isScreenplay]);
-  const sceneTitle = useMemo(() => isScreenplay ? "雨夜追凶" : "一碗春", [isScreenplay]);
-  const sceneWelcome = useMemo(() => isScreenplay
-    ? "你好！欢迎来到剧本创作工作台 ✨\n\n你可以让我帮你找灵感，也可以直接在下面描述你的剧本构思——\n一段梗概、一个场景、甚至一句「我想写一部关于__的短剧」都可以，我们一起把它变成完整的剧本。"
-    : "你好！欢迎来到小说创作工作台 ✨\n\n你可以让我帮你找灵感，也可以直接在下面描述你的故事——\n一段梗概、一个画面、甚至一句「我想写一个关于__的故事」都可以，我们一起把它变成完整的创作蓝图。"
-  , [isScreenplay]);
+  const sceneInspirationRounds = useMemo(() => {
+    if (isScreenplay) return screenplayInspirationRounds;
+    if (isMarketing) return marketingInspirationRounds;
+    if (isKnowledge) return knowledgeInspirationRounds;
+    return inspirationRounds;
+  }, [isScreenplay, isMarketing, isKnowledge]);
+  const sceneSettingsCard = useMemo(() => {
+    if (isScreenplay) return screenplayMockSettings;
+    if (isMarketing) return marketingMockSettings;
+    if (isKnowledge) return knowledgeMockSettings;
+    return mockSettings;
+  }, [isScreenplay, isMarketing, isKnowledge]);
+  const sceneWorldbuildingRounds = useMemo(() => {
+    if (isScreenplay) return screenplayWorldbuildingRounds;
+    if (isMarketing) return marketingWorldbuildingRounds;
+    if (isKnowledge) return knowledgeWorldbuildingRounds;
+    return worldbuildingRounds;
+  }, [isScreenplay, isMarketing, isKnowledge]);
+  const sceneWorldbuilding = useMemo(() => {
+    if (isScreenplay) return screenplayMockWorldbuilding;
+    if (isMarketing) return marketingMockWorldbuilding;
+    if (isKnowledge) return knowledgeMockWorldbuilding;
+    return mockWorldbuilding;
+  }, [isScreenplay, isMarketing, isKnowledge]);
+  const sceneCharacterRounds = useMemo(() => {
+    if (isScreenplay) return screenplayCharacterRounds;
+    if (isMarketing) return marketingCharacterRounds;
+    if (isKnowledge) return knowledgeCharacterRounds;
+    return characterRounds;
+  }, [isScreenplay, isMarketing, isKnowledge]);
+  const sceneCharacterCard = useMemo(() => {
+    if (isScreenplay) return screenplayMockCharacterCard;
+    if (isMarketing) return marketingMockCharacterCard;
+    if (isKnowledge) return knowledgeMockCharacterCard;
+    return mockCharacterCard;
+  }, [isScreenplay, isMarketing, isKnowledge]);
+  const sceneOutlineCard = useMemo(() => {
+    if (isScreenplay) return screenplayMockOutlineCard;
+    if (isMarketing) return marketingMockOutlineCard;
+    if (isKnowledge) return knowledgeMockOutlineCard;
+    return mockOutlineCard;
+  }, [isScreenplay, isMarketing, isKnowledge]);
+  const sceneChapterTexts = useMemo(() => {
+    if (isScreenplay) return screenplayMockChapterTexts;
+    if (isMarketing) return marketingMockChapterTexts;
+    if (isKnowledge) return knowledgeMockChapterTexts;
+    return mockChapterTexts;
+  }, [isScreenplay, isMarketing, isKnowledge]);
+  const sceneTitle = useMemo(() => {
+    if (isScreenplay) return "雨夜追凶";
+    if (isMarketing) return "焕颜精华";
+    if (isKnowledge) return "AI效率局";
+    return "一碗春";
+  }, [isScreenplay, isMarketing, isKnowledge]);
+  const sceneWelcome = useMemo(() => {
+    if (isScreenplay) return "你好！欢迎来到剧本创作工作台 ✨\n\n你可以让我帮你找灵感，也可以直接在下面描述你的剧本构思——\n一段梗概、一个场景、甚至一句「我想写一部关于__的短剧」都可以，我们一起把它变成完整的剧本。";
+    if (isMarketing) return "你好！欢迎来到带货视频创作工作台 ✨\n\n你可以让我帮你找灵感，也可以直接描述你的产品和目标——\n一个产品链接、一段卖点描述、甚至一句「我想推广一款__」都可以，我们一起把它变成爆款带货脚本。";
+    if (isKnowledge) return "你好！欢迎来到知识专栏创作工作台 ✨\n\n你可以让我帮你找灵感，也可以直接描述你想做的专栏方向——\n一个主题、一个受众画像、甚至一句「我想写一个关于__的专栏」都可以，我们一起把它变成完整的内容规划。";
+    return "你好！欢迎来到小说创作工作台 ✨\n\n你可以让我帮你找灵感，也可以直接在下面描述你的故事——\n一段梗概、一个画面、甚至一句「我想写一个关于__的故事」都可以，我们一起把它变成完整的创作蓝图。";
+  }, [isScreenplay, isMarketing, isKnowledge]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [selections, setSelections] = useState<Record<number, number>>({}); // round → selected card index
   const [currentRound, setCurrentRound] = useState(0); // 0=welcome, 1-3=inspiration, 4=confirm stage

@@ -44,8 +44,11 @@ export default function WorkbenchLayout() {
 
   const isNovel = scene === "novel";
   const isScreenplay = scene === "screenplay";
+  const isMarketing = scene === "marketing";
+  const isKnowledge = scene === "knowledge";
   const isGeneral = scene === "general";
-  const isSimple = scene === "marketing" || scene === "knowledge";
+  const isSimple = isMarketing || isKnowledge;
+  const isAgentScene = isNovel || isScreenplay || isMarketing || isKnowledge;
   const isWorkflow = workMode === "workflow" && (isNovel || isScreenplay);
 
   const renderLeftPanel = () => {
@@ -55,8 +58,8 @@ export default function WorkbenchLayout() {
     return <LeftPanel />;
   };
 
-  // Novel/Screenplay Agent mode (or not yet selected) → 2-panel: editor + chat
-  if ((isNovel || isScreenplay) && !isBackup && workMode !== "workflow") {
+  // Agent mode → 2-panel: editor + chat
+  if (isAgentScene && !isBackup && workMode !== "workflow") {
     return (
       <div className="h-screen flex bg-white overflow-hidden">
         <div className="flex-1 flex flex-col overflow-hidden border-r border-gray-100">

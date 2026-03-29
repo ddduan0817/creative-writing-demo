@@ -420,8 +420,7 @@ export const useEditorStore = create<EditorState>((set) => ({
 
     set({
       scene: sceneType,
-      workMode: null,
-      creationStage: 0,
+      workMode: (sceneType === "marketing" || sceneType === "knowledge") ? "agent" : null,      creationStage: 0,
       stageProgress: 0,
       novelChapters: [],
       currentNovelChapter: 0,
