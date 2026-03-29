@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { useEditorStore } from "@/stores/editorStore";
 import {
   Send,
@@ -17,6 +17,16 @@ import {
   MessageSquare,
   ListChecks,
 } from "lucide-react";
+import {
+  screenplayInspirationRounds,
+  screenplayMockSettings,
+  screenplayWorldbuildingRounds,
+  screenplayMockWorldbuilding,
+  screenplayCharacterRounds,
+  screenplayMockCharacterCard,
+  screenplayMockOutlineCard,
+  screenplayMockChapterTexts,
+} from "./screenplayMockData";
 
 // ─── Mock Data ───────────────────────────────────────────────
 
@@ -485,6 +495,22 @@ export default function ChatPanel() {
   const workMode = useEditorStore((s) => s.workMode);
   const setWorkMode = useEditorStore((s) => s.setWorkMode);
   const scene = useEditorStore((s) => s.scene);
+  const isScreenplay = scene === "screenplay";
+
+  // Scene-aware mock data selectors
+  const sceneInspirationRounds = useMemo(() => isScreenplay ? screenplayInspirationRounds : inspirationRounds, [isScreenplay]);
+  const sceneSettingsCard = useMemo(() => isScreenplay ? screenplayMockSettings : mockSettings, [isScreenplay]);
+  const sceneWorldbuildingRounds = useMemo(() => isScreenplay ? screenplayWorldbuildingRounds : worldbuildingRounds, [isScreenplay]);
+  const sceneWorldbuilding = useMemo(() => isScreenplay ? screenplayMockWorldbuilding : mockWorldbuilding, [isScreenplay]);
+  const sceneCharacterRounds = useMemo(() => isScreenplay ? screenplayCharacterRounds : characterRounds, [isScreenplay]);
+  const sceneCharacterCard = useMemo(() => isScreenplay ? screenplayMockCharacterCard : mockCharacterCard, [isScreenplay]);
+  const sceneOutlineCard = useMemo(() => isScreenplay ? screenplayMockOutlineCard : mockOutlineCard, [isScreenplay]);
+  const sceneChapterTexts = useMemo(() => isScreenplay ? screenplayMockChapterTexts : mockChapterTexts, [isScreenplay]);
+  const sceneTitle = useMemo(() => isScreenplay ? "雨夜追凶" : "一碗春", [isScreenplay]);
+  const sceneWelcome = useMemo(() => isScreenplay
+    ? "你好！欢迎来到剧本创作工作台 ✨\n\n你可以让我帮你找灵感，也可以直接在下面描述你的剧本构思——\n一段梗概、一个场景、甚至一句「我想写一部关于__的短剧」都可以，我们一起把它变成完整的剧本。"
+    : "你好！欢迎来到小说创作工作台 ✨\n\n你可以让我帮你找灵感，也可以直接在下面描述你的故事——\n一段梗概、一个画面、甚至一句「我想写一个关于__的故事」都可以，我们一起把它变成完整的创作蓝图。"
+  , [isScreenplay]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [selections, setSelections] = useState<Record<number, number>>({}); // round → selected card index
   const [currentRound, setCurrentRound] = useState(0); // 0=welcome, 1-3=inspiration, 4=confirm stage
@@ -562,7 +588,7 @@ export default function ChatPanel() {
           id: "model-welcome",
           sender: "model",
           type: "welcome",
-          prompt: "你好！欢迎来到小说创作工作台 ✨\n\n你可以让我帮你找灵感，也可以直接在下面描述你的故事——\n一段梗概、一个画面、甚至一句「我想写一个关于__的故事」都可以，我们一起把它变成完整的创作蓝图。",
+          prompt: sceneWelcome,
         },
       ]);
     }, 1200);
@@ -593,7 +619,7 @@ export default function ChatPanel() {
     setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
 
     setTimeout(() => {
-      const round = inspirationRounds[0];
+      const round = sceneInspirationRounds[0];
       setMessages((prev) => [
         ...prev.filter((m) => m.id !== thinkingId),
         {
@@ -617,7 +643,7 @@ export default function ChatPanel() {
       const thinkingId = `thinking-wb-r1`;
       setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
       setTimeout(() => {
-        const wb1 = worldbuildingRounds[0];
+        const wb1 = sceneWorldbuildingRounds[0];
         setMessages((prev) => [
           ...prev.filter((m) => m.id !== thinkingId),
           { id: "model-r5", sender: "model", type: "inspiration", prompt: wb1.prompt, cards: wb1.cards, round: 5 },
@@ -628,7 +654,7 @@ export default function ChatPanel() {
       const thinkingId = `thinking-ch-r1`;
       setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
       setTimeout(() => {
-        const ch1 = characterRounds[0];
+        const ch1 = sceneCharacterRounds[0];
         setMessages((prev) => [
           ...prev.filter((m) => m.id !== thinkingId),
           { id: "model-r9", sender: "model", type: "inspiration", prompt: ch1.prompt, cards: ch1.cards, round: 9 },
@@ -641,7 +667,7 @@ export default function ChatPanel() {
       setTimeout(() => {
         setMessages((prev) => [
           ...prev.filter((m) => m.id !== thinkingId),
-          { id: "model-outline", sender: "model", type: "outline-card", prompt: "大纲生成完毕！16章完整故事线已就绪，你可以在编辑区查看每章详情。确认后就可以开始正文创作了，有想调整的随时告诉我。", data: mockOutlineCard },
+          { id: "model-outline", sender: "model", type: "outline-card", prompt: "大纲生成完毕！16章完整故事线已就绪，你可以在编辑区查看每章详情。确认后就可以开始正文创作了，有想调整的随时告诉我。", data: sceneOutlineCard },
         ]);
         setCurrentRound(13);
         setCreationStage(4);
@@ -662,7 +688,7 @@ export default function ChatPanel() {
         setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
 
         setTimeout(() => {
-          const nextRound = inspirationRounds[fromRound];
+          const nextRound = sceneInspirationRounds[fromRound];
           setMessages((prev) => [
             ...prev.filter((m) => m.id !== thinkingId),
             {
@@ -692,7 +718,7 @@ export default function ChatPanel() {
               sender: "model",
               type: "settings-card",
               prompt: "根据你的灵感方向，我为你整理了以下创作设定。确认无误就可以开始构建世界观了，你也可以告诉我需要调整的地方。",
-              settings: mockSettings,
+              settings: sceneSettingsCard,
             },
           ]);
           setCurrentRound(4);
@@ -707,7 +733,7 @@ export default function ChatPanel() {
         setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
 
         setTimeout(() => {
-          const nextWb = worldbuildingRounds[fromRound - 5 + 1];
+          const nextWb = sceneWorldbuildingRounds[fromRound - 5 + 1];
           setMessages((prev) => [
             ...prev.filter((m) => m.id !== thinkingId),
             {
@@ -737,7 +763,7 @@ export default function ChatPanel() {
               sender: "model",
               type: "worldbuilding-card",
               prompt: "世界观构建完成！你可以在编辑区查看完整内容，觉得没问题就可以开始创建角色了，有想调整的也可以直接告诉我。",
-              data: mockWorldbuilding,
+              data: sceneWorldbuilding,
             },
           ]);
           setCurrentRound(8);
@@ -752,7 +778,7 @@ export default function ChatPanel() {
         setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
 
         setTimeout(() => {
-          const nextChar = characterRounds[fromRound - 9 + 1];
+          const nextChar = sceneCharacterRounds[fromRound - 9 + 1];
           setMessages((prev) => [
             ...prev.filter((m) => m.id !== thinkingId),
             {
@@ -782,7 +808,7 @@ export default function ChatPanel() {
               sender: "model",
               type: "character-card",
               prompt: "角色创建完成！你可以在编辑区查看完整的角色档案，觉得没问题就可以开始生成大纲了，想调整随时告诉我。",
-              data: mockCharacterCard,
+              data: sceneCharacterCard,
             },
           ]);
           setCurrentRound(12);
@@ -803,10 +829,10 @@ export default function ChatPanel() {
       const isWb = round >= 5 && round <= 7;
       const isChar = round >= 9 && round <= 11;
       const roundData = isChar
-        ? characterRounds[round - 9]
+        ? sceneCharacterRounds[round - 9]
         : isWb
-        ? worldbuildingRounds[round - 5]
-        : inspirationRounds[round - 1];
+        ? sceneWorldbuildingRounds[round - 5]
+        : sceneInspirationRounds[round - 1];
       const cardText = roundData.cards[cardIndex].text;
 
       setSelections((prev) => ({ ...prev, [round]: cardIndex }));
@@ -852,7 +878,7 @@ export default function ChatPanel() {
       setNovelChapterStatus(chapterIndex, "generating");
       setCurrentNovelChapter(chapterIndex);
 
-      const fullText = mockChapterTexts[chapterIndex] || `这是第${chapterIndex + 1}章的正文内容。\n\n（mock内容）故事在这里继续展开...清岚镇的日子一天天过去，苏念在面馆里忙碌着，陆知行在隔壁的中医馆里安静地看诊。两个人的生活就像两条平行线，偶尔交叉，然后又各自延伸。\n\n但那些交叉的瞬间，却在不知不觉中改变着一切。`;
+      const fullText = sceneChapterTexts[chapterIndex] || `这是第${chapterIndex + 1}集的正文内容。\n\n（mock内容）故事在这里继续展开...`;
 
       // Simulate streaming: add text chunk by chunk
       const chars = fullText.split("");
@@ -866,21 +892,21 @@ export default function ChatPanel() {
           setNovelChapterStatus(chapterIndex, "done");
           setNovelChapterContent(chapterIndex, fullText);
           // Notify in chat
-          const chTitle = mockOutlineCard.chapters[chapterIndex]?.title || `第${chapterIndex + 1}章`;
+          const chTitle = sceneOutlineCard.chapters[chapterIndex]?.title || `第${chapterIndex + 1}章`;
           setMessages((prev) => [
             ...prev,
             {
               id: `model-ch-done-${chapterIndex}`,
               sender: "model" as const,
               type: "text" as const,
-              content: chapterIndex < mockOutlineCard.chapters.length - 1
+              content: chapterIndex < sceneOutlineCard.chapters.length - 1
                 ? `**${chTitle}** 生成完毕！你可以在编辑区查看和修改。\n\n满意后说「继续」，我就开始写下一章。`
                 : `**${chTitle}** 生成完毕！这是最后一章。\n\n全部章节已完成，你可以自由编辑任何章节。`,
             },
           ]);
           // Update progress bar for 正文 stage
           const doneCount = chapterIndex + 1;
-          const total = mockOutlineCard.chapters.length;
+          const total = sceneOutlineCard.chapters.length;
           setStageProgress(doneCount / total);
           return;
         }
@@ -949,7 +975,7 @@ export default function ChatPanel() {
             setTimeout(() => {
               setMessages((prev) => [
                 ...prev.filter((m) => m.id !== thinkingId2),
-                { id: "model-worldbuilding", sender: "model", type: "worldbuilding-card", prompt: "世界观构建完成！你可以在编辑区查看完整内容，觉得没问题就可以开始创建角色了。", data: mockWorldbuilding },
+                { id: "model-worldbuilding", sender: "model", type: "worldbuilding-card", prompt: "世界观构建完成！你可以在编辑区查看完整内容，觉得没问题就可以开始创建角色了。", data: sceneWorldbuilding },
               ]);
               setCurrentRound(8);
               setCreationStage(2);
@@ -970,7 +996,7 @@ export default function ChatPanel() {
             setTimeout(() => {
               setMessages((prev) => [
                 ...prev.filter((m) => m.id !== thinkingId2),
-                { id: "model-characters", sender: "model", type: "character-card", prompt: "角色创建完成！你可以在编辑区查看完整的角色档案，想调整随时告诉我。", data: mockCharacterCard },
+                { id: "model-characters", sender: "model", type: "character-card", prompt: "角色创建完成！你可以在编辑区查看完整的角色档案，想调整随时告诉我。", data: sceneCharacterCard },
               ]);
               setCurrentRound(12);
               setCreationStage(3);
@@ -991,7 +1017,7 @@ export default function ChatPanel() {
             setTimeout(() => {
               setMessages((prev) => [
                 ...prev.filter((m) => m.id !== thinkingId2),
-                { id: "model-outline", sender: "model", type: "outline-card", prompt: "大纲生成完毕！16章完整故事线已就绪，确认后就可以开始正文创作了。", data: mockOutlineCard },
+                { id: "model-outline", sender: "model", type: "outline-card", prompt: "大纲生成完毕！16章完整故事线已就绪，确认后就可以开始正文创作了。", data: sceneOutlineCard },
               ]);
               setCurrentRound(13);
               setCreationStage(4);
@@ -1006,7 +1032,7 @@ export default function ChatPanel() {
     // If at confirm stage (after settings card shown), user confirmed → show worldbuilding intro
     if (currentRound === 4) {
       // Auto-generate a fitting title based on the story settings
-      setAutoTitle("一碗春");
+      setAutoTitle(sceneTitle);
 
       const thinkingId = `thinking-wb-intro`;
       setTimeout(() => {
@@ -1020,7 +1046,7 @@ export default function ChatPanel() {
             id: "model-auto-title",
             sender: "model",
             type: "text",
-            content: "设定确认！根据你的故事设定，我帮你起了个名字——**《一碗春》**，你随时可以在顶部修改。\n\n接下来我们构建故事发生的世界。",
+            content: `设定确认！根据你的故事设定，我帮你起了个名字——**《${sceneTitle}》**，你随时可以在顶部修改。\n\n接下来我们构建故事发生的世界。`,
           },
           {
             id: "model-wb-intro",
@@ -1087,7 +1113,7 @@ export default function ChatPanel() {
     // If at outline confirm stage, user confirmed → init chapters and start generating
     if (currentRound === 13) {
       // Init novel chapters from outline
-      const chapterTitles = mockOutlineCard.chapters.map((c) => c.title);
+      const chapterTitles = sceneOutlineCard.chapters.map((c) => c.title);
       initNovelChapters(chapterTitles);
 
       const thinkingId = `thinking-write-start`;
@@ -1197,7 +1223,7 @@ export default function ChatPanel() {
               sender: "model",
               type: "settings-card",
               prompt: "根据你的描述，我为你整理了以下创作设定。确认无误就可以开始生成世界观了，你也可以告诉我需要调整的地方。",
-              settings: mockSettings,
+              settings: sceneSettingsCard,
             },
           ]);
           setCurrentRound(4);
