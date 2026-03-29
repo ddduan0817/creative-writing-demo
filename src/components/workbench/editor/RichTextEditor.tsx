@@ -766,7 +766,8 @@ export default function RichTextEditor() {
         </div>
       </div>
 
-      {/* Floating Bottom Action Bar */}
+      {/* Floating Bottom Action Bar - only show for non-novel or general editing */}
+      {!(scene === "novel" && creationStage >= 1 && creationStage <= 4) && (
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 max-w-[90%]">
         <div className="inline-flex items-center gap-0.5 bg-white/95 backdrop-blur-sm rounded-full shadow-[0_2px_16px_rgba(0,0,0,0.08)] border border-gray-100/80 px-2.5 py-1.5 whitespace-nowrap">
           {/* Group 1: AI 调整功能 */}
@@ -802,6 +803,7 @@ export default function RichTextEditor() {
           </button>
         </div>
       </div>
+      )}
 
       {/* Atmosphere Enhancement Dialog */}
       {atmosphereDialog.show && (
