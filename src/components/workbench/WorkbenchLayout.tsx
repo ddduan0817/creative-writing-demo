@@ -55,9 +55,8 @@ export default function WorkbenchLayout() {
     return <LeftPanel />;
   };
 
-  // Novel Agent mode (or not yet selected) → 2-panel: editor + chat
-  // Novel scene without backup flag always uses this layout
-  if (isNovel && !isBackup && workMode !== "workflow") {
+  // Novel/Screenplay Agent mode (or not yet selected) → 2-panel: editor + chat
+  if ((isNovel || isScreenplay) && !isBackup && workMode !== "workflow") {
     return (
       <div className="h-screen flex bg-white overflow-hidden">
         <div className="flex-1 flex flex-col overflow-hidden border-r border-gray-100">

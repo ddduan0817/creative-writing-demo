@@ -60,7 +60,7 @@ export default function RichTextEditor() {
 
   const editor = useEditor({
     immediatelyRender: false,
-    editable: !(scene === "novel" && workMode === null),
+    editable: !((scene === "novel" || scene === "screenplay") && workMode === null),
     extensions: [
       StarterKit,
       Underline,
@@ -103,7 +103,7 @@ export default function RichTextEditor() {
   // Toggle editable when workMode changes
   useEffect(() => {
     if (editor) {
-      const shouldBeEditable = !(scene === "novel" && workMode === null);
+      const shouldBeEditable = !((scene === "novel" || scene === "screenplay") && workMode === null);
       if (editor.isEditable !== shouldBeEditable) {
         editor.setEditable(shouldBeEditable);
       }
@@ -243,8 +243,8 @@ export default function RichTextEditor() {
   // Check if editor is empty
   const editorIsEmpty = !editor?.getText().trim();
 
-  // Novel agent flow: show settings/worldbuilding in editor (read-only)
-  if (scene === "novel" && creationStage >= 1 && creationStage <= 4) {
+  // Novel/Screenplay agent flow: show settings/worldbuilding in editor (read-only)
+  if ((scene === "novel" || scene === "screenplay") && creationStage >= 1 && creationStage <= 4) {
     // creationStage 1 = 设定, 2 = 世界观, 3 = 角色, 4 = 大纲, 5 = 正文(退出只读)
     const showWorldbuilding = creationStage === 2;
     const showCharacters = creationStage === 3;
@@ -577,8 +577,8 @@ export default function RichTextEditor() {
     );
   }
 
-  // Novel writing mode: chapter editor with collapsible TOC
-  if (scene === "novel" && creationStage >= 5 && novelChapters.length > 0) {
+  // Novel/Screenplay writing mode: chapter editor with collapsible TOC
+  if ((scene === "novel" || scene === "screenplay") && creationStage >= 5 && novelChapters.length > 0) {
     const currentCh = novelChapters[currentNovelChapter];
     const isGenerating = currentCh?.status === "generating";
 
@@ -779,7 +779,7 @@ export default function RichTextEditor() {
       </div>
 
       {/* Floating Bottom Action Bar - hide when no mode selected or Agent novel pre-正文 */}
-      {!(scene === "novel" && (workMode === null || (workMode === "agent" && creationStage < 5))) && (
+      {!((scene === "novel" || scene === "screenplay") && (workMode === null || (workMode === "agent" && creationStage < 5))) && (
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 max-w-[90%]">
         <div className="inline-flex items-center gap-0.5 bg-white/95 backdrop-blur-sm rounded-full shadow-[0_2px_16px_rgba(0,0,0,0.08)] border border-gray-100/80 px-2.5 py-1.5 whitespace-nowrap">
           {/* Group 1: AI 调整功能 */}
