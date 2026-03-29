@@ -28,6 +28,13 @@ export default function WorkbenchLayout() {
     if (hasInitialized.current) return;
     hasInitialized.current = true;
 
+    // Map URL scene params to internal scene names
+    const sceneMap: Record<string, string> = {
+      ecommerce: "marketing",
+      reading: "knowledge",
+    };
+    const mappedScene = sceneMap[sceneParam] || sceneParam;
+
     const validScenes = [
       "novel",
       "screenplay",
@@ -36,8 +43,8 @@ export default function WorkbenchLayout() {
       "general",
     ] as const;
 
-    if (validScenes.includes(sceneParam as (typeof validScenes)[number])) {
-      const s = sceneParam as (typeof validScenes)[number];
+    if (validScenes.includes(mappedScene as (typeof validScenes)[number])) {
+      const s = mappedScene as (typeof validScenes)[number];
       resetToEmpty(s);
     }
   }, [sceneParam, workId, resetToEmpty]);
