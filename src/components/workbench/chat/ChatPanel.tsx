@@ -14,6 +14,8 @@ import {
   Clock,
   RefreshCw,
   Heart,
+  MessageSquare,
+  ListChecks,
 } from "lucide-react";
 
 // ─── Mock Data ───────────────────────────────────────────────
@@ -463,6 +465,7 @@ type Message =
   | { id: string; sender: "model"; type: "character-card"; prompt: string; data: CharacterCardData }
   | { id: string; sender: "model"; type: "outline-card"; prompt: string; data: OutlineCardData }
   | { id: string; sender: "model"; type: "welcome"; prompt: string }
+  | { id: string; sender: "model"; type: "mode-select"; prompt: string }
   | { id: string; sender: "model"; type: "stage-intro"; prompt: string; stage: "worldbuilding" | "characters" | "outline" }
   | { id: string; sender: "model"; type: "length-select"; prompt: string }
   | { id: string; sender: "model"; type: "micro-adjust"; prompt: string; round: number }
@@ -480,6 +483,9 @@ export default function ChatPanel() {
   const setNovelChapterContent = useEditorStore((s) => s.setNovelChapterContent);
   const setCurrentNovelChapter = useEditorStore((s) => s.setCurrentNovelChapter);
   const novelChapters = useEditorStore((s) => s.novelChapters);
+  const workMode = useEditorStore((s) => s.workMode);
+  const setWorkMode = useEditorStore((s) => s.setWorkMode);
+  const scene = useEditorStore((s) => s.scene);
   const [messages, setMessages] = useState<Message[]>([]);
   const [selections, setSelections] = useState<Record<number, number>>({}); // round → selected card index
   const [currentRound, setCurrentRound] = useState(0); // 0=welcome, 1-3=inspiration, 4=confirm stage
@@ -541,11 +547,27 @@ export default function ChatPanel() {
     setStageProgress(progressMap[currentRound] ?? 0);
   }, [currentRound, setStageProgress]);
 
-  // Scene card entry: model sends welcome message
+  // Scene card entry: model sends mode-select or welcome message
   useEffect(() => {
     if (hasInit.current) return;
     hasInit.current = true;
 
+    const needsModeSelect = (scene === "novel" || scene === "screenplay") && workMode === null;
+
+    if (needsModeSelect) {
+      // Show mode selection cards directly (no thinking delay)
+      setMessages([
+        {
+          id: "model-mode-select",
+          sender: "model",
+          type: "mode-select",
+          prompt: "你好！欢迎来到创作工作台 ✨\n\n请先选择你偏好的创作模式：",
+        },
+      ]);
+      return;
+    }
+
+    // Already have a mode selected, show normal welcome
     const thinkingId = `thinking-init`;
     setMessages([{ id: thinkingId, sender: "model", type: "thinking" }]);
 
@@ -559,7 +581,7 @@ export default function ChatPanel() {
         },
       ]);
     }, 1200);
-  }, []);
+  }, [scene, workMode]);
 
   // Toggle keyword favorite
   const toggleKeyword = useCallback((kw: string) => {
@@ -570,6 +592,30 @@ export default function ChatPanel() {
       return next;
     });
   }, []);
+
+  // Handle mode selection (Agent / Workflow)
+  const handleModeSelect = useCallback((mode: "agent" | "workflow") => {
+    setWorkMode(mode);
+
+    if (mode === "agent") {
+      // Transition to welcome message in chat flow
+      const thinkingId = `thinking-init`;
+      setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+
+      setTimeout(() => {
+        setMessages((prev) => [
+          ...prev.filter((m) => m.id !== thinkingId),
+          {
+            id: "model-welcome",
+            sender: "model",
+            type: "welcome",
+            prompt: "你好！欢迎来到小说创作工作台 ✨\n\n你可以让我帮你找灵感，也可以直接在下面描述你的故事——\n一段梗概、一个画面、甚至一句「我想写一个关于__的故事」都可以，我们一起把它变成完整的创作蓝图。",
+          },
+        ]);
+      }, 1200);
+    }
+    // Workflow mode: WorkbenchLayout will switch to 3-column layout
+  }, [setWorkMode]);
 
   // Handle "帮我找灵感" button click
   const handleStartInspiration = useCallback(() => {
@@ -1360,6 +1406,50 @@ export default function ChatPanel() {
                   <span className="text-xs text-gray-400">文心</span>
                 </div>
                 <div className="text-sm text-gray-700 leading-relaxed pl-8 whitespace-pre-wrap">{msg.content}</div>
+              </div>
+            );
+          }
+
+          // ── Model: mode selection cards ──
+          if (msg.sender === "model" && msg.type === "mode-select") {
+            return (
+              <div key={msg.id} className="space-y-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                    <span className="text-white text-[10px] font-bold">AI</span>
+                  </div>
+                  <span className="text-xs text-gray-400">文心</span>
+                </div>
+                <div className="text-sm text-gray-700 leading-relaxed pl-8 whitespace-pre-wrap">{msg.prompt}</div>
+
+                {/* Mode Cards */}
+                {workMode === null && (
+                  <div className="pl-8 flex gap-3">
+                    <button
+                      onClick={() => handleModeSelect("agent")}
+                      className="group flex-1 bg-white rounded-xl border border-gray-200 p-4 text-left hover:border-indigo-300 hover:shadow-md transition-all duration-200"
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center mb-3 group-hover:bg-indigo-100 transition">
+                        <MessageSquare className="w-4 h-4 text-indigo-500" />
+                      </div>
+                      <h3 className="text-sm font-semibold text-gray-900 mb-1">Agent 模式</h3>
+                      <p className="text-xs text-gray-500 leading-relaxed">自由对话，灵活探索</p>
+                      <p className="text-[11px] text-gray-400 mt-2 leading-relaxed">通过 AI 对话完成灵感→设定→角色→大纲→正文的创作流程</p>
+                    </button>
+
+                    <button
+                      onClick={() => handleModeSelect("workflow")}
+                      className="group flex-1 bg-white rounded-xl border border-gray-200 p-4 text-left hover:border-indigo-300 hover:shadow-md transition-all duration-200"
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center mb-3 group-hover:bg-indigo-50 transition">
+                        <ListChecks className="w-4 h-4 text-gray-600 group-hover:text-indigo-500 transition" />
+                      </div>
+                      <h3 className="text-sm font-semibold text-gray-900 mb-1">Workflow 模式</h3>
+                      <p className="text-xs text-gray-500 leading-relaxed">成果导向，可控执行</p>
+                      <p className="text-[11px] text-gray-400 mt-2 leading-relaxed">在配置面板中设定参数，按步骤生成，每一步可精确调控</p>
+                    </button>
+                  </div>
+                )}
               </div>
             );
           }

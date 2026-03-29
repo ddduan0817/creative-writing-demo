@@ -127,6 +127,10 @@ interface EditorState {
   addHistoryItem: (item: Omit<HistoryItem, "id" | "timestamp">) => void;
   restoreFromHistory: (historyId: string) => void;
 
+  // 创作模式（Agent / Workflow）
+  workMode: "agent" | "workflow" | null;
+  setWorkMode: (mode: "agent" | "workflow") => void;
+
   // 重置为空白文档
   resetToEmpty: (sceneType: EditorState["scene"]) => void;
 }
@@ -391,6 +395,9 @@ export const useEditorStore = create<EditorState>((set) => ({
       };
     }),
 
+  workMode: null,
+  setWorkMode: (mode) => set({ workMode: mode }),
+
   resetToEmpty: (sceneType) => {
     const sceneNames: Record<string, string> = {
       novel: "未命名小说",
@@ -413,6 +420,7 @@ export const useEditorStore = create<EditorState>((set) => ({
 
     set({
       scene: sceneType,
+      workMode: null,
       creationStage: 0,
       stageProgress: 0,
       novelChapters: [],
