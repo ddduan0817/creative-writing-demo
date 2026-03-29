@@ -478,6 +478,7 @@ type Message =
   | { id: string; sender: "model"; type: "stage-intro"; prompt: string; stage: "worldbuilding" | "characters" | "outline" }
   | { id: string; sender: "model"; type: "length-select"; prompt: string }
   | { id: string; sender: "model"; type: "micro-adjust"; prompt: string; round: number }
+  | { id: string; sender: "model"; type: "subtype-select"; prompt: string }
   | { id: string; sender: "user"; type: "card-selection"; content: string }
   | { id: string; sender: "user"; type: "text"; content: string };
 
@@ -521,6 +522,7 @@ export default function ChatPanel() {
   const [favKeywords, setFavKeywords] = useState<Set<string>>(new Set());
   const [stageEntry, setStageEntry] = useState<"worldbuilding" | "characters" | "outline" | null>(null);
   const [writingChapter, setWritingChapter] = useState(-1); // -1 = not writing, 0+ = generating chapter index
+  const [screenplaySubtype, setScreenplaySubtype] = useState<"short_drama" | "comic_drama" | null>(null);
   const [input, setInput] = useState("");
   const [showAttachMenu, setShowAttachMenu] = useState(false);
   const attachRef = useRef<HTMLDivElement>(null);
@@ -583,14 +585,26 @@ export default function ChatPanel() {
     setMessages([{ id: thinkingId, sender: "model", type: "thinking" }]);
 
     setTimeout(() => {
-      setMessages([
-        {
-          id: "model-welcome",
-          sender: "model",
-          type: "welcome",
-          prompt: sceneWelcome,
-        },
-      ]);
+      if (isScreenplay) {
+        // Screenplay: show subtype selection first
+        setMessages([
+          {
+            id: "model-subtype",
+            sender: "model",
+            type: "subtype-select",
+            prompt: "你好！欢迎来到剧本创作工作台。你想创作哪种类型？",
+          },
+        ]);
+      } else {
+        setMessages([
+          {
+            id: "model-welcome",
+            sender: "model",
+            type: "welcome",
+            prompt: sceneWelcome,
+          },
+        ]);
+      }
     }, 1200);
   }, [scene, workMode]);
 
@@ -610,6 +624,38 @@ export default function ChatPanel() {
     // Agent: useEffect will detect workMode change and init welcome message
     // Workflow: WorkbenchLayout will switch to 3-column layout
   }, [setWorkMode]);
+
+  // Handle screenplay subtype selection (短剧 / 漫剧)
+  const handleSubtypeSelect = useCallback((subtype: "short_drama" | "comic_drama") => {
+    setScreenplaySubtype(subtype);
+    const label = subtype === "short_drama" ? "短剧" : "漫剧";
+
+    // Add user selection message
+    setMessages((prev) => [
+      ...prev,
+      { id: `user-subtype`, sender: "user", type: "card-selection", content: `我想创作${label}` },
+    ]);
+
+    // Show thinking then welcome message
+    const thinkingId = `thinking-welcome`;
+    setTimeout(() => {
+      setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+    }, 300);
+
+    setTimeout(() => {
+      setMessages((prev) => [
+        ...prev.filter((m) => m.id !== thinkingId),
+        {
+          id: "model-welcome",
+          sender: "model",
+          type: "welcome",
+          prompt: subtype === "short_drama"
+            ? "好的，我们来创作一部短剧！\n\n你可以让我帮你找灵感，也可以直接描述你的剧本构思——一段梗概、一个场景、甚至一句「我想写一部关于__的短剧」都可以，我们一起把它变成完整的剧本。"
+            : "好的，我们来创作一部漫剧！\n\n你可以让我帮你找灵感，也可以直接描述你的剧本构思——一段梗概、一个画面、甚至一句「我想做一部关于__的漫剧」都可以，我们一起把它变成完整的分镜剧本。",
+        },
+      ]);
+    }, 1500);
+  }, []);
 
   // Handle "帮我找灵感" button click
   const handleStartInspiration = useCallback(() => {
@@ -1435,6 +1481,66 @@ export default function ChatPanel() {
                   <span className="text-xs text-gray-400">文心</span>
                 </div>
                 <div className="text-sm text-gray-700 leading-relaxed pl-8 whitespace-pre-wrap">{msg.content}</div>
+              </div>
+            );
+          }
+
+          // ── Model: screenplay subtype selection ──
+          if (msg.sender === "model" && msg.type === "subtype-select") {
+            return (
+              <div key={msg.id} className="space-y-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                    <span className="text-white text-[10px] font-bold">AI</span>
+                  </div>
+                  <span className="text-xs text-gray-400">文心</span>
+                </div>
+                <p className="text-sm text-gray-700 leading-relaxed pl-8">{msg.prompt}</p>
+
+                {!screenplaySubtype && (
+                  <div className="pl-8 space-y-2">
+                    <button
+                      onClick={() => handleSubtypeSelect("short_drama")}
+                      className="w-full text-left p-3.5 rounded-xl border-2 border-gray-100 bg-white hover:border-indigo-200 hover:shadow-sm cursor-pointer transition-all duration-200"
+                    >
+                      <div className="flex items-start gap-2.5">
+                        <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-medium shrink-0 mt-0.5 bg-gray-100 text-gray-400">1</span>
+                        <div>
+                          <p className="text-sm font-medium text-gray-800 mb-1">短剧</p>
+                          <p className="text-xs text-gray-500 leading-relaxed">真人出镜短视频剧本，强节奏、强钩子，单集60-120秒</p>
+                        </div>
+                      </div>
+                    </button>
+                    <button
+                      onClick={() => handleSubtypeSelect("comic_drama")}
+                      className="w-full text-left p-3.5 rounded-xl border-2 border-gray-100 bg-white hover:border-indigo-200 hover:shadow-sm cursor-pointer transition-all duration-200"
+                    >
+                      <div className="flex items-start gap-2.5">
+                        <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-medium shrink-0 mt-0.5 bg-gray-100 text-gray-400">2</span>
+                        <div>
+                          <p className="text-sm font-medium text-gray-800 mb-1">漫剧</p>
+                          <p className="text-xs text-gray-500 leading-relaxed">动态漫画 / AI绘图剧本，分镜驱动，画面感优先</p>
+                        </div>
+                      </div>
+                    </button>
+                  </div>
+                )}
+
+                {screenplaySubtype && (
+                  <div className="pl-8 space-y-2">
+                    <div className="w-full text-left p-3.5 rounded-xl border-2 border-indigo-400 bg-indigo-50/80 shadow-sm">
+                      <div className="flex items-start gap-2.5">
+                        <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-medium shrink-0 mt-0.5 bg-indigo-500 text-white">
+                          {screenplaySubtype === "short_drama" ? "1" : "2"}
+                        </span>
+                        <div>
+                          <p className="text-sm font-medium text-gray-800 mb-1">{screenplaySubtype === "short_drama" ? "短剧" : "漫剧"}</p>
+                          <p className="text-xs text-gray-500 leading-relaxed">{screenplaySubtype === "short_drama" ? "真人出镜短视频剧本，强节奏、强钩子，单集60-120秒" : "动态漫画 / AI绘图剧本，分镜驱动，画面感优先"}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             );
           }
