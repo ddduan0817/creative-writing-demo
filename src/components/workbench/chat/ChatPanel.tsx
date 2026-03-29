@@ -1208,7 +1208,6 @@ export default function ChatPanel() {
   }, [input, awaitingAdjust, adjustRound, currentRound, flowMode, freeformStep, stageEntry, writingChapter, novelChapters, setCreationStage, setStageProgress, setAutoTitle, proceedToNextRound, handleStageInspiration, initNovelChapters, generateChapter]);
 
   // Collect all keywords from all rounds for the "fav bar"
-  const allFavKeywords = Array.from(favKeywords);
 
   // ── Mode Selection: full chat-area centered UI (no chat, no input) ──
   if ((scene === "novel" || scene === "screenplay") && workMode === null) {
@@ -1251,23 +1250,6 @@ export default function ChatPanel() {
 
   return (
     <div className="h-full flex flex-col bg-gray-50/50">
-      {/* Favorited Keywords Bar */}
-      {allFavKeywords.length > 0 && (
-        <div className="px-5 py-2.5 border-b border-gray-100 bg-white/80 backdrop-blur-sm">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-[10px] text-gray-400 shrink-0">收藏的元素</span>
-            {allFavKeywords.map((kw) => (
-              <span
-                key={kw}
-                className="px-2 py-0.5 bg-pink-50 text-pink-500 text-xs rounded-full border border-pink-100 flex items-center gap-1"
-              >
-                <Heart className="w-2.5 h-2.5 fill-pink-400" />
-                {kw}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* Messages Area */}
       <div className="flex-1 overflow-y-auto px-5 py-5 space-y-5" ref={scrollRef}>
