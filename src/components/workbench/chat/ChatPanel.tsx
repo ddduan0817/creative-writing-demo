@@ -1207,6 +1207,20 @@ export default function ChatPanel() {
     }
   }, [input, awaitingAdjust, adjustRound, currentRound, flowMode, freeformStep, stageEntry, writingChapter, novelChapters, setCreationStage, setStageProgress, setAutoTitle, proceedToNextRound, handleStageInspiration, initNovelChapters, generateChapter]);
 
+  // Quick confirm: set input text then trigger send on next render
+  const pendingSend = useRef(false);
+  const quickConfirm = useCallback((text: string) => {
+    setInput(text);
+    pendingSend.current = true;
+  }, []);
+
+  useEffect(() => {
+    if (pendingSend.current && input.trim()) {
+      pendingSend.current = false;
+      handleSend();
+    }
+  }, [input, handleSend]);
+
   // Collect all keywords from all rounds for the "fav bar"
 
   // ── Mode Selection: full chat-area centered UI (no chat, no input) ──
@@ -1524,6 +1538,15 @@ export default function ChatPanel() {
                       <span className="text-[11px] text-gray-400">查看完整设定请点击编辑区</span>
                     </div>
                   </div>
+                  {/* Confirm button */}
+                  {currentRound === 4 && (
+                    <button
+                      onClick={() => quickConfirm("确认设定，开始构建世界观")}
+                      className="mt-2.5 w-full px-4 py-2.5 bg-indigo-50 text-indigo-600 text-sm font-medium rounded-xl border border-indigo-100 hover:bg-indigo-100 transition"
+                    >
+                      ✅ 确认设定，开始构建世界观
+                    </button>
+                  )}
                 </div>
               </div>
             );
@@ -1575,6 +1598,15 @@ export default function ChatPanel() {
                       <span className="text-[11px] text-gray-400">查看完整世界观请点击编辑区</span>
                     </div>
                   </div>
+                  {/* Confirm button */}
+                  {currentRound === 8 && (
+                    <button
+                      onClick={() => quickConfirm("确认世界观，开始创建角色")}
+                      className="mt-2.5 w-full px-4 py-2.5 bg-indigo-50 text-indigo-600 text-sm font-medium rounded-xl border border-indigo-100 hover:bg-indigo-100 transition"
+                    >
+                      ✅ 确认世界观，开始创建角色
+                    </button>
+                  )}
                 </div>
               </div>
             );
@@ -1630,6 +1662,15 @@ export default function ChatPanel() {
                       <span className="text-[11px] text-gray-400">查看完整角色档案请点击编辑区</span>
                     </div>
                   </div>
+                  {/* Confirm button */}
+                  {currentRound === 12 && (
+                    <button
+                      onClick={() => quickConfirm("确认角色，开始生成大纲")}
+                      className="mt-2.5 w-full px-4 py-2.5 bg-indigo-50 text-indigo-600 text-sm font-medium rounded-xl border border-indigo-100 hover:bg-indigo-100 transition"
+                    >
+                      ✅ 确认角色，开始生成大纲
+                    </button>
+                  )}
                 </div>
               </div>
             );
@@ -1676,6 +1717,15 @@ export default function ChatPanel() {
                       <span className="text-[11px] text-gray-400">查看完整大纲请点击编辑区</span>
                     </div>
                   </div>
+                  {/* Confirm button */}
+                  {currentRound === 13 && (
+                    <button
+                      onClick={() => quickConfirm("确认大纲，开始写正文")}
+                      className="mt-2.5 w-full px-4 py-2.5 bg-indigo-50 text-indigo-600 text-sm font-medium rounded-xl border border-indigo-100 hover:bg-indigo-100 transition"
+                    >
+                      ✅ 确认大纲，开始写正文
+                    </button>
+                  )}
                 </div>
               </div>
             );
