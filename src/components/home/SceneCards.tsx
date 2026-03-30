@@ -13,7 +13,7 @@ const scenes = [
   {
     id: "reading",
     name: "知识专栏",
-    desc: "拆书 · 内容解读 · 知识播客",
+    desc: "深度拆书 · 内容解读 · 知识播客",
     iconBg: "bg-emerald-100",
     illustration: "📚",
   },
@@ -25,18 +25,18 @@ const scenes = [
     illustration: "📖",
   },
   {
-    id: "general",
-    name: "通用写作",
-    desc: "文章撰写 · 文案润色 · 素材整理",
-    iconBg: "bg-orange-100",
-    illustration: "✏️",
-  },
-  {
     id: "screenplay",
     name: "剧本脚本",
     desc: "短剧剧本 · 漫改脚本 · 分镜设计",
     iconBg: "bg-blue-100",
     illustration: "🎬",
+  },
+  {
+    id: "general",
+    name: "通用写作",
+    desc: "文章撰写 · 文案润色 · 素材整理",
+    iconBg: "bg-orange-100",
+    illustration: "✏️",
   },
 ];
 
@@ -63,7 +63,7 @@ export default function SceneCards() {
                 {scene.illustration}
               </span>
             </div>
-            <h3 className="text-[13px] font-semibold text-gray-800">
+            <h3 className="text-base font-semibold text-gray-800">
               {scene.name}
             </h3>
           </div>
