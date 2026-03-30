@@ -1500,7 +1500,7 @@ export default function ChatPanel() {
 
       {/* Messages Area */}
       <div className="flex-1 overflow-y-auto px-5 py-5 space-y-5" ref={scrollRef}>
-        {messages.map((msg) => {
+        {messages.map((msg, idx) => {
           // ── Thinking indicator ──
           if (msg.type === "thinking") {
             return (
@@ -1641,6 +1641,10 @@ export default function ChatPanel() {
 
           // ── Model: text message ──
           if (msg.sender === "model" && msg.type === "text") {
+            const isChapterDone = msg.id.startsWith("model-ch-done-");
+            const chapterIdx = isChapterDone ? parseInt(msg.id.replace("model-ch-done-", ""), 10) : -1;
+            const hasNextChapter = isChapterDone && chapterIdx < dataRef.current.sceneOutlineCard.chapters.length - 1;
+            const isLastMessage = idx === messages.length - 1;
             return (
               <div key={msg.id} className="space-y-2">
                 <div className="flex items-center gap-2 mb-1">
@@ -1650,6 +1654,36 @@ export default function ChatPanel() {
                   <span className="text-xs text-gray-400">文心</span>
                 </div>
                 <div className="text-sm text-gray-700 leading-relaxed pl-8 whitespace-pre-wrap">{msg.content}</div>
+                {hasNextChapter && isLastMessage && (
+                  <div className="pl-8 mt-2">
+                    <button
+                      onClick={() => {
+                        // Simulate user saying "继续"
+                        setMessages((prev) => [
+                          ...prev,
+                          { id: `user-continue-${chapterIdx}`, sender: "user" as const, type: "text" as const, content: "继续" },
+                        ]);
+                        const nextCh = chapterIdx + 1;
+                        const thinkingId = `thinking-ch-${nextCh}`;
+                        setTimeout(() => {
+                          setMessages((prev) => [...prev, { id: thinkingId, sender: "model" as const, type: "thinking" as const }]);
+                        }, 300);
+                        setTimeout(() => {
+                          const title = novelChapters[nextCh]?.title || "";
+                          setMessages((prev) => [
+                            ...prev.filter((m) => m.id !== thinkingId),
+                            { id: `model-gen-ch-${nextCh}`, sender: "model" as const, type: "text" as const, content: `好的，正在生成 **${title}**...` },
+                          ]);
+                          setWritingChapter(nextCh);
+                          generateChapter(nextCh);
+                        }, 1500);
+                      }}
+                      className="px-4 py-2 bg-indigo-50 text-indigo-600 text-sm font-medium rounded-xl border border-indigo-100 hover:bg-indigo-100 transition"
+                    >
+                      ▶ 继续生成下一章
+                    </button>
+                  </div>
+                )}
               </div>
             );
           }

@@ -139,6 +139,30 @@ export default function RichTextEditor() {
     }
   }, [editor, pendingInsert, setPendingInsert]);
 
+  // IntersectionObserver to track visible chapter and update TOC highlight on scroll
+  useEffect(() => {
+    if (creationStage < 5) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            const id = entry.target.getAttribute("id");
+            if (id?.startsWith("chapter-")) {
+              const idx = parseInt(id.replace("chapter-", ""), 10);
+              if (!isNaN(idx)) setCurrentNovelChapter(idx);
+            }
+          }
+        }
+      },
+      { rootMargin: "-20% 0px -60% 0px", threshold: 0 }
+    );
+    novelChapters.forEach((_, i) => {
+      const el = document.getElementById(`chapter-${i}`);
+      if (el) observer.observe(el);
+    });
+    return () => observer.disconnect();
+  }, [creationStage, novelChapters.length, setCurrentNovelChapter]);
+
   const handleAIAction = useCallback(
     (action: string) => {
       setFloatingToolbar((p) => ({ ...p, show: false }));
@@ -1012,8 +1036,6 @@ export default function RichTextEditor() {
 
   // Writing mode: chapter editor with collapsible TOC
   if ((scene === "novel" || scene === "screenplay" || scene === "marketing" || scene === "knowledge") && creationStage >= 5 && novelChapters.length > 0) {
-    const currentCh = novelChapters[currentNovelChapter];
-    const isGenerating = currentCh?.status === "generating";
 
     return (
       <div className="h-full flex flex-col relative">
@@ -1044,7 +1066,12 @@ export default function RichTextEditor() {
                   {novelChapters.map((ch, i) => (
                     <button
                       key={i}
-                      onClick={() => { setCurrentNovelChapter(i); setTocOpen(false); }}
+                      onClick={() => {
+                        const el = document.getElementById(`chapter-${i}`);
+                        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                        setCurrentNovelChapter(i);
+                        setTocOpen(false);
+                      }}
                       className={`w-full text-left px-4 py-2.5 flex items-center gap-2.5 transition text-sm ${
                         i === currentNovelChapter
                           ? "bg-indigo-50 text-indigo-600"
@@ -1066,7 +1093,7 @@ export default function RichTextEditor() {
             </>
           )}
 
-          {/* Editor area */}
+          {/* Editor area — continuous document with all chapters */}
           <div className="flex-1 overflow-y-auto px-8 py-6 pl-14 relative" ref={editorWrapRef} onMouseUp={handleMouseUpSelection}>
             {/* Floating Selection Toolbar for writing mode */}
             {floatingToolbar.show && (
@@ -1082,36 +1109,41 @@ export default function RichTextEditor() {
               />
             )}
             <div className="max-w-3xl mx-auto">
-              {/* Chapter title */}
-              <h2 className="text-lg font-bold text-gray-900 mb-1">{currentCh?.title}</h2>
-              <p className="text-xs text-gray-400 mb-6">
-                {isGenerating ? "正在生成中..." : currentCh?.status === "done" ? "已生成，可直接编辑" : "等待生成"}
-              </p>
+              {novelChapters.map((ch, i) => {
+                const isChGenerating = ch.status === "generating";
+                return (
+                  <div key={i} id={`chapter-${i}`} className="mb-12">
+                    {/* Chapter title */}
+                    <h2 className="text-lg font-bold text-gray-900 mb-1">{ch.title}</h2>
+                    <p className="text-xs text-gray-400 mb-6">
+                      {isChGenerating ? "正在生成中..." : ch.status === "done" ? "已生成，可直接编辑" : "等待生成"}
+                    </p>
 
-              {/* Chapter content */}
-              {currentCh?.content ? (
-                <div className="prose prose-sm max-w-none">
-                  {isGenerating ? (
-                    // Read-only streaming view
-                    <div className="text-sm text-gray-700 leading-[1.8] whitespace-pre-wrap">
-                      {currentCh.content}
-                      <span className="inline-block w-0.5 h-4 bg-indigo-500 animate-pulse ml-0.5 align-middle" />
-                    </div>
-                  ) : (
-                    // Editable content for done chapters
-                    <div
-                      contentEditable
-                      suppressContentEditableWarning
-                      onInput={(e) => setNovelChapterContent(currentNovelChapter, (e.target as HTMLDivElement).innerText)}
-                      className="w-full text-sm text-gray-700 leading-[1.8] outline-none bg-transparent min-h-[60vh] whitespace-pre-wrap"
-                    >
-                      {currentCh.content}
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="text-sm text-gray-300 italic">等待生成...</div>
-              )}
+                    {/* Chapter content */}
+                    {ch.content ? (
+                      <div className="prose prose-sm max-w-none">
+                        {isChGenerating ? (
+                          <div className="text-sm text-gray-700 leading-[1.8] whitespace-pre-wrap">
+                            {ch.content}
+                            <span className="inline-block w-0.5 h-4 bg-indigo-500 animate-pulse ml-0.5 align-middle" />
+                          </div>
+                        ) : (
+                          <div
+                            contentEditable
+                            suppressContentEditableWarning
+                            onInput={(e) => setNovelChapterContent(i, (e.target as HTMLDivElement).innerText)}
+                            className="w-full text-sm text-gray-700 leading-[1.8] outline-none bg-transparent whitespace-pre-wrap"
+                          >
+                            {ch.content}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="text-sm text-gray-300 italic">等待生成...</div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
