@@ -805,6 +805,43 @@ export default function ChatPanel() {
     }
   }, [setCreationStage]);
 
+  // Handle "直接生成" — skip inspiration rounds, directly generate the card
+  const handleStageDirectGenerate = useCallback((stage: "worldbuilding" | "characters" | "outline") => {
+    setStageEntry(null);
+    const thinkingId = `thinking-direct-${stage}`;
+    setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+
+    if (stage === "worldbuilding") {
+      setTimeout(() => {
+        setMessages((prev) => [
+          ...prev.filter((m) => m.id !== thinkingId),
+          { id: "model-worldbuilding", sender: "model", type: "worldbuilding-card", prompt: "世界观构建完成！我根据设定直接生成了世界观，你可以在编辑区查看完整内容，有想调整的直接告诉我。", data: dataRef.current.sceneWorldbuilding },
+        ]);
+        setCurrentRound(8);
+        setCreationStage(2);
+      }, 2500);
+    } else if (stage === "characters") {
+      setTimeout(() => {
+        setMessages((prev) => [
+          ...prev.filter((m) => m.id !== thinkingId),
+          { id: "model-characters", sender: "model", type: "character-card", prompt: "角色创建完成！我根据设定和世界观直接生成了角色档案，有想调整的随时告诉我。", data: dataRef.current.sceneCharacterCard },
+        ]);
+        setCurrentRound(12);
+        setCreationStage(3);
+      }, 2500);
+    } else if (stage === "outline") {
+      // Outline already generates directly, same as handleStageInspiration
+      setTimeout(() => {
+        setMessages((prev) => [
+          ...prev.filter((m) => m.id !== thinkingId),
+          { id: "model-outline", sender: "model", type: "outline-card", prompt: "大纲生成完毕！16章完整故事线已就绪，确认后就可以开始正文创作了，有想调整的随时告诉我。", data: dataRef.current.sceneOutlineCard },
+        ]);
+        setCurrentRound(13);
+        setCreationStage(4);
+      }, 3000);
+    }
+  }, [setCreationStage]);
+
   // Proceed to next round (after adjust or skip)
   // Rounds 1-3: inspiration → settings card at end
   // Rounds 5-7: worldbuilding → worldbuilding card at end
@@ -1004,6 +1041,22 @@ export default function ChatPanel() {
   const handleSkipAdjust = useCallback(() => {
     proceedToNextRound(adjustRound);
   }, [adjustRound, proceedToNextRound]);
+
+  // Handle "跳过，直接生成" — skip remaining inspiration rounds, jump to card generation
+  const handleSkipToGenerate = useCallback(() => {
+    setAwaitingAdjust(false);
+    // Determine which final round to call based on currentRound
+    if (currentRound >= 1 && currentRound <= 3) {
+      // Inspiration phase → jump to settings card (as if round 3 done)
+      proceedToNextRound(3);
+    } else if (currentRound >= 5 && currentRound <= 7) {
+      // Worldbuilding phase → jump to worldbuilding card (as if round 7 done)
+      proceedToNextRound(7);
+    } else if (currentRound >= 9 && currentRound <= 11) {
+      // Character phase → jump to character card (as if round 11 done)
+      proceedToNextRound(11);
+    }
+  }, [currentRound, proceedToNextRound]);
 
   // Handle refresh
   // Mock generate a chapter with streaming effect
@@ -1537,15 +1590,23 @@ export default function ChatPanel() {
                     );
                   })}
 
-                  {/* Refresh button */}
+                  {/* Refresh & Skip buttons */}
                   {isActive && (
-                    <button
-                      onClick={() => handleRefresh()}
-                      className="flex items-center gap-1.5 px-2 py-1.5 text-xs text-gray-400 hover:text-indigo-500 transition mt-1"
-                    >
-                      <RefreshCw className="w-3 h-3" />
-                      换一换
-                    </button>
+                    <div className="flex items-center gap-3 mt-1">
+                      <button
+                        onClick={() => handleRefresh()}
+                        className="flex items-center gap-1.5 px-2 py-1.5 text-xs text-gray-400 hover:text-indigo-500 transition"
+                      >
+                        <RefreshCw className="w-3 h-3" />
+                        换一换
+                      </button>
+                      <button
+                        onClick={handleSkipToGenerate}
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-400 hover:text-indigo-500 border border-gray-200 rounded-full hover:border-indigo-200 transition"
+                      >
+                        跳过，直接生成
+                      </button>
+                    </div>
                   )}
                 </div>
               </div>
@@ -1665,14 +1726,42 @@ export default function ChatPanel() {
                 </div>
                 <div className="text-sm text-gray-700 leading-relaxed pl-8 whitespace-pre-wrap">{msg.prompt}</div>
 
-                {/* Entry button */}
+                {/* Entry buttons */}
                 {flowMode === "none" && (
-                  <div className="pl-8 mt-2">
+                  <div className="pl-8 mt-2 flex items-center gap-2.5">
                     <button
                       onClick={handleStartInspiration}
                       className="px-4 py-2.5 bg-indigo-50 text-indigo-600 text-sm font-medium rounded-xl border border-indigo-100 hover:bg-indigo-100 transition"
                     >
                       ✨ 帮我找灵感
+                    </button>
+                    <button
+                      onClick={() => {
+                        setFlowMode("inspiration");
+                        const thinkingId = `thinking-direct-settings`;
+                        setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+                        setTimeout(() => {
+                          setMessages((prev) => [
+                            ...prev.filter((m) => m.id !== thinkingId),
+                            {
+                              id: "model-settings",
+                              sender: "model",
+                              type: "settings-card",
+                              prompt: dataRef.current.isMarketing
+                                ? "收到！我为你整理了视频策略Brief。确认无误就可以开始设计故事线了，有需要调整的随时告诉我。"
+                                : dataRef.current.isKnowledge
+                                ? "已读取完毕！以下是书籍总览和分析配置。确认无误就可以开始深入分析了，有需要调整的随时告诉我。"
+                                : "我帮你生成了一套创作设定。确认无误就可以开始构建世界观了，你也可以告诉我需要调整的地方。",
+                              settings: dataRef.current.sceneSettingsCard,
+                            },
+                          ]);
+                          setCurrentRound(4);
+                          setCreationStage(1);
+                        }, 2500);
+                      }}
+                      className="px-4 py-2.5 text-gray-500 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
+                    >
+                      直接生成
                     </button>
                   </div>
                 )}
@@ -1694,12 +1783,18 @@ export default function ChatPanel() {
                 <div className="text-sm text-gray-700 leading-relaxed pl-8 whitespace-pre-wrap">{msg.prompt}</div>
 
                 {isActive && (
-                  <div className="pl-8 mt-2">
+                  <div className="pl-8 mt-2 flex items-center gap-2.5">
                     <button
                       onClick={() => handleStageInspiration(msg.stage)}
                       className="px-4 py-2.5 bg-indigo-50 text-indigo-600 text-sm font-medium rounded-xl border border-indigo-100 hover:bg-indigo-100 transition"
                     >
                       ✨ 帮我找灵感
+                    </button>
+                    <button
+                      onClick={() => handleStageDirectGenerate(msg.stage)}
+                      className="px-4 py-2.5 text-gray-500 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
+                    >
+                      直接生成
                     </button>
                   </div>
                 )}
@@ -2005,24 +2100,23 @@ export default function ChatPanel() {
           />
           <div className="flex items-center justify-between mt-2">
             <div className="relative" ref={attachRef}>
-              <button
-                onClick={() => setShowAttachMenu(!showAttachMenu)}
-                className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 text-gray-400 hover:bg-gray-50 transition"
-              >
-                <Plus className="w-4 h-4" />
-              </button>
-              {showAttachMenu && (
-                <div className="absolute left-0 bottom-full mb-2 bg-white rounded-xl shadow-lg border border-gray-100 py-2 w-28 z-20">
-                  {(scene === "novel" || scene === "screenplay") ? (
-                    <button
-                      onClick={() => { setShowAttachMenu(false); }}
-                      className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition"
-                    >
-                      <FileUp className="w-4 h-4 text-blue-500" />
-                      传文件
-                    </button>
-                  ) : (
-                    <>
+              {(scene === "novel" || scene === "screenplay") ? (
+                <button
+                  className="flex items-center gap-1 h-8 px-2.5 rounded-full border border-gray-200 text-gray-400 hover:bg-gray-50 hover:text-gray-600 transition text-xs"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>传文件</span>
+                </button>
+              ) : (
+                <>
+                  <button
+                    onClick={() => setShowAttachMenu(!showAttachMenu)}
+                    className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 text-gray-400 hover:bg-gray-50 transition"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
+                  {showAttachMenu && (
+                    <div className="absolute left-0 bottom-full mb-2 bg-white rounded-xl shadow-lg border border-gray-100 py-2 w-28 z-20">
                       {[
                         { icon: FileUp, label: "文档", color: "text-blue-500" },
                         { icon: ImageIcon, label: "图片", color: "text-green-500" },
@@ -2047,9 +2141,9 @@ export default function ChatPanel() {
                         <Clock className="w-4 h-4 text-gray-500" />
                         最近
                       </button>
-                    </>
+                    </div>
                   )}
-                </div>
+                </>
               )}
             </div>
             <div className="flex items-center gap-1.5">
