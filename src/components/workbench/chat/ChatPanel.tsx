@@ -1422,7 +1422,7 @@ export default function ChatPanel() {
             <div className="w-9 h-9 rounded-xl bg-indigo-50 flex items-center justify-center mb-3">
               <MessageSquare className="w-[18px] h-[18px] text-indigo-500" />
             </div>
-            <h3 className="text-sm font-semibold text-gray-900 mb-1">AI 引导创作</h3>
+            <h3 className="text-sm font-semibold text-gray-900 mb-1">引导创作</h3>
             <p className="text-xs text-gray-500 leading-relaxed">自由对话，灵活探索</p>
             <p className="text-[11px] text-gray-400 mt-2.5 leading-relaxed">通过 AI 对话完成灵感→设定→角色→大纲→正文的创作流程</p>
           </button>
@@ -1434,7 +1434,7 @@ export default function ChatPanel() {
             <div className="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center mb-3 group-hover:bg-indigo-50 transition">
               <ListChecks className="w-[18px] h-[18px] text-gray-600 group-hover:text-indigo-500 transition" />
             </div>
-            <h3 className="text-sm font-semibold text-gray-900 mb-1">自由创作</h3>
+            <h3 className="text-sm font-semibold text-gray-900 mb-1">独立创作</h3>
             <p className="text-xs text-gray-500 leading-relaxed">自主配置，自由编辑</p>
             <p className="text-[11px] text-gray-400 mt-2.5 leading-relaxed">在配置面板中设定参数，按步骤生成，每一步可精确调控</p>
           </button>
