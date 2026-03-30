@@ -6,26 +6,19 @@ import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import Placeholder from "@tiptap/extension-placeholder";
 import EditorToolbar from "./EditorToolbar";
+import FloatingSelectionToolbar from "./FloatingSelectionToolbar";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { getSceneMockResponses } from "@/data/mockAIResponses";
 import { simulateAIStream } from "@/lib/aiSimulator";
 import {
-  Wand2,
   ChevronDown,
   RefreshCw,
   MoveHorizontal,
   Palette,
   Sparkles,
-  Send,
   List,
   Check,
   Loader2,
-  Copy,
-  ALargeSmall,
-  Bold,
-  Italic,
-  Underline as UnderlineIcon,
-  Strikethrough,
 } from "lucide-react";
 
 export default function RichTextEditor() {
@@ -253,6 +246,40 @@ export default function RichTextEditor() {
       }));
     });
   }, [scene]);
+
+  const handleSelectionCopy = useCallback(() => {
+    let text = "";
+    if (editor) {
+      const { from, to } = editor.state.selection;
+      if (from !== to) text = editor.state.doc.textBetween(from, to, " ");
+    }
+    if (!text) {
+      const sel = window.getSelection();
+      text = sel ? sel.toString() : "";
+    }
+    if (text) {
+      navigator.clipboard.writeText(text);
+      showToast("已复制");
+    }
+  }, [editor, showToast]);
+
+  const handleMouseUpSelection = useCallback(() => {
+    const sel = window.getSelection();
+    if (sel && sel.toString().trim() && editorWrapRef.current) {
+      const range = sel.getRangeAt(0);
+      const rect = range.getBoundingClientRect();
+      const wrapRect = editorWrapRef.current.getBoundingClientRect();
+      setFloatingToolbar({
+        show: true,
+        top: rect.top - wrapRect.top + editorWrapRef.current.scrollTop - 48,
+        left: rect.left - wrapRect.left + rect.width / 2 - 180,
+      });
+      setShowAIMenu(false);
+    } else {
+      setFloatingToolbar({ show: false, top: 0, left: 0 });
+      setShowAIMenu(false);
+    }
+  }, []);
 
   // Check if editor is empty
   const editorIsEmpty = !editor?.getText().trim();
@@ -703,98 +730,19 @@ export default function RichTextEditor() {
     return (
       <div className="h-full flex flex-col">
         {editor && <EditorToolbar editor={editor} />}
-        <div className="flex-1 overflow-y-auto px-10 py-8 relative" ref={editorWrapRef} onMouseUp={() => {
-          const sel = window.getSelection();
-          if (sel && sel.toString().trim() && editorWrapRef.current) {
-            const range = sel.getRangeAt(0);
-            const rect = range.getBoundingClientRect();
-            const wrapRect = editorWrapRef.current.getBoundingClientRect();
-            setFloatingToolbar({
-              show: true,
-              top: rect.top - wrapRect.top + editorWrapRef.current.scrollTop - 48,
-              left: rect.left - wrapRect.left + rect.width / 2 - 140,
-            });
-            setShowAIMenu(false);
-          } else {
-            setFloatingToolbar({ show: false, top: 0, left: 0 });
-            setShowAIMenu(false);
-          }
-        }}>
+        <div className="flex-1 overflow-y-auto px-10 py-8 relative" ref={editorWrapRef} onMouseUp={handleMouseUpSelection}>
           {/* Floating Selection Toolbar for stage 1-4 */}
           {floatingToolbar.show && (
-            <div
-              className="absolute z-20"
-              style={{
-                top: floatingToolbar.top,
-                left: Math.max(0, Math.min(floatingToolbar.left, 500)),
-              }}
-            >
-              <div className="flex items-center bg-white rounded-lg shadow-lg border border-gray-200 h-9 px-1 gap-0.5">
-                <button
-                  onClick={() => setShowAIMenu((v) => !v)}
-                  className="flex items-center gap-1 px-2.5 py-1 text-sm text-blue-600 font-medium hover:bg-blue-50 rounded-md transition"
-                >
-                  <Wand2 className="w-3.5 h-3.5" />
-                  <span className="text-[13px]">AI 调整</span>
-                </button>
-                <button
-                  onClick={() => {
-                    const sel = window.getSelection();
-                    if (sel) {
-                      navigator.clipboard.writeText(sel.toString());
-                      showToast("已复制");
-                    }
-                  }}
-                  className="flex items-center gap-1 px-2 py-1 text-sm text-gray-600 hover:bg-gray-50 rounded-md transition"
-                >
-                  <Copy className="w-3.5 h-3.5" />
-                  <span className="text-[13px]">复制</span>
-                </button>
-              </div>
-
-              {showAIMenu && (
-                <div className="mt-1.5 w-[280px]">
-                  <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-3 mb-1.5">
-                    <div className="flex items-start gap-2">
-                      <textarea
-                        placeholder="输入改写要求"
-                        rows={2}
-                        className="flex-1 text-sm text-gray-700 placeholder-gray-400 outline-none bg-transparent resize-none"
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
-                            e.preventDefault();
-                            showToast("改写功能演示中...");
-                          }
-                        }}
-                      />
-                      <button
-                        onClick={() => showToast("改写功能演示中...")}
-                        className="mt-auto p-2 bg-gray-900 text-white rounded-full hover:bg-gray-800 transition shrink-0"
-                      >
-                        <Send className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                  <div className="bg-white rounded-xl shadow-lg border border-gray-200 py-1.5">
-                    <button onClick={() => { setShowAIMenu(false); handleAIAction("polish"); }} className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                      <Wand2 className="w-4 h-4 text-gray-400" /> 润色一下
-                    </button>
-                    <button onClick={() => { setShowAIMenu(false); handleAIAction("atmosphere"); }} className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                      <Sparkles className="w-4 h-4 text-gray-400" /> 丰富一下
-                    </button>
-                    <button onClick={() => { setShowAIMenu(false); handleAIAction("condense"); }} className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                      <MoveHorizontal className="w-4 h-4 text-gray-400" /> 写短一下
-                    </button>
-                    <button onClick={() => { setShowAIMenu(false); handleAIAction("rewrite"); }} className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                      <RefreshCw className="w-4 h-4 text-gray-400" /> 继续写点
-                    </button>
-                    <button onClick={() => { setShowAIMenu(false); handleAIAction("atmosphere"); }} className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                      <Palette className="w-4 h-4 text-gray-400" /> 氛围增强
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
+            <FloatingSelectionToolbar
+              top={floatingToolbar.top}
+              left={floatingToolbar.left}
+              editor={editor}
+              showAIMenu={showAIMenu}
+              setShowAIMenu={setShowAIMenu}
+              onAIAction={handleAIAction}
+              onCopy={handleSelectionCopy}
+              showToast={showToast}
+            />
           )}
 
           <div className="max-w-2xl mx-auto space-y-8" contentEditable suppressContentEditableWarning style={{ outline: "none" }}>
@@ -1119,7 +1067,20 @@ export default function RichTextEditor() {
           )}
 
           {/* Editor area */}
-          <div className="flex-1 overflow-y-auto px-8 py-6 pl-14">
+          <div className="flex-1 overflow-y-auto px-8 py-6 pl-14 relative" ref={editorWrapRef} onMouseUp={handleMouseUpSelection}>
+            {/* Floating Selection Toolbar for writing mode */}
+            {floatingToolbar.show && (
+              <FloatingSelectionToolbar
+                top={floatingToolbar.top}
+                left={floatingToolbar.left}
+                editor={editor}
+                showAIMenu={showAIMenu}
+                setShowAIMenu={setShowAIMenu}
+                onAIAction={handleAIAction}
+                onCopy={handleSelectionCopy}
+                showToast={showToast}
+              />
+            )}
             <div className="max-w-3xl mx-auto">
               {/* Chapter title */}
               <h2 className="text-lg font-bold text-gray-900 mb-1">{currentCh?.title}</h2>
@@ -1224,141 +1185,16 @@ export default function RichTextEditor() {
 
           {/* Floating Selection Toolbar */}
           {floatingToolbar.show && (
-            <div
-              className="absolute z-20"
-              style={{
-                top: floatingToolbar.top,
-                left: Math.max(0, Math.min(floatingToolbar.left, 500)),
-              }}
-            >
-              {/* Compact bar: AI调整 | 复制 | 分隔线 | 格式按钮 */}
-              <div className="flex items-center bg-white rounded-lg shadow-lg border border-gray-200 h-9 px-1 gap-0.5">
-                <button
-                  onClick={() => setShowAIMenu((v) => !v)}
-                  className="flex items-center gap-1 px-2.5 py-1 text-sm text-blue-600 font-medium hover:bg-blue-50 rounded-md transition"
-                >
-                  <Wand2 className="w-3.5 h-3.5" />
-                  <span className="text-[13px]">AI 调整</span>
-                </button>
-                <button
-                  onClick={() => {
-                    if (editor) {
-                      const { from, to } = editor.state.selection;
-                      const selectedText = editor.state.doc.textBetween(from, to, " ");
-                      navigator.clipboard.writeText(selectedText);
-                      showToast("已复制");
-                    }
-                  }}
-                  className="flex items-center gap-1 px-2 py-1 text-sm text-gray-600 hover:bg-gray-50 rounded-md transition"
-                >
-                  <Copy className="w-3.5 h-3.5" />
-                  <span className="text-[13px]">复制</span>
-                </button>
-                <div className="w-px h-4 bg-gray-200 mx-0.5" />
-                <button
-                  onClick={() => editor?.chain().focus().toggleHeading({ level: 2 }).run()}
-                  className={`p-1.5 rounded-md transition ${editor?.isActive("heading") ? "bg-gray-100 text-gray-900" : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"}`}
-                  title="标题"
-                >
-                  <ALargeSmall className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => editor?.chain().focus().toggleBold().run()}
-                  className={`p-1.5 rounded-md transition ${editor?.isActive("bold") ? "bg-gray-100 text-gray-900" : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"}`}
-                  title="加粗"
-                >
-                  <Bold className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => editor?.chain().focus().toggleItalic().run()}
-                  className={`p-1.5 rounded-md transition ${editor?.isActive("italic") ? "bg-gray-100 text-gray-900" : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"}`}
-                  title="斜体"
-                >
-                  <Italic className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => editor?.chain().focus().toggleUnderline().run()}
-                  className={`p-1.5 rounded-md transition ${editor?.isActive("underline") ? "bg-gray-100 text-gray-900" : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"}`}
-                  title="下划线"
-                >
-                  <UnderlineIcon className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => editor?.chain().focus().toggleStrike().run()}
-                  className={`p-1.5 rounded-md transition ${editor?.isActive("strike") ? "bg-gray-100 text-gray-900" : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"}`}
-                  title="删除线"
-                >
-                  <Strikethrough className="w-4 h-4" />
-                </button>
-              </div>
-
-              {/* AI 调整下拉面板 */}
-              {showAIMenu && (
-                <div className="mt-1.5 w-[280px]">
-                  {/* 输入改写要求 */}
-                  <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-3 mb-1.5">
-                    <div className="flex items-start gap-2">
-                      <textarea
-                        placeholder="输入改写要求"
-                        rows={2}
-                        className="flex-1 text-sm text-gray-700 placeholder-gray-400 outline-none bg-transparent resize-none"
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
-                            e.preventDefault();
-                            showToast("改写功能演示中...");
-                          }
-                        }}
-                      />
-                      <button
-                        onClick={() => showToast("改写功能演示中...")}
-                        className="mt-auto p-2 bg-gray-900 text-white rounded-full hover:bg-gray-800 transition shrink-0"
-                      >
-                        <Send className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* 快捷操作列表 */}
-                  <div className="bg-white rounded-xl shadow-lg border border-gray-200 py-1.5">
-                    <button
-                      onClick={() => { setShowAIMenu(false); handleAIAction("polish"); }}
-                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
-                    >
-                      <Wand2 className="w-4 h-4 text-gray-400" />
-                      润色一下
-                    </button>
-                    <button
-                      onClick={() => { setShowAIMenu(false); handleAIAction("atmosphere"); }}
-                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
-                    >
-                      <Sparkles className="w-4 h-4 text-gray-400" />
-                      丰富一下
-                    </button>
-                    <button
-                      onClick={() => { setShowAIMenu(false); handleAIAction("condense"); }}
-                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
-                    >
-                      <MoveHorizontal className="w-4 h-4 text-gray-400" />
-                      写短一下
-                    </button>
-                    <button
-                      onClick={() => { setShowAIMenu(false); handleAIAction("rewrite"); }}
-                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
-                    >
-                      <RefreshCw className="w-4 h-4 text-gray-400" />
-                      继续写点
-                    </button>
-                    <button
-                      onClick={() => { setShowAIMenu(false); handleAIAction("atmosphere"); }}
-                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
-                    >
-                      <Palette className="w-4 h-4 text-gray-400" />
-                      氛围增强
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
+            <FloatingSelectionToolbar
+              top={floatingToolbar.top}
+              left={floatingToolbar.left}
+              editor={editor}
+              showAIMenu={showAIMenu}
+              setShowAIMenu={setShowAIMenu}
+              onAIAction={handleAIAction}
+              onCopy={handleSelectionCopy}
+              showToast={showToast}
+            />
           )}
 
           <EditorContent editor={editor} />
