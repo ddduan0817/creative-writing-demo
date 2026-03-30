@@ -26,6 +26,7 @@ export default function TopBar() {
     setShowHistoryPanel,
     restoreFromHistory,
     creationStage,
+    workMode,
   } = useEditorStore();
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(title);
@@ -142,13 +143,15 @@ export default function TopBar() {
         </div>
       </div>
 
-      <button
-        onClick={() => setShowMaterials(true)}
-        className="flex items-center gap-1 px-2.5 py-1.5 text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition"
-      >
-        <BookOpen className="w-3.5 h-3.5" />
-        查看资料
-      </button>
+      {workMode !== "workflow" && (
+        <button
+          onClick={() => setShowMaterials(true)}
+          className="flex items-center gap-1 px-2.5 py-1.5 text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition"
+        >
+          <BookOpen className="w-3.5 h-3.5" />
+          查看资料
+        </button>
+      )}
 
       <button
         onClick={() => setShowHistoryPanel(true)}
