@@ -1416,12 +1416,13 @@ export default function ChatPanel() {
         <div className="flex gap-4 w-full max-w-md">
           <button
             onClick={() => handleModeSelect("agent")}
-            className="group flex-1 bg-white rounded-2xl border border-gray-200 p-5 text-left hover:border-indigo-300 hover:shadow-lg transition-all duration-200"
+            className="group flex-1 bg-white rounded-2xl border-2 border-indigo-400 ring-2 ring-indigo-100 p-5 text-left shadow-md hover:shadow-lg transition-all duration-200 relative"
           >
-            <div className="w-9 h-9 rounded-xl bg-indigo-50 flex items-center justify-center mb-3 group-hover:bg-indigo-100 transition">
+            <span className="absolute -top-2.5 left-4 px-2 py-0.5 bg-indigo-500 text-white text-[10px] font-medium rounded-full">推荐</span>
+            <div className="w-9 h-9 rounded-xl bg-indigo-50 flex items-center justify-center mb-3">
               <MessageSquare className="w-[18px] h-[18px] text-indigo-500" />
             </div>
-            <h3 className="text-sm font-semibold text-gray-900 mb-1">Agent 模式</h3>
+            <h3 className="text-sm font-semibold text-gray-900 mb-1">AI 引导创作</h3>
             <p className="text-xs text-gray-500 leading-relaxed">自由对话，灵活探索</p>
             <p className="text-[11px] text-gray-400 mt-2.5 leading-relaxed">通过 AI 对话完成灵感→设定→角色→大纲→正文的创作流程</p>
           </button>
@@ -1433,8 +1434,8 @@ export default function ChatPanel() {
             <div className="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center mb-3 group-hover:bg-indigo-50 transition">
               <ListChecks className="w-[18px] h-[18px] text-gray-600 group-hover:text-indigo-500 transition" />
             </div>
-            <h3 className="text-sm font-semibold text-gray-900 mb-1">Workflow 模式</h3>
-            <p className="text-xs text-gray-500 leading-relaxed">成果导向，可控执行</p>
+            <h3 className="text-sm font-semibold text-gray-900 mb-1">自由创作</h3>
+            <p className="text-xs text-gray-500 leading-relaxed">自主配置，自由编辑</p>
             <p className="text-[11px] text-gray-400 mt-2.5 leading-relaxed">在配置面板中设定参数，按步骤生成，每一步可精确调控</p>
           </button>
         </div>
