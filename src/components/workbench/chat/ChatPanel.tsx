@@ -1641,7 +1641,7 @@ export default function ChatPanel() {
                       onClick={handleSkipAdjust}
                       className="px-3.5 py-1.5 text-xs text-gray-500 bg-gray-50 rounded-full border border-gray-200 hover:bg-gray-100 transition"
                     >
-                      就这样 👌
+                      继续
                     </button>
                     <p className="text-[11px] text-gray-400 mt-1.5">跳过微调，进入下一轮选择</p>
                   </div>
