@@ -2,17 +2,43 @@
 
 import { useEditorStore } from "@/stores/editorStore";
 
-const stages = [
-  { id: 0, label: "设定" },
-  { id: 1, label: "世界观" },
-  { id: 2, label: "角色" },
-  { id: 3, label: "大纲" },
-  { id: 4, label: "正文" },
-];
+const stagesByScene: Record<string, { id: number; label: string }[]> = {
+  novel: [
+    { id: 0, label: "设定" },
+    { id: 1, label: "世界观" },
+    { id: 2, label: "角色" },
+    { id: 3, label: "大纲" },
+    { id: 4, label: "正文" },
+  ],
+  screenplay: [
+    { id: 0, label: "设定" },
+    { id: 1, label: "世界观" },
+    { id: 2, label: "角色" },
+    { id: 3, label: "大纲" },
+    { id: 4, label: "正文" },
+  ],
+  marketing: [
+    { id: 0, label: "产品" },
+    { id: 1, label: "策略" },
+    { id: 2, label: "故事线" },
+    { id: 3, label: "分幕" },
+    { id: 4, label: "精修" },
+  ],
+  knowledge: [
+    { id: 0, label: "导入" },
+    { id: 1, label: "设定" },
+    { id: 2, label: "角色" },
+    { id: 3, label: "结构" },
+    { id: 4, label: "报告" },
+  ],
+};
 
 export default function CreationProgress() {
   const creationStage = useEditorStore((s) => s.creationStage);
   const stageProgress = useEditorStore((s) => s.stageProgress);
+  const scene = useEditorStore((s) => s.scene);
+
+  const stages = stagesByScene[scene] || stagesByScene.novel;
 
   return (
     <div className="h-full flex flex-col items-center py-8">
@@ -20,11 +46,6 @@ export default function CreationProgress() {
         const isCompleted = creationStage > stage.id;
         const isCurrent = creationStage === stage.id;
 
-        // Line between dot i-1 and dot i
-        // The line ABOVE this dot fills based on:
-        // - Fully blue if this stage is completed (creationStage > stage.id)
-        // - Partially blue if working towards this stage (creationStage === stage.id - 1)
-        // - Gray otherwise
         const isLineCompleted = creationStage >= stage.id;
         const isLineFilling = creationStage === stage.id - 1;
         const lineHeight = isLineCompleted ? 100 : isLineFilling ? stageProgress * 100 : 0;

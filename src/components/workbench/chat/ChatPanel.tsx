@@ -577,8 +577,8 @@ export default function ChatPanel() {
   }, [isScreenplay, isMarketing, isKnowledge]);
   const sceneWelcome = useMemo(() => {
     if (isScreenplay) return "你好！欢迎来到剧本创作工作台 ✨\n\n你可以让我帮你找灵感，也可以直接在下面描述你的剧本构思——\n一段梗概、一个场景、甚至一句「我想写一部关于__的短剧」都可以，我们一起把它变成完整的剧本。";
-    if (isMarketing) return "你好！欢迎来到带货视频创作工作台 ✨\n\n你可以让我帮你找灵感，也可以直接描述你的产品和目标——\n一个产品链接、一段卖点描述、甚至一句「我想推广一款__」都可以，我们一起把它变成爆款带货脚本。";
-    if (isKnowledge) return "你好！欢迎来到知识专栏创作工作台 ✨\n\n你可以让我帮你找灵感，也可以直接描述你想做的专栏方向——\n一个主题、一个受众画像、甚至一句「我想写一个关于__的专栏」都可以，我们一起把它变成完整的内容规划。";
+    if (isMarketing) return "你好！告诉我你要推广什么产品？\n\n你可以发送产品名称、链接或图片，也可以直接描述核心卖点——\n比如「一款隐形蓝牙耳机，主打极致隐形和防水」。我来帮你打造一条爆款带货视频脚本。";
+    if (isKnowledge) return "你好！欢迎来到深度解读工作台 ✨\n\n告诉我你想拆解哪本书？你可以上传文件（txt/epub/pdf），粘贴文本，或者直接说书名——\n比如「帮我拆解《诡秘之主》」。我来帮你做深度分析和知识图谱。";
     return "你好！欢迎来到小说创作工作台 ✨\n\n你可以让我帮你找灵感，也可以直接在下面描述你的故事——\n一段梗概、一个画面、甚至一句「我想写一个关于__的故事」都可以，我们一起把它变成完整的创作蓝图。";
   }, [isScreenplay, isMarketing, isKnowledge]);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -832,7 +832,11 @@ export default function ChatPanel() {
               id: "model-settings",
               sender: "model",
               type: "settings-card",
-              prompt: "根据你的灵感方向，我为你整理了以下创作设定。确认无误就可以开始构建世界观了，你也可以告诉我需要调整的地方。",
+              prompt: isMarketing
+                ? "收到！我为你整理了视频策略Brief。确认无误就可以开始设计故事线了，有需要调整的随时告诉我。"
+                : isKnowledge
+                ? "已读取完毕！以下是书籍总览和分析配置。确认无误就可以开始深入分析了，有需要调整的随时告诉我。"
+                : "根据你的灵感方向，我为你整理了以下创作设定。确认无误就可以开始构建世界观了，你也可以告诉我需要调整的地方。",
               settings: sceneSettingsCard,
             },
           ]);
@@ -1161,13 +1165,21 @@ export default function ChatPanel() {
             id: "model-auto-title",
             sender: "model",
             type: "text",
-            content: `设定确认！根据你的故事设定，我帮你起了个名字——**《${sceneTitle}》**，你随时可以在顶部修改。\n\n接下来我们构建故事发生的世界。`,
+            content: isMarketing
+              ? `视频策略确认！根据你的产品信息，项目暂定为——**《${sceneTitle}》**，你随时可以在顶部修改。\n\n接下来我们设计视频的故事线。`
+              : isKnowledge
+              ? `分析配置确认！已为你创建项目——**《${sceneTitle}》**，你随时可以在顶部修改。\n\n接下来深入分析设定体系。`
+              : `设定确认！根据你的故事设定，我帮你起了个名字——**《${sceneTitle}》**，你随时可以在顶部修改。\n\n接下来我们构建故事发生的世界。`,
           },
           {
             id: "model-wb-intro",
             sender: "model",
             type: "stage-intro",
-            prompt: "你对世界观有自己的想法吗？可以直接描述你心目中的场景、地点、社会背景等——也可以让我来给你灵感。",
+            prompt: isMarketing
+              ? "你对视频故事线有自己的想法吗？可以描述开场钩子、核心演示、转化策略——也可以让我来给你灵感。"
+              : isKnowledge
+              ? "你想从哪个设定开始深入？可以指定具体的体系（如魔药/途径/教会），也可以让我来帮你梳理。"
+              : "你对世界观有自己的想法吗？可以直接描述你心目中的场景、地点、社会背景等——也可以让我来给你灵感。",
             stage: "worldbuilding",
           },
         ]);
@@ -1191,7 +1203,11 @@ export default function ChatPanel() {
             id: "model-char-intro",
             sender: "model",
             type: "stage-intro",
-            prompt: "世界观就位！接下来创建角色。\n\n你心里有主角的样子了吗？可以告诉我你想要的角色性格、身份、关系——或者让我来给你灵感。",
+            prompt: isMarketing
+              ? "故事线就位！接下来确定出镜角色。\n\n你对出镜者有想法吗？可以描述年龄、风格、表演方式——或者让我来给你灵感。"
+              : isKnowledge
+              ? "设定体系整理完毕！接下来分析核心角色。\n\n你最想深入了解哪些角色？可以指定具体角色或角色群体——或者让我来推荐。"
+              : "世界观就位！接下来创建角色。\n\n你心里有主角的样子了吗？可以告诉我你想要的角色性格、身份、关系——或者让我来给你灵感。",
             stage: "characters",
           },
         ]);
@@ -1215,7 +1231,11 @@ export default function ChatPanel() {
             id: "model-outline-intro",
             sender: "model",
             type: "stage-intro",
-            prompt: "角色档案完成！最后一步——搭建故事骨架。\n\n你对故事走向和章节安排有想法吗？可以描述你希望的结构、转折点、节奏——或者我来帮你规划。",
+            prompt: isMarketing
+              ? "角色设定完成！最后一步——生成分幕脚本。\n\n你对分幕结构有想法吗？可以描述你期望的节奏和重点——或者我来帮你规划。"
+              : isKnowledge
+              ? "角色分析完成！最后一步——结构化分析报告。\n\n你想要什么样的输出？拆书稿、深度长评、知识图谱——或者我来帮你规划。"
+              : "角色档案完成！最后一步——搭建故事骨架。\n\n你对故事走向和章节安排有想法吗？可以描述你希望的结构、转折点、节奏——或者我来帮你规划。",
             stage: "outline",
           },
         ]);
@@ -1243,7 +1263,11 @@ export default function ChatPanel() {
             id: "model-write-start",
             sender: "model",
             type: "text",
-            content: `大纲确认！开始为你生成正文。\n\n我会逐章生成，每章完成后你可以在编辑区直接修改。满意后告诉我「继续」，我就接着写下一章。\n\n正在生成 **第一章 ${chapterTitles[0]?.replace(/^第.章\s*/, "")}**...`,
+            content: isMarketing
+              ? `分幕脚本确认！开始生成详细脚本。\n\n我会逐幕生成，每幕包含画面描述、台词和技巧标注。满意后告诉我「继续」，我就接着写下一幕。\n\n正在生成 **${chapterTitles[0]}**...`
+              : isKnowledge
+              ? `分析大纲确认！开始生成深度报告。\n\n我会逐篇分析，每篇附带原文出处引用。满意后告诉我「继续」，我就接着写下一篇。\n\n正在生成 **${chapterTitles[0]}**...`
+              : `大纲确认！开始为你生成正文。\n\n我会逐章生成，每章完成后你可以在编辑区直接修改。满意后告诉我「继续」，我就接着写下一章。\n\n正在生成 **第一章 ${chapterTitles[0]?.replace(/^第.章\s*/, "")}**...`,
           },
         ]);
         setCurrentRound(14);
