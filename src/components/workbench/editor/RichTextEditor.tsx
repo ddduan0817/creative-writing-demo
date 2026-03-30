@@ -659,14 +659,6 @@ export default function RichTextEditor() {
     };
     const chars = charactersData[scene] || charactersData.novel;
 
-    // Color utility for characters
-    const colorClasses: Record<string, { bg: string; text: string; label: string }> = {
-      purple: { bg: "bg-purple-50/50", text: "text-purple-600", label: "text-purple-400" },
-      blue: { bg: "bg-blue-50/50", text: "text-blue-600", label: "text-blue-400" },
-      amber: { bg: "bg-amber-50/50", text: "text-amber-600", label: "text-amber-400" },
-      red: { bg: "bg-red-50/50", text: "text-red-600", label: "text-red-400" },
-    };
-
     // ── Outline data per scene ──
     const outlineData: Record<string, {
       title: string;
@@ -779,23 +771,21 @@ export default function RichTextEditor() {
                 </div>
 
                 {/* 结构信息 */}
-                <div className="flex items-center gap-3 flex-wrap">
-                  <span className="px-3 py-1.5 bg-indigo-50 text-indigo-600 text-sm rounded-full font-medium">{ol.badge}</span>
-                  <span className="text-sm text-gray-400">{ol.info}</span>
+                <div>
+                  <span className="text-sm font-bold text-gray-700">{ol.badge}</span>
+                  <span className="text-sm text-gray-500 ml-3">{ol.info}</span>
                 </div>
 
                 {/* 章节列表 */}
-                <div className="space-y-4">
+                <div className="space-y-5">
                   {ol.chapters.map((ch, i) => (
-                      <div key={i} className="bg-gray-50/60 rounded-lg p-4">
-                        <div className="flex items-center gap-2.5 mb-2">
-                          <span className={`px-2 py-0.5 text-[10px] rounded-full border font-medium ${ol.tagColors[ch.tag] || ""}`}>
-                            {ch.tag}
-                          </span>
-                          <h4 className="text-sm font-semibold text-gray-800">{ch.title}</h4>
+                      <div key={i}>
+                        <div className="mb-1">
+                          <span className="text-xs font-bold text-gray-500 mr-2">[{ch.tag}]</span>
+                          <span className="text-sm font-bold text-gray-800">{ch.title}</span>
                         </div>
-                        <p className="text-sm text-gray-600 leading-relaxed mb-2">{ch.summary}</p>
-                        <p className="text-xs text-indigo-400">{ch.keyEvent}</p>
+                        <p className="text-sm text-gray-600 leading-relaxed mb-1">{ch.summary}</p>
+                        <p className="text-xs text-gray-400">{ch.keyEvent}</p>
                       </div>
                   ))}
                 </div>
@@ -809,18 +799,18 @@ export default function RichTextEditor() {
 
                 {/* Lead A */}
                 <div>
-                  <h3 className="text-sm font-semibold text-gray-700 mb-4 pb-2 border-b border-gray-100">
+                  <h3 className="text-sm font-bold text-gray-700 mb-3">
                     {chars.leadATitle}
                   </h3>
-                  <div className={`${colorClasses[chars.leadA.color]?.bg || "bg-purple-50/50"} rounded-lg p-4 space-y-3`}>
+                  <div className="space-y-2 ml-1">
                     <div>
-                      <span className={`text-base font-bold ${colorClasses[chars.leadA.color]?.text || "text-purple-600"}`}>{chars.leadA.name}</span>
+                      <span className="text-base font-bold text-gray-900">{chars.leadA.name}</span>
                       {chars.leadA.subtitle && <span className="text-xs text-gray-400 ml-2">{chars.leadA.subtitle}</span>}
                     </div>
                     {chars.leadA.items.map((item) => (
-                      <div key={item.label} className="flex gap-3">
-                        <span className={`text-xs ${colorClasses[chars.leadA.color]?.label || "text-purple-400"} w-10 shrink-0 pt-0.5`}>{item.label}</span>
-                        <p className="text-sm text-gray-700 leading-relaxed">{item.value}</p>
+                      <div key={item.label}>
+                        <span className="text-xs font-bold text-gray-500">{item.label}：</span>
+                        <span className="text-sm text-gray-700">{item.value}</span>
                       </div>
                     ))}
                   </div>
@@ -828,18 +818,18 @@ export default function RichTextEditor() {
 
                 {/* Lead B */}
                 <div>
-                  <h3 className="text-sm font-semibold text-gray-700 mb-4 pb-2 border-b border-gray-100">
+                  <h3 className="text-sm font-bold text-gray-700 mb-3">
                     {chars.leadBTitle}
                   </h3>
-                  <div className={`${colorClasses[chars.leadB.color]?.bg || "bg-blue-50/50"} rounded-lg p-4 space-y-3`}>
+                  <div className="space-y-2 ml-1">
                     <div>
-                      <span className={`text-base font-bold ${colorClasses[chars.leadB.color]?.text || "text-blue-600"}`}>{chars.leadB.name}</span>
+                      <span className="text-base font-bold text-gray-900">{chars.leadB.name}</span>
                       {chars.leadB.subtitle && <span className="text-xs text-gray-400 ml-2">{chars.leadB.subtitle}</span>}
                     </div>
                     {chars.leadB.items.map((item) => (
-                      <div key={item.label} className="flex gap-3">
-                        <span className={`text-xs ${colorClasses[chars.leadB.color]?.label || "text-blue-400"} w-10 shrink-0 pt-0.5`}>{item.label}</span>
-                        <p className="text-sm text-gray-700 leading-relaxed">{item.value}</p>
+                      <div key={item.label}>
+                        <span className="text-xs font-bold text-gray-500">{item.label}：</span>
+                        <span className="text-sm text-gray-700">{item.value}</span>
                       </div>
                     ))}
                   </div>
@@ -847,17 +837,15 @@ export default function RichTextEditor() {
 
                 {/* Supporting */}
                 <div>
-                  <h3 className="text-sm font-semibold text-gray-700 mb-4 pb-2 border-b border-gray-100">
+                  <h3 className="text-sm font-bold text-gray-700 mb-3">
                     {chars.supportingTitle}
                   </h3>
-                  <div className="space-y-3">
+                  <div className="space-y-3 ml-1">
                     {chars.supporting.map((c) => (
-                      <div key={c.name} className="bg-gray-50/60 rounded-lg p-3.5">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-sm font-medium text-amber-600">{c.name}</span>
-                          <span className="text-[11px] text-gray-400">{c.role}</span>
-                        </div>
-                        <p className="text-sm text-gray-600 leading-relaxed">{c.desc}</p>
+                      <div key={c.name}>
+                        <span className="text-sm font-bold text-gray-800">{c.name}</span>
+                        <span className="text-xs text-gray-400 ml-2">{c.role}</span>
+                        <p className="text-sm text-gray-600 leading-relaxed mt-0.5">{c.desc}</p>
                       </div>
                     ))}
                   </div>
@@ -865,10 +853,10 @@ export default function RichTextEditor() {
 
                 {/* 人物关系 */}
                 <div>
-                  <h3 className="text-sm font-semibold text-gray-700 mb-4 pb-2 border-b border-gray-100">
+                  <h3 className="text-sm font-bold text-gray-700 mb-3">
                     人物关系
                   </h3>
-                  <div className="space-y-2">
+                  <div className="space-y-1.5 ml-1">
                     {chars.relationships.split("\n").map((line, i) => (
                       <p key={i} className="text-sm text-gray-700 leading-relaxed">{line}</p>
                     ))}
@@ -884,18 +872,18 @@ export default function RichTextEditor() {
 
                 {/* 故事世界 + 时间线 */}
                 <div>
-                  <h3 className="text-sm font-semibold text-gray-700 mb-4 pb-2 border-b border-gray-100">
+                  <h3 className="text-sm font-bold text-gray-700 mb-3">
                     {wb.title}
                   </h3>
-                  <div className="space-y-4">
+                  <div className="space-y-4 ml-1">
                     <div>
-                      <span className="text-xs font-medium text-gray-400 block mb-1">{wb.summaryLabel}</span>
+                      <span className="text-xs font-bold text-gray-500 block mb-1">{wb.summaryLabel}</span>
                       <p className="text-sm text-gray-700 leading-relaxed">
                         {wb.summary}
                       </p>
                     </div>
                     <div>
-                      <span className="text-xs font-medium text-gray-400 block mb-1">{wb.timelineLabel}</span>
+                      <span className="text-xs font-bold text-gray-500 block mb-1">{wb.timelineLabel}</span>
                       <p className="text-sm text-gray-700 leading-relaxed">
                         {wb.timeline}
                       </p>
@@ -905,13 +893,13 @@ export default function RichTextEditor() {
 
                 {/* 核心场景 */}
                 <div>
-                  <h3 className="text-sm font-semibold text-gray-700 mb-4 pb-2 border-b border-gray-100">
+                  <h3 className="text-sm font-bold text-gray-700 mb-3">
                     {wb.scenesTitle}
                   </h3>
-                  <div className="space-y-3">
+                  <div className="space-y-3 ml-1">
                     {wb.scenes.map((s) => (
-                      <div key={s.name} className="bg-gray-50/60 rounded-lg p-3.5">
-                        <span className="text-sm font-medium text-emerald-600 block mb-1">{s.name}</span>
+                      <div key={s.name}>
+                        <span className="text-sm font-bold text-gray-800 block mb-0.5">{s.name}</span>
                         <p className="text-sm text-gray-600 leading-relaxed">{s.desc}</p>
                       </div>
                     ))}
@@ -920,14 +908,13 @@ export default function RichTextEditor() {
 
                 {/* 社会生态 / 平台策略 / 分析特征 */}
                 <div>
-                  <h3 className="text-sm font-semibold text-gray-700 mb-4 pb-2 border-b border-gray-100">
+                  <h3 className="text-sm font-bold text-gray-700 mb-3">
                     {wb.ecologyTitle}
                   </h3>
-                  <ul className="space-y-2">
+                  <ul className="space-y-1.5 ml-1">
                     {wb.ecology.map((item, i) => (
-                      <li key={i} className="text-sm text-gray-700 leading-relaxed flex gap-2">
-                        <span className="text-gray-300 shrink-0">•</span>
-                        {item}
+                      <li key={i} className="text-sm text-gray-700 leading-relaxed">
+                        · {item}
                       </li>
                     ))}
                   </ul>
@@ -935,14 +922,13 @@ export default function RichTextEditor() {
 
                 {/* 隐藏线索 / 关键洞察 */}
                 <div>
-                  <h3 className="text-sm font-semibold text-gray-700 mb-4 pb-2 border-b border-gray-100">
+                  <h3 className="text-sm font-bold text-gray-700 mb-3">
                     {wb.cluesTitle}
                   </h3>
-                  <ul className="space-y-2">
+                  <ul className="space-y-1.5 ml-1">
                     {wb.clues.map((item, i) => (
-                      <li key={i} className="text-sm text-gray-700 leading-relaxed flex gap-2">
-                        <span className="text-amber-400 shrink-0">&#128269;</span>
-                        {item}
+                      <li key={i} className="text-sm text-gray-700 leading-relaxed">
+                        · {item}
                       </li>
                     ))}
                   </ul>
@@ -958,33 +944,24 @@ export default function RichTextEditor() {
 
                 {settingsData.map((section) => (
                   <div key={section.group}>
-                    <h3 className="text-sm font-semibold text-gray-700 mb-4 pb-2 border-b border-gray-100">
+                    <h3 className="text-sm font-bold text-gray-700 mb-3">
                       {section.group}
                     </h3>
                     {section.type === "text" ? (
-                      <div className="space-y-4">
+                      <div className="space-y-4 ml-1">
                         {section.items.map((item) => (
                           <div key={item.label}>
-                            <span className="text-xs font-medium text-gray-400 block mb-1">{item.label}</span>
+                            <span className="text-xs font-bold text-gray-500 block mb-1">{item.label}</span>
                             <p className="text-sm text-gray-700 leading-relaxed">{item.value}</p>
                           </div>
                         ))}
                       </div>
                     ) : (
-                      <div className="space-y-3">
+                      <div className="space-y-2 ml-1">
                         {section.items.map((item) => (
-                          <div key={item.label} className="flex items-start gap-4">
-                            <span className="text-sm text-gray-400 w-20 shrink-0">{item.label}</span>
-                            <div className="flex flex-wrap gap-1.5">
-                              {item.value.split(" · ").map((tag) => (
-                                <span
-                                  key={tag}
-                                  className="px-2.5 py-1 bg-indigo-50 text-indigo-600 text-sm rounded-full"
-                                >
-                                  {tag}
-                                </span>
-                              ))}
-                            </div>
+                          <div key={item.label}>
+                            <span className="text-sm font-bold text-gray-500">{item.label}：</span>
+                            <span className="text-sm text-gray-700">{item.value.split(" · ").join("、")}</span>
                           </div>
                         ))}
                       </div>
