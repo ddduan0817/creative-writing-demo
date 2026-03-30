@@ -1,15 +1,18 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { MoreVertical, AlertTriangle } from "lucide-react";
+import { MoreVertical, AlertTriangle, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { mockWorks } from "@/data/mockWorks";
+
+const PAGE_SIZE = 4;
 
 export default function RecentWorks() {
   const router = useRouter();
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const [page, setPage] = useState(0);
   const menuRef = useRef<HTMLDivElement>(null);
 
   const showToastMsg = useCallback((msg: string) => {
@@ -29,13 +32,13 @@ export default function RecentWorks() {
     return () => document.removeEventListener("mousedown", handler);
   }, [activeMenu]);
 
-  // Sort by updatedAt descending, show top 3
-  const sorted = [...mockWorks]
-    .sort(
-      (a, b) =>
-        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-    )
-    .slice(0, 4);
+  // Sort by updatedAt descending
+  const allSorted = [...mockWorks].sort(
+    (a, b) =>
+      new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+  );
+  const totalPages = Math.ceil(allSorted.length / PAGE_SIZE);
+  const sorted = allSorted.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -51,12 +54,27 @@ export default function RecentWorks() {
     <div className="bg-white rounded-2xl border border-gray-100 p-5 flex flex-col h-full">
       <div className="flex items-center justify-between mb-2">
         <h2 className="text-sm font-semibold text-gray-800">近期作品</h2>
-        <button
-          onClick={() => router.push("/works")}
-          className="text-xs text-gray-400 hover:text-gray-600 transition"
-        >
-          查看更多 &gt;
-        </button>
+        {totalPages > 1 && (
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setPage((p) => Math.max(0, p - 1))}
+              disabled={page === 0}
+              className="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition disabled:opacity-30 disabled:cursor-not-allowed"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <span className="text-[11px] text-gray-400 tabular-nums min-w-[32px] text-center">
+              {page + 1}/{totalPages}
+            </span>
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+              disabled={page === totalPages - 1}
+              className="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition disabled:opacity-30 disabled:cursor-not-allowed"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="flex-1">
