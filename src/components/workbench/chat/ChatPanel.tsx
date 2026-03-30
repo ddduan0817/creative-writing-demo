@@ -1416,9 +1416,8 @@ export default function ChatPanel() {
         <div className="flex gap-4 w-full max-w-md">
           <button
             onClick={() => handleModeSelect("agent")}
-            className="group flex-1 bg-white rounded-2xl border-2 border-indigo-400 ring-2 ring-indigo-100 p-5 text-left shadow-md hover:shadow-lg transition-all duration-200 relative"
+            className="group flex-1 bg-white rounded-2xl border-2 border-indigo-400 ring-2 ring-indigo-100 p-5 text-left shadow-md hover:shadow-lg transition-all duration-200"
           >
-            <span className="absolute -top-2.5 left-4 px-2 py-0.5 bg-indigo-500 text-white text-[10px] font-medium rounded-full">推荐</span>
             <div className="w-9 h-9 rounded-xl bg-indigo-50 flex items-center justify-center mb-3">
               <MessageSquare className="w-[18px] h-[18px] text-indigo-500" />
             </div>
