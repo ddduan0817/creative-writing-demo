@@ -1098,12 +1098,15 @@ export default function RichTextEditor() {
                       <span className="inline-block w-0.5 h-4 bg-indigo-500 animate-pulse ml-0.5 align-middle" />
                     </div>
                   ) : (
-                    // Editable textarea for done chapters
-                    <textarea
-                      value={currentCh.content}
-                      onChange={(e) => setNovelChapterContent(currentNovelChapter, e.target.value)}
-                      className="w-full text-sm text-gray-700 leading-[1.8] resize-none outline-none bg-transparent min-h-[60vh] whitespace-pre-wrap"
-                    />
+                    // Editable content for done chapters
+                    <div
+                      contentEditable
+                      suppressContentEditableWarning
+                      onInput={(e) => setNovelChapterContent(currentNovelChapter, (e.target as HTMLDivElement).innerText)}
+                      className="w-full text-sm text-gray-700 leading-[1.8] outline-none bg-transparent min-h-[60vh] whitespace-pre-wrap"
+                    >
+                      {currentCh.content}
+                    </div>
                   )}
                 </div>
               ) : (
