@@ -581,6 +581,21 @@ export default function ChatPanel() {
     if (isKnowledge) return "你好！欢迎来到深度解读工作台 ✨\n\n告诉我你想拆解哪本书？你可以上传文件（txt/epub/pdf），粘贴文本，或者直接说书名——\n比如「帮我拆解《诡秘之主》」。我来帮你做深度分析和知识图谱。";
     return "你好！欢迎来到小说创作工作台 ✨\n\n你可以让我帮你找灵感，也可以直接在下面描述你的故事——\n一段梗概、一个画面、甚至一句「我想写一个关于__的故事」都可以，我们一起把它变成完整的创作蓝图。";
   }, [isScreenplay, isMarketing, isKnowledge]);
+
+  // Refs to keep scene data accessible in callbacks without stale closures
+  const dataRef = useRef({
+    sceneInspirationRounds, sceneSettingsCard, sceneWorldbuildingRounds, sceneWorldbuilding,
+    sceneCharacterRounds, sceneCharacterCard, sceneOutlineCard, sceneChapterTexts, sceneTitle, sceneWelcome,
+    isMarketing, isKnowledge, isScreenplay,
+  });
+  useEffect(() => {
+    dataRef.current = {
+      sceneInspirationRounds, sceneSettingsCard, sceneWorldbuildingRounds, sceneWorldbuilding,
+      sceneCharacterRounds, sceneCharacterCard, sceneOutlineCard, sceneChapterTexts, sceneTitle, sceneWelcome,
+      isMarketing, isKnowledge, isScreenplay,
+    };
+  });
+
   const [messages, setMessages] = useState<Message[]>([]);
   const [selections, setSelections] = useState<Record<number, number>>({}); // round → selected card index
   const [currentRound, setCurrentRound] = useState(0); // 0=welcome, 1-3=inspiration, 4=confirm stage
@@ -734,7 +749,7 @@ export default function ChatPanel() {
     setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
 
     setTimeout(() => {
-      const round = sceneInspirationRounds[0];
+      const round = dataRef.current.sceneInspirationRounds[0];
       setMessages((prev) => [
         ...prev.filter((m) => m.id !== thinkingId),
         {
@@ -758,7 +773,7 @@ export default function ChatPanel() {
       const thinkingId = `thinking-wb-r1`;
       setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
       setTimeout(() => {
-        const wb1 = sceneWorldbuildingRounds[0];
+        const wb1 = dataRef.current.sceneWorldbuildingRounds[0];
         setMessages((prev) => [
           ...prev.filter((m) => m.id !== thinkingId),
           { id: "model-r5", sender: "model", type: "inspiration", prompt: wb1.prompt, cards: wb1.cards, round: 5 },
@@ -769,7 +784,7 @@ export default function ChatPanel() {
       const thinkingId = `thinking-ch-r1`;
       setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
       setTimeout(() => {
-        const ch1 = sceneCharacterRounds[0];
+        const ch1 = dataRef.current.sceneCharacterRounds[0];
         setMessages((prev) => [
           ...prev.filter((m) => m.id !== thinkingId),
           { id: "model-r9", sender: "model", type: "inspiration", prompt: ch1.prompt, cards: ch1.cards, round: 9 },
@@ -782,7 +797,7 @@ export default function ChatPanel() {
       setTimeout(() => {
         setMessages((prev) => [
           ...prev.filter((m) => m.id !== thinkingId),
-          { id: "model-outline", sender: "model", type: "outline-card", prompt: "大纲生成完毕！16章完整故事线已就绪，你可以在编辑区查看每章详情。确认后就可以开始正文创作了，有想调整的随时告诉我。", data: sceneOutlineCard },
+          { id: "model-outline", sender: "model", type: "outline-card", prompt: "大纲生成完毕！16章完整故事线已就绪，你可以在编辑区查看每章详情。确认后就可以开始正文创作了，有想调整的随时告诉我。", data: dataRef.current.sceneOutlineCard },
         ]);
         setCurrentRound(13);
         setCreationStage(4);
@@ -803,7 +818,7 @@ export default function ChatPanel() {
         setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
 
         setTimeout(() => {
-          const nextRound = sceneInspirationRounds[fromRound];
+          const nextRound = dataRef.current.sceneInspirationRounds[fromRound];
           setMessages((prev) => [
             ...prev.filter((m) => m.id !== thinkingId),
             {
@@ -832,12 +847,12 @@ export default function ChatPanel() {
               id: "model-settings",
               sender: "model",
               type: "settings-card",
-              prompt: isMarketing
+              prompt: dataRef.current.isMarketing
                 ? "收到！我为你整理了视频策略Brief。确认无误就可以开始设计故事线了，有需要调整的随时告诉我。"
-                : isKnowledge
+                : dataRef.current.isKnowledge
                 ? "已读取完毕！以下是书籍总览和分析配置。确认无误就可以开始深入分析了，有需要调整的随时告诉我。"
                 : "根据你的灵感方向，我为你整理了以下创作设定。确认无误就可以开始构建世界观了，你也可以告诉我需要调整的地方。",
-              settings: sceneSettingsCard,
+              settings: dataRef.current.sceneSettingsCard,
             },
           ]);
           setCurrentRound(4);
@@ -852,7 +867,7 @@ export default function ChatPanel() {
         setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
 
         setTimeout(() => {
-          const nextWb = sceneWorldbuildingRounds[fromRound - 5 + 1];
+          const nextWb = dataRef.current.sceneWorldbuildingRounds[fromRound - 5 + 1];
           setMessages((prev) => [
             ...prev.filter((m) => m.id !== thinkingId),
             {
@@ -882,7 +897,7 @@ export default function ChatPanel() {
               sender: "model",
               type: "worldbuilding-card",
               prompt: "世界观构建完成！你可以在编辑区查看完整内容，觉得没问题就可以开始创建角色了，有想调整的也可以直接告诉我。",
-              data: sceneWorldbuilding,
+              data: dataRef.current.sceneWorldbuilding,
             },
           ]);
           setCurrentRound(8);
@@ -897,7 +912,7 @@ export default function ChatPanel() {
         setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
 
         setTimeout(() => {
-          const nextChar = sceneCharacterRounds[fromRound - 9 + 1];
+          const nextChar = dataRef.current.sceneCharacterRounds[fromRound - 9 + 1];
           setMessages((prev) => [
             ...prev.filter((m) => m.id !== thinkingId),
             {
@@ -927,7 +942,7 @@ export default function ChatPanel() {
               sender: "model",
               type: "character-card",
               prompt: "角色创建完成！你可以在编辑区查看完整的角色档案，觉得没问题就可以开始生成大纲了，想调整随时告诉我。",
-              data: sceneCharacterCard,
+              data: dataRef.current.sceneCharacterCard,
             },
           ]);
           setCurrentRound(12);
@@ -948,10 +963,10 @@ export default function ChatPanel() {
       const isWb = round >= 5 && round <= 7;
       const isChar = round >= 9 && round <= 11;
       const roundData = isChar
-        ? sceneCharacterRounds[round - 9]
+        ? dataRef.current.sceneCharacterRounds[round - 9]
         : isWb
-        ? sceneWorldbuildingRounds[round - 5]
-        : sceneInspirationRounds[round - 1];
+        ? dataRef.current.sceneWorldbuildingRounds[round - 5]
+        : dataRef.current.sceneInspirationRounds[round - 1];
       const cardText = roundData.cards[cardIndex].text;
 
       setSelections((prev) => ({ ...prev, [round]: cardIndex }));
@@ -997,7 +1012,7 @@ export default function ChatPanel() {
       setNovelChapterStatus(chapterIndex, "generating");
       setCurrentNovelChapter(chapterIndex);
 
-      const fullText = sceneChapterTexts[chapterIndex] || `这是第${chapterIndex + 1}集的正文内容。\n\n（mock内容）故事在这里继续展开...`;
+      const fullText = dataRef.current.sceneChapterTexts[chapterIndex] || `这是第${chapterIndex + 1}集的正文内容。\n\n（mock内容）故事在这里继续展开...`;
 
       // Simulate streaming: add text chunk by chunk
       const chars = fullText.split("");
@@ -1011,21 +1026,21 @@ export default function ChatPanel() {
           setNovelChapterStatus(chapterIndex, "done");
           setNovelChapterContent(chapterIndex, fullText);
           // Notify in chat
-          const chTitle = sceneOutlineCard.chapters[chapterIndex]?.title || `第${chapterIndex + 1}章`;
+          const chTitle = dataRef.current.sceneOutlineCard.chapters[chapterIndex]?.title || `第${chapterIndex + 1}章`;
           setMessages((prev) => [
             ...prev,
             {
               id: `model-ch-done-${chapterIndex}`,
               sender: "model" as const,
               type: "text" as const,
-              content: chapterIndex < sceneOutlineCard.chapters.length - 1
+              content: chapterIndex < dataRef.current.sceneOutlineCard.chapters.length - 1
                 ? `**${chTitle}** 生成完毕！你可以在编辑区查看和修改。\n\n满意后说「继续」，我就开始写下一章。`
                 : `**${chTitle}** 生成完毕！这是最后一章。\n\n全部章节已完成，你可以自由编辑任何章节。`,
             },
           ]);
           // Update progress bar for 正文 stage
           const doneCount = chapterIndex + 1;
-          const total = sceneOutlineCard.chapters.length;
+          const total = dataRef.current.sceneOutlineCard.chapters.length;
           setStageProgress(doneCount / total);
           return;
         }
@@ -1094,7 +1109,7 @@ export default function ChatPanel() {
             setTimeout(() => {
               setMessages((prev) => [
                 ...prev.filter((m) => m.id !== thinkingId2),
-                { id: "model-worldbuilding", sender: "model", type: "worldbuilding-card", prompt: "世界观构建完成！你可以在编辑区查看完整内容，觉得没问题就可以开始创建角色了。", data: sceneWorldbuilding },
+                { id: "model-worldbuilding", sender: "model", type: "worldbuilding-card", prompt: "世界观构建完成！你可以在编辑区查看完整内容，觉得没问题就可以开始创建角色了。", data: dataRef.current.sceneWorldbuilding },
               ]);
               setCurrentRound(8);
               setCreationStage(2);
@@ -1115,7 +1130,7 @@ export default function ChatPanel() {
             setTimeout(() => {
               setMessages((prev) => [
                 ...prev.filter((m) => m.id !== thinkingId2),
-                { id: "model-characters", sender: "model", type: "character-card", prompt: "角色创建完成！你可以在编辑区查看完整的角色档案，想调整随时告诉我。", data: sceneCharacterCard },
+                { id: "model-characters", sender: "model", type: "character-card", prompt: "角色创建完成！你可以在编辑区查看完整的角色档案，想调整随时告诉我。", data: dataRef.current.sceneCharacterCard },
               ]);
               setCurrentRound(12);
               setCreationStage(3);
@@ -1136,7 +1151,7 @@ export default function ChatPanel() {
             setTimeout(() => {
               setMessages((prev) => [
                 ...prev.filter((m) => m.id !== thinkingId2),
-                { id: "model-outline", sender: "model", type: "outline-card", prompt: "大纲生成完毕！16章完整故事线已就绪，确认后就可以开始正文创作了。", data: sceneOutlineCard },
+                { id: "model-outline", sender: "model", type: "outline-card", prompt: "大纲生成完毕！16章完整故事线已就绪，确认后就可以开始正文创作了。", data: dataRef.current.sceneOutlineCard },
               ]);
               setCurrentRound(13);
               setCreationStage(4);
@@ -1151,7 +1166,7 @@ export default function ChatPanel() {
     // If at confirm stage (after settings card shown), user confirmed → show worldbuilding intro
     if (currentRound === 4) {
       // Auto-generate a fitting title based on the story settings
-      setAutoTitle(sceneTitle);
+      setAutoTitle(dataRef.current.sceneTitle);
 
       const thinkingId = `thinking-wb-intro`;
       setTimeout(() => {
@@ -1165,19 +1180,19 @@ export default function ChatPanel() {
             id: "model-auto-title",
             sender: "model",
             type: "text",
-            content: isMarketing
-              ? `视频策略确认！根据你的产品信息，项目暂定为——**《${sceneTitle}》**，你随时可以在顶部修改。\n\n接下来我们设计视频的故事线。`
-              : isKnowledge
-              ? `分析配置确认！已为你创建项目——**《${sceneTitle}》**，你随时可以在顶部修改。\n\n接下来深入分析设定体系。`
-              : `设定确认！根据你的故事设定，我帮你起了个名字——**《${sceneTitle}》**，你随时可以在顶部修改。\n\n接下来我们构建故事发生的世界。`,
+            content: dataRef.current.isMarketing
+              ? `视频策略确认！根据你的产品信息，项目暂定为——**《${dataRef.current.sceneTitle}》**，你随时可以在顶部修改。\n\n接下来我们设计视频的故事线。`
+              : dataRef.current.isKnowledge
+              ? `分析配置确认！已为你创建项目——**《${dataRef.current.sceneTitle}》**，你随时可以在顶部修改。\n\n接下来深入分析设定体系。`
+              : `设定确认！根据你的故事设定，我帮你起了个名字——**《${dataRef.current.sceneTitle}》**，你随时可以在顶部修改。\n\n接下来我们构建故事发生的世界。`,
           },
           {
             id: "model-wb-intro",
             sender: "model",
             type: "stage-intro",
-            prompt: isMarketing
+            prompt: dataRef.current.isMarketing
               ? "你对视频故事线有自己的想法吗？可以描述开场钩子、核心演示、转化策略——也可以让我来给你灵感。"
-              : isKnowledge
+              : dataRef.current.isKnowledge
               ? "你想从哪个设定开始深入？可以指定具体的体系（如魔药/途径/教会），也可以让我来帮你梳理。"
               : "你对世界观有自己的想法吗？可以直接描述你心目中的场景、地点、社会背景等——也可以让我来给你灵感。",
             stage: "worldbuilding",
@@ -1203,9 +1218,9 @@ export default function ChatPanel() {
             id: "model-char-intro",
             sender: "model",
             type: "stage-intro",
-            prompt: isMarketing
+            prompt: dataRef.current.isMarketing
               ? "故事线就位！接下来确定出镜角色。\n\n你对出镜者有想法吗？可以描述年龄、风格、表演方式——或者让我来给你灵感。"
-              : isKnowledge
+              : dataRef.current.isKnowledge
               ? "设定体系整理完毕！接下来分析核心角色。\n\n你最想深入了解哪些角色？可以指定具体角色或角色群体——或者让我来推荐。"
               : "世界观就位！接下来创建角色。\n\n你心里有主角的样子了吗？可以告诉我你想要的角色性格、身份、关系——或者让我来给你灵感。",
             stage: "characters",
@@ -1231,9 +1246,9 @@ export default function ChatPanel() {
             id: "model-outline-intro",
             sender: "model",
             type: "stage-intro",
-            prompt: isMarketing
+            prompt: dataRef.current.isMarketing
               ? "角色设定完成！最后一步——生成分幕脚本。\n\n你对分幕结构有想法吗？可以描述你期望的节奏和重点——或者我来帮你规划。"
-              : isKnowledge
+              : dataRef.current.isKnowledge
               ? "角色分析完成！最后一步——结构化分析报告。\n\n你想要什么样的输出？拆书稿、深度长评、知识图谱——或者我来帮你规划。"
               : "角色档案完成！最后一步——搭建故事骨架。\n\n你对故事走向和章节安排有想法吗？可以描述你希望的结构、转折点、节奏——或者我来帮你规划。",
             stage: "outline",
@@ -1248,7 +1263,7 @@ export default function ChatPanel() {
     // If at outline confirm stage, user confirmed → init chapters and start generating
     if (currentRound === 13) {
       // Init novel chapters from outline
-      const chapterTitles = sceneOutlineCard.chapters.map((c) => c.title);
+      const chapterTitles = dataRef.current.sceneOutlineCard.chapters.map((c) => c.title);
       initNovelChapters(chapterTitles);
 
       const thinkingId = `thinking-write-start`;
@@ -1263,9 +1278,9 @@ export default function ChatPanel() {
             id: "model-write-start",
             sender: "model",
             type: "text",
-            content: isMarketing
+            content: dataRef.current.isMarketing
               ? `分幕脚本确认！开始生成详细脚本。\n\n我会逐幕生成，每幕包含画面描述、台词和技巧标注。满意后告诉我「继续」，我就接着写下一幕。\n\n正在生成 **${chapterTitles[0]}**...`
-              : isKnowledge
+              : dataRef.current.isKnowledge
               ? `分析大纲确认！开始生成深度报告。\n\n我会逐篇分析，每篇附带原文出处引用。满意后告诉我「继续」，我就接着写下一篇。\n\n正在生成 **${chapterTitles[0]}**...`
               : `大纲确认！开始为你生成正文。\n\n我会逐章生成，每章完成后你可以在编辑区直接修改。满意后告诉我「继续」，我就接着写下一章。\n\n正在生成 **第一章 ${chapterTitles[0]?.replace(/^第.章\s*/, "")}**...`,
           },
@@ -1362,7 +1377,7 @@ export default function ChatPanel() {
               sender: "model",
               type: "settings-card",
               prompt: "根据你的描述，我为你整理了以下创作设定。确认无误就可以开始生成世界观了，你也可以告诉我需要调整的地方。",
-              settings: sceneSettingsCard,
+              settings: dataRef.current.sceneSettingsCard,
             },
           ]);
           setCurrentRound(4);
