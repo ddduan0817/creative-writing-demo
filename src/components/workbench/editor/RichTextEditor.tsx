@@ -11,7 +11,6 @@ import { getSceneMockResponses } from "@/data/mockAIResponses";
 import { simulateAIStream } from "@/lib/aiSimulator";
 import {
   Wand2,
-  ChevronDown,
   RefreshCw,
   MoveHorizontal,
   Palette,
@@ -20,6 +19,12 @@ import {
   List,
   Check,
   Loader2,
+  Copy,
+  ALargeSmall,
+  Bold,
+  Italic,
+  Underline as UnderlineIcon,
+  Strikethrough,
 } from "lucide-react";
 
 export default function RichTextEditor() {
@@ -49,6 +54,7 @@ export default function RichTextEditor() {
     top: number;
     left: number;
   }>({ show: false, top: 0, left: 0 });
+  const [showAIMenu, setShowAIMenu] = useState(false);
   const [atmosphereDialog, setAtmosphereDialog] = useState<{
     show: boolean;
     text: string;
@@ -78,6 +84,7 @@ export default function RichTextEditor() {
       const { from, to } = e.state.selection;
       if (from === to) {
         setFloatingToolbar({ show: false, top: 0, left: 0 });
+        setShowAIMenu(false);
         return;
       }
       // Get position from the DOM
@@ -88,9 +95,10 @@ export default function RichTextEditor() {
         const wrapRect = editorWrapRef.current.getBoundingClientRect();
         setFloatingToolbar({
           show: true,
-          top: rect.bottom - wrapRect.top + editorWrapRef.current.scrollTop + 8,
-          left: rect.right - wrapRect.left - 280,
+          top: rect.top - wrapRect.top + editorWrapRef.current.scrollTop - 48,
+          left: rect.left - wrapRect.left + rect.width / 2 - 180,
         });
+        setShowAIMenu(false);
       }
     },
     editorProps: {
@@ -1044,76 +1052,142 @@ export default function RichTextEditor() {
             </h2>
           )}
 
-          {/* Custom Floating Toolbar */}
+          {/* Floating Selection Toolbar */}
           {floatingToolbar.show && (
             <div
-              className="absolute z-20 w-[280px]"
+              className="absolute z-20"
               style={{
                 top: floatingToolbar.top,
-                left: Math.max(0, Math.min(floatingToolbar.left, 400)),
+                left: Math.max(0, Math.min(floatingToolbar.left, 500)),
               }}
             >
-              {/* 输入改写要求 */}
-              <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-3 mb-2">
-                <div className="flex items-start gap-2">
-                  <textarea
-                    placeholder="输入改写要求"
-                    rows={2}
-                    className="flex-1 text-sm text-gray-700 placeholder-gray-400 outline-none bg-transparent resize-none"
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
-                        e.preventDefault();
-                        showToast("改写功能演示中...");
-                      }
-                    }}
-                  />
-                  <button
-                    onClick={() => showToast("改写功能演示中...")}
-                    className="mt-auto p-2 bg-gray-900 text-white rounded-full hover:bg-gray-800 transition shrink-0"
-                  >
-                    <Send className="w-4 h-4" />
-                  </button>
-                </div>
+              {/* Compact bar: AI调整 | 复制 | 分隔线 | 格式按钮 */}
+              <div className="flex items-center bg-white rounded-lg shadow-lg border border-gray-200 h-9 px-1 gap-0.5">
+                <button
+                  onClick={() => setShowAIMenu((v) => !v)}
+                  className="flex items-center gap-1 px-2.5 py-1 text-sm text-blue-600 font-medium hover:bg-blue-50 rounded-md transition"
+                >
+                  <Wand2 className="w-3.5 h-3.5" />
+                  <span className="text-[13px]">AI 调整</span>
+                </button>
+                <button
+                  onClick={() => {
+                    if (editor) {
+                      const { from, to } = editor.state.selection;
+                      const selectedText = editor.state.doc.textBetween(from, to, " ");
+                      navigator.clipboard.writeText(selectedText);
+                      showToast("已复制");
+                    }
+                  }}
+                  className="flex items-center gap-1 px-2 py-1 text-sm text-gray-600 hover:bg-gray-50 rounded-md transition"
+                >
+                  <Copy className="w-3.5 h-3.5" />
+                  <span className="text-[13px]">复制</span>
+                </button>
+                <div className="w-px h-4 bg-gray-200 mx-0.5" />
+                <button
+                  onClick={() => editor?.chain().focus().toggleHeading({ level: 2 }).run()}
+                  className={`p-1.5 rounded-md transition ${editor?.isActive("heading") ? "bg-gray-100 text-gray-900" : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"}`}
+                  title="标题"
+                >
+                  <ALargeSmall className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => editor?.chain().focus().toggleBold().run()}
+                  className={`p-1.5 rounded-md transition ${editor?.isActive("bold") ? "bg-gray-100 text-gray-900" : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"}`}
+                  title="加粗"
+                >
+                  <Bold className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => editor?.chain().focus().toggleItalic().run()}
+                  className={`p-1.5 rounded-md transition ${editor?.isActive("italic") ? "bg-gray-100 text-gray-900" : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"}`}
+                  title="斜体"
+                >
+                  <Italic className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => editor?.chain().focus().toggleUnderline().run()}
+                  className={`p-1.5 rounded-md transition ${editor?.isActive("underline") ? "bg-gray-100 text-gray-900" : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"}`}
+                  title="下划线"
+                >
+                  <UnderlineIcon className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => editor?.chain().focus().toggleStrike().run()}
+                  className={`p-1.5 rounded-md transition ${editor?.isActive("strike") ? "bg-gray-100 text-gray-900" : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"}`}
+                  title="删除线"
+                >
+                  <Strikethrough className="w-4 h-4" />
+                </button>
               </div>
 
-              {/* 快捷操作列表 */}
-              <div className="bg-white rounded-xl shadow-lg border border-gray-200 py-1.5">
-                <button
-                  onClick={() => handleAIAction("polish")}
-                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
-                >
-                  <Wand2 className="w-4 h-4 text-gray-400" />
-                  润色一下
-                </button>
-                <button
-                  onClick={() => handleAIAction("atmosphere")}
-                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
-                >
-                  <Sparkles className="w-4 h-4 text-gray-400" />
-                  丰富一下
-                </button>
-                <button
-                  onClick={() => handleAIAction("condense")}
-                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
-                >
-                  <MoveHorizontal className="w-4 h-4 text-gray-400" />
-                  写短一下
-                </button>
-                <button
-                  onClick={() => handleAIAction("rewrite")}
-                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
-                >
-                  <RefreshCw className="w-4 h-4 text-gray-400" />
-                  继续写点
-                </button>
-                <button
-                  onClick={() => handleAIAction("atmosphere")}
-                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
-                >
-                  <Palette className="w-4 h-4 text-gray-400" />
-                  氛围增强
-                </button>
-              </div>
+              {/* AI 调整下拉面板 */}
+              {showAIMenu && (
+                <div className="mt-1.5 w-[280px]">
+                  {/* 输入改写要求 */}
+                  <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-3 mb-1.5">
+                    <div className="flex items-start gap-2">
+                      <textarea
+                        placeholder="输入改写要求"
+                        rows={2}
+                        className="flex-1 text-sm text-gray-700 placeholder-gray-400 outline-none bg-transparent resize-none"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
+                            e.preventDefault();
+                            showToast("改写功能演示中...");
+                          }
+                        }}
+                      />
+                      <button
+                        onClick={() => showToast("改写功能演示中...")}
+                        className="mt-auto p-2 bg-gray-900 text-white rounded-full hover:bg-gray-800 transition shrink-0"
+                      >
+                        <Send className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* 快捷操作列表 */}
+                  <div className="bg-white rounded-xl shadow-lg border border-gray-200 py-1.5">
+                    <button
+                      onClick={() => { setShowAIMenu(false); handleAIAction("polish"); }}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
+                    >
+                      <Wand2 className="w-4 h-4 text-gray-400" />
+                      润色一下
+                    </button>
+                    <button
+                      onClick={() => { setShowAIMenu(false); handleAIAction("atmosphere"); }}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
+                    >
+                      <Sparkles className="w-4 h-4 text-gray-400" />
+                      丰富一下
+                    </button>
+                    <button
+                      onClick={() => { setShowAIMenu(false); handleAIAction("condense"); }}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
+                    >
+                      <MoveHorizontal className="w-4 h-4 text-gray-400" />
+                      写短一下
+                    </button>
+                    <button
+                      onClick={() => { setShowAIMenu(false); handleAIAction("rewrite"); }}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
+                    >
+                      <RefreshCw className="w-4 h-4 text-gray-400" />
+                      继续写点
+                    </button>
+                    <button
+                      onClick={() => { setShowAIMenu(false); handleAIAction("atmosphere"); }}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
+                    >
+                      <Palette className="w-4 h-4 text-gray-400" />
+                      氛围增强
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -1127,34 +1201,39 @@ export default function RichTextEditor() {
         <div className="inline-flex items-center gap-0.5 bg-white/95 backdrop-blur-sm rounded-full shadow-[0_2px_16px_rgba(0,0,0,0.08)] border border-gray-100/80 px-2.5 py-1.5 whitespace-nowrap">
           {/* Group 1: AI 调整功能 */}
           <button
-            onClick={() => showToast("调整风格功能演示中...")}
+            onClick={() => showToast("润色一下...")}
             className="inline-flex items-center gap-1 px-3 py-1.5 text-[13px] text-gray-800 rounded-full hover:bg-gray-50 transition"
           >
-            <Palette className="w-3.5 h-3.5 text-gray-500 shrink-0" />
-            <span>调整风格</span>
-            <ChevronDown className="w-3 h-3 text-gray-400 shrink-0" />
+            <Wand2 className="w-3.5 h-3.5 text-gray-500 shrink-0" />
+            <span>润色一下</span>
           </button>
           <button
-            onClick={() => showToast("调整长度功能演示中...")}
-            className="inline-flex items-center gap-1 px-3 py-1.5 text-[13px] text-gray-800 rounded-full hover:bg-gray-50 transition"
-          >
-            <MoveHorizontal className="w-3.5 h-3.5 text-gray-500 shrink-0" />
-            <span>调整长度</span>
-            <ChevronDown className="w-3 h-3 text-gray-400 shrink-0" />
-          </button>
-          <button
-            onClick={() => showToast("全文润色中...")}
+            onClick={() => showToast("丰富一下...")}
             className="inline-flex items-center gap-1 px-3 py-1.5 text-[13px] text-gray-800 rounded-full hover:bg-gray-50 transition"
           >
             <Sparkles className="w-3.5 h-3.5 text-gray-500 shrink-0" />
-            <span>全文润色</span>
+            <span>丰富一下</span>
           </button>
           <button
-            onClick={() => showToast("重新生成中...")}
+            onClick={() => showToast("写短一下...")}
             className="inline-flex items-center gap-1 px-3 py-1.5 text-[13px] text-gray-800 rounded-full hover:bg-gray-50 transition"
           >
-            <RefreshCw className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-            <span>重新生成</span>
+            <MoveHorizontal className="w-3.5 h-3.5 text-gray-500 shrink-0" />
+            <span>写短一下</span>
+          </button>
+          <button
+            onClick={() => showToast("继续写点...")}
+            className="inline-flex items-center gap-1 px-3 py-1.5 text-[13px] text-gray-800 rounded-full hover:bg-gray-50 transition"
+          >
+            <RefreshCw className="w-3.5 h-3.5 text-gray-500 shrink-0" />
+            <span>继续写点</span>
+          </button>
+          <button
+            onClick={() => showToast("氛围增强...")}
+            className="inline-flex items-center gap-1 px-3 py-1.5 text-[13px] text-gray-800 rounded-full hover:bg-gray-50 transition"
+          >
+            <Palette className="w-3.5 h-3.5 text-gray-500 shrink-0" />
+            <span>氛围增强</span>
           </button>
         </div>
       </div>

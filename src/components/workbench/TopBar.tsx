@@ -9,11 +9,8 @@ import {
   Loader2,
   History,
   X,
-  RotateCcw,
   FileText,
-  Sparkles,
   Pencil,
-  Save,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
@@ -133,7 +130,7 @@ export default function TopBar() {
           导出
         </button>
         <div className="absolute right-0 top-full mt-1 bg-white rounded-lg shadow-lg border py-1 z-20 w-24 hidden group-hover:block">
-          {["txt", "doc", "pdf"].map((f) => (
+          {["doc", "pdf"].map((f) => (
             <button
               key={f}
               onClick={() => handleExport(f)}
@@ -212,134 +209,167 @@ function HistoryPanel({
   onClose: () => void;
   onRestore: (id: string) => void;
 }) {
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(
+    historyItems.length > 0 ? historyItems[0].id : null
+  );
+  const [showChanges, setShowChanges] = useState(true);
+  const [showAll, setShowAll] = useState(false);
   const selectedItem = historyItems.find((h) => h.id === selectedId);
+  const isLatest = selectedId === (historyItems.length > 0 ? historyItems[0].id : null);
 
-  const formatTime = (date: Date) => {
-    const now = new Date();
-    const diff = now.getTime() - date.getTime();
-    const minutes = Math.floor(diff / (1000 * 60));
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  // Group items by date label: 今天 / 月份
+  const groupItems = () => {
+    const today = new Date();
+    const groups: { label: string; items: HistoryItem[] }[] = [];
+    const groupMap = new Map<string, HistoryItem[]>();
 
-    if (minutes < 1) return "刚刚";
-    if (minutes < 60) return `${minutes}分钟前`;
-    if (hours < 24) return `${hours}小时前`;
-    if (days < 7) return `${days}天前`;
-    return date.toLocaleDateString("zh-CN", { month: "short", day: "numeric" });
+    for (const item of historyItems) {
+      const d = item.timestamp;
+      const isToday =
+        d.getFullYear() === today.getFullYear() &&
+        d.getMonth() === today.getMonth() &&
+        d.getDate() === today.getDate();
+      const label = isToday ? "今天" : `${d.getMonth() + 1}月`;
+      if (!groupMap.has(label)) groupMap.set(label, []);
+      groupMap.get(label)!.push(item);
+    }
+
+    groupMap.forEach((items, label) => {
+      groups.push({ label, items });
+    });
+    return groups;
   };
 
-  const getActionLabel = (action: HistoryItem["action"]) => {
-    const labels: Record<HistoryItem["action"], { text: string; icon: typeof FileText; color: string }> = {
-      edit: { text: "编辑", icon: Pencil, color: "text-gray-500" },
-      ai_rewrite: { text: "AI改写", icon: Sparkles, color: "text-purple-500" },
-      ai_polish: { text: "AI润色", icon: Sparkles, color: "text-blue-500" },
-      ai_condense: { text: "AI缩写", icon: Sparkles, color: "text-green-500" },
-      ai_atmosphere: { text: "AI氛围增强", icon: Sparkles, color: "text-orange-500" },
-      manual_save: { text: "手动保存", icon: Save, color: "text-indigo-500" },
-    };
-    return labels[action];
+  const groups = groupItems();
+  const INITIAL_SHOW = 6;
+  const allFlat = historyItems;
+  const visibleIds = showAll
+    ? new Set(allFlat.map((i) => i.id))
+    : new Set(allFlat.slice(0, INITIAL_SHOW).map((i) => i.id));
+
+  const formatTimestamp = (date: Date) => {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    const h = String(date.getHours()).padStart(2, "0");
+    const min = String(date.getMinutes()).padStart(2, "0");
+    return `${y}-${m}-${d} ${h}:${min}`;
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20">
-      <div className="bg-white rounded-xl shadow-2xl border w-[700px] max-h-[80vh] flex flex-col">
-        {/* Header */}
-        <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between flex-shrink-0">
-          <div className="flex items-center gap-2">
-            <History className="w-4 h-4 text-gray-500" />
-            <span className="text-sm font-semibold text-gray-800">历史记录</span>
-            <span className="text-xs text-gray-400">共 {historyItems.length} 条</span>
+    <div className="fixed inset-0 z-50 flex flex-col bg-gray-50">
+      {/* Top bar: 还原此版本 */}
+      <div className="h-12 bg-white border-b border-gray-200 flex items-center justify-center flex-shrink-0 relative">
+        <button
+          onClick={onClose}
+          className="absolute left-4 flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 transition"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          返回文档
+        </button>
+        <button
+          disabled={isLatest}
+          onClick={() => selectedId && onRestore(selectedId)}
+          className={`px-5 py-1.5 rounded-full text-sm font-medium transition ${
+            isLatest
+              ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+              : "bg-gray-700 text-white hover:bg-gray-800"
+          }`}
+        >
+          还原此版本
+        </button>
+      </div>
+
+      {/* Main body */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Left: Document preview */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="max-w-3xl mx-auto py-8 px-12">
+            {selectedItem ? (
+              <div
+                className="prose prose-sm max-w-none text-gray-800 leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: selectedItem.content }}
+              />
+            ) : (
+              <div className="flex items-center justify-center h-64 text-gray-400 text-sm">
+                <div className="text-center">
+                  <FileText className="w-8 h-8 mx-auto mb-2 opacity-40" />
+                  <p>暂无历史记录</p>
+                </div>
+              </div>
+            )}
           </div>
-          <button
-            onClick={onClose}
-            className="p-1 hover:bg-gray-100 rounded transition"
-          >
-            <X className="w-4 h-4 text-gray-400" />
-          </button>
         </div>
 
-        {/* Content */}
-        <div className="flex flex-1 overflow-hidden">
-          {/* History List */}
-          <div className="w-64 border-r border-gray-100 overflow-y-auto flex-shrink-0">
-            {historyItems.length === 0 ? (
-              <div className="p-4 text-center text-gray-400 text-sm">
-                暂无历史记录
-              </div>
-            ) : (
-              <div className="py-1">
-                {historyItems.map((item) => {
-                  const actionInfo = getActionLabel(item.action);
-                  const ActionIcon = actionInfo.icon;
-                  return (
-                    <button
-                      key={item.id}
-                      onClick={() => setSelectedId(item.id)}
-                      className={`w-full text-left px-3 py-2.5 border-b border-gray-50 hover:bg-gray-50 transition ${
-                        selectedId === item.id ? "bg-indigo-50" : ""
-                      }`}
-                    >
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs text-gray-400">
-                          {formatTime(item.timestamp)}
-                        </span>
-                        <span className={`text-[10px] flex items-center gap-0.5 ${actionInfo.color}`}>
-                          <ActionIcon className="w-3 h-3" />
-                          {actionInfo.text}
-                        </span>
-                      </div>
-                      <div className="text-sm font-medium text-gray-700 truncate">
-                        {item.chapterTitle}
-                      </div>
-                      <div className="text-xs text-gray-400 mt-0.5">
-                        {item.wordCount} 字
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
+        {/* Right: 历史版本记录 sidebar */}
+        <div className="w-64 bg-white border-l border-gray-200 flex flex-col flex-shrink-0">
+          <div className="px-4 py-3 border-b border-gray-100">
+            <span className="text-sm font-semibold text-gray-800">历史版本记录</span>
+          </div>
+
+          <div className="flex-1 overflow-y-auto px-4 py-2">
+            {groups.map((group) => {
+              const visibleItems = group.items.filter((i) => visibleIds.has(i.id));
+              if (visibleItems.length === 0) return null;
+              return (
+                <div key={group.label} className="mb-3">
+                  <div className="text-xs text-gray-400 mb-2 mt-1">{group.label}</div>
+                  <div className="space-y-1">
+                    {visibleItems.map((item, idx) => {
+                      const isSelected = selectedId === item.id;
+                      const isFirst = group.label === "今天" && idx === 0 && historyItems[0]?.id === item.id;
+                      return (
+                        <button
+                          key={item.id}
+                          onClick={() => setSelectedId(item.id)}
+                          className={`w-full text-left px-3 py-2 rounded-lg text-sm transition flex items-center justify-between ${
+                            isSelected
+                              ? "bg-blue-50 text-blue-600"
+                              : "text-gray-600 hover:bg-gray-50"
+                          }`}
+                        >
+                          <span>{formatTimestamp(item.timestamp)}</span>
+                          {isFirst && (
+                            <span className="text-[10px] text-blue-500 bg-blue-50 border border-blue-100 px-1.5 py-0.5 rounded">
+                              最近更新
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+
+            {!showAll && allFlat.length > INITIAL_SHOW && (
+              <button
+                onClick={() => setShowAll(true)}
+                className="w-full text-center text-xs text-gray-400 hover:text-gray-600 py-2 transition flex items-center justify-center gap-1"
+              >
+                展开更多
+                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+              </button>
             )}
           </div>
 
-          {/* Preview */}
-          <div className="flex-1 flex flex-col overflow-hidden">
-            {selectedItem ? (
-              <>
-                <div className="p-4 border-b border-gray-100 flex-shrink-0">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-sm font-semibold text-gray-800">
-                        {selectedItem.chapterTitle}
-                      </h3>
-                      <p className="text-xs text-gray-400 mt-0.5">
-                        {selectedItem.timestamp.toLocaleString("zh-CN")} · {selectedItem.wordCount} 字
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => onRestore(selectedItem.id)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition"
-                    >
-                      <RotateCcw className="w-3.5 h-3.5" />
-                      恢复此版本
-                    </button>
-                  </div>
-                </div>
-                <div className="flex-1 overflow-y-auto p-4">
-                  <div
-                    className="text-sm text-gray-700 leading-relaxed prose prose-sm max-w-none"
-                    dangerouslySetInnerHTML={{ __html: selectedItem.content }}
-                  />
-                </div>
-              </>
-            ) : (
-              <div className="flex-1 flex items-center justify-center text-gray-400 text-sm">
-                <div className="text-center">
-                  <FileText className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                  <p>选择一条历史记录查看详情</p>
-                </div>
-              </div>
-            )}
+          {/* Bottom: 显示更改 toggle */}
+          <div className="px-4 py-3 border-t border-gray-100 flex items-center justify-between flex-shrink-0">
+            <span className="text-sm text-gray-600">显示更改</span>
+            <button
+              onClick={() => setShowChanges(!showChanges)}
+              className={`w-10 h-5.5 rounded-full transition-colors relative ${
+                showChanges ? "bg-blue-500" : "bg-gray-300"
+              }`}
+              style={{ width: 40, height: 22 }}
+            >
+              <span
+                className={`absolute top-0.5 w-4.5 h-4.5 bg-white rounded-full shadow transition-transform ${
+                  showChanges ? "translate-x-5" : "translate-x-0.5"
+                }`}
+                style={{ width: 18, height: 18 }}
+              />
+            </button>
           </div>
         </div>
       </div>
