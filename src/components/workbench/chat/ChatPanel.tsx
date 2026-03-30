@@ -1592,20 +1592,30 @@ export default function ChatPanel() {
 
                   {/* Refresh & Skip buttons */}
                   {isActive && (
-                    <div className="flex items-center gap-3 mt-1">
-                      <button
-                        onClick={() => handleRefresh()}
-                        className="flex items-center gap-1.5 px-2 py-1.5 text-xs text-gray-400 hover:text-indigo-500 transition"
-                      >
-                        <RefreshCw className="w-3 h-3" />
-                        换一换
-                      </button>
-                      <button
-                        onClick={handleSkipToGenerate}
-                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-400 hover:text-indigo-500 border border-gray-200 rounded-full hover:border-indigo-200 transition"
-                      >
-                        跳过，直接生成
-                      </button>
+                    <div className="mt-1.5">
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={() => handleRefresh()}
+                          className="flex items-center gap-1.5 px-2 py-1.5 text-xs text-gray-400 hover:text-indigo-500 transition"
+                        >
+                          <RefreshCw className="w-3 h-3" />
+                          换一换
+                        </button>
+                        <button
+                          onClick={handleSkipToGenerate}
+                          className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-400 hover:text-indigo-500 border border-gray-200 rounded-full hover:border-indigo-200 transition"
+                        >
+                          跳过，直接生成
+                        </button>
+                      </div>
+                      <p className="text-[11px] text-gray-400 mt-1.5">
+                        {msg.round <= 3
+                          ? `选择后进入第 ${Math.min(msg.round + 1, 3)} / 3 轮，完成后生成创作设定`
+                          : msg.round <= 7
+                          ? `选择后进入第 ${Math.min(msg.round - 4, 3)} / 3 轮，完成后生成世界观`
+                          : `选择后进入第 ${Math.min(msg.round - 8, 3)} / 3 轮，完成后生成角色档案`
+                        }
+                      </p>
                     </div>
                   )}
                 </div>
@@ -1633,6 +1643,7 @@ export default function ChatPanel() {
                     >
                       就这样 👌
                     </button>
+                    <p className="text-[11px] text-gray-400 mt-1.5">跳过微调，进入下一轮选择</p>
                   </div>
                 )}
               </div>
@@ -1762,41 +1773,44 @@ export default function ChatPanel() {
 
                 {/* Entry buttons */}
                 {flowMode === "none" && (
-                  <div className="pl-8 mt-2 flex items-center gap-2.5">
-                    <button
-                      onClick={handleStartInspiration}
-                      className="px-4 py-2.5 bg-indigo-50 text-indigo-600 text-sm font-medium rounded-xl border border-indigo-100 hover:bg-indigo-100 transition"
-                    >
-                      ✨ 帮我找灵感
-                    </button>
-                    <button
-                      onClick={() => {
-                        setFlowMode("inspiration");
-                        const thinkingId = `thinking-direct-settings`;
-                        setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
-                        setTimeout(() => {
-                          setMessages((prev) => [
-                            ...prev.filter((m) => m.id !== thinkingId),
-                            {
-                              id: "model-settings",
-                              sender: "model",
-                              type: "settings-card",
-                              prompt: dataRef.current.isMarketing
-                                ? "收到！我为你整理了视频策略Brief。确认无误就可以开始设计故事线了，有需要调整的随时告诉我。"
-                                : dataRef.current.isKnowledge
-                                ? "已读取完毕！以下是书籍总览和分析配置。确认无误就可以开始深入分析了，有需要调整的随时告诉我。"
-                                : "我帮你生成了一套创作设定。确认无误就可以开始构建世界观了，你也可以告诉我需要调整的地方。",
-                              settings: dataRef.current.sceneSettingsCard,
-                            },
-                          ]);
-                          setCurrentRound(4);
-                          setCreationStage(1);
-                        }, 2500);
-                      }}
-                      className="px-4 py-2.5 text-gray-500 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
-                    >
-                      直接生成
-                    </button>
+                  <div className="pl-8 mt-2">
+                    <div className="flex items-center gap-2.5">
+                      <button
+                        onClick={handleStartInspiration}
+                        className="px-4 py-2.5 bg-indigo-50 text-indigo-600 text-sm font-medium rounded-xl border border-indigo-100 hover:bg-indigo-100 transition"
+                      >
+                        ✨ 帮我找灵感
+                      </button>
+                      <button
+                        onClick={() => {
+                          setFlowMode("inspiration");
+                          const thinkingId = `thinking-direct-settings`;
+                          setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+                          setTimeout(() => {
+                            setMessages((prev) => [
+                              ...prev.filter((m) => m.id !== thinkingId),
+                              {
+                                id: "model-settings",
+                                sender: "model",
+                                type: "settings-card",
+                                prompt: dataRef.current.isMarketing
+                                  ? "收到！我为你整理了视频策略Brief。确认无误就可以开始设计故事线了，有需要调整的随时告诉我。"
+                                  : dataRef.current.isKnowledge
+                                  ? "已读取完毕！以下是书籍总览和分析配置。确认无误就可以开始深入分析了，有需要调整的随时告诉我。"
+                                  : "我帮你生成了一套创作设定。确认无误就可以开始构建世界观了，你也可以告诉我需要调整的地方。",
+                                settings: dataRef.current.sceneSettingsCard,
+                              },
+                            ]);
+                            setCurrentRound(4);
+                            setCreationStage(1);
+                          }, 2500);
+                        }}
+                        className="px-4 py-2.5 text-gray-500 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
+                      >
+                        直接生成
+                      </button>
+                    </div>
+                    <p className="text-[11px] text-gray-400 mt-2">「帮我找灵感」将通过 3 轮选择确定方向，再生成设定；「直接生成」跳过探索，直接生成创作设定</p>
                   </div>
                 )}
               </div>
@@ -1817,19 +1831,29 @@ export default function ChatPanel() {
                 <div className="text-sm text-gray-700 leading-relaxed pl-8 whitespace-pre-wrap">{msg.prompt}</div>
 
                 {isActive && (
-                  <div className="pl-8 mt-2 flex items-center gap-2.5">
-                    <button
-                      onClick={() => handleStageInspiration(msg.stage)}
-                      className="px-4 py-2.5 bg-indigo-50 text-indigo-600 text-sm font-medium rounded-xl border border-indigo-100 hover:bg-indigo-100 transition"
-                    >
-                      ✨ 帮我找灵感
-                    </button>
-                    <button
-                      onClick={() => handleStageDirectGenerate(msg.stage)}
-                      className="px-4 py-2.5 text-gray-500 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
-                    >
-                      直接生成
-                    </button>
+                  <div className="pl-8 mt-2">
+                    <div className="flex items-center gap-2.5">
+                      <button
+                        onClick={() => handleStageInspiration(msg.stage)}
+                        className="px-4 py-2.5 bg-indigo-50 text-indigo-600 text-sm font-medium rounded-xl border border-indigo-100 hover:bg-indigo-100 transition"
+                      >
+                        ✨ 帮我找灵感
+                      </button>
+                      <button
+                        onClick={() => handleStageDirectGenerate(msg.stage)}
+                        className="px-4 py-2.5 text-gray-500 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
+                      >
+                        直接生成
+                      </button>
+                    </div>
+                    <p className="text-[11px] text-gray-400 mt-2">
+                      {msg.stage === "worldbuilding"
+                        ? "「帮我找灵感」将通过 3 轮选择细化世界设定；「直接生成」根据已有设定直接生成世界观"
+                        : msg.stage === "characters"
+                        ? "「帮我找灵感」将通过 3 轮选择设计角色；「直接生成」根据设定和世界观直接生成角色档案"
+                        : "将根据前序设定直接生成完整大纲"
+                      }
+                    </p>
                   </div>
                 )}
               </div>
