@@ -682,22 +682,28 @@ export default function ChatPanel() {
     if (dataRef.current.isMarketing) {
       const concept = s["产品信息"] || s["视频策略"];
       const core = concept?.[0]?.value || "";
-      return core ? `\n\n产品定位：${core}` : "";
+      return core ? `产品定位：${core}` : "";
     }
     if (dataRef.current.isKnowledge) {
       const concept = s["书籍信息"] || s["分析配置"];
       const core = concept?.[0]?.value || "";
-      return core ? `\n\n分析对象：${core}` : "";
+      return core ? `分析对象：${core}` : "";
     }
-    // Novel / Screenplay
+    // Novel / Screenplay — build a natural sentence
     const concept = s["故事概念"];
     const elements = s["写作要素"];
     const coreSetting = concept?.[0]?.value || "";
     const genre = elements?.find((e: { label: string; value: string }) => e.label === "题材")?.value || "";
     const style = elements?.find((e: { label: string; value: string }) => e.label === "风格调性")?.value || "";
     const ending = elements?.find((e: { label: string; value: string }) => e.label === "结局")?.value || "";
-    const parts = [genre, style, ending].filter(Boolean).join(" · ");
-    return parts || coreSetting ? `\n\n${parts}\n${coreSetting}` : "";
+    // Compose natural sentence: "一个都市言情故事，甜宠治愈风，HE结局——核心设定..."
+    const parts: string[] = [];
+    if (genre) parts.push(genre.replace(" · ", ""));
+    if (style) parts.push(`${style.replace(/ · /g, "")}风格`);
+    if (ending) parts.push(`${ending}结局`);
+    const prefix = parts.length > 0 ? `一个${parts.join("、")}的故事` : "";
+    if (prefix && coreSetting) return `${prefix}——${coreSetting}`;
+    return coreSetting || prefix;
   }, []);
 
   const [messages, setMessages] = useState<Message[]>([]);
@@ -1524,10 +1530,10 @@ export default function ChatPanel() {
             sender: "model",
             type: "settings-card",
             prompt: dataRef.current.isMarketing
-              ? "根据你的描述，我帮你生成了一版视频策略Brief。" + getSettingsSummary() + "\n\n看看感觉怎么样？你可以告诉我想调整哪里，也可以直接确认进入下一步。"
+              ? `根据你的描述，我帮你生成了一版视频策略Brief——${getSettingsSummary()}\n\n看看感觉怎么样？确认后我会为你设计视频故事线，你也可以告诉我想调整的地方。`
               : dataRef.current.isKnowledge
-              ? "根据你的描述，我帮你生成了一版分析配置。" + getSettingsSummary() + "\n\n看看感觉怎么样？你可以告诉我想调整哪里，也可以直接确认进入下一步。"
-              : "根据你的描述，我帮你生成了一版创作设定。" + getSettingsSummary() + "\n\n看看感觉怎么样？你可以告诉我想调整哪里，也可以直接确认进入下一步。",
+              ? `根据你的描述，我帮你生成了一版分析配置——${getSettingsSummary()}\n\n看看感觉怎么样？确认后我会开始深入分析设定体系，你也可以告诉我想调整的地方。`
+              : `根据你的描述，我帮你生成了一版创作设定——${getSettingsSummary()}\n\n看看感觉怎么样？确认后我会为你构建世界观，你也可以告诉我想调整的地方。`,
             settings: dataRef.current.sceneSettingsCard,
           },
         ]);
@@ -1943,10 +1949,10 @@ export default function ChatPanel() {
                               sender: "model",
                               type: "settings-card",
                               prompt: dataRef.current.isMarketing
-                                ? "我帮你生成了一版视频策略Brief，看看感觉怎么样？" + getSettingsSummary() + "\n\n你可以告诉我想调整哪里，也可以直接确认进入下一步。"
+                                ? `我帮你生成了一版视频策略Brief——${getSettingsSummary()}\n\n看看感觉怎么样？确认后我会为你设计视频故事线，你也可以告诉我想调整的地方。`
                                 : dataRef.current.isKnowledge
-                                ? "我帮你生成了一版分析配置，看看感觉怎么样？" + getSettingsSummary() + "\n\n你可以告诉我想调整哪里，也可以直接确认进入下一步。"
-                                : "我帮你生成了一版创作设定，看看感觉怎么样？" + getSettingsSummary() + "\n\n你可以告诉我想调整哪里，也可以直接确认进入下一步。",
+                                ? `我帮你生成了一版分析配置——${getSettingsSummary()}\n\n看看感觉怎么样？确认后我会开始深入分析设定体系，你也可以告诉我想调整的地方。`
+                                : `我帮你生成了一版创作设定——${getSettingsSummary()}\n\n看看感觉怎么样？确认后我会为你构建世界观，你也可以告诉我想调整的地方。`,
                               settings: dataRef.current.sceneSettingsCard,
                             },
                           ]);
