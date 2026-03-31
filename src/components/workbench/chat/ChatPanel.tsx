@@ -565,10 +565,10 @@ export default function ChatPanel() {
     return "一碗春";
   }, [isScreenplay, isMarketing, isKnowledge]);
   const sceneWelcome = useMemo(() => {
-    if (isScreenplay) return "你好！欢迎来到剧本创作工作台 ✨\n\n描述一下你想创作的剧本——一句话、一个画面、甚至几个关键词就够了。\n我会帮你快速生成一版完整设定，然后我们一起调整打磨。";
-    if (isMarketing) return "你好！告诉我你要推广什么产品？\n\n产品名称、链接、核心卖点都可以——比如「一款隐形蓝牙耳机，主打极致隐形和防水」。\n我来帮你快速生成一版视频策略，然后一起优化。";
-    if (isKnowledge) return "你好！欢迎来到深度解读工作台 ✨\n\n告诉我你想拆解哪本书？书名、文件、核心问题都可以——比如「帮我拆解《诡秘之主》的力量体系」。\n我来帮你快速生成分析框架，然后一起深入。";
-    return "你好！欢迎来到小说创作工作台 ✨\n\n描述一下你想写的故事——一句话、一个画面、甚至几个关键词就够了。\n我会帮你快速生成一版创作设定，然后我们一起调整打磨。";
+    if (isScreenplay) return "你好！欢迎来到剧本创作工作台 ✨\n\n描述一下你想创作的剧本——一句话、一个画面、甚至几个关键词就够了。\n我会帮你快速生成一版完整设定，然后我们一起调整打磨。\n\n没有想法也没关系，点击下方按钮我来帮你构思一个。";
+    if (isMarketing) return "你好！告诉我你要推广什么产品？\n\n产品名称、链接、核心卖点都可以——比如「一款隐形蓝牙耳机，主打极致隐形和防水」。\n我来帮你快速生成一版视频策略，然后一起优化。\n\n没有想法也没关系，点击下方按钮我来帮你构思一个。";
+    if (isKnowledge) return "你好！欢迎来到深度解读工作台 ✨\n\n告诉我你想拆解哪本书？书名、文件、核心问题都可以——比如「帮我拆解《诡秘之主》的力量体系」。\n我来帮你快速生成分析框架，然后一起深入。\n\n没有想法也没关系，点击下方按钮我来帮你构思一个。";
+    return "你好！欢迎来到小说创作工作台 ✨\n\n描述一下你想写的故事——一句话、一个画面、甚至几个关键词就够了。\n我会帮你快速生成一版创作设定，然后我们一起调整打磨。\n\n没有想法也没关系，点击下方按钮我来帮你构思一个。";
   }, [isScreenplay, isMarketing, isKnowledge]);
 
   // Refs to keep scene data accessible in callbacks without stale closures
@@ -1703,7 +1703,6 @@ export default function ChatPanel() {
                     >
                       ✨ 帮我想一个
                     </button>
-                    <p className="text-[11px] text-gray-400 mt-2">没有想法也没关系，我来帮你构思一个故事</p>
                   </div>
                 )}
               </div>
