@@ -144,6 +144,30 @@ const mockSettings: Record<string, { label: string; value: string }[]> = {
   ],
 };
 
+const mockSettingsAlt: Record<string, { label: string; value: string }[]> = {
+  "故事概念": [
+    { label: "核心设定", value: "天才甜点师因一场意外失去味觉，离开米其林餐厅后来到东南沿海小镇，开了一家只卖「记忆中的味道」的甜品店。" },
+    { label: "故事基调", value: "悬疑治愈交织。每位来店的客人都带着往事，女主在帮别人找回味觉记忆的同时，也在拼凑自己失去的时光。" },
+    { label: "故事走向", value: "双线叙事。味觉逐渐恢复的过程中发现失去味觉并非意外，而是有人刻意为之。最终在海边小镇找到真相与爱情。" },
+    { label: "核心冲突", value: "味觉恢复 × 真相揭露 × 留在小镇还是重返巅峰 × 信任与背叛" },
+  ],
+  "写作要素": [
+    { label: "受众", value: "女频" },
+    { label: "题材", value: "言情 · 美食" },
+    { label: "时空", value: "现代" },
+    { label: "剧情元素", value: "美食 · 悬疑 · 治愈 · 海边" },
+    { label: "人物关系", value: "日久生情 · 互相治愈" },
+    { label: "风格调性", value: "文艺 · 悬疑 · 温暖" },
+    { label: "结局", value: "HE" },
+  ],
+  "写作方式": [
+    { label: "叙事视角", value: "第一人称" },
+    { label: "叙事结构", value: "双线叙事（现实+味觉记忆闪回）" },
+    { label: "文风", value: "细腻感性" },
+    { label: "篇幅", value: "中篇（8-12万字）" },
+  ],
+};
+
 // ─── Mock Worldbuilding Rounds ───────────────────────────────
 
 const worldbuildingRounds: InspirationRound[] = [
@@ -239,6 +263,29 @@ const mockWorldbuilding: WorldbuildingData = {
     "失忆的真相与一场十五年前的车祸有关，肇事者与女主的经纪人有关联",
     "男主的爷爷曾经是女主母亲的主治医生，两家有一段未了的恩情",
     "面馆的院子里埋着一个时间胶囊，是女主童年时亲手埋下的",
+  ],
+};
+
+const mockWorldbuildingAlt: WorldbuildingData = {
+  summary: "东南沿海的「潮音镇」——一个被遗忘的老渔港。咸湿的海风、斑驳的灯塔、清晨出海的渔船。年轻人走了大半，留下的老人们守着祖辈的船和海。镇上唯一的新东西，是海堤尽头那家突然开起来的甜品店。",
+  timeline: "故事跨越半年，从深秋到次年春天。海的四季推动情感节奏：秋天初遇→冬天靠近→年关真相浮现→春天重新开始。",
+  scenes: [
+    { name: "潮音镇·海堤", description: "长长的石砌海堤，清晨有渔船归来，傍晚有老人垂钓。海堤尽头是废弃灯塔，被女主改成了甜品店的仓库。" },
+    { name: "「一勺海」甜品店", description: "女主盘下的海边老屋，面朝大海。店名取自她仅存的一段味觉记忆——小时候偷吃的一勺海盐焦糖。" },
+    { name: "渔港码头", description: "小镇的心脏，每天凌晨四点最先醒来。男主的渔船「归潮」号停在最里侧的泊位。" },
+    { name: "灯塔旧址", description: "已停用三十年的老灯塔，内部保留着上世纪的航海记录和照片。是解开真相的关键场所。" },
+  ],
+  socialEcology: [
+    "渔民之间有不成文的互助规矩，谁家有事全镇出动",
+    "每月十五赶海市，是小镇难得热闹的日子",
+    "码头旁的陈嫂鱼粥摊是情报中心，什么消息都能在这里听到",
+    "镇上有个「灯塔守望会」的老人团体，成员都是退休渔民",
+  ],
+  hiddenClues: [
+    "女主失去味觉的那场「意外」与一批有问题的食材有关",
+    "男主三年前从远洋货轮辞职回乡捕鱼，镇上人都觉得奇怪",
+    "灯塔里的航海记录中有一页被人撕掉了",
+    "女主小时候来过这个镇，在灯塔里藏过一个玻璃瓶",
   ],
 };
 
@@ -345,6 +392,31 @@ const mockCharacterCard: CharacterCardData = {
   relationships: "苏念 × 陆知行：欢喜冤家 → 暗生情愫 → 互相守护\n王婶 → 全镇：操心一切，推动主线发展\n小鱼 → 苏念：姐弟情深，治愈线担当\n陈老 → 陆知行：亦师亦友，关键时刻点拨",
 };
 
+const mockCharacterCardAlt: CharacterCardData = {
+  femaleLead: {
+    name: "沈鹿（小名鹿鹿）",
+    identity: "前米其林二星甜点主厨，现潮音镇「一勺海」甜品店老板",
+    personality: "外表文静内里倔强，失去味觉后从不抱怨，坚信能找回来",
+    appearance: "短发利落，总戴着围裙，指尖常沾着面粉或糖霜",
+    habit: "每天清晨去海边收集不同的海盐，说「每天的海味道都不一样」",
+    secret: "失去味觉前最后尝到的味道是海盐焦糖，那个配方来自一个她想不起的人",
+  },
+  maleLead: {
+    name: "顾北洲",
+    identity: "远洋渔民，「归潮」号船长，潮音镇最年轻的讨海人",
+    personality: "沉默寡言，海上的硬汉，上岸后对人却温柔得笨拙",
+    appearance: "肤色黝黑，手掌粗糙有力，笑起来眼角有细纹",
+    habit: "每次出海回来会在女主店门口放一袋当天最新鲜的海货，从不多说什么",
+    secret: "三年前在远洋货轮上目睹了一件事，那件事和女主失去味觉有关",
+  },
+  supporting: [
+    { name: "陈嫂", role: "鱼粥摊老板", desc: "镇上的情报中心和知心大姐，嘴快心热，对女主像亲闺女" },
+    { name: "老周", role: "灯塔守望会会长", desc: "七十岁退休船长，话不多但每句都是人生智慧" },
+    { name: "小满", role: "甜品店帮工", desc: "镇上唯一没走的年轻人，女主的第一个员工和忠实粉丝" },
+  ],
+  relationships: "沈鹿 × 顾北洲：陌生人 → 互相好奇 → 靠近 → 真相牵绊\n陈嫂 → 沈鹿：照顾者，也是暗中观察者\n老周 → 顾北洲：亦师亦父，关键时刻点拨\n小满 → 沈鹿：崇拜者+助手",
+};
+
 // ─── Mock Outline Card Data ──────────────────────────────────
 
 interface OutlineChapter {
@@ -381,6 +453,26 @@ const mockOutlineCard: OutlineCardData = {
     { title: "第十四章 重逢与抉择", summary: "苏念面临选择：回到娱乐圈复仇，还是留在清岚镇。她选择先面对过去，用自己的方式解决问题。", keyEvent: "核心抉择 · 成长" },
     { title: "第十五章 一碗春再开张", summary: "苏念以真实身份重新开张面馆。外界的关注带来了纷扰，但小镇的人们站在了她身边。", keyEvent: "回归 · 新的开始" },
     { title: "第十六章 初夏的约定", summary: "一年轮回，又是盛夏。面馆门口多了一块新招牌：'一碗春·念念不忘'。陆知行在桂花树下说出了那句迟到的告白。", keyEvent: "告白 · HE" },
+  ],
+};
+
+const mockOutlineCardAlt: OutlineCardData = {
+  structure: "海潮叙事 · 悬疑治愈",
+  totalChapters: 12,
+  estimatedWords: "约10万字",
+  chapters: [
+    { title: "第一章 失味之人", summary: "沈鹿来到潮音镇，盘下海边老屋，开了「一勺海」甜品店。第一天只有陈嫂来捧场，但海盐焦糖布丁让陈嫂红了眼眶。", keyEvent: "女主到达 · 甜品店开张" },
+    { title: "第二章 归潮号", summary: "顾北洲的渔船在暴风雨后归港。沈鹿第一次见到这个沉默的渔民，他在她店门口放了一袋最新鲜的海虾就走了。", keyEvent: "男女主初遇 · 海虾" },
+    { title: "第三章 每天的海不一样", summary: "沈鹿开始每天清晨去海边收集海盐，试图唤醒味觉。顾北洲主动带她去了一个只有渔民知道的盐田。", keyEvent: "关系破冰 · 盐田" },
+    { title: "第四章 赶海市", summary: "全镇出动的赶海市上，沈鹿用海盐系列甜品惊艳了所有人。在灯塔旧址，她发现了一个很眼熟的玻璃瓶。", keyEvent: "融入小镇 · 第一条线索" },
+    { title: "第五章 冬天的海", summary: "入冬后两人有了更多相处时间，沈鹿教他做甜品，他教她辨认风向。", keyEvent: "感情升温 · 互相教学" },
+    { title: "第六章 灯塔的秘密", summary: "沈鹿在灯塔里发现了更多线索——一张她小时候在这里的照片。", keyEvent: "记忆碎片 · 灯塔线索" },
+    { title: "第七章 风暴夜", summary: "一场大风暴，全镇守在码头等待。沈鹿在焦急中味觉第一次回应——她尝到了眼泪的咸。", keyEvent: "情感爆发 · 味觉松动" },
+    { title: "第八章 那年的海盐焦糖", summary: "做出失去味觉后第一个能尝到味道的甜品——海盐焦糖。随之而来的是汹涌的记忆。", keyEvent: "记忆回流 · 真相浮现" },
+    { title: "第九章 被撕掉的那一页", summary: "发现失去味觉并非意外，当年供货商掩盖食材问题。顾北洲三年前正好目睹了这一切。", keyEvent: "真相大白 · 信任考验" },
+    { title: "第十章 出海", summary: "顾北洲带她出海，在大海中央她想起了一切——包括小时候在灯塔里的那个夏天。", keyEvent: "记忆完整 · 核心抉择" },
+    { title: "第十一章 一勺海的真正含义", summary: "沈鹿选择留在潮音镇，用法律解决了食安问题。味觉完全恢复的那天，做了一份海盐焦糖。", keyEvent: "回归 · 和解" },
+    { title: "第十二章 春潮", summary: "春天到了，「归潮」号重新出海。船头多了一面写着「一勺海」的小旗。", keyEvent: "告白 · HE" },
   ],
 };
 
@@ -623,6 +715,10 @@ export default function ChatPanel() {
   const attachRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const hasInit = useRef(false);
+  const settingsRegenRef = useRef(0);
+  const wbRegenRef = useRef(0);
+  const charRegenRef = useRef(0);
+  const outlineRegenRef = useRef(0);
 
   // Auto-scroll
   useEffect(() => {
@@ -1966,6 +2062,8 @@ export default function ChatPanel() {
                         </button>
                         <button
                           onClick={() => {
+                            settingsRegenRef.current += 1;
+                            const altData = settingsRegenRef.current % 2 === 1 ? mockSettingsAlt : mockSettings;
                             const thinkingId = `thinking-regen-settings`;
                             setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
                             setTimeout(() => {
@@ -1976,7 +2074,7 @@ export default function ChatPanel() {
                                   sender: "model" as const,
                                   type: "settings-card" as const,
                                   prompt: "已重新生成一版设定，看看这个怎么样？",
-                                  settings: dataRef.current.sceneSettingsCard,
+                                  settings: altData,
                                 },
                               ]);
                             }, 2000);
@@ -2009,9 +2107,9 @@ export default function ChatPanel() {
                             setFlowMode("inspiration");
                           }, 1500);
                         }}
-                        className="w-full text-center px-3 py-2 text-xs text-gray-400 hover:text-indigo-500 transition"
+                        className="w-full px-4 py-2.5 text-sm text-indigo-500 rounded-xl border border-dashed border-indigo-200 bg-indigo-50/30 hover:bg-indigo-50 hover:border-indigo-300 transition"
                       >
-                        想继续完善？通过灵感探索细化方向 →
+                        ✨ 通过灵感探索继续完善
                       </button>
                       <p className="text-[11px] text-gray-400">{"想调整？直接告诉我哪里不满意，比如\"题材换成科幻\"、\"女主改成医生\""}</p>
                     </div>
@@ -2079,6 +2177,8 @@ export default function ChatPanel() {
                         </button>
                         <button
                           onClick={() => {
+                            wbRegenRef.current += 1;
+                            const altData = wbRegenRef.current % 2 === 1 ? mockWorldbuildingAlt : mockWorldbuilding;
                             const thinkingId = `thinking-regen-wb`;
                             setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
                             setTimeout(() => {
@@ -2089,7 +2189,7 @@ export default function ChatPanel() {
                                   sender: "model" as const,
                                   type: "worldbuilding-card" as const,
                                   prompt: "已重新生成一版世界观，看看这个怎么样？",
-                                  data: dataRef.current.sceneWorldbuilding,
+                                  data: altData,
                                 },
                               ]);
                             }, 2000);
@@ -2121,9 +2221,9 @@ export default function ChatPanel() {
                             setFlowMode("inspiration");
                           }, 1500);
                         }}
-                        className="w-full text-center px-3 py-2 text-xs text-gray-400 hover:text-indigo-500 transition"
+                        className="w-full px-4 py-2.5 text-sm text-indigo-500 rounded-xl border border-dashed border-indigo-200 bg-indigo-50/30 hover:bg-indigo-50 hover:border-indigo-300 transition"
                       >
-                        想继续完善？通过灵感探索细化世界观 →
+                        ✨ 通过灵感探索完善世界观
                       </button>
                       <p className="text-[11px] text-gray-400">{"想调整？比如\"加个竹林\"、\"小镇改成海边渔村\""}</p>
                     </div>
@@ -2195,6 +2295,8 @@ export default function ChatPanel() {
                         </button>
                         <button
                           onClick={() => {
+                            charRegenRef.current += 1;
+                            const altData = charRegenRef.current % 2 === 1 ? mockCharacterCardAlt : mockCharacterCard;
                             const thinkingId = `thinking-regen-char`;
                             setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
                             setTimeout(() => {
@@ -2205,7 +2307,7 @@ export default function ChatPanel() {
                                   sender: "model" as const,
                                   type: "character-card" as const,
                                   prompt: "已重新生成一版角色档案，看看这个怎么样？",
-                                  data: dataRef.current.sceneCharacterCard,
+                                  data: altData,
                                 },
                               ]);
                             }, 2000);
@@ -2237,9 +2339,9 @@ export default function ChatPanel() {
                             setFlowMode("inspiration");
                           }, 1500);
                         }}
-                        className="w-full text-center px-3 py-2 text-xs text-gray-400 hover:text-indigo-500 transition"
+                        className="w-full px-4 py-2.5 text-sm text-indigo-500 rounded-xl border border-dashed border-indigo-200 bg-indigo-50/30 hover:bg-indigo-50 hover:border-indigo-300 transition"
                       >
-                        想继续完善？通过灵感探索细化角色 →
+                        ✨ 通过灵感探索完善角色
                       </button>
                       <p className="text-[11px] text-gray-400">{"想调整？比如\"女主性格改成更强势\"、\"加一个反派角色\""}</p>
                     </div>
@@ -2302,6 +2404,8 @@ export default function ChatPanel() {
                         </button>
                         <button
                           onClick={() => {
+                            outlineRegenRef.current += 1;
+                            const altData = outlineRegenRef.current % 2 === 1 ? mockOutlineCardAlt : mockOutlineCard;
                             const thinkingId = `thinking-regen-outline`;
                             setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
                             setTimeout(() => {
@@ -2312,7 +2416,7 @@ export default function ChatPanel() {
                                   sender: "model" as const,
                                   type: "outline-card" as const,
                                   prompt: "已重新生成一版大纲，看看这个怎么样？",
-                                  data: dataRef.current.sceneOutlineCard,
+                                  data: altData,
                                 },
                               ]);
                             }, 2500);
