@@ -480,6 +480,7 @@ type Message =
   | { id: string; sender: "model"; type: "thinking" }
   | { id: string; sender: "model"; type: "text"; content: string }
   | { id: string; sender: "model"; type: "settings-card"; prompt: string; settings: Record<string, { label: string; value: string }[]> }
+  | { id: string; sender: "model"; type: "settings-preview"; prompt: string }
   | { id: string; sender: "model"; type: "worldbuilding-card"; prompt: string; data: WorldbuildingData }
   | { id: string; sender: "model"; type: "character-card"; prompt: string; data: CharacterCardData }
   | { id: string; sender: "model"; type: "outline-card"; prompt: string; data: OutlineCardData }
@@ -1100,14 +1101,26 @@ export default function ChatPanel() {
 
     // If user types at a card stage (4/8/12/13), treat as modification request
     // Mock: acknowledge and re-show the same card
-    if (currentRound === 4 || currentRound === 8 || currentRound === 12 || currentRound === 13) {
+    if (currentRound === 3 || currentRound === 4 || currentRound === 8 || currentRound === 12 || currentRound === 13) {
       const thinkingId = `thinking-modify-${Date.now()}`;
       setTimeout(() => {
         setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
       }, 300);
 
       setTimeout(() => {
-        if (currentRound === 4) {
+        if (currentRound === 3) {
+          // Re-generate text preview
+          const summary = getSettingsSummary();
+          setMessages((prev) => [
+            ...prev.filter((m) => m.id !== thinkingId),
+            {
+              id: `model-settings-preview-${Date.now()}`,
+              sender: "model" as const,
+              type: "settings-preview" as const,
+              prompt: "好的，已根据你的要求调整了方向：" + summary + "\n\n觉得方向可以的话，我来生成完整的创作设定；想继续调整也可以直接告诉我。",
+            },
+          ]);
+        } else if (currentRound === 4) {
           setMessages((prev) => [
             ...prev.filter((m) => m.id !== thinkingId),
             {
@@ -1153,6 +1166,34 @@ export default function ChatPanel() {
           ]);
         }
       }, 2000);
+      return;
+    }
+
+    // If at settings-preview stage, user confirmed → generate full settings card
+    if (currentRound === 3) {
+      const thinkingId = `thinking-full-settings`;
+      setTimeout(() => {
+        setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+      }, 300);
+
+      setTimeout(() => {
+        setMessages((prev) => [
+          ...prev.filter((m) => m.id !== thinkingId),
+          {
+            id: "model-settings",
+            sender: "model",
+            type: "settings-card",
+            prompt: dataRef.current.isMarketing
+              ? "方向确认！我帮你生成了完整的视频策略Brief。看看感觉怎么样？你可以告诉我想调整哪里，也可以直接确认进入下一步。"
+              : dataRef.current.isKnowledge
+              ? "方向确认！我帮你生成了完整的分析配置。看看感觉怎么样？你可以告诉我想调整哪里，也可以直接确认进入下一步。"
+              : "方向确认！我帮你生成了完整的创作设定。看看感觉怎么样？你可以告诉我想调整哪里，也可以直接确认进入下一步。",
+            settings: dataRef.current.sceneSettingsCard,
+          },
+        ]);
+        setCurrentRound(4);
+        setCreationStage(1);
+      }, 2500);
       return;
     }
 
@@ -1419,22 +1460,21 @@ export default function ChatPanel() {
       }, 300);
 
       setTimeout(() => {
+        const summary = getSettingsSummary();
         setMessages((prev) => [
           ...prev.filter((m) => m.id !== thinkingId),
           {
-            id: "model-settings",
+            id: "model-settings-preview",
             sender: "model",
-            type: "settings-card",
+            type: "settings-preview",
             prompt: dataRef.current.isMarketing
-              ? "根据你的描述，我帮你生成了一版视频策略Brief。" + getSettingsSummary() + "\n\n看看感觉怎么样？你可以告诉我想调整哪里，也可以直接确认进入下一步。"
+              ? "根据你的描述，我整理了一版视频策略方向：" + summary + "\n\n觉得方向可以的话，我来生成完整的策略Brief；想调整也可以直接告诉我。"
               : dataRef.current.isKnowledge
-              ? "根据你的描述，我帮你生成了一版分析配置。" + getSettingsSummary() + "\n\n看看感觉怎么样？你可以告诉我想调整哪里，也可以直接确认进入下一步。"
-              : "根据你的描述，我帮你生成了一版创作设定。" + getSettingsSummary() + "\n\n看看感觉怎么样？你可以告诉我想调整哪里，也可以直接确认进入下一步。",
-            settings: dataRef.current.sceneSettingsCard,
+              ? "根据你的描述，我整理了一版分析方向：" + summary + "\n\n觉得方向可以的话，我来生成完整的分析配置；想调整也可以直接告诉我。"
+              : "根据你的描述，我整理了一版创作方向：" + summary + "\n\n觉得方向可以的话，我来生成完整的创作设定；想调整也可以直接告诉我。",
           },
         ]);
-        setCurrentRound(4);
-        setCreationStage(1);
+        setCurrentRound(3);
       }, 2500);
     }
   }, [input, awaitingAdjust, adjustRound, currentRound, flowMode, writingChapter, novelChapters, novelLength, setCreationStage, setStageProgress, setAutoTitle, proceedToNextRound, initNovelChapters, generateChapter, getSettingsSummary]);
@@ -1838,22 +1878,21 @@ export default function ChatPanel() {
                         const thinkingId = `thinking-direct-settings`;
                         setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
                         setTimeout(() => {
+                          const summary = getSettingsSummary();
                           setMessages((prev) => [
                             ...prev.filter((m) => m.id !== thinkingId),
                             {
-                              id: "model-settings",
+                              id: "model-settings-preview",
                               sender: "model",
-                              type: "settings-card",
+                              type: "settings-preview",
                               prompt: dataRef.current.isMarketing
-                                ? "我帮你生成了一版视频策略Brief。" + getSettingsSummary() + "\n\n看看感觉怎么样？你可以告诉我想调整哪里，也可以直接确认进入下一步。"
+                                ? "我帮你生成了一版视频策略方向：" + summary + "\n\n觉得方向可以的话，我来生成完整的策略Brief；想调整也可以直接告诉我。"
                                 : dataRef.current.isKnowledge
-                                ? "我帮你生成了一版分析配置。" + getSettingsSummary() + "\n\n看看感觉怎么样？你可以告诉我想调整哪里，也可以直接确认进入下一步。"
-                                : "我帮你生成了一版创作设定。" + getSettingsSummary() + "\n\n看看感觉怎么样？你可以告诉我想调整哪里，也可以直接确认进入下一步。",
-                              settings: dataRef.current.sceneSettingsCard,
+                                ? "我帮你生成了一版分析方向：" + summary + "\n\n觉得方向可以的话，我来生成完整的分析配置；想调整也可以直接告诉我。"
+                                : "我帮你生成了一版创作方向：" + summary + "\n\n觉得方向可以的话，我来生成完整的创作设定；想调整也可以直接告诉我。",
                             },
                           ]);
-                          setCurrentRound(4);
-                          setCreationStage(1);
+                          setCurrentRound(3);
                         }, 2500);
                       }}
                       className="px-4 py-2.5 bg-indigo-50 text-indigo-600 text-sm font-medium rounded-xl border border-indigo-100 hover:bg-indigo-100 transition"
@@ -1899,6 +1938,62 @@ export default function ChatPanel() {
                 <div className="bg-indigo-600 text-white rounded-2xl rounded-tr-sm px-4 py-3 max-w-[85%] shadow-sm">
                   <p className="text-sm leading-relaxed">{msg.content}</p>
                 </div>
+              </div>
+            );
+          }
+
+          // ── Model: settings preview (simple text, no card) ──
+          if (msg.sender === "model" && msg.type === "settings-preview") {
+            return (
+              <div key={msg.id} className="space-y-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                    <span className="text-white text-[10px] font-bold">AI</span>
+                  </div>
+                  <span className="text-xs text-gray-400">文心</span>
+                </div>
+                <div className="text-sm text-gray-700 leading-relaxed pl-8 whitespace-pre-wrap">
+                  {msg.prompt.split(/(\*\*[^*]+\*\*)/).map((part, i) =>
+                    part.startsWith("**") && part.endsWith("**")
+                      ? <strong key={i}>{part.slice(2, -2)}</strong>
+                      : part
+                  )}
+                </div>
+                {currentRound === 3 && (
+                  <div className="pl-8 mt-2.5 space-y-2">
+                    <div className="flex items-center gap-2.5">
+                      <button
+                        onClick={() => quickConfirm("方向不错，生成完整设定")}
+                        className="flex-1 px-4 py-2.5 bg-indigo-50 text-indigo-600 text-sm font-medium rounded-xl border border-indigo-100 hover:bg-indigo-100 transition"
+                      >
+                        确认方向，生成设定
+                      </button>
+                      <button
+                        onClick={() => {
+                          const thinkingId = `thinking-regen-preview`;
+                          setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+                          setTimeout(() => {
+                            const summary = getSettingsSummary();
+                            setMessages((prev) => [
+                              ...prev.filter((m) => m.id !== thinkingId),
+                              {
+                                id: `model-settings-preview-${Date.now()}`,
+                                sender: "model" as const,
+                                type: "settings-preview" as const,
+                                prompt: "已重新构思一个方向：" + summary + "\n\n觉得这个方向怎么样？",
+                              },
+                            ]);
+                          }, 2000);
+                        }}
+                        className="px-4 py-2.5 text-gray-500 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
+                      >
+                        <RefreshCw className="w-3.5 h-3.5 inline mr-1" />
+                        换一换
+                      </button>
+                    </div>
+                    <p className="text-[11px] text-gray-400">{"想调整？直接告诉我，比如\"题材换成科幻\"、\"加入悬疑元素\""}</p>
+                  </div>
+                )}
               </div>
             );
           }
