@@ -432,8 +432,8 @@ export default function RichTextEditor() {
     };
     const settingsTitle = settingsTitleMap[scene] || "创作设定";
     const settingsSubtitle = scene === "marketing" || scene === "knowledge"
-      ? "可直接编辑修改，也可在对话中调整"
-      : "可直接编辑修改，也可在对话中修改";
+      ? "如需修改，请在右侧对话中告诉我"
+      : "如需修改，请在右侧对话中告诉我";
 
     // ── Worldbuilding data per scene ──
     const worldbuildingData: Record<string, {
@@ -761,13 +761,13 @@ export default function RichTextEditor() {
             />
           )}
 
-          <div className="max-w-2xl mx-auto space-y-8" contentEditable suppressContentEditableWarning style={{ outline: "none" }}>
+          <div className="max-w-2xl mx-auto space-y-8" style={{ outline: "none" }}>
             {/* ── 各阶段内容展示 ── */}
             {showOutline ? (
               <>
                 <div>
                   <h2 className="text-lg font-bold text-gray-900 mb-1">{ol.title}</h2>
-                  <p className="text-xs text-gray-400">可直接编辑修改，也可在对话中修改</p>
+                  <p className="text-xs text-gray-400">如需修改，请在右侧对话中告诉我</p>
                 </div>
 
                 {/* 结构信息 */}
@@ -794,7 +794,7 @@ export default function RichTextEditor() {
               <>
                 <div>
                   <h2 className="text-lg font-bold text-gray-900 mb-1">{chars.title}</h2>
-                  <p className="text-xs text-gray-400">可直接编辑修改，也可在对话中修改</p>
+                  <p className="text-xs text-gray-400">如需修改，请在右侧对话中告诉我</p>
                 </div>
 
                 {/* Lead A */}
@@ -867,7 +867,7 @@ export default function RichTextEditor() {
               <>
                 <div>
                   <h2 className="text-lg font-bold text-gray-900 mb-1">{wb.title}</h2>
-                  <p className="text-xs text-gray-400">可直接编辑修改，也可在对话中修改</p>
+                  <p className="text-xs text-gray-400">如需修改，请在右侧对话中告诉我</p>
                 </div>
 
                 {/* 故事世界 + 时间线 */}

@@ -480,7 +480,6 @@ type Message =
   | { id: string; sender: "model"; type: "thinking" }
   | { id: string; sender: "model"; type: "text"; content: string }
   | { id: string; sender: "model"; type: "settings-card"; prompt: string; settings: Record<string, { label: string; value: string }[]> }
-  | { id: string; sender: "model"; type: "settings-preview"; prompt: string }
   | { id: string; sender: "model"; type: "worldbuilding-card"; prompt: string; data: WorldbuildingData }
   | { id: string; sender: "model"; type: "character-card"; prompt: string; data: CharacterCardData }
   | { id: string; sender: "model"; type: "outline-card"; prompt: string; data: OutlineCardData }
@@ -1103,26 +1102,14 @@ export default function ChatPanel() {
     const isConfirmIntent = /确认|继续完善|方向不错|没问题|生成设定|开始写|开始生成|开始探索/.test(text);
 
     // Modification request (not a confirm)
-    if (!isConfirmIntent && (currentRound === 3 || currentRound === 4 || currentRound === 8 || currentRound === 12 || currentRound === 13)) {
+    if (!isConfirmIntent && (currentRound === 4 || currentRound === 8 || currentRound === 12 || currentRound === 13)) {
       const thinkingId = `thinking-modify-${Date.now()}`;
       setTimeout(() => {
         setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
       }, 300);
 
       setTimeout(() => {
-        if (currentRound === 3) {
-          // Re-generate text preview
-          const summary = getSettingsSummary();
-          setMessages((prev) => [
-            ...prev.filter((m) => m.id !== thinkingId),
-            {
-              id: `model-settings-preview-${Date.now()}`,
-              sender: "model" as const,
-              type: "settings-preview" as const,
-              prompt: "好的，已根据你的要求调整了方向：" + summary + "\n\n觉得方向可以的话，我来生成完整的创作设定；想继续调整也可以直接告诉我。",
-            },
-          ]);
-        } else if (currentRound === 4) {
+        if (currentRound === 4) {
           setMessages((prev) => [
             ...prev.filter((m) => m.id !== thinkingId),
             {
@@ -1168,31 +1155,6 @@ export default function ChatPanel() {
           ]);
         }
       }, 2000);
-      return;
-    }
-
-    // If at settings-preview stage, user confirmed → start inspiration round 1
-    if (currentRound === 3) {
-      const thinkingId = `thinking-insp-r1`;
-      setTimeout(() => {
-        setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
-      }, 300);
-
-      setTimeout(() => {
-        const r1 = dataRef.current.sceneInspirationRounds[0];
-        setMessages((prev) => [
-          ...prev.filter((m) => m.id !== thinkingId),
-          {
-            id: "model-r1",
-            sender: "model",
-            type: "inspiration",
-            prompt: r1.prompt,
-            cards: r1.cards,
-            round: 1,
-          },
-        ]);
-        setCurrentRound(1);
-      }, 1500);
       return;
     }
 
@@ -1459,21 +1421,22 @@ export default function ChatPanel() {
       }, 300);
 
       setTimeout(() => {
-        const summary = getSettingsSummary();
         setMessages((prev) => [
           ...prev.filter((m) => m.id !== thinkingId),
           {
-            id: "model-settings-preview",
+            id: "model-settings",
             sender: "model",
-            type: "settings-preview",
+            type: "settings-card",
             prompt: dataRef.current.isMarketing
-              ? "根据你的描述，我整理了一版视频策略方向：" + summary + "\n\n确认后我们会通过几轮灵感探索帮你完善细节，然后生成完整的策略Brief → 故事线 → 角色 → 分镜大纲。\n每一步你都可以跳过直接生成。"
+              ? "根据你的描述，我帮你生成了一版视频策略Brief。" + getSettingsSummary() + "\n\n看看感觉怎么样？你可以告诉我想调整哪里，也可以直接确认进入下一步。"
               : dataRef.current.isKnowledge
-              ? "根据你的描述，我整理了一版分析方向：" + summary + "\n\n确认后我们会通过几轮灵感探索帮你完善细节，然后生成完整的分析配置 → 知识体系 → 关键概念 → 分析大纲。\n每一步你都可以跳过直接生成。"
-              : "根据你的描述，我整理了一版创作方向：" + summary + "\n\n确认后我们会通过几轮灵感探索帮你完善细节，然后生成完整的创作设定 → 世界观 → 角色 → 大纲 → 正文。\n每一步你都可以跳过直接生成。",
+              ? "根据你的描述，我帮你生成了一版分析配置。" + getSettingsSummary() + "\n\n看看感觉怎么样？你可以告诉我想调整哪里，也可以直接确认进入下一步。"
+              : "根据你的描述，我帮你生成了一版创作设定。" + getSettingsSummary() + "\n\n看看感觉怎么样？你可以告诉我想调整哪里，也可以直接确认进入下一步。",
+            settings: dataRef.current.sceneSettingsCard,
           },
         ]);
-        setCurrentRound(3);
+        setCurrentRound(4);
+        setCreationStage(1);
       }, 2500);
     }
   }, [input, awaitingAdjust, adjustRound, currentRound, flowMode, writingChapter, novelChapters, novelLength, setCreationStage, setStageProgress, setAutoTitle, proceedToNextRound, initNovelChapters, generateChapter, getSettingsSummary]);
@@ -1877,21 +1840,22 @@ export default function ChatPanel() {
                         const thinkingId = `thinking-direct-settings`;
                         setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
                         setTimeout(() => {
-                          const summary = getSettingsSummary();
                           setMessages((prev) => [
                             ...prev.filter((m) => m.id !== thinkingId),
                             {
-                              id: "model-settings-preview",
+                              id: "model-settings",
                               sender: "model",
-                              type: "settings-preview",
+                              type: "settings-card",
                               prompt: dataRef.current.isMarketing
-                                ? "我帮你生成了一版视频策略方向：" + summary + "\n\n确认后我们会通过几轮灵感探索帮你完善细节，然后生成完整的策略Brief → 故事线 → 角色 → 分镜大纲。\n每一步你都可以跳过直接生成。"
+                                ? "我帮你生成了一版视频策略Brief，看看感觉怎么样？" + getSettingsSummary() + "\n\n你可以告诉我想调整哪里，也可以直接确认进入下一步。"
                                 : dataRef.current.isKnowledge
-                                ? "我帮你生成了一版分析方向：" + summary + "\n\n确认后我们会通过几轮灵感探索帮你完善细节，然后生成完整的分析配置 → 知识体系 → 关键概念 → 分析大纲。\n每一步你都可以跳过直接生成。"
-                                : "我帮你生成了一版创作方向：" + summary + "\n\n确认后我们会通过几轮灵感探索帮你完善细节，然后生成完整的创作设定 → 世界观 → 角色 → 大纲 → 正文。\n每一步你都可以跳过直接生成。",
+                                ? "我帮你生成了一版分析配置，看看感觉怎么样？" + getSettingsSummary() + "\n\n你可以告诉我想调整哪里，也可以直接确认进入下一步。"
+                                : "我帮你生成了一版创作设定，看看感觉怎么样？" + getSettingsSummary() + "\n\n你可以告诉我想调整哪里，也可以直接确认进入下一步。",
+                              settings: dataRef.current.sceneSettingsCard,
                             },
                           ]);
-                          setCurrentRound(3);
+                          setCurrentRound(4);
+                          setCreationStage(1);
                         }, 2500);
                       }}
                       className="px-4 py-2.5 bg-indigo-50 text-indigo-600 text-sm font-medium rounded-xl border border-indigo-100 hover:bg-indigo-100 transition"
@@ -1937,90 +1901,6 @@ export default function ChatPanel() {
                 <div className="bg-indigo-600 text-white rounded-2xl rounded-tr-sm px-4 py-3 max-w-[85%] shadow-sm">
                   <p className="text-sm leading-relaxed">{msg.content}</p>
                 </div>
-              </div>
-            );
-          }
-
-          // ── Model: settings preview (simple text, no card) ──
-          if (msg.sender === "model" && msg.type === "settings-preview") {
-            return (
-              <div key={msg.id} className="space-y-3">
-                <div className="flex items-center gap-2 mb-1">
-                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
-                    <span className="text-white text-[10px] font-bold">AI</span>
-                  </div>
-                  <span className="text-xs text-gray-400">文心</span>
-                </div>
-                <div className="text-sm text-gray-700 leading-relaxed pl-8 whitespace-pre-wrap">
-                  {msg.prompt.split(/(\*\*[^*]+\*\*)/).map((part, i) =>
-                    part.startsWith("**") && part.endsWith("**")
-                      ? <strong key={i}>{part.slice(2, -2)}</strong>
-                      : part
-                  )}
-                </div>
-                {currentRound === 3 && (
-                  <div className="pl-8 mt-2.5 space-y-2">
-                    <div className="flex items-center gap-2.5">
-                      <button
-                        onClick={() => quickConfirm("方向不错，开始灵感探索")}
-                        className="flex-1 px-4 py-2.5 bg-indigo-50 text-indigo-600 text-sm font-medium rounded-xl border border-indigo-100 hover:bg-indigo-100 transition"
-                      >
-                        确认方向，开始探索
-                      </button>
-                      <button
-                        onClick={() => {
-                          const thinkingId = `thinking-regen-preview`;
-                          setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
-                          setTimeout(() => {
-                            const summary = getSettingsSummary();
-                            setMessages((prev) => [
-                              ...prev.filter((m) => m.id !== thinkingId),
-                              {
-                                id: `model-settings-preview-${Date.now()}`,
-                                sender: "model" as const,
-                                type: "settings-preview" as const,
-                                prompt: "已重新构思一个方向：" + summary + "\n\n觉得这个方向怎么样？",
-                              },
-                            ]);
-                          }, 2000);
-                        }}
-                        className="px-4 py-2.5 text-gray-500 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
-                      >
-                        <RefreshCw className="w-3.5 h-3.5 inline mr-1" />
-                        换一换
-                      </button>
-                    </div>
-                    <button
-                      onClick={() => {
-                        setFlowMode("inspiration");
-                        const thinkingId = `thinking-skip-to-settings`;
-                        setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
-                        setTimeout(() => {
-                          setMessages((prev) => [
-                            ...prev.filter((m) => m.id !== thinkingId),
-                            {
-                              id: "model-settings",
-                              sender: "model",
-                              type: "settings-card",
-                              prompt: dataRef.current.isMarketing
-                                ? "已为你直接生成完整的视频策略Brief。看看感觉怎么样？你可以告诉我想调整哪里，也可以直接确认进入下一步。"
-                                : dataRef.current.isKnowledge
-                                ? "已为你直接生成完整的分析配置。看看感觉怎么样？你可以告诉我想调整哪里，也可以直接确认进入下一步。"
-                                : "已为你直接生成完整的创作设定。看看感觉怎么样？你可以告诉我想调整哪里，也可以直接确认进入下一步。",
-                              settings: dataRef.current.sceneSettingsCard,
-                            },
-                          ]);
-                          setCurrentRound(4);
-                          setCreationStage(1);
-                        }, 2500);
-                      }}
-                      className="w-full text-center px-3 py-2 text-xs text-gray-400 hover:text-indigo-500 transition"
-                    >
-                      跳过灵感探索，直接生成设定 →
-                    </button>
-                    <p className="text-[11px] text-gray-400">{"想调整？直接告诉我，比如\"题材换成科幻\"、\"加入悬疑元素\""}</p>
-                  </div>
-                )}
               </div>
             );
           }
@@ -2079,10 +1959,10 @@ export default function ChatPanel() {
                     <div className="mt-2.5 space-y-2">
                       <div className="flex items-center gap-2.5">
                         <button
-                          onClick={() => quickConfirm("确认设定，继续完善")}
+                          onClick={() => quickConfirm("确认设定，进入下一步")}
                           className="flex-1 px-4 py-2.5 bg-indigo-50 text-indigo-600 text-sm font-medium rounded-xl border border-indigo-100 hover:bg-indigo-100 transition"
                         >
-                          继续完善
+                          确认设定，下一步
                         </button>
                         <button
                           onClick={() => {
@@ -2107,6 +1987,32 @@ export default function ChatPanel() {
                           换一换
                         </button>
                       </div>
+                      <button
+                        onClick={() => {
+                          // Enter inspiration round 1 to refine settings
+                          const thinkingId = `thinking-refine-insp`;
+                          setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+                          setTimeout(() => {
+                            const r1 = dataRef.current.sceneInspirationRounds[0];
+                            setMessages((prev) => [
+                              ...prev.filter((m) => m.id !== thinkingId),
+                              {
+                                id: "model-r1",
+                                sender: "model",
+                                type: "inspiration",
+                                prompt: "好的，让我们通过几个选择来完善设定细节吧！" + r1.prompt,
+                                cards: r1.cards,
+                                round: 1,
+                              },
+                            ]);
+                            setCurrentRound(1);
+                            setFlowMode("inspiration");
+                          }, 1500);
+                        }}
+                        className="w-full text-center px-3 py-2 text-xs text-gray-400 hover:text-indigo-500 transition"
+                      >
+                        想继续完善？通过灵感探索细化方向 →
+                      </button>
                       <p className="text-[11px] text-gray-400">{"想调整？直接告诉我哪里不满意，比如\"题材换成科幻\"、\"女主改成医生\""}</p>
                     </div>
                   )}

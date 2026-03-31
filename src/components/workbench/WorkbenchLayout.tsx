@@ -10,7 +10,6 @@ import SimpleLeftPanel from "./left/SimpleLeftPanel";
 import ScreenplayLeftPanel from "./left/ScreenplayLeftPanel";
 import RichTextEditor from "./editor/RichTextEditor";
 import ChatPanel from "./chat/ChatPanel";
-import CreationProgress from "./CreationProgress";
 import { cn } from "@/lib/utils";
 
 export default function WorkbenchLayout() {
@@ -74,13 +73,8 @@ export default function WorkbenchLayout() {
           </div>
         </div>
 
-        <div className="flex-1 flex overflow-hidden">
-          <div className="w-10 flex-shrink-0">
-            <CreationProgress />
-          </div>
-          <div className="flex-1 flex flex-col overflow-hidden">
-            <ChatPanel />
-          </div>
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <ChatPanel />
         </div>
 
         {toast && (
