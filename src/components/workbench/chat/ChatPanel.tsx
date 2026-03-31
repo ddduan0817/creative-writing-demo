@@ -571,7 +571,6 @@ export default function ChatPanel() {
     return "你好！欢迎来到小说创作工作台 ✨\n\n描述一下你想写的故事——一句话、一个画面、甚至几个关键词就够了。\n我会帮你快速生成一版创作设定，然后我们一起调整打磨。\n\n没有想法也没关系，点击下方按钮我来帮你构思一个。";
   }, [isScreenplay, isMarketing, isKnowledge]);
 
-  // Refs to keep scene data accessible in callbacks without stale closures
   const dataRef = useRef({
     sceneInspirationRounds, sceneSettingsCard, sceneWorldbuildingRounds, sceneWorldbuilding,
     sceneCharacterRounds, sceneCharacterCard, sceneOutlineCard, sceneChapterTexts, sceneTitle, sceneWelcome,
@@ -584,6 +583,30 @@ export default function ChatPanel() {
       isMarketing, isKnowledge, isScreenplay,
     };
   });
+
+  // Generate a brief summary from settings data for the prompt
+  const getSettingsSummary = useCallback(() => {
+    const s = dataRef.current.sceneSettingsCard;
+    if (dataRef.current.isMarketing) {
+      const concept = s["产品信息"] || s["视频策略"];
+      const core = concept?.[0]?.value || "";
+      return core ? `\n\n产品定位：${core}` : "";
+    }
+    if (dataRef.current.isKnowledge) {
+      const concept = s["书籍信息"] || s["分析配置"];
+      const core = concept?.[0]?.value || "";
+      return core ? `\n\n分析对象：${core}` : "";
+    }
+    // Novel / Screenplay
+    const concept = s["故事概念"];
+    const elements = s["写作要素"];
+    const coreSetting = concept?.[0]?.value || "";
+    const genre = elements?.find((e: { label: string; value: string }) => e.label === "题材")?.value || "";
+    const style = elements?.find((e: { label: string; value: string }) => e.label === "风格调性")?.value || "";
+    const ending = elements?.find((e: { label: string; value: string }) => e.label === "结局")?.value || "";
+    const parts = [genre, style, ending].filter(Boolean).join(" · ");
+    return parts || coreSetting ? `\n\n${parts}\n${coreSetting}` : "";
+  }, []);
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [selections, setSelections] = useState<Record<number, number>>({}); // round → selected card index
@@ -1403,10 +1426,10 @@ export default function ChatPanel() {
             sender: "model",
             type: "settings-card",
             prompt: dataRef.current.isMarketing
-              ? "根据你的描述，我帮你生成了一版视频策略Brief。看看感觉怎么样？你可以告诉我想调整哪里，也可以直接确认进入下一步。"
+              ? "根据你的描述，我帮你生成了一版视频策略Brief。" + getSettingsSummary() + "\n\n看看感觉怎么样？你可以告诉我想调整哪里，也可以直接确认进入下一步。"
               : dataRef.current.isKnowledge
-              ? "根据你的描述，我帮你生成了一版分析配置。看看感觉怎么样？你可以告诉我想调整哪里，也可以直接确认进入下一步。"
-              : "根据你的描述，我帮你生成了一版创作设定。看看感觉怎么样？\n你可以告诉我想调整哪里，也可以直接确认进入下一步。",
+              ? "根据你的描述，我帮你生成了一版分析配置。" + getSettingsSummary() + "\n\n看看感觉怎么样？你可以告诉我想调整哪里，也可以直接确认进入下一步。"
+              : "根据你的描述，我帮你生成了一版创作设定。" + getSettingsSummary() + "\n\n看看感觉怎么样？你可以告诉我想调整哪里，也可以直接确认进入下一步。",
             settings: dataRef.current.sceneSettingsCard,
           },
         ]);
@@ -1414,7 +1437,7 @@ export default function ChatPanel() {
         setCreationStage(1);
       }, 2500);
     }
-  }, [input, awaitingAdjust, adjustRound, currentRound, flowMode, writingChapter, novelChapters, novelLength, setCreationStage, setStageProgress, setAutoTitle, proceedToNextRound, initNovelChapters, generateChapter]);
+  }, [input, awaitingAdjust, adjustRound, currentRound, flowMode, writingChapter, novelChapters, novelLength, setCreationStage, setStageProgress, setAutoTitle, proceedToNextRound, initNovelChapters, generateChapter, getSettingsSummary]);
 
   // Quick confirm: set input text then trigger send on next render
   const pendingSend = useRef(false);
@@ -1822,10 +1845,10 @@ export default function ChatPanel() {
                               sender: "model",
                               type: "settings-card",
                               prompt: dataRef.current.isMarketing
-                                ? "我帮你生成了一版视频策略Brief，看看感觉怎么样？你可以告诉我想调整哪里，也可以直接确认进入下一步。"
+                                ? "我帮你生成了一版视频策略Brief。" + getSettingsSummary() + "\n\n看看感觉怎么样？你可以告诉我想调整哪里，也可以直接确认进入下一步。"
                                 : dataRef.current.isKnowledge
-                                ? "我帮你生成了一版分析配置，看看感觉怎么样？你可以告诉我想调整哪里，也可以直接确认进入下一步。"
-                                : "我帮你生成了一版创作设定，看看感觉怎么样？\n你可以告诉我想调整哪里，也可以直接确认进入下一步。",
+                                ? "我帮你生成了一版分析配置。" + getSettingsSummary() + "\n\n看看感觉怎么样？你可以告诉我想调整哪里，也可以直接确认进入下一步。"
+                                : "我帮你生成了一版创作设定。" + getSettingsSummary() + "\n\n看看感觉怎么样？你可以告诉我想调整哪里，也可以直接确认进入下一步。",
                               settings: dataRef.current.sceneSettingsCard,
                             },
                           ]);
