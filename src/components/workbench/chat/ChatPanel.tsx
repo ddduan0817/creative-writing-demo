@@ -594,6 +594,7 @@ export default function ChatPanel() {
   const [favKeywords, setFavKeywords] = useState<Set<string>>(new Set());
   const [writingChapter, setWritingChapter] = useState(-1); // -1 = not writing, 0+ = generating chapter index
   const [screenplaySubtype, setScreenplaySubtype] = useState<"short_drama" | "comic_drama" | null>(null);
+  const [novelLength, setNovelLength] = useState<"short" | "medium" | "long" | null>(null); // 短篇/中篇/长篇
   const [input, setInput] = useState("");
   const [showAttachMenu, setShowAttachMenu] = useState(false);
   const attachRef = useRef<HTMLDivElement>(null);
@@ -666,6 +667,16 @@ export default function ChatPanel() {
             prompt: "你好！欢迎来到剧本创作工作台。你想创作哪种类型？",
           },
         ]);
+      } else if (scene === "novel") {
+        // Novel: show length selection first
+        setMessages([
+          {
+            id: "model-length",
+            sender: "model",
+            type: "length-select",
+            prompt: "你好！欢迎来到小说创作工作台 ✨\n\n在开始之前，先选一下你想写的篇幅：",
+          },
+        ]);
       } else {
         setMessages([
           {
@@ -723,6 +734,40 @@ export default function ChatPanel() {
           prompt: subtype === "short_drama"
             ? "好的，我们来创作一部短剧！\n\n你可以让我帮你找灵感，也可以直接描述你的剧本构思——一段梗概、一个场景、甚至一句「我想写一部关于__的短剧」都可以，我们一起把它变成完整的剧本。"
             : "好的，我们来创作一部漫剧！\n\n你可以让我帮你找灵感，也可以直接描述你的剧本构思——一段梗概、一个画面、甚至一句「我想做一部关于__的漫剧」都可以，我们一起把它变成完整的分镜剧本。",
+        },
+      ]);
+    }, 1500);
+  }, []);
+
+  // Handle novel length selection
+  const handleLengthSelect = useCallback((length: "short" | "medium" | "long") => {
+    setNovelLength(length);
+    const labels: Record<string, string> = { short: "短篇", medium: "中篇", long: "长篇" };
+
+    setMessages((prev) => [
+      ...prev,
+      { id: `user-length`, sender: "user", type: "card-selection", content: `我想写${labels[length]}` },
+    ]);
+
+    const thinkingId = `thinking-welcome-after-length`;
+    setTimeout(() => {
+      setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+    }, 300);
+
+    const welcomeText = length === "short"
+      ? "好的，短篇小说！\n\n描述一下你想写的故事——一句话、一个画面、甚至几个关键词就够了。\n我会帮你快速生成一版创作设定，然后我们一起调整打磨。\n\n没有想法也没关系，点击下方按钮我来帮你构思一个。"
+      : length === "medium"
+      ? "好的，中篇小说！\n\n描述一下你想写的故事——一句话、一个画面、甚至几个关键词就够了。\n我会帮你快速生成一版创作设定，然后我们一起调整打磨。\n\n没有想法也没关系，点击下方按钮我来帮你构思一个。"
+      : "好的，长篇小说！\n\n描述一下你想写的故事——一句话、一个画面、甚至几个关键词就够了。\n我会帮你快速生成一版创作设定，然后我们一起调整打磨。\n\n没有想法也没关系，点击下方按钮我来帮你构思一个。";
+
+    setTimeout(() => {
+      setMessages((prev) => [
+        ...prev.filter((m) => m.id !== thinkingId),
+        {
+          id: "model-welcome",
+          sender: "model",
+          type: "welcome",
+          prompt: welcomeText,
         },
       ]);
     }, 1500);
@@ -974,6 +1019,8 @@ export default function ChatPanel() {
               type: "text" as const,
               content: chapterIndex < dataRef.current.sceneOutlineCard.chapters.length - 1
                 ? `**${chTitle}** 生成完毕！你可以在编辑区查看和修改。\n\n满意后说「继续」，我就开始写下一章。`
+                : dataRef.current.sceneOutlineCard.chapters.length === 1
+                ? `全文生成完毕！你可以在编辑区查看和自由编辑。\n\n有什么想修改的直接告诉我。`
                 : `**${chTitle}** 生成完毕！这是最后一章。\n\n全部章节已完成，你可以自由编辑任何章节。`,
             },
           ]);
@@ -1187,8 +1234,36 @@ export default function ChatPanel() {
       return;
     }
 
-    // If at character confirm stage, user confirmed → auto-generate outline
+    // If at character confirm stage, user confirmed
     if (currentRound === 12) {
+      // Short story: skip outline, directly generate full text
+      if (novelLength === "short") {
+        const thinkingId = `thinking-short-write`;
+        setTimeout(() => {
+          setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+        }, 300);
+
+        setTimeout(() => {
+          // Init as single "chapter"
+          initNovelChapters(["全文"]);
+          setMessages((prev) => [
+            ...prev.filter((m) => m.id !== thinkingId),
+            {
+              id: "model-write-start",
+              sender: "model",
+              type: "text",
+              content: "角色档案完成！短篇不需要大纲，直接开始写正文。\n\n正在为你生成全文...",
+            },
+          ]);
+          setCurrentRound(14);
+          setCreationStage(5);
+          setWritingChapter(0);
+          generateChapter(0);
+        }, 2000);
+        return;
+      }
+
+      // Medium/Long: auto-generate outline
       const thinkingId = `thinking-outline-intro`;
       setTimeout(() => {
         setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
@@ -1339,7 +1414,7 @@ export default function ChatPanel() {
         setCreationStage(1);
       }, 2500);
     }
-  }, [input, awaitingAdjust, adjustRound, currentRound, flowMode, writingChapter, novelChapters, setCreationStage, setStageProgress, setAutoTitle, proceedToNextRound, initNovelChapters, generateChapter]);
+  }, [input, awaitingAdjust, adjustRound, currentRound, flowMode, writingChapter, novelChapters, novelLength, setCreationStage, setStageProgress, setAutoTitle, proceedToNextRound, initNovelChapters, generateChapter]);
 
   // Quick confirm: set input text then trigger send on next render
   const pendingSend = useRef(false);
@@ -1651,6 +1726,65 @@ export default function ChatPanel() {
                         <div>
                           <p className="text-sm font-medium text-gray-800 mb-1">{screenplaySubtype === "short_drama" ? "短剧" : "漫剧"}</p>
                           <p className="text-xs text-gray-500 leading-relaxed">{screenplaySubtype === "short_drama" ? "真人出镜短视频剧本，强节奏、强钩子，单集60-120秒" : "动态漫画 / AI绘图剧本，分镜驱动，画面感优先"}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          }
+
+          // ── Model: length selection (novel) ──
+          if (msg.sender === "model" && msg.type === "length-select") {
+            return (
+              <div key={msg.id} className="space-y-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                    <span className="text-white text-[10px] font-bold">AI</span>
+                  </div>
+                  <span className="text-xs text-gray-400">文心</span>
+                </div>
+                <div className="text-sm text-gray-700 leading-relaxed pl-8 whitespace-pre-wrap">{msg.prompt}</div>
+
+                {!novelLength && (
+                  <div className="pl-8 space-y-2">
+                    {([
+                      { key: "short" as const, label: "短篇", desc: "1-3万字，一气呵成，无需分章" },
+                      { key: "medium" as const, label: "中篇", desc: "3-10万字，完整起承转合" },
+                      { key: "long" as const, label: "长篇", desc: "10万字以上，多线叙事，章节丰富" },
+                    ]).map((opt, i) => (
+                      <button
+                        key={opt.key}
+                        onClick={() => handleLengthSelect(opt.key)}
+                        className="w-full text-left p-3.5 rounded-xl border-2 border-gray-100 bg-white hover:border-indigo-200 hover:shadow-sm cursor-pointer transition-all duration-200"
+                      >
+                        <div className="flex items-start gap-2.5">
+                          <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-medium shrink-0 mt-0.5 bg-gray-100 text-gray-400">{i + 1}</span>
+                          <div>
+                            <p className="text-sm font-medium text-gray-800 mb-0.5">{opt.label}</p>
+                            <p className="text-xs text-gray-500 leading-relaxed">{opt.desc}</p>
+                          </div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {novelLength && (
+                  <div className="pl-8 space-y-2">
+                    <div className="w-full text-left p-3.5 rounded-xl border-2 border-indigo-400 bg-indigo-50/80 shadow-sm">
+                      <div className="flex items-start gap-2.5">
+                        <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-medium shrink-0 mt-0.5 bg-indigo-500 text-white">
+                          {novelLength === "short" ? "1" : novelLength === "medium" ? "2" : "3"}
+                        </span>
+                        <div>
+                          <p className="text-sm font-medium text-gray-800 mb-0.5">
+                            {novelLength === "short" ? "短篇" : novelLength === "medium" ? "中篇" : "长篇"}
+                          </p>
+                          <p className="text-xs text-gray-500 leading-relaxed">
+                            {novelLength === "short" ? "1-3万字，一气呵成，无需分章" : novelLength === "medium" ? "3-10万字，完整起承转合" : "10万字以上，多线叙事，章节丰富"}
+                          </p>
                         </div>
                       </div>
                     </div>
