@@ -563,6 +563,135 @@ const mockChapterTexts: Record<number, string> = {
 消息在半小时内传遍了全镇。`,
 };
 
+const mockChapterTextsAlt: Record<number, string> = {
+  0: `十月末的潮音镇，风里已经有了凉意。
+
+沈鹿站在海堤尽头，看着面前这间空了不知道多久的老屋，心想自己大概是疯了。
+
+三个月前她还是上海那家米其林二星餐厅的甜点主厨，每天经手的食材价值抵得上普通人一个月工资。现在她站在一个连导航都找不到的渔港小镇，准备盘下一间漏雨的海边老屋，开一家甜品店。
+
+关键是——她尝不出任何味道。
+
+那场"意外"之后，她的味觉就像被人按下了静音键。甜、酸、苦、咸，全部消失了。对一个甜点师来说，这比断了手还残忍。
+
+"姑娘，你真要租这个？"房东陈嫂端着一碗鱼粥从隔壁码头走过来，脸上写满了难以置信，"这房子空了五年了，台风季漏得跟筛子似的。"
+
+"我要的。"沈鹿摸了摸口袋里那个玻璃小瓶，里面装着一撮灰白色的海盐，"多少钱？"
+
+"你先尝尝我这鱼粥再说。"陈嫂把碗塞到她手里，"在我们潮音镇，吃饱了才谈正事。"
+
+沈鹿接过碗，热气扑面而来。她闻不到香味，但身体记得那个动作——低头，吹一吹，小口喝。
+
+鱼粥入口的瞬间，什么都没有。温热的液体滑过舌头，像喝白开水。
+
+但她还是把整碗都喝完了。
+
+"好喝吗？"陈嫂眼巴巴地看着她。
+
+沈鹿笑了笑："谢谢陈嫂。"她没有回答好不好喝，因为她真的不知道。
+
+租下老屋的手续比想象中简单。房租一个月六百块，陈嫂还主动减了一百——"你把那个漏雨的地方修好，就算你帮我省了修缮费。"
+
+接下来两周，沈鹿一个人翻修了整间屋子。她把面朝大海的那面墙开了一扇大窗，窗台正好可以当出餐台。院子里那棵被海风吹歪的老松树，她在树下放了两把旧藤椅。
+
+店名她想了很久，最后写在一块漂流木上挂在门口——"一勺海"。
+
+陈嫂看了半天："一勺海？什么意思？"
+
+"小时候偷吃过一勺海盐焦糖，"沈鹿说，"那是我现在唯一还记得的味道。"
+
+那不是舌头上的记忆，是身体深处某个地方的记忆。焦糖的甜裹着海盐的咸，像一个温暖的拥抱里藏着一点点泪水。
+
+开张那天是个周六，十一月的第一个晴天。
+
+沈鹿在出餐台上摆了三样东西：海盐焦糖布丁、柠檬海盐磅蛋糕、热可可配手工棉花糖。
+
+整个上午，只有陈嫂来了。
+
+"怎么就我一个人？"陈嫂环顾四周，有点尴尬。
+
+"没关系，"沈鹿把布丁推到她面前，"你是第一位客人，这份请你。"
+
+陈嫂舀了一勺布丁放进嘴里。
+
+然后她愣住了。
+
+"这……"陈嫂的眼眶突然红了，"这个味道，怎么像小时候我奶奶做的那个……她用灶台熬焦糖，最后总要撒一点点海盐……"
+
+沈鹿看着陈嫂的表情，心里有一个地方轻轻动了一下。
+
+她做不出自己能尝到的甜品，但也许她能做出别人能想起来的味道。`,
+  1: `沈鹿第一次见到顾北洲，是在一个暴风雨的夜里。
+
+那天下午天色就不对，乌云压得极低，海面变成了铅灰色。陈嫂从码头跑过来，围裙都来不及解，脸色发白。
+
+"归潮号还没回来。"
+
+沈鹿不知道"归潮号"是什么，但她看见整个码头的人都出来了——老周叼着没点的烟站在堤坝上，几个渔嫂抱着孩子在避风亭里张望。连平时最懒的杂货店老刘都关了店门，拎着手电筒往码头跑。
+
+"归潮号是北洲的船，"陈嫂看她不明白，急急地解释，"顾北洲，全镇最年轻的讨海人。就他一个还在跑远洋，每次出海全镇都提心吊胆……"
+
+风越来越大，雨点开始砸下来，打在海面上像密集的鼓点。
+
+沈鹿站在甜品店的窗前，看着码头上那些在风雨中等待的人，突然觉得自己应该做点什么。
+
+她烧了一大锅热可可，又做了一批棉花糖，装在保温壶里提到了码头。
+
+"来，喝一口暖暖。"她给每个等待的人倒了一杯。
+
+老周接过杯子，看了她一眼："你是新来那个开甜品店的？"
+
+"嗯。"
+
+"做得不错。"老周喝了一口，望向漆黑的海面，"他会回来的，那小子命硬。"
+
+等到凌晨两点，所有人都快撑不住的时候，海面上终于出现了一点灯光。
+
+"回来了！归潮号回来了！"
+
+码头一下子炸开了。渔嫂们哭着往前跑，老周扔掉烟冲到缆绳旁边。沈鹿被人群裹挟着向前，看见一艘不大的渔船在风浪中摇晃着靠近。
+
+船头站着一个人。
+
+看不清长相，只能看见一个高瘦的轮廓，黝黑的皮肤上全是海水。他一手抓着缆绳，一手稳稳地操着舵，像是在和大海搏斗了一整夜之后终于赢了一局。
+
+船靠岸的那一刻，所有人都涌上去了。
+
+"北洲！你个臭小子！"陈嫂一巴掌拍在他肩上，眼泪啪嗒往下掉，"再不回来我明天就把你家房子改成鱼粥摊！"
+
+顾北洲被拍得往后退了一步。他没什么表情，只是沙哑地说了句："嫂子，鱼带回来了。"
+
+然后他的目光越过人群，落在沈鹿身上。
+
+准确地说，是落在她手里那个保温壶上。
+
+"那是什么？"
+
+"热可可。"沈鹿把最后一杯倒给他，"加了棉花糖。"
+
+顾北洲接过杯子，低头喝了一口。凌晨两点的码头上，所有人都在欢呼庆祝归航，只有他安静地站在角落里，喝着一杯加了棉花糖的热可可。
+
+喝完之后他把杯子还给她，说了句沈鹿没想到的话：
+
+"棉花糖放多了。应该再加一点点盐。"
+
+沈鹿愣住了。
+
+这是三个月以来，第一个对她的甜品提出具体口味意见的人。
+
+她追着问了一句："你怎么知道要加盐？"
+
+但顾北洲已经转身走了。他拎着一袋鱼，走到甜品店门口，把袋子放在台阶上。
+
+"今天的。"他头也没回。
+
+然后消失在凌晨的黑暗里。
+
+第二天早上，沈鹿打开店门，看见台阶上那袋鱼旁边多了一张纸条，字迹很潦草：
+
+"海盐焦糖加海虾粉，你试试。"`,
+};
+
 // ─── Mock: free-input guided flow ────────────────────────────
 
 // ─── Types ───────────────────────────────────────────────────
@@ -669,10 +798,17 @@ export default function ChatPanel() {
     isMarketing, isKnowledge, isScreenplay,
   });
   useEffect(() => {
+    // When novelVariantRef is 1 (alt) and scene is novel, use alt data for all stages
+    const isAlt = novelVariantRef.current === 1 && !isScreenplay && !isMarketing && !isKnowledge;
     dataRef.current = {
-      sceneInspirationRounds, sceneSettingsCard, sceneWorldbuildingRounds, sceneWorldbuilding,
-      sceneCharacterRounds, sceneCharacterCard, sceneOutlineCard, sceneChapterTexts, sceneTitle, sceneWelcome,
+      sceneInspirationRounds, sceneWorldbuildingRounds, sceneCharacterRounds, sceneWelcome,
       isMarketing, isKnowledge, isScreenplay,
+      sceneSettingsCard: isAlt ? mockSettingsAlt : sceneSettingsCard,
+      sceneWorldbuilding: isAlt ? mockWorldbuildingAlt : sceneWorldbuilding,
+      sceneCharacterCard: isAlt ? mockCharacterCardAlt : sceneCharacterCard,
+      sceneOutlineCard: isAlt ? mockOutlineCardAlt : sceneOutlineCard,
+      sceneChapterTexts: isAlt ? mockChapterTextsAlt : sceneChapterTexts,
+      sceneTitle: isAlt ? "一勺海" : sceneTitle,
     };
   });
 
@@ -721,10 +857,7 @@ export default function ChatPanel() {
   const attachRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const hasInit = useRef(false);
-  const settingsRegenRef = useRef(0);
-  const wbRegenRef = useRef(0);
-  const charRegenRef = useRef(0);
-  const outlineRegenRef = useRef(0);
+  const novelVariantRef = useRef(0); // 0 = original (清岚镇), 1 = alt (潮音镇)
 
   // Auto-scroll
   useEffect(() => {
@@ -2068,8 +2201,8 @@ export default function ChatPanel() {
                         </button>
                         <button
                           onClick={() => {
-                            settingsRegenRef.current += 1;
-                            const altData = settingsRegenRef.current % 2 === 1 ? mockSettingsAlt : mockSettings;
+                            novelVariantRef.current = novelVariantRef.current === 0 ? 1 : 0;
+                            const altData = novelVariantRef.current === 1 ? mockSettingsAlt : mockSettings;
                             const thinkingId = `thinking-regen-settings`;
                             setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
                             setTimeout(() => {
@@ -2183,8 +2316,8 @@ export default function ChatPanel() {
                         </button>
                         <button
                           onClick={() => {
-                            wbRegenRef.current += 1;
-                            const altData = wbRegenRef.current % 2 === 1 ? mockWorldbuildingAlt : mockWorldbuilding;
+                            novelVariantRef.current = novelVariantRef.current === 0 ? 1 : 0;
+                            const altData = novelVariantRef.current === 1 ? mockWorldbuildingAlt : mockWorldbuilding;
                             const thinkingId = `thinking-regen-wb`;
                             setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
                             setTimeout(() => {
@@ -2301,8 +2434,8 @@ export default function ChatPanel() {
                         </button>
                         <button
                           onClick={() => {
-                            charRegenRef.current += 1;
-                            const altData = charRegenRef.current % 2 === 1 ? mockCharacterCardAlt : mockCharacterCard;
+                            novelVariantRef.current = novelVariantRef.current === 0 ? 1 : 0;
+                            const altData = novelVariantRef.current === 1 ? mockCharacterCardAlt : mockCharacterCard;
                             const thinkingId = `thinking-regen-char`;
                             setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
                             setTimeout(() => {
@@ -2410,8 +2543,8 @@ export default function ChatPanel() {
                         </button>
                         <button
                           onClick={() => {
-                            outlineRegenRef.current += 1;
-                            const altData = outlineRegenRef.current % 2 === 1 ? mockOutlineCardAlt : mockOutlineCard;
+                            novelVariantRef.current = novelVariantRef.current === 0 ? 1 : 0;
+                            const altData = novelVariantRef.current === 1 ? mockOutlineCardAlt : mockOutlineCard;
                             const thinkingId = `thinking-regen-outline`;
                             setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
                             setTimeout(() => {
