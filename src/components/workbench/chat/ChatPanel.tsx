@@ -63,58 +63,58 @@ interface InspirationRound {
 
 const inspirationRounds: InspirationRound[] = [
   {
-    prompt: "你好！我来帮你构思一个精彩的故事。先看看这几个方向，哪个更打动你？",
+    prompt: "好的，让我们来细化这个故事的设定吧！首先，关于故事的**时空背景和题材方向**，你更偏好哪种？",
     cards: [
       {
-        text: "现代都市，当红影后在事业巅峰突然失忆，被迫隐居在南方小镇。没有聚光灯的日子里，她意外发现这里藏着她遗忘的童年和一段未完的缘分。",
-        keywords: ["都市", "失忆", "娱乐圈", "小镇", "治愈"],
+        text: "现代都市言情：大城市的高压生活为底色，娱乐圈/商战/职场为舞台。节奏明快，冲突激烈，适合写权谋博弈与感情纠葛并行的故事。",
+        keywords: ["都市", "娱乐圈", "职场", "快节奏"],
       },
       {
-        text: "架空古代，被退婚的废材郡主在绝境中觉醒前世记忆，发现自己曾是镇压妖族的大祭司。重活一世，她要用前世的知识改写命运、逆袭朝堂。",
-        keywords: ["古代", "重生", "逆袭", "宫斗", "玄幻"],
+        text: "现代小镇治愈：远离都市的慢节奏小镇生活，烟火气十足。适合写「逃离都市→重新发现自我→收获爱情」的治愈成长线。",
+        keywords: ["小镇", "治愈", "慢生活", "烟火气"],
       },
       {
-        text: "近未来末世，一场全球性的信号中断让文明倒退五十年。前AI工程师带着最后一台能运行的终端，在废墟中寻找重建网络的可能，却发现断网背后是一个更大的阴谋。",
-        keywords: ["末世", "科幻", "悬疑", "生存", "阴谋"],
+        text: "古代架空权谋：架空朝代，宫廷或江湖为背景。可以融入玄幻、重生等元素，适合大女主逆袭或家国情怀的宏大叙事。",
+        keywords: ["古代", "权谋", "逆袭", "架空"],
       },
     ],
-    adjustPrompt: "选得好！有没有想微调的？比如「想要更虐一点」「加入美食元素」之类的，随便说说就行～",
+    adjustPrompt: "想微调什么？比如「时间改到民国」「背景换成末世」之类的，或者直接跳过～",
   },
   {
-    prompt: "好方向！在这个基础上，你更偏好哪种风格走向？",
+    prompt: "方向不错！接下来看看**故事基调和风格**，你更喜欢哪种调性？",
     cards: [
       {
-        text: "甜宠日常：她在小镇开了一家面馆，和隔壁沉默寡言的中医馆馆主从互相看不顺眼到每天给对方留饭，小镇居民看在眼里急在心里。温暖治愈的慢节奏故事。",
-        keywords: ["甜宠", "美食", "慢热", "日常", "欢喜冤家"],
+        text: "甜宠治愈：日常向、慢热型，大量生活细节和温暖互动。「双向暗恋→误会→表白」的经典甜宠结构，结局HE，全程高甜。",
+        keywords: ["甜宠", "慢热", "日常", "HE"],
       },
       {
-        text: "悬疑暗线：小镇看似平静，但她的记忆碎片指向一个惊人的真相——她的失忆并非意外，身边最亲近的人可能就是幕后推手。每一章都有反转的烧脑叙事。",
-        keywords: ["悬疑", "烧脑", "反转", "暗黑", "真相"],
+        text: "悬疑暗线：明线感情暗线真相，每章都有伏笔和反转。烧脑叙事、双视角切换，适合「边谈恋爱边解谜」的阅读体验。",
+        keywords: ["悬疑", "反转", "伏笔", "烧脑"],
       },
       {
-        text: "爽文逆袭：她用娱乐圈摸爬滚打练出的手段，把小镇文艺汇演搞成了全网爆款，从此一路开挂重返巅峰。但这次她选择按自己的规则来，不再为资本低头。",
-        keywords: ["爽文", "逆袭", "打脸", "励志", "开挂"],
+        text: "虐恋情深：先虐后甜（或BE），强烈的情感冲击力。「错过→误会→牺牲→重逢」的情感过山车，虐点密集但逻辑自洽。",
+        keywords: ["虐恋", "先虐后甜", "情感冲击", "深情"],
       },
     ],
-    adjustPrompt: "如果想调整什么细节也可以说，比如「节奏再快一点」「想加入职场线」，或者直接跳过～",
+    adjustPrompt: "如果想调整风格也可以说，比如「再轻松一点」「加入爽文元素」，或者直接跳过～",
   },
   {
-    prompt: "快要成型了！最后确认一下故事的走向和结局：",
+    prompt: "最后确认一下**核心冲突和故事走向**：",
     cards: [
       {
-        text: "明线甜恋暗线揭秘，当她终于想起一切，要在复仇和眼前的幸福之间做选择。她选择放下执念，和他在小镇安定下来，用新的方式重新定义成功。温暖HE。",
-        keywords: ["HE", "双线叙事", "治愈", "放下"],
+        text: "身份秘密型：主角隐藏的身份（失忆/卧底/伪装）是核心驱动力。真相揭露时的冲击和随之而来的信任危机，推动故事高潮。",
+        keywords: ["秘密", "身份", "信任危机", "揭秘"],
       },
       {
-        text: "层层反转，每个角色都有不可告人的秘密，真相像洋葱一样一层层剥开。最后她看清了所有人的面目，独自踏上新的旅程。开放式结局，余韵悠长。",
-        keywords: ["开放式结局", "反转", "群像", "独立"],
+        text: "成长逆袭型：主角从低谷一步步崛起，靠实力打脸质疑者。核心冲突是「自我证明」，配合感情线形成双线并行的爽感。",
+        keywords: ["逆袭", "打脸", "成长", "爽文"],
       },
       {
-        text: "治愈成长线，从迷失到被小镇的人情味治愈，重新理解「成功」的意义。她带着全新的自己回归，在事业和生活之间找到了属于自己的平衡点。温暖HE。",
-        keywords: ["HE", "成长", "治愈", "回归", "平衡"],
+        text: "守护抉择型：主角在「爱情/事业/真相」之间做出艰难选择。核心冲突是价值观碰撞，结局取决于主角的成长和取舍。",
+        keywords: ["抉择", "守护", "价值观", "取舍"],
       },
     ],
-    adjustPrompt: "最后还有想补充的吗？比如「想要更甜」「结尾要有反转」，没有的话我就开始整理设定了～",
+    adjustPrompt: "最后还想补充什么？比如「加入复仇线」「结局要开放式」，没有的话我来更新设定～",
   },
 ];
 
@@ -148,50 +148,50 @@ const mockSettings: Record<string, { label: string; value: string }[]> = {
 
 const worldbuildingRounds: InspirationRound[] = [
   {
-    prompt: "设定确认！接下来我们构建故事发生的世界。你希望这个小镇是什么样的？",
+    prompt: "来完善世界观的细节吧！首先，**故事发生的主要场景**你更偏好哪种？",
     cards: [
       {
-        text: "南方水乡古镇：依山傍水、青石板路、白墙黑瓦、小桥流水。手机信号时有时无，年轻人外出谋生，留下的都是老人和几个不愿离开的「怪人」。慢节奏，烟火气十足。",
+        text: "南方水乡古镇：依山傍水、青石板路、白墙黑瓦。手机信号时有时无，留下的都是老人和几个不愿离开的「怪人」。慢节奏，烟火气十足。",
         keywords: ["水乡", "古镇", "烟火气", "慢生活"],
       },
       {
-        text: "山间避世小镇：四面环山的盆地小镇，常年云雾缭绕，只有一条公路通往外界。镇上有天然温泉、百年茶园和一座废弃的小学，像是被时间遗忘的地方。",
+        text: "山间避世小镇：四面环山的盆地小镇，常年云雾缭绕，只有一条公路通往外界。有天然温泉和百年茶园，像被时间遗忘的地方。",
         keywords: ["山间", "避世", "云雾", "温泉"],
       },
       {
-        text: "海边渔港小镇：东南沿海的老渔港，咸湿的海风、斑驳的灯塔、清晨出海的渔船。镇上有妈祖庙和一个年久失修的小码头，旺季会有零星的游客。",
+        text: "海边渔港小镇：东南沿海的老渔港，咸湿的海风、斑驳的灯塔、清晨出海的渔船。旺季会有零星的游客，淡季只剩自家人。",
         keywords: ["海边", "渔港", "灯塔", "海风"],
       },
     ],
     adjustPrompt: "想微调什么？比如「加个竹林」「镇上要有集市」之类的，或者跳过继续～",
   },
   {
-    prompt: "很有画面感！小镇的核心场景你更喜欢哪种组合？",
+    prompt: "很有画面感！**核心活动场所**你更喜欢哪种组合？",
     cards: [
       {
         text: "烟火美食线：女主的面馆「一碗春」+ 男主的中医馆「济世堂」+ 镇中心的百年古戏台。面香和药香隔墙混在一起，古戏台是全镇社交中心。",
         keywords: ["面馆", "中医馆", "古戏台", "邻里"],
       },
       {
-        text: "文艺慢生活：女主的旧书咖啡馆 + 男主的陶艺工作室 + 镇尾的老电影院（只在周末放映）。文艺气息浓厚，日常细节丰富，适合慢热叙事。",
+        text: "文艺慢生活：女主的旧书咖啡馆 + 男主的陶艺工作室 + 镇尾的老电影院。文艺气息浓厚，日常细节丰富，适合慢热叙事。",
         keywords: ["书店", "陶艺", "电影院", "文艺"],
       },
       {
-        text: "自然治愈线：女主的山脚花店 + 男主的竹林茶舍 + 湖边的废弃小木屋。大量自然描写，四季轮转推动情节发展和情感变化。",
+        text: "自然治愈线：女主的山脚花店 + 男主的竹林茶舍 + 湖边的废弃小木屋。大量自然描写，四季轮转推动情节发展。",
         keywords: ["花店", "竹林", "湖边", "四季"],
       },
     ],
     adjustPrompt: "场景还想加什么？比如「后山要有个秘密基地」「再加一个赶集场景」，没有就跳过～",
   },
   {
-    prompt: "最后确认一下小镇的人文氛围和暗线方向：",
+    prompt: "最后确认一下**小镇的人文氛围和暗线方向**：",
     cards: [
       {
         text: "温暖人情味：热心的王婶当非官方媒人、每周日赶集全镇出动、「三巨头」聊天团八卦一切。暗线是女主童年曾在此生活，有人认出她但选择守护她的平静。",
         keywords: ["人情味", "赶集", "八卦", "守护"],
       },
       {
-        text: "表面平静暗流涌动：镇上每个人都有不为人知的过去，老一辈之间有未解的恩怨。失忆真相与十五年前一场事故有关，线索散落在小镇各个角落。",
+        text: "表面平静暗流涌动：镇上每个人都有不为人知的过去，老一辈之间有未解的恩怨。失忆真相与十五年前一场事故有关，线索散落各处。",
         keywords: ["秘密", "恩怨", "事故", "线索"],
       },
       {
@@ -199,7 +199,7 @@ const worldbuildingRounds: InspirationRound[] = [
         keywords: ["桃源", "打破", "碰撞", "高潮"],
       },
     ],
-    adjustPrompt: "最后还想补充什么？比如「隐藏线索再多一条」「氛围再温暖一点」，没有的话我开始整理世界观了～",
+    adjustPrompt: "还想补充什么？比如「隐藏线索再多一条」「氛围再温暖一点」，没有的话我来更新世界观～",
   },
 ];
 
@@ -246,14 +246,14 @@ const mockWorldbuilding: WorldbuildingData = {
 
 const characterRounds: InspirationRound[] = [
   {
-    prompt: "世界观搭建完毕！接下来创建角色。先看看女主角的性格方向：",
+    prompt: "来完善角色的细节吧！首先，**女主角的性格倾向**你更偏好哪种？",
     cards: [
       {
-        text: "外柔内刚型：表面温柔随和，实则内心坚韧。失忆前在娱乐圈养成了察言观色的本能，失忆后反而展现出天然的亲和力。做面时专注认真，不服输，面馆被她经营得有声有色。",
+        text: "外柔内刚型：表面温柔随和，实则内心坚韧。失忆前在娱乐圈养成了察言观色的本能，失忆后反而展现出天然的亲和力。做面时专注认真，面馆被她经营得有声有色。",
         keywords: ["温柔", "坚韧", "亲和力", "不服输"],
       },
       {
-        text: "毒舌傲娇型：嘴硬心软，失忆后依然保留了当影后时的犀利和高标准。面馆经营得一丝不苟，对男主嘴上不饶人，行动却很诚实。生气时会多做一碗面摔在桌上。",
+        text: "毒舌傲娇型：嘴硬心软，失忆后依然保留了犀利和高标准。面馆经营得一丝不苟，对男主嘴上不饶人，行动却很诚实。生气时会多做一碗面摔在桌上。",
         keywords: ["毒舌", "傲娇", "犀利", "嘴硬心软"],
       },
       {
@@ -261,13 +261,13 @@ const characterRounds: InspirationRound[] = [
         keywords: ["元气", "治愈", "好奇", "反差"],
       },
     ],
-    adjustPrompt: "想调整女主性格吗？比如「再强势一点」「加点文艺气质」，或者跳过～",
+    adjustPrompt: "想微调女主性格吗？比如「再强势一点」「加点文艺气质」，或者跳过继续～",
   },
   {
-    prompt: "女主很有魅力！再来看看男主角的人设：",
+    prompt: "很有魅力！接下来看看**男主角的人设方向**：",
     cards: [
       {
-        text: "沉默守护型：话少但行动力强，默默照顾女主却从不邀功。中医馆里严肃认真，面对女主时会不自觉地语气变软。有一段不愿提起的过去，深夜独自在后山竹林练八段锦。",
+        text: "沉默守护型：话少但行动力强，默默照顾女主却从不邀功。中医馆里严肃认真，面对女主时语气会不自觉变软。有一段不愿提起的过去，深夜独自在后山竹林练八段锦。",
         keywords: ["沉默", "守护", "反差萌", "过去"],
       },
       {
@@ -279,10 +279,10 @@ const characterRounds: InspirationRound[] = [
         keywords: ["温润", "细心", "医者仁心", "偏爱"],
       },
     ],
-    adjustPrompt: "想调整男主什么？比如「再高冷一点」「加点反派感」，或者跳过～",
+    adjustPrompt: "想调整男主什么？比如「再高冷一点」「加点反派感」，或者跳过继续～",
   },
   {
-    prompt: "男女主搭配很有火花！最后确认关键配角和人物关系：",
+    prompt: "最后确认一下**关键配角和人物关系**：",
     cards: [
       {
         text: "热闹烟火型配角：王婶（热心媒人，全镇姻缘操碎心）、老张（杂货店话痨，情报中心）、陈老（茶馆智者，偶尔一句点醒所有人）、小鱼（16岁面馆学徒，萌系担当）。",
@@ -297,7 +297,7 @@ const characterRounds: InspirationRound[] = [
         keywords: ["陪伴", "成长", "萌宠", "闺蜜"],
       },
     ],
-    adjustPrompt: "配角还想加谁？或者想调整关系设定？比如「加个反派」「闺蜜要更有存在感」，没有就跳过～",
+    adjustPrompt: "配角还想加谁？比如「加个反派」「闺蜜要更有存在感」，没有的话我来更新角色～",
   },
 ];
 
@@ -1099,7 +1099,7 @@ export default function ChatPanel() {
     }
 
     // If user types at a card/preview stage, check if it's a confirm or a modification
-    const isConfirmIntent = /确认|继续完善|方向不错|没问题|生成设定|开始写|开始生成|开始探索/.test(text);
+    const isConfirmIntent = /确认|继续完善|下一步|方向不错|没问题|生成设定|开始写|开始生成|开始探索/.test(text);
 
     // Modification request (not a confirm)
     if (!isConfirmIntent && (currentRound === 4 || currentRound === 8 || currentRound === 12 || currentRound === 13)) {
@@ -2072,10 +2072,10 @@ export default function ChatPanel() {
                     <div className="mt-2.5 space-y-2">
                       <div className="flex items-center gap-2.5">
                         <button
-                          onClick={() => quickConfirm("确认世界观，继续完善")}
+                          onClick={() => quickConfirm("确认世界观，进入下一步")}
                           className="flex-1 px-4 py-2.5 bg-indigo-50 text-indigo-600 text-sm font-medium rounded-xl border border-indigo-100 hover:bg-indigo-100 transition"
                         >
-                          继续完善
+                          确认世界观，下一步
                         </button>
                         <button
                           onClick={() => {
@@ -2100,6 +2100,31 @@ export default function ChatPanel() {
                           换一换
                         </button>
                       </div>
+                      <button
+                        onClick={() => {
+                          const thinkingId = `thinking-refine-wb`;
+                          setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+                          setTimeout(() => {
+                            const r1 = dataRef.current.sceneWorldbuildingRounds[0];
+                            setMessages((prev) => [
+                              ...prev.filter((m) => m.id !== thinkingId),
+                              {
+                                id: "model-r5",
+                                sender: "model",
+                                type: "inspiration",
+                                prompt: "好的，让我们通过几个选择来完善世界观细节吧！" + r1.prompt,
+                                cards: r1.cards,
+                                round: 5,
+                              },
+                            ]);
+                            setCurrentRound(5);
+                            setFlowMode("inspiration");
+                          }, 1500);
+                        }}
+                        className="w-full text-center px-3 py-2 text-xs text-gray-400 hover:text-indigo-500 transition"
+                      >
+                        想继续完善？通过灵感探索细化世界观 →
+                      </button>
                       <p className="text-[11px] text-gray-400">{"想调整？比如\"加个竹林\"、\"小镇改成海边渔村\""}</p>
                     </div>
                   )}
@@ -2163,10 +2188,10 @@ export default function ChatPanel() {
                     <div className="mt-2.5 space-y-2">
                       <div className="flex items-center gap-2.5">
                         <button
-                          onClick={() => quickConfirm("确认角色，继续完善")}
+                          onClick={() => quickConfirm("确认角色，进入下一步")}
                           className="flex-1 px-4 py-2.5 bg-indigo-50 text-indigo-600 text-sm font-medium rounded-xl border border-indigo-100 hover:bg-indigo-100 transition"
                         >
-                          继续完善
+                          确认角色，下一步
                         </button>
                         <button
                           onClick={() => {
@@ -2191,6 +2216,31 @@ export default function ChatPanel() {
                           换一换
                         </button>
                       </div>
+                      <button
+                        onClick={() => {
+                          const thinkingId = `thinking-refine-char`;
+                          setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+                          setTimeout(() => {
+                            const r1 = dataRef.current.sceneCharacterRounds[0];
+                            setMessages((prev) => [
+                              ...prev.filter((m) => m.id !== thinkingId),
+                              {
+                                id: "model-r9",
+                                sender: "model",
+                                type: "inspiration",
+                                prompt: "好的，让我们通过几个选择来完善角色细节吧！" + r1.prompt,
+                                cards: r1.cards,
+                                round: 9,
+                              },
+                            ]);
+                            setCurrentRound(9);
+                            setFlowMode("inspiration");
+                          }, 1500);
+                        }}
+                        className="w-full text-center px-3 py-2 text-xs text-gray-400 hover:text-indigo-500 transition"
+                      >
+                        想继续完善？通过灵感探索细化角色 →
+                      </button>
                       <p className="text-[11px] text-gray-400">{"想调整？比如\"女主性格改成更强势\"、\"加一个反派角色\""}</p>
                     </div>
                   )}
