@@ -1099,9 +1099,11 @@ export default function ChatPanel() {
       return;
     }
 
-    // If user types at a card stage (4/8/12/13), treat as modification request
-    // Mock: acknowledge and re-show the same card
-    if (currentRound === 3 || currentRound === 4 || currentRound === 8 || currentRound === 12 || currentRound === 13) {
+    // If user types at a card/preview stage, check if it's a confirm or a modification
+    const isConfirmIntent = /确认|继续完善|方向不错|没问题|生成设定|开始写|开始生成/.test(text);
+
+    // Modification request (not a confirm)
+    if (!isConfirmIntent && (currentRound === 3 || currentRound === 4 || currentRound === 8 || currentRound === 12 || currentRound === 13)) {
       const thinkingId = `thinking-modify-${Date.now()}`;
       setTimeout(() => {
         setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
