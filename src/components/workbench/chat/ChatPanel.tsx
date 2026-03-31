@@ -473,17 +473,6 @@ const mockChapterTexts: Record<number, string> = {
 
 // ─── Mock: free-input guided flow ────────────────────────────
 
-const guidedFollowUps = [
-  {
-    analysis: "很棒的构思！我从你的描述中提取到了以下信息：\n\n• **题材方向**：都市言情\n• **核心设定**：影后失忆隐居小镇\n• **故事基调**：治愈温暖\n\n还有几个关键信息需要确认一下：",
-    question: "你希望故事的**剧情元素**侧重哪些方面？比如：失忆、娱乐圈、美食、重生、职场等。另外，男女主之间是什么样的关系设定？",
-  },
-  {
-    analysis: "明白了！我更新一下设定：\n\n• **剧情元素**：失忆 · 娱乐圈 · 美食 · 治愈\n• **人物关系**：欢喜冤家 · 青梅竹马\n\n最后确认一下：",
-    question: "你想要什么样的**结局**？（HE / BE / 开放式）篇幅大概多长？叙事视角有偏好吗？",
-  },
-];
-
 // ─── Types ───────────────────────────────────────────────────
 
 type Message =
@@ -576,10 +565,10 @@ export default function ChatPanel() {
     return "一碗春";
   }, [isScreenplay, isMarketing, isKnowledge]);
   const sceneWelcome = useMemo(() => {
-    if (isScreenplay) return "你好！欢迎来到剧本创作工作台 ✨\n\n你可以让我帮你找灵感，也可以直接在下面描述你的剧本构思——\n一段梗概、一个场景、甚至一句「我想写一部关于__的短剧」都可以，我们一起把它变成完整的剧本。";
-    if (isMarketing) return "你好！告诉我你要推广什么产品？\n\n你可以发送产品名称、链接或图片，也可以直接描述核心卖点——\n比如「一款隐形蓝牙耳机，主打极致隐形和防水」。我来帮你打造一条爆款带货视频脚本。";
-    if (isKnowledge) return "你好！欢迎来到深度解读工作台 ✨\n\n告诉我你想拆解哪本书？你可以上传文件（txt/epub/pdf），粘贴文本，或者直接说书名——\n比如「帮我拆解《诡秘之主》」。我来帮你做深度分析和知识图谱。";
-    return "你好！欢迎来到小说创作工作台 ✨\n\n你可以让我帮你找灵感，也可以直接在下面描述你的故事——\n一段梗概、一个画面、甚至一句「我想写一个关于__的故事」都可以，我们一起把它变成完整的创作蓝图。";
+    if (isScreenplay) return "你好！欢迎来到剧本创作工作台 ✨\n\n描述一下你想创作的剧本——一句话、一个画面、甚至几个关键词就够了。\n我会帮你快速生成一版完整设定，然后我们一起调整打磨。";
+    if (isMarketing) return "你好！告诉我你要推广什么产品？\n\n产品名称、链接、核心卖点都可以——比如「一款隐形蓝牙耳机，主打极致隐形和防水」。\n我来帮你快速生成一版视频策略，然后一起优化。";
+    if (isKnowledge) return "你好！欢迎来到深度解读工作台 ✨\n\n告诉我你想拆解哪本书？书名、文件、核心问题都可以——比如「帮我拆解《诡秘之主》的力量体系」。\n我来帮你快速生成分析框架，然后一起深入。";
+    return "你好！欢迎来到小说创作工作台 ✨\n\n描述一下你想写的故事——一句话、一个画面、甚至几个关键词就够了。\n我会帮你快速生成一版创作设定，然后我们一起调整打磨。";
   }, [isScreenplay, isMarketing, isKnowledge]);
 
   // Refs to keep scene data accessible in callbacks without stale closures
@@ -600,11 +589,9 @@ export default function ChatPanel() {
   const [selections, setSelections] = useState<Record<number, number>>({}); // round → selected card index
   const [currentRound, setCurrentRound] = useState(0); // 0=welcome, 1-3=inspiration, 4=confirm stage
   const [flowMode, setFlowMode] = useState<"none" | "inspiration" | "freeform">("none");
-  const [freeformStep, setFreeformStep] = useState(0);
   const [awaitingAdjust, setAwaitingAdjust] = useState(false); // waiting for user micro-adjust
   const [adjustRound, setAdjustRound] = useState(0); // which round is awaiting adjust
   const [favKeywords, setFavKeywords] = useState<Set<string>>(new Set());
-  const [stageEntry, setStageEntry] = useState<"worldbuilding" | "characters" | "outline" | null>(null);
   const [writingChapter, setWritingChapter] = useState(-1); // -1 = not writing, 0+ = generating chapter index
   const [screenplaySubtype, setScreenplaySubtype] = useState<"short_drama" | "comic_drama" | null>(null);
   const [input, setInput] = useState("");
@@ -740,107 +727,6 @@ export default function ChatPanel() {
       ]);
     }, 1500);
   }, []);
-
-  // Handle "帮我找灵感" button click
-  const handleStartInspiration = useCallback(() => {
-    setFlowMode("inspiration");
-
-    const thinkingId = `thinking-r1`;
-    setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
-
-    setTimeout(() => {
-      const round = dataRef.current.sceneInspirationRounds[0];
-      setMessages((prev) => [
-        ...prev.filter((m) => m.id !== thinkingId),
-        {
-          id: "model-r1",
-          sender: "model",
-          type: "inspiration",
-          prompt: round.prompt,
-          cards: round.cards,
-          round: 1,
-        },
-      ]);
-      setCurrentRound(1);
-    }, 1500);
-  }, []);
-
-  // Handle "帮我找灵感" button in stage intros
-  const handleStageInspiration = useCallback((stage: "worldbuilding" | "characters" | "outline") => {
-    setStageEntry(null);
-
-    if (stage === "worldbuilding") {
-      const thinkingId = `thinking-wb-r1`;
-      setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
-      setTimeout(() => {
-        const wb1 = dataRef.current.sceneWorldbuildingRounds[0];
-        setMessages((prev) => [
-          ...prev.filter((m) => m.id !== thinkingId),
-          { id: "model-r5", sender: "model", type: "inspiration", prompt: wb1.prompt, cards: wb1.cards, round: 5 },
-        ]);
-        setCurrentRound(5);
-      }, 1500);
-    } else if (stage === "characters") {
-      const thinkingId = `thinking-ch-r1`;
-      setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
-      setTimeout(() => {
-        const ch1 = dataRef.current.sceneCharacterRounds[0];
-        setMessages((prev) => [
-          ...prev.filter((m) => m.id !== thinkingId),
-          { id: "model-r9", sender: "model", type: "inspiration", prompt: ch1.prompt, cards: ch1.cards, round: 9 },
-        ]);
-        setCurrentRound(9);
-      }, 1500);
-    } else if (stage === "outline") {
-      const thinkingId = `thinking-outline-gen`;
-      setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
-      setTimeout(() => {
-        setMessages((prev) => [
-          ...prev.filter((m) => m.id !== thinkingId),
-          { id: "model-outline", sender: "model", type: "outline-card", prompt: "大纲生成完毕！16章完整故事线已就绪，你可以在编辑区查看每章详情。确认后就可以开始正文创作了，有想调整的随时告诉我。", data: dataRef.current.sceneOutlineCard },
-        ]);
-        setCurrentRound(13);
-        setCreationStage(4);
-      }, 3000);
-    }
-  }, [setCreationStage]);
-
-  // Handle "直接生成" — skip inspiration rounds, directly generate the card
-  const handleStageDirectGenerate = useCallback((stage: "worldbuilding" | "characters" | "outline") => {
-    setStageEntry(null);
-    const thinkingId = `thinking-direct-${stage}`;
-    setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
-
-    if (stage === "worldbuilding") {
-      setTimeout(() => {
-        setMessages((prev) => [
-          ...prev.filter((m) => m.id !== thinkingId),
-          { id: "model-worldbuilding", sender: "model", type: "worldbuilding-card", prompt: "世界观构建完成！我根据设定直接生成了世界观，你可以在编辑区查看完整内容，有想调整的直接告诉我。", data: dataRef.current.sceneWorldbuilding },
-        ]);
-        setCurrentRound(8);
-        setCreationStage(2);
-      }, 2500);
-    } else if (stage === "characters") {
-      setTimeout(() => {
-        setMessages((prev) => [
-          ...prev.filter((m) => m.id !== thinkingId),
-          { id: "model-characters", sender: "model", type: "character-card", prompt: "角色创建完成！我根据设定和世界观直接生成了角色档案，有想调整的随时告诉我。", data: dataRef.current.sceneCharacterCard },
-        ]);
-        setCurrentRound(12);
-        setCreationStage(3);
-      }, 2500);
-    } else if (stage === "outline") {
-      // Outline already generates directly, same as handleStageInspiration
-      setTimeout(() => {
-        setMessages((prev) => [
-          ...prev.filter((m) => m.id !== thinkingId),
-          { id: "model-outline", sender: "model", type: "outline-card", prompt: "大纲生成完毕！16章完整故事线已就绪，确认后就可以开始正文创作了，有想调整的随时告诉我。", data: dataRef.current.sceneOutlineCard },
-        ]);
-        setCurrentRound(13);
-        setCreationStage(4);
-      }, 3000);
-    }
-  }, [setCreationStage]);
 
   // Proceed to next round (after adjust or skip)
   // Rounds 1-3: inspiration → settings card at end
@@ -1142,81 +1028,65 @@ export default function ChatPanel() {
       return;
     }
 
-    // If user is at a stage-intro and types text → directly generate the card for that stage
-    if (stageEntry) {
-      const thinkingId = `thinking-${stageEntry}-direct`;
+    // If user types at a card stage (4/8/12/13), treat as modification request
+    // Mock: acknowledge and re-show the same card
+    if (currentRound === 4 || currentRound === 8 || currentRound === 12 || currentRound === 13) {
+      const thinkingId = `thinking-modify-${Date.now()}`;
       setTimeout(() => {
         setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
       }, 300);
 
-      if (stageEntry === "worldbuilding") {
-        setStageProgress(0.5);
-        setTimeout(() => {
+      setTimeout(() => {
+        if (currentRound === 4) {
           setMessages((prev) => [
             ...prev.filter((m) => m.id !== thinkingId),
-            { id: `model-${stageEntry}-ack`, sender: "model", type: "text", content: "好的，我根据你的描述来构建世界观——" },
+            {
+              id: `model-settings-${Date.now()}`,
+              sender: "model" as const,
+              type: "settings-card" as const,
+              prompt: "好的，已根据你的要求调整了设定。看看现在怎么样？",
+              settings: dataRef.current.sceneSettingsCard,
+            },
           ]);
-          setTimeout(() => {
-            const thinkingId2 = `thinking-wb-card-direct`;
-            setMessages((prev) => [...prev, { id: thinkingId2, sender: "model", type: "thinking" }]);
-            setTimeout(() => {
-              setMessages((prev) => [
-                ...prev.filter((m) => m.id !== thinkingId2),
-                { id: "model-worldbuilding", sender: "model", type: "worldbuilding-card", prompt: "世界观构建完成！你可以在编辑区查看完整内容，觉得没问题就可以开始创建角色了。", data: dataRef.current.sceneWorldbuilding },
-              ]);
-              setCurrentRound(8);
-              setCreationStage(2);
-            }, 2500);
-          }, 500);
-        }, 1200);
-        setStageEntry(null);
-      } else if (stageEntry === "characters") {
-        setStageProgress(0.5);
-        setTimeout(() => {
+        } else if (currentRound === 8) {
           setMessages((prev) => [
             ...prev.filter((m) => m.id !== thinkingId),
-            { id: `model-${stageEntry}-ack`, sender: "model", type: "text", content: "好的，我根据你的想法来创建角色——" },
+            {
+              id: `model-worldbuilding-${Date.now()}`,
+              sender: "model" as const,
+              type: "worldbuilding-card" as const,
+              prompt: "好的，已根据你的要求调整了世界观。看看现在怎么样？",
+              data: dataRef.current.sceneWorldbuilding,
+            },
           ]);
-          setTimeout(() => {
-            const thinkingId2 = `thinking-char-card-direct`;
-            setMessages((prev) => [...prev, { id: thinkingId2, sender: "model", type: "thinking" }]);
-            setTimeout(() => {
-              setMessages((prev) => [
-                ...prev.filter((m) => m.id !== thinkingId2),
-                { id: "model-characters", sender: "model", type: "character-card", prompt: "角色创建完成！你可以在编辑区查看完整的角色档案，想调整随时告诉我。", data: dataRef.current.sceneCharacterCard },
-              ]);
-              setCurrentRound(12);
-              setCreationStage(3);
-            }, 2500);
-          }, 500);
-        }, 1200);
-        setStageEntry(null);
-      } else if (stageEntry === "outline") {
-        setStageProgress(0.5);
-        setTimeout(() => {
+        } else if (currentRound === 12) {
           setMessages((prev) => [
             ...prev.filter((m) => m.id !== thinkingId),
-            { id: `model-${stageEntry}-ack`, sender: "model", type: "text", content: "好的，我根据你的思路来拟定大纲——" },
+            {
+              id: `model-characters-${Date.now()}`,
+              sender: "model" as const,
+              type: "character-card" as const,
+              prompt: "好的，已根据你的要求调整了角色。看看现在怎么样？",
+              data: dataRef.current.sceneCharacterCard,
+            },
           ]);
-          setTimeout(() => {
-            const thinkingId2 = `thinking-outline-direct`;
-            setMessages((prev) => [...prev, { id: thinkingId2, sender: "model", type: "thinking" }]);
-            setTimeout(() => {
-              setMessages((prev) => [
-                ...prev.filter((m) => m.id !== thinkingId2),
-                { id: "model-outline", sender: "model", type: "outline-card", prompt: "大纲生成完毕！16章完整故事线已就绪，确认后就可以开始正文创作了。", data: dataRef.current.sceneOutlineCard },
-              ]);
-              setCurrentRound(13);
-              setCreationStage(4);
-            }, 3000);
-          }, 500);
-        }, 1200);
-        setStageEntry(null);
-      }
+        } else if (currentRound === 13) {
+          setMessages((prev) => [
+            ...prev.filter((m) => m.id !== thinkingId),
+            {
+              id: `model-outline-${Date.now()}`,
+              sender: "model" as const,
+              type: "outline-card" as const,
+              prompt: "好的，已根据你的要求调整了大纲。看看现在怎么样？",
+              data: dataRef.current.sceneOutlineCard,
+            },
+          ]);
+        }
+      }, 2000);
       return;
     }
 
-    // If at confirm stage (after settings card shown), user confirmed → show worldbuilding intro
+    // If at confirm stage (after settings card shown), user confirmed → auto-generate worldbuilding
     if (currentRound === 4) {
       // Auto-generate a fitting title based on the story settings
       setAutoTitle(dataRef.current.sceneTitle);
@@ -1234,30 +1104,41 @@ export default function ChatPanel() {
             sender: "model",
             type: "text",
             content: dataRef.current.isMarketing
-              ? `视频策略确认！根据你的产品信息，项目暂定为——**《${dataRef.current.sceneTitle}》**，你随时可以在顶部修改。\n\n接下来我们设计视频的故事线。`
+              ? `视频策略确认！根据你的产品信息，项目暂定为——**《${dataRef.current.sceneTitle}》**，你随时可以在顶部修改。\n\n接下来帮你设计视频的故事线...`
               : dataRef.current.isKnowledge
-              ? `分析配置确认！已为你创建项目——**《${dataRef.current.sceneTitle}》**，你随时可以在顶部修改。\n\n接下来深入分析设定体系。`
-              : `设定确认！根据你的故事设定，我帮你起了个名字——**《${dataRef.current.sceneTitle}》**，你随时可以在顶部修改。\n\n接下来我们构建故事发生的世界。`,
-          },
-          {
-            id: "model-wb-intro",
-            sender: "model",
-            type: "stage-intro",
-            prompt: dataRef.current.isMarketing
-              ? "你对视频故事线有自己的想法吗？可以描述开场钩子、核心演示、转化策略——也可以让我来给你灵感。"
-              : dataRef.current.isKnowledge
-              ? "你想从哪个设定开始深入？可以指定具体的体系（如魔药/途径/教会），也可以让我来帮你梳理。"
-              : "你对世界观有自己的想法吗？可以直接描述你心目中的场景、地点、社会背景等——也可以让我来给你灵感。",
-            stage: "worldbuilding",
+              ? `分析配置确认！已为你创建项目——**《${dataRef.current.sceneTitle}》**，你随时可以在顶部修改。\n\n接下来深入分析设定体系...`
+              : `设定确认！根据你的故事设定，我帮你起了个名字——**《${dataRef.current.sceneTitle}》**，你随时可以在顶部修改。\n\n正在为你构建世界观...`,
           },
         ]);
-        setStageEntry("worldbuilding");
         setStageProgress(0.1);
+        // Auto-generate worldbuilding after a brief pause
+        const thinkingId2 = `thinking-auto-wb`;
+        setTimeout(() => {
+          setMessages((prev) => [...prev, { id: thinkingId2, sender: "model", type: "thinking" }]);
+        }, 800);
+        setTimeout(() => {
+          setMessages((prev) => [
+            ...prev.filter((m) => m.id !== thinkingId2),
+            {
+              id: "model-worldbuilding",
+              sender: "model",
+              type: "worldbuilding-card",
+              prompt: dataRef.current.isMarketing
+                ? "视频故事线构建完成！看看感觉怎么样？你可以告诉我想调整哪里，也可以直接继续完善。"
+                : dataRef.current.isKnowledge
+                ? "设定体系分析完成！看看感觉怎么样？你可以告诉我想调整哪里，也可以直接继续完善。"
+                : "世界观构建完成！看看感觉怎么样？\n你可以告诉我想调整哪里，也可以直接继续完善。",
+              data: dataRef.current.sceneWorldbuilding,
+            },
+          ]);
+          setCurrentRound(8);
+          setCreationStage(2);
+        }, 3000);
       }, 1500);
       return;
     }
 
-    // If at worldbuilding confirm stage, user confirmed → show characters intro
+    // If at worldbuilding confirm stage, user confirmed → auto-generate characters
     if (currentRound === 8) {
       const thinkingId = `thinking-char-intro`;
       setTimeout(() => {
@@ -1270,22 +1151,43 @@ export default function ChatPanel() {
           {
             id: "model-char-intro",
             sender: "model",
-            type: "stage-intro",
-            prompt: dataRef.current.isMarketing
-              ? "故事线就位！接下来确定出镜角色。\n\n你对出镜者有想法吗？可以描述年龄、风格、表演方式——或者让我来给你灵感。"
+            type: "text",
+            content: dataRef.current.isMarketing
+              ? "故事线就位！正在为你设计出镜角色..."
               : dataRef.current.isKnowledge
-              ? "设定体系整理完毕！接下来分析核心角色。\n\n你最想深入了解哪些角色？可以指定具体角色或角色群体——或者让我来推荐。"
-              : "世界观就位！接下来创建角色。\n\n你心里有主角的样子了吗？可以告诉我你想要的角色性格、身份、关系——或者让我来给你灵感。",
-            stage: "characters",
+              ? "设定体系整理完毕！正在分析核心角色..."
+              : "世界观就位！正在为你创建角色...",
           },
         ]);
-        setStageEntry("characters");
         setStageProgress(0.1);
+        // Auto-generate characters
+        const thinkingId2 = `thinking-auto-char`;
+        setTimeout(() => {
+          setMessages((prev) => [...prev, { id: thinkingId2, sender: "model", type: "thinking" }]);
+        }, 800);
+        setTimeout(() => {
+          setMessages((prev) => [
+            ...prev.filter((m) => m.id !== thinkingId2),
+            {
+              id: "model-characters",
+              sender: "model",
+              type: "character-card",
+              prompt: dataRef.current.isMarketing
+                ? "出镜角色设计完成！看看感觉怎么样？你可以告诉我想调整哪里。"
+                : dataRef.current.isKnowledge
+                ? "核心角色分析完成！看看感觉怎么样？你可以告诉我想调整哪里。"
+                : "角色创建完成！看看感觉怎么样？\n你可以告诉我想调整哪里，也可以直接继续完善。",
+              data: dataRef.current.sceneCharacterCard,
+            },
+          ]);
+          setCurrentRound(12);
+          setCreationStage(3);
+        }, 3000);
       }, 1500);
       return;
     }
 
-    // If at character confirm stage, user confirmed → show outline intro
+    // If at character confirm stage, user confirmed → auto-generate outline
     if (currentRound === 12) {
       const thinkingId = `thinking-outline-intro`;
       setTimeout(() => {
@@ -1298,17 +1200,34 @@ export default function ChatPanel() {
           {
             id: "model-outline-intro",
             sender: "model",
-            type: "stage-intro",
-            prompt: dataRef.current.isMarketing
-              ? "角色设定完成！最后一步——生成分幕脚本。\n\n你对分幕结构有想法吗？可以描述你期望的节奏和重点——或者我来帮你规划。"
+            type: "text",
+            content: dataRef.current.isMarketing
+              ? "角色设定完成！正在为你生成分幕脚本..."
               : dataRef.current.isKnowledge
-              ? "角色分析完成！最后一步——结构化分析报告。\n\n你想要什么样的输出？拆书稿、深度长评、知识图谱——或者我来帮你规划。"
-              : "角色档案完成！最后一步——搭建故事骨架。\n\n你对故事走向和章节安排有想法吗？可以描述你希望的结构、转折点、节奏——或者我来帮你规划。",
-            stage: "outline",
+              ? "角色分析完成！正在生成结构化分析报告..."
+              : "角色档案完成！正在为你搭建故事骨架...",
           },
         ]);
-        setStageEntry("outline");
         setStageProgress(0.1);
+        // Auto-generate outline
+        const thinkingId2 = `thinking-auto-outline`;
+        setTimeout(() => {
+          setMessages((prev) => [...prev, { id: thinkingId2, sender: "model", type: "thinking" }]);
+        }, 800);
+        setTimeout(() => {
+          setMessages((prev) => [
+            ...prev.filter((m) => m.id !== thinkingId2),
+            {
+              id: "model-outline",
+              sender: "model",
+              type: "outline-card",
+              prompt: "大纲生成完毕！看看感觉怎么样？确认后就可以开始正文创作了。",
+              data: dataRef.current.sceneOutlineCard,
+            },
+          ]);
+          setCurrentRound(13);
+          setCreationStage(4);
+        }, 3000);
       }, 1500);
       return;
     }
@@ -1391,54 +1310,36 @@ export default function ChatPanel() {
       return;
     }
 
-    // Free-form input flow
+    // Free-form input flow: user typed a description → directly generate settings
     if (flowMode === "none" || flowMode === "freeform") {
       setFlowMode("freeform");
 
-      if (freeformStep < guidedFollowUps.length) {
-        const followUp = guidedFollowUps[freeformStep];
-        const thinkingId = `thinking-ff-${freeformStep}`;
+      const thinkingId = `thinking-ff-settings`;
 
-        setTimeout(() => {
-          setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
-        }, 300);
+      setTimeout(() => {
+        setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+      }, 300);
 
-        setTimeout(() => {
-          setMessages((prev) => [
-            ...prev.filter((m) => m.id !== thinkingId),
-            {
-              id: `model-ff-${freeformStep}`,
-              sender: "model",
-              type: "text",
-              content: followUp.analysis + "\n\n" + followUp.question,
-            },
-          ]);
-          setFreeformStep((s) => s + 1);
-        }, 2000);
-      } else {
-        const thinkingId = `thinking-ff-settings`;
-
-        setTimeout(() => {
-          setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
-        }, 300);
-
-        setTimeout(() => {
-          setMessages((prev) => [
-            ...prev.filter((m) => m.id !== thinkingId),
-            {
-              id: "model-settings",
-              sender: "model",
-              type: "settings-card",
-              prompt: "根据你的描述，我为你整理了以下创作设定。确认无误就可以开始生成世界观了，你也可以告诉我需要调整的地方。",
-              settings: dataRef.current.sceneSettingsCard,
-            },
-          ]);
-          setCurrentRound(4);
-          setCreationStage(1);
-        }, 2500);
-      }
+      setTimeout(() => {
+        setMessages((prev) => [
+          ...prev.filter((m) => m.id !== thinkingId),
+          {
+            id: "model-settings",
+            sender: "model",
+            type: "settings-card",
+            prompt: dataRef.current.isMarketing
+              ? "根据你的描述，我帮你生成了一版视频策略Brief。看看感觉怎么样？你可以告诉我想调整哪里，也可以直接确认进入下一步。"
+              : dataRef.current.isKnowledge
+              ? "根据你的描述，我帮你生成了一版分析配置。看看感觉怎么样？你可以告诉我想调整哪里，也可以直接确认进入下一步。"
+              : "根据你的描述，我帮你生成了一版创作设定。看看感觉怎么样？\n你可以告诉我想调整哪里，也可以直接确认进入下一步。",
+            settings: dataRef.current.sceneSettingsCard,
+          },
+        ]);
+        setCurrentRound(4);
+        setCreationStage(1);
+      }, 2500);
     }
-  }, [input, awaitingAdjust, adjustRound, currentRound, flowMode, freeformStep, stageEntry, writingChapter, novelChapters, setCreationStage, setStageProgress, setAutoTitle, proceedToNextRound, handleStageInspiration, initNovelChapters, generateChapter]);
+  }, [input, awaitingAdjust, adjustRound, currentRound, flowMode, writingChapter, novelChapters, setCreationStage, setStageProgress, setAutoTitle, proceedToNextRound, initNovelChapters, generateChapter]);
 
   // Quick confirm: set input text then trigger send on next render
   const pendingSend = useRef(false);
@@ -1771,46 +1672,38 @@ export default function ChatPanel() {
                 </div>
                 <div className="text-sm text-gray-700 leading-relaxed pl-8 whitespace-pre-wrap">{msg.prompt}</div>
 
-                {/* Entry buttons */}
+                {/* Entry button */}
                 {flowMode === "none" && (
                   <div className="pl-8 mt-2">
-                    <div className="flex items-center gap-2.5">
-                      <button
-                        onClick={handleStartInspiration}
-                        className="px-4 py-2.5 bg-indigo-50 text-indigo-600 text-sm font-medium rounded-xl border border-indigo-100 hover:bg-indigo-100 transition"
-                      >
-                        ✨ 帮我找灵感
-                      </button>
-                      <button
-                        onClick={() => {
-                          setFlowMode("inspiration");
-                          const thinkingId = `thinking-direct-settings`;
-                          setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
-                          setTimeout(() => {
-                            setMessages((prev) => [
-                              ...prev.filter((m) => m.id !== thinkingId),
-                              {
-                                id: "model-settings",
-                                sender: "model",
-                                type: "settings-card",
-                                prompt: dataRef.current.isMarketing
-                                  ? "收到！我为你整理了视频策略Brief。确认无误就可以开始设计故事线了，有需要调整的随时告诉我。"
-                                  : dataRef.current.isKnowledge
-                                  ? "已读取完毕！以下是书籍总览和分析配置。确认无误就可以开始深入分析了，有需要调整的随时告诉我。"
-                                  : "我帮你生成了一套创作设定。确认无误就可以开始构建世界观了，你也可以告诉我需要调整的地方。",
-                                settings: dataRef.current.sceneSettingsCard,
-                              },
-                            ]);
-                            setCurrentRound(4);
-                            setCreationStage(1);
-                          }, 2500);
-                        }}
-                        className="px-4 py-2.5 text-gray-500 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
-                      >
-                        直接生成
-                      </button>
-                    </div>
-                    <p className="text-[11px] text-gray-400 mt-2">「帮我找灵感」将通过 3 轮选择确定方向，再生成设定；「直接生成」跳过探索，直接生成创作设定</p>
+                    <button
+                      onClick={() => {
+                        setFlowMode("inspiration");
+                        const thinkingId = `thinking-direct-settings`;
+                        setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+                        setTimeout(() => {
+                          setMessages((prev) => [
+                            ...prev.filter((m) => m.id !== thinkingId),
+                            {
+                              id: "model-settings",
+                              sender: "model",
+                              type: "settings-card",
+                              prompt: dataRef.current.isMarketing
+                                ? "我帮你生成了一版视频策略Brief，看看感觉怎么样？你可以告诉我想调整哪里，也可以直接确认进入下一步。"
+                                : dataRef.current.isKnowledge
+                                ? "我帮你生成了一版分析配置，看看感觉怎么样？你可以告诉我想调整哪里，也可以直接确认进入下一步。"
+                                : "我帮你生成了一版创作设定，看看感觉怎么样？\n你可以告诉我想调整哪里，也可以直接确认进入下一步。",
+                              settings: dataRef.current.sceneSettingsCard,
+                            },
+                          ]);
+                          setCurrentRound(4);
+                          setCreationStage(1);
+                        }, 2500);
+                      }}
+                      className="px-4 py-2.5 bg-indigo-50 text-indigo-600 text-sm font-medium rounded-xl border border-indigo-100 hover:bg-indigo-100 transition"
+                    >
+                      ✨ 帮我想一个
+                    </button>
+                    <p className="text-[11px] text-gray-400 mt-2">没有想法也没关系，我来帮你构思一个故事</p>
                   </div>
                 )}
               </div>
@@ -1819,7 +1712,6 @@ export default function ChatPanel() {
 
           // ── Model: stage intro ──
           if (msg.sender === "model" && msg.type === "stage-intro") {
-            const isActive = stageEntry === msg.stage;
             return (
               <div key={msg.id} className="space-y-3">
                 <div className="flex items-center gap-2 mb-1">
@@ -1829,33 +1721,6 @@ export default function ChatPanel() {
                   <span className="text-xs text-gray-400">文心</span>
                 </div>
                 <div className="text-sm text-gray-700 leading-relaxed pl-8 whitespace-pre-wrap">{msg.prompt}</div>
-
-                {isActive && (
-                  <div className="pl-8 mt-2">
-                    <div className="flex items-center gap-2.5">
-                      <button
-                        onClick={() => handleStageInspiration(msg.stage)}
-                        className="px-4 py-2.5 bg-indigo-50 text-indigo-600 text-sm font-medium rounded-xl border border-indigo-100 hover:bg-indigo-100 transition"
-                      >
-                        ✨ 帮我找灵感
-                      </button>
-                      <button
-                        onClick={() => handleStageDirectGenerate(msg.stage)}
-                        className="px-4 py-2.5 text-gray-500 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
-                      >
-                        直接生成
-                      </button>
-                    </div>
-                    <p className="text-[11px] text-gray-400 mt-2">
-                      {msg.stage === "worldbuilding"
-                        ? "「帮我找灵感」将通过 3 轮选择细化世界设定；「直接生成」根据已有设定直接生成世界观"
-                        : msg.stage === "characters"
-                        ? "「帮我找灵感」将通过 3 轮选择设计角色；「直接生成」根据设定和世界观直接生成角色档案"
-                        : "将根据前序设定直接生成完整大纲"
-                      }
-                    </p>
-                  </div>
-                )}
               </div>
             );
           }
@@ -1931,14 +1796,41 @@ export default function ChatPanel() {
                       <span className="text-[11px] text-gray-400">查看完整设定请点击编辑区</span>
                     </div>
                   </div>
-                  {/* Confirm button */}
+                  {/* Action buttons */}
                   {currentRound === 4 && (
-                    <button
-                      onClick={() => quickConfirm("确认设定，开始构建世界观")}
-                      className="mt-2.5 w-full px-4 py-2.5 bg-indigo-50 text-indigo-600 text-sm font-medium rounded-xl border border-indigo-100 hover:bg-indigo-100 transition"
-                    >
-                      ✅ 确认设定，开始构建世界观
-                    </button>
+                    <div className="mt-2.5 space-y-2">
+                      <div className="flex items-center gap-2.5">
+                        <button
+                          onClick={() => quickConfirm("确认设定，继续完善")}
+                          className="flex-1 px-4 py-2.5 bg-indigo-50 text-indigo-600 text-sm font-medium rounded-xl border border-indigo-100 hover:bg-indigo-100 transition"
+                        >
+                          继续完善
+                        </button>
+                        <button
+                          onClick={() => {
+                            const thinkingId = `thinking-regen-settings`;
+                            setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+                            setTimeout(() => {
+                              setMessages((prev) => [
+                                ...prev.filter((m) => m.id !== thinkingId),
+                                {
+                                  id: `model-settings-${Date.now()}`,
+                                  sender: "model" as const,
+                                  type: "settings-card" as const,
+                                  prompt: "已重新生成一版设定，看看这个怎么样？",
+                                  settings: dataRef.current.sceneSettingsCard,
+                                },
+                              ]);
+                            }, 2000);
+                          }}
+                          className="px-4 py-2.5 text-gray-500 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
+                        >
+                          <RefreshCw className="w-3.5 h-3.5 inline mr-1" />
+                          换一换
+                        </button>
+                      </div>
+                      <p className="text-[11px] text-gray-400">{"想调整？直接告诉我哪里不满意，比如\"题材换成科幻\"、\"女主改成医生\""}</p>
+                    </div>
                   )}
                 </div>
               </div>
@@ -1991,14 +1883,41 @@ export default function ChatPanel() {
                       <span className="text-[11px] text-gray-400">查看完整世界观请点击编辑区</span>
                     </div>
                   </div>
-                  {/* Confirm button */}
+                  {/* Action buttons */}
                   {currentRound === 8 && (
-                    <button
-                      onClick={() => quickConfirm("确认世界观，开始创建角色")}
-                      className="mt-2.5 w-full px-4 py-2.5 bg-indigo-50 text-indigo-600 text-sm font-medium rounded-xl border border-indigo-100 hover:bg-indigo-100 transition"
-                    >
-                      ✅ 确认世界观，开始创建角色
-                    </button>
+                    <div className="mt-2.5 space-y-2">
+                      <div className="flex items-center gap-2.5">
+                        <button
+                          onClick={() => quickConfirm("确认世界观，继续完善")}
+                          className="flex-1 px-4 py-2.5 bg-indigo-50 text-indigo-600 text-sm font-medium rounded-xl border border-indigo-100 hover:bg-indigo-100 transition"
+                        >
+                          继续完善
+                        </button>
+                        <button
+                          onClick={() => {
+                            const thinkingId = `thinking-regen-wb`;
+                            setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+                            setTimeout(() => {
+                              setMessages((prev) => [
+                                ...prev.filter((m) => m.id !== thinkingId),
+                                {
+                                  id: `model-worldbuilding-${Date.now()}`,
+                                  sender: "model" as const,
+                                  type: "worldbuilding-card" as const,
+                                  prompt: "已重新生成一版世界观，看看这个怎么样？",
+                                  data: dataRef.current.sceneWorldbuilding,
+                                },
+                              ]);
+                            }, 2000);
+                          }}
+                          className="px-4 py-2.5 text-gray-500 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
+                        >
+                          <RefreshCw className="w-3.5 h-3.5 inline mr-1" />
+                          换一换
+                        </button>
+                      </div>
+                      <p className="text-[11px] text-gray-400">{"想调整？比如\"加个竹林\"、\"小镇改成海边渔村\""}</p>
+                    </div>
                   )}
                 </div>
               </div>
@@ -2055,14 +1974,41 @@ export default function ChatPanel() {
                       <span className="text-[11px] text-gray-400">查看完整角色档案请点击编辑区</span>
                     </div>
                   </div>
-                  {/* Confirm button */}
+                  {/* Action buttons */}
                   {currentRound === 12 && (
-                    <button
-                      onClick={() => quickConfirm("确认角色，开始生成大纲")}
-                      className="mt-2.5 w-full px-4 py-2.5 bg-indigo-50 text-indigo-600 text-sm font-medium rounded-xl border border-indigo-100 hover:bg-indigo-100 transition"
-                    >
-                      ✅ 确认角色，开始生成大纲
-                    </button>
+                    <div className="mt-2.5 space-y-2">
+                      <div className="flex items-center gap-2.5">
+                        <button
+                          onClick={() => quickConfirm("确认角色，继续完善")}
+                          className="flex-1 px-4 py-2.5 bg-indigo-50 text-indigo-600 text-sm font-medium rounded-xl border border-indigo-100 hover:bg-indigo-100 transition"
+                        >
+                          继续完善
+                        </button>
+                        <button
+                          onClick={() => {
+                            const thinkingId = `thinking-regen-char`;
+                            setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+                            setTimeout(() => {
+                              setMessages((prev) => [
+                                ...prev.filter((m) => m.id !== thinkingId),
+                                {
+                                  id: `model-characters-${Date.now()}`,
+                                  sender: "model" as const,
+                                  type: "character-card" as const,
+                                  prompt: "已重新生成一版角色档案，看看这个怎么样？",
+                                  data: dataRef.current.sceneCharacterCard,
+                                },
+                              ]);
+                            }, 2000);
+                          }}
+                          className="px-4 py-2.5 text-gray-500 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
+                        >
+                          <RefreshCw className="w-3.5 h-3.5 inline mr-1" />
+                          换一换
+                        </button>
+                      </div>
+                      <p className="text-[11px] text-gray-400">{"想调整？比如\"女主性格改成更强势\"、\"加一个反派角色\""}</p>
+                    </div>
                   )}
                 </div>
               </div>
@@ -2110,14 +2056,41 @@ export default function ChatPanel() {
                       <span className="text-[11px] text-gray-400">查看完整大纲请点击编辑区</span>
                     </div>
                   </div>
-                  {/* Confirm button */}
+                  {/* Action buttons */}
                   {currentRound === 13 && (
-                    <button
-                      onClick={() => quickConfirm("确认大纲，开始写正文")}
-                      className="mt-2.5 w-full px-4 py-2.5 bg-indigo-50 text-indigo-600 text-sm font-medium rounded-xl border border-indigo-100 hover:bg-indigo-100 transition"
-                    >
-                      ✅ 确认大纲，开始写正文
-                    </button>
+                    <div className="mt-2.5 space-y-2">
+                      <div className="flex items-center gap-2.5">
+                        <button
+                          onClick={() => quickConfirm("确认大纲，开始写正文")}
+                          className="flex-1 px-4 py-2.5 bg-indigo-50 text-indigo-600 text-sm font-medium rounded-xl border border-indigo-100 hover:bg-indigo-100 transition"
+                        >
+                          开始写正文
+                        </button>
+                        <button
+                          onClick={() => {
+                            const thinkingId = `thinking-regen-outline`;
+                            setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+                            setTimeout(() => {
+                              setMessages((prev) => [
+                                ...prev.filter((m) => m.id !== thinkingId),
+                                {
+                                  id: `model-outline-${Date.now()}`,
+                                  sender: "model" as const,
+                                  type: "outline-card" as const,
+                                  prompt: "已重新生成一版大纲，看看这个怎么样？",
+                                  data: dataRef.current.sceneOutlineCard,
+                                },
+                              ]);
+                            }, 2500);
+                          }}
+                          className="px-4 py-2.5 text-gray-500 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
+                        >
+                          <RefreshCw className="w-3.5 h-3.5 inline mr-1" />
+                          换一换
+                        </button>
+                      </div>
+                      <p className="text-[11px] text-gray-400">{"想调整？比如\"第三章增加一个反转\"、\"结局改成开放式\""}</p>
+                    </div>
                   )}
                 </div>
               </div>
@@ -2141,16 +2114,22 @@ export default function ChatPanel() {
               }
             }}
             placeholder={
-              stageEntry === "worldbuilding"
-                ? "描述你想象中的世界：场景、地点、社会背景..."
-                : stageEntry === "characters"
-                ? "描述你心中的角色：性格、身份、人物关系..."
-                : stageEntry === "outline"
-                ? "描述你的故事走向：结构、转折点、章节安排..."
+              currentRound === 4
+                ? "想调整什么？比如「题材换成科幻」「加入穿越元素」..."
+                : currentRound === 8
+                ? "想调整什么？比如「加个竹林」「小镇改成海边」..."
+                : currentRound === 12
+                ? "想调整什么？比如「女主性格改强势一点」「加个反派」..."
+                : currentRound === 13
+                ? "想调整什么？比如「第三章加个反转」「结局改成开放式」..."
                 : flowMode === "none"
-                ? "描述你的故事构思，一段梗概、一个画面、甚至一句话..."
+                ? scene === "marketing"
+                  ? "描述你要推广的产品，核心卖点、目标人群..."
+                  : scene === "knowledge"
+                  ? "输入书名或上传文件，比如「帮我拆解《诡秘之主》」..."
+                  : "描述你的故事，比如「重生复仇的女频故事」「末日科幻」..."
                 : awaitingAdjust
-                ? "想微调什么？直接说就行，或者点「就这样」跳过"
+                ? "想微调什么？直接说就行，或者点「继续」跳过"
                 : "输入你的想法..."
             }
             className="w-full text-sm text-gray-700 placeholder-gray-400 resize-none outline-none bg-transparent min-h-[40px]"
