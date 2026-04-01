@@ -63,7 +63,7 @@ interface InspirationRound {
 
 const inspirationRounds: InspirationRound[] = [
   {
-    prompt: "基于你的故事概念，我提炼了几个**时空背景方向**，你觉得哪个最适合这个故事？",
+    prompt: "基于你的故事概念，我提炼了几个时空背景方向，你觉得哪个最适合这个故事？",
     cards: [
       {
         text: "南方古镇：依山傍水的千年古镇，青石板路、白墙黑瓦。手机信号时有时无，年轻人大多外出，留下老人和几个「不愿离开的怪人」。慢节奏治愈感十足。",
@@ -81,7 +81,7 @@ const inspirationRounds: InspirationRound[] = [
     adjustPrompt: "想微调什么？比如「换成北方小镇」「加入民国元素」之类的，或者直接跳过～",
   },
   {
-    prompt: "时空确定了！再看看**故事基调和情感节奏**，你更想要哪种体验？",
+    prompt: "时空确定了！再看看故事基调和情感节奏，你更想要哪种体验？",
     cards: [
       {
         text: "日常甜宠 · 慢热型：大量生活细节和温暖日常，从互相看不顺眼到每天偷偷给对方留饭。全镇居民看在眼里急在心里，结局HE高甜。",
@@ -99,7 +99,7 @@ const inspirationRounds: InspirationRound[] = [
     adjustPrompt: "如果想调整风格也可以说，比如「再轻松一点」「悬疑感强一些」，或者直接跳过～",
   },
   {
-    prompt: "最后一步，关于**核心冲突和故事驱动力**：",
+    prompt: "最后一步，关于核心冲突和故事驱动力：",
     cards: [
       {
         text: "失忆真相 × 身份秘密：失忆的真相不是意外，而是有人刻意为之。当主角想起一切，要在复仇和眼前的平静幸福之间做选择。",
@@ -120,7 +120,7 @@ const inspirationRounds: InspirationRound[] = [
 
 const inspirationRoundsAlt: InspirationRound[] = [
   {
-    prompt: "基于你的故事概念，我提炼了几个**时空背景方向**，你觉得哪个最适合？",
+    prompt: "基于你的故事概念，我提炼了几个时空背景方向，你觉得哪个最适合？",
     cards: [
       {
         text: "东南沿海渔镇：靠海的老渔镇，每天的海不一样。赶海、鱼市、海风咸涩，适合写味觉和感情一起复苏的故事。",
@@ -138,7 +138,7 @@ const inspirationRoundsAlt: InspirationRound[] = [
     adjustPrompt: "想微调什么？比如「换成北方海港」「加入异国背景」之类的，或者直接跳过～",
   },
   {
-    prompt: "方向不错！再看看**故事基调和情感风格**：",
+    prompt: "方向不错！再看看故事基调和情感风格：",
     cards: [
       {
         text: "治愈日常 · 美食线：每一道甜品对应一段客人的往事，女主在帮别人找回「记忆中的味道」时，也在拼凑自己的过去。温暖治愈，结局HE。",
@@ -156,7 +156,7 @@ const inspirationRoundsAlt: InspirationRound[] = [
     adjustPrompt: "如果想调整也可以说，比如「更悬疑一些」「纯甜不虐」，或者直接跳过～",
   },
   {
-    prompt: "最后确认**核心冲突**：",
+    prompt: "最后确认核心冲突：",
     cards: [
       {
         text: "味觉背后的阴谋：失去味觉不是意外，而是有人下手。追查真相的过程会动摇女主对过去所有人际关系的信任。",
@@ -229,7 +229,7 @@ const mockSettingsAlt: Record<string, { label: string; value: string }[]> = {
 
 const worldbuildingRounds: InspirationRound[] = [
   {
-    prompt: "来完善世界观的细节吧！首先，**故事发生的主要场景**你更偏好哪种？",
+    prompt: "来完善世界观的细节吧！首先，故事发生的主要场景你更偏好哪种？",
     cards: [
       {
         text: "南方水乡古镇：依山傍水、青石板路、白墙黑瓦。手机信号时有时无，留下的都是老人和几个不愿离开的「怪人」。慢节奏，烟火气十足。",
@@ -247,7 +247,7 @@ const worldbuildingRounds: InspirationRound[] = [
     adjustPrompt: "想微调什么？比如「加个竹林」「镇上要有集市」之类的，或者跳过继续～",
   },
   {
-    prompt: "很有画面感！**核心活动场所**你更喜欢哪种组合？",
+    prompt: "很有画面感！核心活动场所你更喜欢哪种组合？",
     cards: [
       {
         text: "烟火美食线：女主的面馆「一碗春」+ 男主的中医馆「济世堂」+ 镇中心的百年古戏台。面香和药香隔墙混在一起，古戏台是全镇社交中心。",
@@ -265,7 +265,7 @@ const worldbuildingRounds: InspirationRound[] = [
     adjustPrompt: "场景还想加什么？比如「后山要有个秘密基地」「再加一个赶集场景」，没有就跳过～",
   },
   {
-    prompt: "最后确认一下**小镇的人文氛围和暗线方向**：",
+    prompt: "最后确认一下小镇的人文氛围和暗线方向：",
     cards: [
       {
         text: "温暖人情味：热心的王婶当非官方媒人、每周日赶集全镇出动、「三巨头」聊天团八卦一切。暗线是女主童年曾在此生活，有人认出她但选择守护她的平静。",
@@ -350,7 +350,7 @@ const mockWorldbuildingAlt: WorldbuildingData = {
 
 const characterRounds: InspirationRound[] = [
   {
-    prompt: "来完善角色的细节吧！首先，**女主角的性格倾向**你更偏好哪种？",
+    prompt: "来完善角色的细节吧！首先，女主角的性格倾向你更偏好哪种？",
     cards: [
       {
         text: "外柔内刚型：表面温柔随和，实则内心坚韧。失忆前在娱乐圈养成了察言观色的本能，失忆后反而展现出天然的亲和力。做面时专注认真，面馆被她经营得有声有色。",
@@ -368,7 +368,7 @@ const characterRounds: InspirationRound[] = [
     adjustPrompt: "想微调女主性格吗？比如「再强势一点」「加点文艺气质」，或者跳过继续～",
   },
   {
-    prompt: "很有魅力！接下来看看**男主角的人设方向**：",
+    prompt: "很有魅力！接下来看看男主角的人设方向：",
     cards: [
       {
         text: "沉默守护型：话少但行动力强，默默照顾女主却从不邀功。中医馆里严肃认真，面对女主时语气会不自觉变软。有一段不愿提起的过去，深夜独自在后山竹林练八段锦。",
@@ -386,7 +386,7 @@ const characterRounds: InspirationRound[] = [
     adjustPrompt: "想调整男主什么？比如「再高冷一点」「加点反派感」，或者跳过继续～",
   },
   {
-    prompt: "最后确认一下**关键配角和人物关系**：",
+    prompt: "最后确认一下关键配角和人物关系：",
     cards: [
       {
         text: "热闹烟火型配角：王婶（热心媒人，全镇姻缘操碎心）、老张（杂货店话痨，情报中心）、陈老（茶馆智者，偶尔一句点醒所有人）、小鱼（16岁面馆学徒，萌系担当）。",
@@ -1802,10 +1802,10 @@ export default function ChatPanel() {
               sender: "model" as const,
               type: "text" as const,
               content: chapterIndex < dataRef.current.sceneOutlineCard.chapters.length - 1
-                ? `**${chTitle}** 生成完毕！你可以在编辑区查看和修改。\n\n满意后说「继续」，我就开始写下一章。`
+                ? `「${chTitle}」生成完毕！你可以在编辑区查看和修改。\n\n满意后说「继续」，我就开始写下一章。`
                 : dataRef.current.sceneOutlineCard.chapters.length === 1
                 ? `全文生成完毕！你可以在编辑区查看和自由编辑。\n\n有什么想修改的直接告诉我。`
-                : `**${chTitle}** 生成完毕！这是最后一章。\n\n全部章节已完成，你可以自由编辑任何章节。`,
+                : `「${chTitle}」生成完毕！这是最后一章。\n\n全部章节已完成，你可以自由编辑任何章节。`,
             },
           ]);
           // Update progress bar for 正文 stage
@@ -1937,10 +1937,10 @@ export default function ChatPanel() {
             sender: "model",
             type: "worldbuilding-card",
             prompt: dataRef.current.isMarketing
-              ? `策略确认！项目暂定为**《${dataRef.current.sceneTitle}》**。以下是视频故事线，看看感觉怎么样？`
+              ? `策略确认！项目暂定为《${dataRef.current.sceneTitle}》。以下是视频故事线，看看感觉怎么样？`
               : dataRef.current.isKnowledge
-              ? `配置确认！项目暂定为**《${dataRef.current.sceneTitle}》**。以下是设定体系分析，看看感觉怎么样？`
-              : `设定确认！故事暂定为**《${dataRef.current.sceneTitle}》**（可随时在顶部修改）。\n\n以下是世界观，看看感觉怎么样？`,
+              ? `配置确认！项目暂定为《${dataRef.current.sceneTitle}》。以下是设定体系分析，看看感觉怎么样？`
+              : `设定确认！故事暂定为《${dataRef.current.sceneTitle}》（可随时在顶部修改）。\n\n以下是世界观，看看感觉怎么样？`,
             data: dataRef.current.sceneWorldbuilding,
           },
         ]);
@@ -2056,10 +2056,10 @@ export default function ChatPanel() {
             sender: "model",
             type: "text",
             content: dataRef.current.isMarketing
-              ? `大纲确认！共 ${chapterTitles.length} 幕，我会逐幕为你生成详细脚本。\n\n准备好了说「开始写」或「继续」，我就从 **${chapterTitles[0]}** 开始。`
+              ? `大纲确认！共 ${chapterTitles.length} 幕，我会逐幕为你生成详细脚本。\n\n准备好了说「开始写」或「继续」，我就从「${chapterTitles[0]}」开始。`
               : dataRef.current.isKnowledge
-              ? `大纲确认！共 ${chapterTitles.length} 篇，我会逐篇为你生成深度分析。\n\n准备好了说「开始写」或「继续」，我就从 **${chapterTitles[0]}** 开始。`
-              : `大纲确认！共 ${chapterTitles.length} 章，我会逐章为你生成正文，每章完成后你可以在编辑区直接修改。\n\n准备好了说「开始写」或「继续」，我就从 **${chapterTitles[0]}** 开始。`,
+              ? `大纲确认！共 ${chapterTitles.length} 篇，我会逐篇为你生成深度分析。\n\n准备好了说「开始写」或「继续」，我就从「${chapterTitles[0]}」开始。`
+              : `大纲确认！共 ${chapterTitles.length} 章，我会逐章为你生成正文，每章完成后你可以在编辑区直接修改。\n\n准备好了说「开始写」或「继续」，我就从「${chapterTitles[0]}」开始。`,
           },
         ]);
         setCurrentRound(14);
@@ -2085,7 +2085,7 @@ export default function ChatPanel() {
               id: `model-gen-ch-${nextChapter}`,
               sender: "model",
               type: "text",
-              content: `好的，正在生成 **${title}**...`,
+              content: `好的，正在生成「${title}」...`,
             },
           ]);
           setWritingChapter(nextChapter);
@@ -2387,7 +2387,7 @@ export default function ChatPanel() {
                           const title = novelChapters[nextCh]?.title || "";
                           setMessages((prev) => [
                             ...prev.filter((m) => m.id !== thinkingId),
-                            { id: `model-gen-ch-${nextCh}`, sender: "model" as const, type: "text" as const, content: `好的，正在生成 **${title}**...` },
+                            { id: `model-gen-ch-${nextCh}`, sender: "model" as const, type: "text" as const, content: `好的，正在生成「${title}」...` },
                           ]);
                           setWritingChapter(nextCh);
                           generateChapter(nextCh);
