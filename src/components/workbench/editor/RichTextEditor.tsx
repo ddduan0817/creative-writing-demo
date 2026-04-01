@@ -38,6 +38,7 @@ export default function RichTextEditor() {
     setCurrentNovelChapter,
     setNovelChapterContent,
     workMode,
+    agentStageData,
   } = useEditorStore();
 
   const currentChapter = chapters.find((c) => c.id === currentChapterId);
@@ -422,7 +423,15 @@ export default function RichTextEditor() {
       marketing: marketingSettingsData,
       knowledge: knowledgeSettingsData,
     };
-    const settingsData = settingsDataMap[scene] || novelSettingsData;
+    // Use store data from ChatPanel if available, else hardcoded
+    const storeSettings = agentStageData?.settings as Record<string, { label: string; value: string }[]> | undefined;
+    const settingsData = storeSettings
+      ? Object.entries(storeSettings).map(([group, items], i) => ({
+          group,
+          type: (i === 0 ? "text" : "tags") as "text" | "tags",
+          items,
+        }))
+      : (settingsDataMap[scene] || novelSettingsData);
 
     const settingsTitleMap: Record<string, string> = {
       novel: "创作设定",
@@ -538,7 +547,35 @@ export default function RichTextEditor() {
         ],
       },
     };
-    const wb = worldbuildingData[scene] || worldbuildingData.novel;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const storeWb = agentStageData?.worldbuilding as any;
+    const wb: {
+      title: string;
+      summaryLabel: string;
+      summary: string;
+      timelineLabel: string;
+      timeline: string;
+      scenesTitle: string;
+      scenes: { name: string; desc: string }[];
+      ecologyTitle: string;
+      ecology: string[];
+      cluesTitle: string;
+      clues: string[];
+    } = storeWb
+      ? {
+          title: scene === "marketing" ? "故事线设计" : scene === "knowledge" ? "设定体系拆解" : "世界观",
+          summaryLabel: scene === "marketing" ? "视频概述" : scene === "knowledge" ? "体系概述" : "世界概述",
+          summary: storeWb.summary,
+          timelineLabel: scene === "knowledge" ? "设定揭露节奏" : "时间线",
+          timeline: storeWb.timeline,
+          scenesTitle: scene === "knowledge" ? "核心设定" : "核心场景",
+          scenes: (storeWb.scenes || []).map((s: { name: string; description: string }) => ({ name: s.name, desc: s.description })),
+          ecologyTitle: scene === "marketing" ? "平台策略" : scene === "knowledge" ? "分析特征" : "社会生态",
+          ecology: storeWb.socialEcology || [],
+          cluesTitle: scene === "marketing" ? "关键洞察" : "隐藏线索",
+          clues: storeWb.hiddenClues || [],
+        }
+      : (worldbuildingData[scene] || worldbuildingData.novel);
 
     // ── Characters data per scene ──
     const charactersData: Record<string, {
@@ -657,7 +694,37 @@ export default function RichTextEditor() {
         relationships: "克莱恩 × 塔罗会：从「愚者先生」的伪装到真正的战友情谊\n克莱恩 × 阿蒙：宿敌+镜像，两个「扮演者」的终极对决\n克莱恩 × 老尼尔：师徒+遗志，贯穿全书的情感暗线\n亚当 × 阿蒙：兄弟+对手，各自追求成神的不同路径",
       },
     };
-    const chars = charactersData[scene] || charactersData.novel;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const storeChars = agentStageData?.characters as any;
+    const profileToItems = (p: { name?: string; identity?: string; personality?: string; appearance?: string; habit?: string; secret?: string }) => [
+      { label: "身份", value: p.identity || "" },
+      { label: "性格", value: p.personality || "" },
+      { label: "外貌", value: p.appearance || "" },
+      { label: "习惯", value: p.habit || "" },
+      { label: "秘密", value: p.secret || "" },
+    ];
+    const chars = storeChars
+      ? {
+          title: scene === "marketing" ? "出镜角色设定" : scene === "knowledge" ? "角色分析" : "角色档案",
+          leadATitle: scene === "marketing" ? "出镜者" : scene === "knowledge" ? "主角" : "女主角",
+          leadA: {
+            name: storeChars.femaleLead?.name || "",
+            subtitle: undefined as string | undefined,
+            color: "purple",
+            items: profileToItems(storeChars.femaleLead || {}),
+          },
+          leadBTitle: scene === "marketing" ? "产品" : scene === "knowledge" ? "核心反派" : "男主角",
+          leadB: {
+            name: storeChars.maleLead?.name || "",
+            subtitle: undefined as string | undefined,
+            color: "blue",
+            items: profileToItems(storeChars.maleLead || {}),
+          },
+          supportingTitle: scene === "marketing" ? "辅助元素" : "关键配角",
+          supporting: (storeChars.supporting || []) as { name: string; role: string; desc: string }[],
+          relationships: (storeChars.relationships || "") as string,
+        }
+      : (charactersData[scene] || charactersData.novel);
 
     // ── Outline data per scene ──
     const outlineData: Record<string, {
@@ -741,7 +808,26 @@ export default function RichTextEditor() {
         },
       },
     };
-    const ol = outlineData[scene] || outlineData.novel;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const storeOutline = agentStageData?.outline as any;
+    const ol: {
+      title: string;
+      badge: string;
+      info: string;
+      chapters: { title: string; summary: string; keyEvent: string; tag: string }[];
+      tagColors: Record<string, string>;
+    } = storeOutline
+      ? {
+          title: scene === "marketing" ? "分幕脚本" : scene === "knowledge" ? "结构化分析大纲" : "故事大纲",
+          badge: storeOutline.structure || "",
+          info: `${storeOutline.totalChapters || storeOutline.chapters?.length || 0}章 · ${storeOutline.estimatedWords || ""}`,
+          chapters: (storeOutline.chapters || []).map((ch: { title: string; summary: string; keyEvent: string }, i: number) => ({
+            ...ch,
+            tag: `${i + 1}`,
+          })),
+          tagColors: {} as Record<string, string>,
+        }
+      : (outlineData[scene] || outlineData.novel);
 
     return (
       <div className="h-full flex flex-col">

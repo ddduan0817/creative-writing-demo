@@ -30,6 +30,12 @@ interface EditorState {
   stageProgress: number; // 0-1, sub-progress within current stage (for line fill animation)
   setStageProgress: (progress: number) => void;
 
+  // Agent flow: stage content data (written by ChatPanel, read by RichTextEditor)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  agentStageData: Record<string, any>; // { settings, worldbuilding, characters, outline }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  setAgentStageData: (key: string, data: any) => void;
+
   // 小说正文章节（novel agent flow - 正文阶段）
   novelChapters: { title: string; content: string; status: "pending" | "generating" | "done" }[];
   currentNovelChapter: number;
@@ -143,6 +149,8 @@ export const useEditorStore = create<EditorState>((set) => ({
   setCreationStage: (stage) => set({ creationStage: stage, stageProgress: 0 }),
   stageProgress: 0,
   setStageProgress: (progress) => set({ stageProgress: progress }),
+  agentStageData: {},
+  setAgentStageData: (key, data) => set((s) => ({ agentStageData: { ...s.agentStageData, [key]: data } })),
   novelChapters: [],
   currentNovelChapter: 0,
   initNovelChapters: (titles) => set({ novelChapters: titles.map((t) => ({ title: t, content: "", status: "pending" as const })), currentNovelChapter: 0 }),

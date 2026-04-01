@@ -1171,6 +1171,7 @@ export default function ChatPanel() {
   const setCreationStage = useEditorStore((s) => s.setCreationStage);
   const setStageProgress = useEditorStore((s) => s.setStageProgress);
   const setAutoTitle = useEditorStore((s) => s.setAutoTitle);
+  const setAgentStageData = useEditorStore((s) => s.setAgentStageData);
   const initNovelChapters = useEditorStore((s) => s.initNovelChapters);
   const setNovelChapterStatus = useEditorStore((s) => s.setNovelChapterStatus);
   const setNovelChapterContent = useEditorStore((s) => s.setNovelChapterContent);
@@ -1543,6 +1544,7 @@ export default function ChatPanel() {
           ]);
           setCurrentRound(4);
           setCreationStage(1);
+          setAgentStageData("settings", dataRef.current.sceneSettingsCard);
         }, 2500);
         return;
       }
@@ -1590,6 +1592,7 @@ export default function ChatPanel() {
           ]);
           setCurrentRound(8);
           setCreationStage(2);
+          setAgentStageData("worldbuilding", dataRef.current.sceneWorldbuilding);
         }, 2500);
         return;
       }
@@ -1637,11 +1640,12 @@ export default function ChatPanel() {
           ]);
           setCurrentRound(12);
           setCreationStage(3);
+          setAgentStageData("characters", dataRef.current.sceneCharacterCard);
         }, 2500);
         return;
       }
     },
-    [setCreationStage, flowMode]
+    [setCreationStage, flowMode, setAgentStageData]
   );
 
   // Handle card selection → show micro-adjust prompt
@@ -1884,6 +1888,7 @@ export default function ChatPanel() {
         ]);
         setCurrentRound(8);
         setCreationStage(2);
+        setAgentStageData("worldbuilding", dataRef.current.sceneWorldbuilding);
       }, 2500);
       return;
     }
@@ -1912,6 +1917,7 @@ export default function ChatPanel() {
         ]);
         setCurrentRound(12);
         setCreationStage(3);
+        setAgentStageData("characters", dataRef.current.sceneCharacterCard);
       }, 2500);
       return;
     }
@@ -1968,6 +1974,7 @@ export default function ChatPanel() {
         ]);
         setCurrentRound(13);
         setCreationStage(4);
+        setAgentStageData("outline", dataRef.current.sceneOutlineCard);
       }, 2500);
       return;
     }
@@ -2074,9 +2081,10 @@ export default function ChatPanel() {
         ]);
         setCurrentRound(4);
         setCreationStage(1);
+        setAgentStageData("settings", dataRef.current.sceneSettingsCard);
       }, 2500);
     }
-  }, [input, awaitingAdjust, adjustRound, currentRound, flowMode, writingChapter, novelChapters, novelLength, setCreationStage, setStageProgress, setAutoTitle, proceedToNextRound, initNovelChapters, generateChapter, getSettingsSummary]);
+  }, [input, awaitingAdjust, adjustRound, currentRound, flowMode, writingChapter, novelChapters, novelLength, setCreationStage, setStageProgress, setAutoTitle, setAgentStageData, proceedToNextRound, initNovelChapters, generateChapter, getSettingsSummary]);
 
   // Quick confirm: set input text then trigger send on next render
   const pendingSend = useRef(false);
@@ -2493,6 +2501,7 @@ export default function ChatPanel() {
                           ]);
                           setCurrentRound(4);
                           setCreationStage(1);
+                          setAgentStageData("settings", dataRef.current.sceneSettingsCard);
                         }, 2500);
                       }}
                       className="px-4 py-2.5 bg-indigo-50 text-indigo-600 text-sm font-medium rounded-xl border border-indigo-100 hover:bg-indigo-100 transition"
@@ -2556,7 +2565,13 @@ export default function ChatPanel() {
 
                 {/* Settings Card - truncated with fade */}
                 <div className="pl-8">
-                  <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden relative">
+                  <div
+                    className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden relative cursor-pointer hover:border-indigo-200 transition"
+                    onClick={() => {
+                      setCreationStage(1);
+                      setAgentStageData("settings", msg.settings);
+                    }}
+                  >
                     <div className="max-h-[160px] overflow-hidden">
                       {Object.entries(msg.settings).map(([group, items], gi) => (
                         <div key={group}>
@@ -2588,7 +2603,7 @@ export default function ChatPanel() {
                     <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
                     {/* View full in editor hint */}
                     <div className="relative px-4 py-2.5 text-center border-t border-gray-50">
-                      <span className="text-[11px] text-gray-400">查看完整设定请点击编辑区</span>
+                      <span className="text-[11px] text-gray-400">点击卡片查看完整设定</span>
                     </div>
                   </div>
                   {/* Action buttons */}
@@ -2618,6 +2633,7 @@ export default function ChatPanel() {
                                   settings: altData,
                                 },
                               ]);
+                              setAgentStageData("settings", altData);
                             }, 2000);
                           }}
                           className="px-4 py-2.5 text-gray-500 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
@@ -2674,7 +2690,13 @@ export default function ChatPanel() {
 
                 {/* Worldbuilding Card - truncated with fade */}
                 <div className="pl-8">
-                  <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden relative">
+                  <div
+                    className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden relative cursor-pointer hover:border-emerald-200 transition"
+                    onClick={() => {
+                      setCreationStage(2);
+                      setAgentStageData("worldbuilding", msg.data);
+                    }}
+                  >
                     <div className="max-h-[200px] overflow-hidden">
                       {/* Summary */}
                       <div className="px-4 py-3">
@@ -2703,7 +2725,7 @@ export default function ChatPanel() {
                     {/* Gradient fade */}
                     <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
                     <div className="relative px-4 py-2.5 text-center border-t border-gray-50">
-                      <span className="text-[11px] text-gray-400">查看完整世界观请点击编辑区</span>
+                      <span className="text-[11px] text-gray-400">点击卡片查看完整世界观</span>
                     </div>
                   </div>
                   {/* Action buttons */}
@@ -2762,7 +2784,13 @@ export default function ChatPanel() {
 
                 {/* Character Card - truncated with fade */}
                 <div className="pl-8">
-                  <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden relative">
+                  <div
+                    className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden relative cursor-pointer hover:border-purple-200 transition"
+                    onClick={() => {
+                      setCreationStage(3);
+                      setAgentStageData("characters", msg.data);
+                    }}
+                  >
                     <div className="max-h-[200px] overflow-hidden">
                       {/* Female lead */}
                       <div className="px-4 py-3">
@@ -2795,7 +2823,7 @@ export default function ChatPanel() {
                     {/* Gradient fade */}
                     <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
                     <div className="relative px-4 py-2.5 text-center border-t border-gray-50">
-                      <span className="text-[11px] text-gray-400">查看完整角色档案请点击编辑区</span>
+                      <span className="text-[11px] text-gray-400">点击卡片查看完整角色档案</span>
                     </div>
                   </div>
                   {/* Action buttons */}
@@ -2854,7 +2882,13 @@ export default function ChatPanel() {
 
                 {/* Outline Card - truncated */}
                 <div className="pl-8">
-                  <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden relative">
+                  <div
+                    className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden relative cursor-pointer hover:border-indigo-200 transition"
+                    onClick={() => {
+                      setCreationStage(4);
+                      setAgentStageData("outline", msg.data);
+                    }}
+                  >
                     <div className="max-h-[220px] overflow-hidden">
                       {/* Structure info */}
                       <div className="px-4 py-3 flex items-center gap-3">
@@ -2878,7 +2912,7 @@ export default function ChatPanel() {
                     {/* Gradient fade */}
                     <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
                     <div className="relative px-4 py-2.5 text-center border-t border-gray-50">
-                      <span className="text-[11px] text-gray-400">查看完整大纲请点击编辑区</span>
+                      <span className="text-[11px] text-gray-400">点击卡片查看完整大纲</span>
                     </div>
                   </div>
                   {/* Action buttons */}
