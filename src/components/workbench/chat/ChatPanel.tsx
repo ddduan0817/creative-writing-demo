@@ -2063,14 +2063,16 @@ export default function ChatPanel() {
             sender: "model",
             type: "text",
             content: dataRef.current.isMarketing
-              ? `大纲确认！共 ${chapterTitles.length} 幕，我会逐幕为你生成详细脚本。\n\n准备好了说「开始写」或「继续」，我就从「${chapterTitles[0]}」开始。`
+              ? `大纲确认！共 ${chapterTitles.length} 幕，正在生成「${chapterTitles[0]}」...`
               : dataRef.current.isKnowledge
-              ? `大纲确认！共 ${chapterTitles.length} 篇，我会逐篇为你生成深度分析。\n\n准备好了说「开始写」或「继续」，我就从「${chapterTitles[0]}」开始。`
-              : `大纲确认！共 ${chapterTitles.length} 章，我会逐章为你生成正文，每章完成后你可以在编辑区直接修改。\n\n准备好了说「开始写」或「继续」，我就从「${chapterTitles[0]}」开始。`,
+              ? `大纲确认！共 ${chapterTitles.length} 篇，正在生成「${chapterTitles[0]}」...`
+              : `大纲确认！共 ${chapterTitles.length} 章，正在生成「${chapterTitles[0]}」...`,
           },
         ]);
         setCurrentRound(14);
         setCreationStage(5);
+        setWritingChapter(0);
+        generateChapter(0);
       }, 2000);
       return;
     }
