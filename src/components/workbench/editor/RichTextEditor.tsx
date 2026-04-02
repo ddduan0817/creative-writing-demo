@@ -169,13 +169,17 @@ export default function RichTextEditor() {
     if (creationStage < 5) return;
     const genIdx = novelChapters.findIndex((c) => c.status === "generating");
     if (genIdx >= 0) {
-      const el = document.getElementById(`chapter-${genIdx}`);
-      const container = editorWrapRef.current;
-      if (el && container) {
-        // Scroll so the chapter title aligns with the top of the scroll container
-        const elTop = el.offsetTop - container.offsetTop;
-        container.scrollTo({ top: elTop, behavior: "smooth" });
-      }
+      // Small delay to ensure DOM has rendered the new chapter element
+      setTimeout(() => {
+        const el = document.getElementById(`chapter-${genIdx}`);
+        const container = editorWrapRef.current;
+        if (el && container) {
+          const containerRect = container.getBoundingClientRect();
+          const elRect = el.getBoundingClientRect();
+          const scrollOffset = elRect.top - containerRect.top + container.scrollTop;
+          container.scrollTo({ top: scrollOffset, behavior: "smooth" });
+        }
+      }, 100);
     }
   }, [creationStage, novelChapters.map((c) => c.status).join(",")]);
 
