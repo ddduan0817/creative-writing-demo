@@ -170,7 +170,12 @@ export default function RichTextEditor() {
     const genIdx = novelChapters.findIndex((c) => c.status === "generating");
     if (genIdx >= 0) {
       const el = document.getElementById(`chapter-${genIdx}`);
-      el?.scrollIntoView({ behavior: "smooth", block: "start" });
+      const container = editorWrapRef.current;
+      if (el && container) {
+        // Scroll so the chapter title aligns with the top of the scroll container
+        const elTop = el.offsetTop - container.offsetTop;
+        container.scrollTo({ top: elTop, behavior: "smooth" });
+      }
     }
   }, [creationStage, novelChapters.map((c) => c.status).join(",")]);
 
