@@ -2160,40 +2160,42 @@ export default function ChatPanel() {
 
   // Collect all keywords from all rounds for the "fav bar"
 
-  // ── Mode Selection: full chat-area centered UI (no chat, no input) ──
+  // ── Mode Selection: floating overlay centered on page ──
   if ((scene === "novel" || scene === "screenplay") && workMode === null) {
     const sceneLabel = scene === "novel" ? "小说" : "剧本";
     return (
-      <div className="h-full flex flex-col items-center justify-center bg-gradient-to-b from-gray-50/50 to-white px-8">
-        <div className="mb-8 text-center">
-          <h2 className="text-2xl font-light text-gray-800 tracking-wide mb-2">选择创作模式</h2>
-          <p className="text-sm text-gray-400">{sceneLabel}创作 · 选择适合你的方式开始</p>
-        </div>
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/80 backdrop-blur-sm">
+        <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 p-8 max-w-md w-full mx-4">
+          <div className="mb-6 text-center">
+            <h2 className="text-xl font-semibold text-gray-800 mb-1.5">选择创作模式</h2>
+            <p className="text-sm text-gray-400">{sceneLabel}创作 · 选择适合你的方式开始</p>
+          </div>
 
-        <div className="flex gap-4 w-full max-w-md">
-          <button
-            onClick={() => handleModeSelect("agent")}
-            className="group flex-1 bg-white rounded-2xl border-2 border-indigo-400 ring-2 ring-indigo-100 p-5 text-left shadow-md hover:shadow-lg transition-all duration-200"
-          >
-            <div className="w-9 h-9 rounded-xl bg-indigo-50 flex items-center justify-center mb-3">
-              <MessageSquare className="w-[18px] h-[18px] text-indigo-500" />
-            </div>
-            <h3 className="text-sm font-semibold text-gray-900 mb-1">引导创作</h3>
-            <p className="text-xs text-gray-500 leading-relaxed">自由对话，灵活探索</p>
-            <p className="text-[11px] text-gray-400 mt-2.5 leading-relaxed">通过 AI 对话完成灵感→设定→角色→大纲→正文的创作流程</p>
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={() => handleModeSelect("agent")}
+              className="group flex-1 bg-white rounded-xl border-2 border-indigo-400 ring-2 ring-indigo-100 p-4 text-left shadow-sm hover:shadow-md transition-all duration-200"
+            >
+              <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center mb-2.5">
+                <MessageSquare className="w-4 h-4 text-indigo-500" />
+              </div>
+              <h3 className="text-sm font-semibold text-gray-900 mb-0.5">引导创作</h3>
+              <p className="text-xs text-gray-500 leading-relaxed">自由对话，灵活探索</p>
+              <p className="text-[11px] text-gray-400 mt-2 leading-relaxed">通过 AI 对话完成灵感→设定→角色→大纲→正文的创作流程</p>
+            </button>
 
-          <button
-            onClick={() => handleModeSelect("workflow")}
-            className="group flex-1 bg-white rounded-2xl border border-gray-200 p-5 text-left hover:border-indigo-300 hover:shadow-lg transition-all duration-200"
-          >
-            <div className="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center mb-3 group-hover:bg-indigo-50 transition">
-              <ListChecks className="w-[18px] h-[18px] text-gray-600 group-hover:text-indigo-500 transition" />
-            </div>
-            <h3 className="text-sm font-semibold text-gray-900 mb-1">独立创作</h3>
-            <p className="text-xs text-gray-500 leading-relaxed">自主配置，自由编辑</p>
-            <p className="text-[11px] text-gray-400 mt-2.5 leading-relaxed">在配置面板中设定参数，按步骤生成，每一步可精确调控</p>
-          </button>
+            <button
+              onClick={() => handleModeSelect("workflow")}
+              className="group flex-1 bg-white rounded-xl border border-gray-200 p-4 text-left hover:border-indigo-300 hover:shadow-md transition-all duration-200"
+            >
+              <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center mb-2.5 group-hover:bg-indigo-50 transition">
+                <ListChecks className="w-4 h-4 text-gray-600 group-hover:text-indigo-500 transition" />
+              </div>
+              <h3 className="text-sm font-semibold text-gray-900 mb-0.5">独立创作</h3>
+              <p className="text-xs text-gray-500 leading-relaxed">自主配置，自由编辑</p>
+              <p className="text-[11px] text-gray-400 mt-2 leading-relaxed">在配置面板中设定参数，按步骤生成，每一步可精确调控</p>
+            </button>
+          </div>
         </div>
       </div>
     );
