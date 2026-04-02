@@ -7,7 +7,7 @@ import Underline from "@tiptap/extension-underline";
 import Placeholder from "@tiptap/extension-placeholder";
 import EditorToolbar from "./EditorToolbar";
 import FloatingSelectionToolbar from "./FloatingSelectionToolbar";
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useLayoutEffect, useState, useCallback, useRef } from "react";
 import { getSceneMockResponses } from "@/data/mockAIResponses";
 import { simulateAIStream } from "@/lib/aiSimulator";
 import {
@@ -165,9 +165,24 @@ export default function RichTextEditor() {
   }, [creationStage, novelChapters.length, setCurrentNovelChapter]);
 
   // Track which chapter we already scrolled to, to avoid repeat scrolls
-  const scrolledToRef = useRef<number>(-1);
   const scrollToChapter = useEditorStore((s) => s.scrollToChapter);
   const setScrollToChapter = useEditorStore((s) => s.setScrollToChapter);
+
+  // useLayoutEffect runs synchronously after DOM commit, before browser paint
+  // This is the correct hook for scroll positioning
+  useLayoutEffect(() => {
+    if (scrollToChapter === null || scrollToChapter < 1) return;
+    const idx = scrollToChapter;
+    setScrollToChapter(null);
+    const el = document.getElementById(`chapter-${idx}`);
+    const container = editorWrapRef.current;
+    if (el && container) {
+      // Get element position relative to scroll container using getBoundingClientRect
+      const containerRect = container.getBoundingClientRect();
+      const elRect = el.getBoundingClientRect();
+      container.scrollTop += elRect.top - containerRect.top;
+    }
+  }, [scrollToChapter, setScrollToChapter]);
 
   const handleAIAction = useCallback(
     (action: string) => {
@@ -1185,20 +1200,6 @@ export default function RichTextEditor() {
                     key={i}
                     id={`chapter-${i}`}
                     className="mb-12"
-                    ref={(el) => {
-                      if (el && scrollToChapter === i && scrolledToRef.current !== i) {
-                        scrolledToRef.current = i;
-                        setScrollToChapter(null);
-                        // Direct scrollTop on the scroll container
-                        setTimeout(() => {
-                          const container = editorWrapRef.current;
-                          if (container) {
-                            // el.offsetTop is relative to offsetParent (the relative scroll container)
-                            container.scrollTop = el.offsetTop;
-                          }
-                        }, 50);
-                      }
-                    }}
                   >
                     {/* Chapter title */}
                     <h2 className="text-lg font-bold text-gray-900 mb-1">{ch.title}</h2>
