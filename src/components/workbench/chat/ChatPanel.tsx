@@ -1808,10 +1808,10 @@ export default function ChatPanel() {
               sender: "model" as const,
               type: "text" as const,
               content: isSingleChapter
-                ? `《${chTitle}》生成完毕！你可以在编辑区查看和自由编辑。\n\n有什么想修改的直接告诉我。`
+                ? `《${chTitle}》生成完毕！你可以在编辑区查看。\n\n想调整哪里直接告诉我，比如「开头节奏太慢」「对话再自然一些」。`
                 : chapterIndex < totalChapters - 1
-                ? `「${chTitle}」生成完毕！你可以在编辑区查看和修改。\n\n满意后说「继续」，我就开始写下一章。`
-                : `「${chTitle}」生成完毕！这是最后一章。\n\n全部章节已完成，你可以自由编辑任何章节。`,
+                ? `「${chTitle}」生成完毕！你可以在编辑区查看。\n\n想调整直接告诉我，满意就说「继续」写下一章。`
+                : `「${chTitle}」生成完毕！全部 ${totalChapters} 章已完成。\n\n想调整任何章节直接告诉我，比如「第三章结尾再加点悬念」。`,
             },
           ]);
           // Update progress bar for 正文 stage
