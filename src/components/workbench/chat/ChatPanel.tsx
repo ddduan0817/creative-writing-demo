@@ -1306,7 +1306,7 @@ export default function ChatPanel() {
   const dataRef = useRef({
     sceneInspirationRounds, sceneSettingsCard, sceneWorldbuildingRounds, sceneWorldbuilding,
     sceneCharacterRounds, sceneCharacterCard, sceneOutlineCard, sceneChapterTexts, sceneTitle, sceneWelcome,
-    isMarketing, isKnowledge, isScreenplay,
+    isMarketing, isKnowledge, isScreenplay, novelLength: null as "short" | "medium" | "long" | null,
   });
   useEffect(() => {
     // When novelVariantRef is 1 (alt) and scene is novel, use alt data for all stages
@@ -1321,6 +1321,7 @@ export default function ChatPanel() {
       sceneOutlineCard: isAlt ? mockOutlineCardAlt : sceneOutlineCard,
       sceneChapterTexts: isAlt ? mockChapterTextsAlt : sceneChapterTexts,
       sceneTitle: isAlt ? "一勺海" : sceneTitle,
+      novelLength,
     };
   });
 
@@ -1366,7 +1367,6 @@ export default function ChatPanel() {
   const [novelLength, setNovelLength] = useState<"short" | "medium" | "long" | null>(null); // 短篇/中篇/长篇
   const [input, setInput] = useState("");
   const [showAttachMenu, setShowAttachMenu] = useState(false);
-  const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set()); // track which cards are expanded
   const attachRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const hasInit = useRef(false);
@@ -1794,8 +1794,9 @@ export default function ChatPanel() {
           clearInterval(streamInterval);
           setNovelChapterStatus(chapterIndex, "done");
           setNovelChapterContent(chapterIndex, fullText);
-          // Notify in chat — use novelChapters count (accurate) instead of sceneOutlineCard
-          const totalChapters = dataRef.current.sceneOutlineCard.chapters.length;
+          // Notify in chat — for short novels, always single chapter
+          const isShort = dataRef.current.novelLength === "short";
+          const totalChapters = isShort ? 1 : dataRef.current.sceneOutlineCard.chapters.length;
           const isSingleChapter = totalChapters <= 1;
           const chTitle = isSingleChapter
             ? (dataRef.current.sceneTitle || "正文")
@@ -1997,8 +1998,6 @@ export default function ChatPanel() {
         setTimeout(() => {
           // Init as single "chapter" with the novel title
           const title = dataRef.current.sceneTitle || "正文";
-          // Override outline card for short novel — single chapter only
-          dataRef.current.sceneOutlineCard = { ...dataRef.current.sceneOutlineCard, chapters: [{ title, summary: "短篇全文", keyEvent: "" }] };
           initNovelChapters([title]);
           setMessages((prev) => [
             ...prev.filter((m) => m.id !== thinkingId),
@@ -2636,16 +2635,11 @@ export default function ChatPanel() {
                   <div
                     className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden relative cursor-pointer hover:border-indigo-200 transition"
                     onClick={() => {
-                      setExpandedCards((prev) => {
-                        const next = new Set(prev);
-                        if (next.has(msg.id)) next.delete(msg.id); else next.add(msg.id);
-                        return next;
-                      });
                       setCreationStage(1);
                       setAgentStageData("settings", msg.settings);
                     }}
                   >
-                    <div className={expandedCards.has(msg.id) ? "" : "max-h-[160px] overflow-hidden"}>
+                    <div className="max-h-[160px] overflow-hidden">
                       {Object.entries(msg.settings).map(([group, items], gi) => (
                         <div key={group}>
                           {gi > 0 && <div className="border-t border-gray-100" />}
@@ -2672,12 +2666,10 @@ export default function ChatPanel() {
                         </div>
                       ))}
                     </div>
-                    {/* Gradient fade overlay (only when collapsed) */}
-                    {!expandedCards.has(msg.id) && (
-                      <div className="absolute bottom-8 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
-                    )}
+                    {/* Gradient fade overlay */}
+                    <div className="absolute bottom-8 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
                     <div className="relative px-4 py-2.5 text-center border-t border-gray-50">
-                      <span className="text-[11px] text-gray-400">{expandedCards.has(msg.id) ? "点击收起" : "点击查看完整设定"}</span>
+                      <span className="text-[11px] text-gray-400">点击在编辑区查看完整设定</span>
                     </div>
                   </div>
                   {/* Action buttons */}
@@ -2767,16 +2759,11 @@ export default function ChatPanel() {
                   <div
                     className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden relative cursor-pointer hover:border-emerald-200 transition"
                     onClick={() => {
-                      setExpandedCards((prev) => {
-                        const next = new Set(prev);
-                        if (next.has(msg.id)) next.delete(msg.id); else next.add(msg.id);
-                        return next;
-                      });
                       setCreationStage(2);
                       setAgentStageData("worldbuilding", msg.data);
                     }}
                   >
-                    <div className={expandedCards.has(msg.id) ? "" : "max-h-[200px] overflow-hidden"}>
+                    <div className="max-h-[200px] overflow-hidden">
                       {/* Summary */}
                       <div className="px-4 py-3">
                         <h4 className="text-xs font-semibold text-gray-500 mb-2">故事世界</h4>
@@ -2786,24 +2773,13 @@ export default function ChatPanel() {
                       {/* Scenes */}
                       <div className="px-4 py-3">
                         <h4 className="text-xs font-semibold text-gray-500 mb-2">核心场景</h4>
-                        {expandedCards.has(msg.id) ? (
-                          <div className="space-y-2">
-                            {msg.data.scenes.map((s) => (
-                              <div key={s.name}>
-                                <span className="text-xs font-medium text-emerald-600">{s.name}</span>
-                                <p className="text-xs text-gray-500 mt-0.5">{s.description}</p>
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <div className="flex flex-wrap gap-1.5">
+                        <div className="flex flex-wrap gap-1.5">
                             {msg.data.scenes.map((s) => (
                               <span key={s.name} className="px-2.5 py-1 bg-emerald-50 text-emerald-600 text-xs rounded-full">
                                 {s.name}
                               </span>
                             ))}
                           </div>
-                        )}
                       </div>
                       <div className="border-t border-gray-100" />
                       {/* Timeline */}
@@ -2811,35 +2787,11 @@ export default function ChatPanel() {
                         <h4 className="text-xs font-semibold text-gray-500 mb-2">时间线</h4>
                         <p className="text-sm text-gray-700 leading-relaxed">{msg.data.timeline}</p>
                       </div>
-                      {expandedCards.has(msg.id) && (
-                        <>
-                          <div className="border-t border-gray-100" />
-                          <div className="px-4 py-3">
-                            <h4 className="text-xs font-semibold text-gray-500 mb-2">社会生态</h4>
-                            <ul className="space-y-1">
-                              {msg.data.socialEcology.map((item, ii) => (
-                                <li key={ii} className="text-xs text-gray-600">· {item}</li>
-                              ))}
-                            </ul>
-                          </div>
-                          <div className="border-t border-gray-100" />
-                          <div className="px-4 py-3">
-                            <h4 className="text-xs font-semibold text-gray-500 mb-2">隐藏线索</h4>
-                            <ul className="space-y-1">
-                              {msg.data.hiddenClues.map((item, ii) => (
-                                <li key={ii} className="text-xs text-gray-600">· {item}</li>
-                              ))}
-                            </ul>
-                          </div>
-                        </>
-                      )}
                     </div>
-                    {/* Gradient fade (only when collapsed) */}
-                    {!expandedCards.has(msg.id) && (
-                      <div className="absolute bottom-8 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
-                    )}
+                    {/* Gradient fade */}
+                    <div className="absolute bottom-8 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
                     <div className="relative px-4 py-2.5 text-center border-t border-gray-50">
-                      <span className="text-[11px] text-gray-400">{expandedCards.has(msg.id) ? "点击收起" : "点击查看完整世界观"}</span>
+                      <span className="text-[11px] text-gray-400">点击在编辑区查看完整世界观</span>
                     </div>
                   </div>
                   {/* Action buttons */}
@@ -2901,29 +2853,17 @@ export default function ChatPanel() {
                   <div
                     className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden relative cursor-pointer hover:border-purple-200 transition"
                     onClick={() => {
-                      setExpandedCards((prev) => {
-                        const next = new Set(prev);
-                        if (next.has(msg.id)) next.delete(msg.id); else next.add(msg.id);
-                        return next;
-                      });
                       setCreationStage(3);
                       setAgentStageData("characters", msg.data);
                     }}
                   >
-                    <div className={expandedCards.has(msg.id) ? "" : "max-h-[200px] overflow-hidden"}>
+                    <div className="max-h-[200px] overflow-hidden">
                       {/* Female lead */}
                       <div className="px-4 py-3">
                         <h4 className="text-xs font-semibold text-gray-500 mb-2">女主角</h4>
                         <p className="text-sm font-medium text-purple-600">{msg.data.femaleLead.name}</p>
                         <p className="text-xs text-gray-500 mt-0.5">{msg.data.femaleLead.identity}</p>
                         <p className="text-xs text-gray-600 mt-1">{msg.data.femaleLead.personality}</p>
-                        {expandedCards.has(msg.id) && (
-                          <div className="mt-1.5 space-y-0.5">
-                            <p className="text-xs text-gray-500"><span className="text-gray-400">外貌：</span>{msg.data.femaleLead.appearance}</p>
-                            <p className="text-xs text-gray-500"><span className="text-gray-400">习惯：</span>{msg.data.femaleLead.habit}</p>
-                            <p className="text-xs text-gray-500"><span className="text-gray-400">秘密：</span>{msg.data.femaleLead.secret}</p>
-                          </div>
-                        )}
                       </div>
                       <div className="border-t border-gray-100" />
                       {/* Male lead */}
@@ -2932,55 +2872,23 @@ export default function ChatPanel() {
                         <p className="text-sm font-medium text-blue-600">{msg.data.maleLead.name}</p>
                         <p className="text-xs text-gray-500 mt-0.5">{msg.data.maleLead.identity}</p>
                         <p className="text-xs text-gray-600 mt-1">{msg.data.maleLead.personality}</p>
-                        {expandedCards.has(msg.id) && (
-                          <div className="mt-1.5 space-y-0.5">
-                            <p className="text-xs text-gray-500"><span className="text-gray-400">外貌：</span>{msg.data.maleLead.appearance}</p>
-                            <p className="text-xs text-gray-500"><span className="text-gray-400">习惯：</span>{msg.data.maleLead.habit}</p>
-                            <p className="text-xs text-gray-500"><span className="text-gray-400">秘密：</span>{msg.data.maleLead.secret}</p>
-                          </div>
-                        )}
                       </div>
                       <div className="border-t border-gray-100" />
                       {/* Supporting */}
                       <div className="px-4 py-3">
                         <h4 className="text-xs font-semibold text-gray-500 mb-2">关键配角</h4>
-                        {expandedCards.has(msg.id) ? (
-                          <div className="space-y-2">
-                            {msg.data.supporting.map((c) => (
-                              <div key={c.name}>
-                                <span className="text-xs font-medium text-amber-600">{c.name}</span>
-                                <span className="text-xs text-gray-400 ml-1.5">{c.role}</span>
-                                <p className="text-xs text-gray-500 mt-0.5">{c.desc}</p>
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <div className="flex flex-wrap gap-1.5">
+                        <div className="flex flex-wrap gap-1.5">
                             {msg.data.supporting.map((c) => (
                               <span key={c.name} className="px-2.5 py-1 bg-amber-50 text-amber-600 text-xs rounded-full">
                                 {c.name}
                               </span>
                             ))}
                           </div>
-                        )}
                       </div>
-                      {expandedCards.has(msg.id) && (
-                        <>
-                          <div className="border-t border-gray-100" />
-                          <div className="px-4 py-3">
-                            <h4 className="text-xs font-semibold text-gray-500 mb-2">人物关系</h4>
-                            {msg.data.relationships.split("\n").map((line, li) => (
-                              <p key={li} className="text-xs text-gray-600">{line}</p>
-                            ))}
-                          </div>
-                        </>
-                      )}
                     </div>
-                    {!expandedCards.has(msg.id) && (
-                      <div className="absolute bottom-8 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
-                    )}
+                    <div className="absolute bottom-8 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
                     <div className="relative px-4 py-2.5 text-center border-t border-gray-50">
-                      <span className="text-[11px] text-gray-400">{expandedCards.has(msg.id) ? "点击收起" : "点击查看完整角色档案"}</span>
+                      <span className="text-[11px] text-gray-400">点击在编辑区查看完整角色档案</span>
                     </div>
                   </div>
                   {/* Action buttons */}
@@ -3042,16 +2950,11 @@ export default function ChatPanel() {
                   <div
                     className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden relative cursor-pointer hover:border-indigo-200 transition"
                     onClick={() => {
-                      setExpandedCards((prev) => {
-                        const next = new Set(prev);
-                        if (next.has(msg.id)) next.delete(msg.id); else next.add(msg.id);
-                        return next;
-                      });
                       setCreationStage(4);
                       setAgentStageData("outline", msg.data);
                     }}
                   >
-                    <div className={expandedCards.has(msg.id) ? "" : "max-h-[220px] overflow-hidden"}>
+                    <div className="max-h-[220px] overflow-hidden">
                       {/* Structure info */}
                       <div className="px-4 py-3 flex items-center gap-3">
                         <span className="px-2.5 py-1 bg-indigo-50 text-indigo-600 text-xs rounded-full font-medium">{msg.data.structure}</span>
@@ -3060,25 +2963,20 @@ export default function ChatPanel() {
                       <div className="border-t border-gray-100" />
                       {/* Chapter list */}
                       <div className="px-4 py-2">
-                        {(expandedCards.has(msg.id) ? msg.data.chapters : msg.data.chapters.slice(0, 5)).map((ch, i) => (
+                        {msg.data.chapters.slice(0, 5).map((ch, i) => (
                           <div key={i} className="flex items-start gap-2.5 py-2">
                             <span className="text-xs text-gray-300 w-5 shrink-0 text-right">{i + 1}</span>
                             <div>
                               <p className="text-sm font-medium text-gray-700">{ch.title}</p>
                               <p className="text-xs text-gray-400 mt-0.5">{ch.keyEvent}</p>
-                              {expandedCards.has(msg.id) && (
-                                <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{ch.summary}</p>
-                              )}
                             </div>
                           </div>
                         ))}
                       </div>
                     </div>
-                    {!expandedCards.has(msg.id) && (
-                      <div className="absolute bottom-8 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
-                    )}
+                    <div className="absolute bottom-8 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
                     <div className="relative px-4 py-2.5 text-center border-t border-gray-50">
-                      <span className="text-[11px] text-gray-400">{expandedCards.has(msg.id) ? "点击收起" : "点击查看完整大纲"}</span>
+                      <span className="text-[11px] text-gray-400">点击在编辑区查看完整大纲</span>
                     </div>
                   </div>
                   {/* Action buttons */}
