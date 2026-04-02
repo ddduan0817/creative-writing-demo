@@ -7,7 +7,7 @@ import Underline from "@tiptap/extension-underline";
 import Placeholder from "@tiptap/extension-placeholder";
 import EditorToolbar from "./EditorToolbar";
 import FloatingSelectionToolbar from "./FloatingSelectionToolbar";
-import { useEffect, useLayoutEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { getSceneMockResponses } from "@/data/mockAIResponses";
 import { simulateAIStream } from "@/lib/aiSimulator";
 import {
@@ -167,20 +167,13 @@ export default function RichTextEditor() {
   // Track which chapter we already scrolled to, to avoid repeat scrolls
   const scrollToChapter = useEditorStore((s) => s.scrollToChapter);
   const setScrollToChapter = useEditorStore((s) => s.setScrollToChapter);
-
-  // useLayoutEffect runs synchronously after DOM commit, before browser paint
-  // This is the correct hook for scroll positioning
-  useLayoutEffect(() => {
-    if (scrollToChapter === null || scrollToChapter < 1) return;
-    const idx = scrollToChapter;
-    setScrollToChapter(null);
-    const el = document.getElementById(`chapter-${idx}`);
-    const container = editorWrapRef.current;
-    if (el && container) {
-      // Get element position relative to scroll container using getBoundingClientRect
-      const containerRect = container.getBoundingClientRect();
-      const elRect = el.getBoundingClientRect();
-      container.scrollTop += elRect.top - containerRect.top;
+  // The "active" chapter is the latest generating or last done chapter
+  const [showPreviousChapters, setShowPreviousChapters] = useState(false);
+  // Reset showPreviousChapters when a new chapter starts generating
+  useEffect(() => {
+    if (scrollToChapter !== null && scrollToChapter >= 1) {
+      setShowPreviousChapters(false);
+      setScrollToChapter(null);
     }
   }, [scrollToChapter, setScrollToChapter]);
 
@@ -1192,46 +1185,59 @@ export default function RichTextEditor() {
               />
             )}
             <div className="max-w-3xl mx-auto">
-              {novelChapters.map((ch, i) => {
-                if (ch.status === "pending") return null;
-                const isChGenerating = ch.status === "generating";
-                return (
-                  <div
-                    key={i}
-                    id={`chapter-${i}`}
-                    className="mb-12"
-                  >
-                    {/* Chapter title */}
-                    <h2 className="text-lg font-bold text-gray-900 mb-1">{ch.title}</h2>
-                    <p className="text-xs text-gray-400 mb-4">
-                      {isChGenerating ? "生成中 ..." : ch.status === "done" ? "" : "等待生成"}
-                    </p>
+              {(() => {
+                // Find the "active" chapter: the latest generating, or the last done
+                const activeIdx = novelChapters.findIndex((c) => c.status === "generating");
+                const latestIdx = activeIdx >= 0 ? activeIdx : novelChapters.reduce((acc, c, idx) => c.status === "done" ? idx : acc, 0);
 
-                    {/* Chapter content */}
-                    {ch.content ? (
-                      <div className="prose prose-sm max-w-none">
-                        {isChGenerating ? (
-                          <div className="text-sm text-gray-700 leading-[1.8] whitespace-pre-wrap">
-                            {ch.content}
-                            <span className="inline-block w-0.5 h-4 bg-indigo-500 animate-pulse ml-0.5 align-middle" />
-                          </div>
-                        ) : (
-                          <div
-                            contentEditable
-                            suppressContentEditableWarning
-                            onInput={(e) => setNovelChapterContent(i, (e.target as HTMLDivElement).innerText)}
-                            className="w-full text-sm text-gray-700 leading-[1.8] outline-none bg-transparent whitespace-pre-wrap"
-                          >
-                            {ch.content}
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="text-sm text-gray-300 italic">等待生成...</div>
-                    )}
-                  </div>
-                );
-              })}
+                return novelChapters.map((ch, i) => {
+                  if (ch.status === "pending") return null;
+                  // Hide previous chapters unless user clicked "查看上文"
+                  if (i < latestIdx && !showPreviousChapters) return null;
+                  const isChGenerating = ch.status === "generating";
+                  return (
+                    <div key={i} id={`chapter-${i}`} className="mb-12">
+                      {/* Show "查看上文" button at top of active chapter */}
+                      {i === latestIdx && latestIdx > 0 && !showPreviousChapters && (
+                        <button
+                          onClick={() => setShowPreviousChapters(true)}
+                          className="mb-6 text-xs text-indigo-500 hover:text-indigo-700 transition flex items-center gap-1"
+                        >
+                          <span>↑</span> 查看前面的章节
+                        </button>
+                      )}
+                      {/* Chapter title */}
+                      <h2 className="text-lg font-bold text-gray-900 mb-1">{ch.title}</h2>
+                      <p className="text-xs text-gray-400 mb-4">
+                        {isChGenerating ? "生成中 ..." : ""}
+                      </p>
+
+                      {/* Chapter content */}
+                      {ch.content ? (
+                        <div className="prose prose-sm max-w-none">
+                          {isChGenerating ? (
+                            <div className="text-sm text-gray-700 leading-[1.8] whitespace-pre-wrap">
+                              {ch.content}
+                              <span className="inline-block w-0.5 h-4 bg-indigo-500 animate-pulse ml-0.5 align-middle" />
+                            </div>
+                          ) : (
+                            <div
+                              contentEditable
+                              suppressContentEditableWarning
+                              onInput={(e) => setNovelChapterContent(i, (e.target as HTMLDivElement).innerText)}
+                              className="w-full text-sm text-gray-700 leading-[1.8] outline-none bg-transparent whitespace-pre-wrap"
+                            >
+                              {ch.content}
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="text-sm text-gray-300 italic">等待生成...</div>
+                      )}
+                    </div>
+                  );
+                });
+              })()}
             </div>
           </div>
         </div>
