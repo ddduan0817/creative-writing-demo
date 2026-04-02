@@ -1794,24 +1794,28 @@ export default function ChatPanel() {
           clearInterval(streamInterval);
           setNovelChapterStatus(chapterIndex, "done");
           setNovelChapterContent(chapterIndex, fullText);
-          // Notify in chat
-          const chTitle = dataRef.current.sceneOutlineCard.chapters[chapterIndex]?.title || `第${chapterIndex + 1}章`;
+          // Notify in chat — use novelChapters count (accurate) instead of sceneOutlineCard
+          const totalChapters = dataRef.current.sceneOutlineCard.chapters.length;
+          const isSingleChapter = totalChapters <= 1;
+          const chTitle = isSingleChapter
+            ? (dataRef.current.sceneTitle || "正文")
+            : (dataRef.current.sceneOutlineCard.chapters[chapterIndex]?.title || `第${chapterIndex + 1}章`);
           setMessages((prev) => [
             ...prev,
             {
               id: `model-ch-done-${chapterIndex}`,
               sender: "model" as const,
               type: "text" as const,
-              content: chapterIndex < dataRef.current.sceneOutlineCard.chapters.length - 1
+              content: isSingleChapter
+                ? `《${chTitle}》生成完毕！你可以在编辑区查看和自由编辑。\n\n有什么想修改的直接告诉我。`
+                : chapterIndex < totalChapters - 1
                 ? `「${chTitle}」生成完毕！你可以在编辑区查看和修改。\n\n满意后说「继续」，我就开始写下一章。`
-                : dataRef.current.sceneOutlineCard.chapters.length === 1
-                ? `全文生成完毕！你可以在编辑区查看和自由编辑。\n\n有什么想修改的直接告诉我。`
                 : `「${chTitle}」生成完毕！这是最后一章。\n\n全部章节已完成，你可以自由编辑任何章节。`,
             },
           ]);
           // Update progress bar for 正文 stage
           const doneCount = chapterIndex + 1;
-          const total = dataRef.current.sceneOutlineCard.chapters.length;
+          const total = Math.max(totalChapters, 1);
           setStageProgress(doneCount / total);
           return;
         }
@@ -1991,15 +1995,18 @@ export default function ChatPanel() {
         }, 300);
 
         setTimeout(() => {
-          // Init as single "chapter"
-          initNovelChapters(["全文"]);
+          // Init as single "chapter" with the novel title
+          const title = dataRef.current.sceneTitle || "正文";
+          // Override outline card for short novel — single chapter only
+          dataRef.current.sceneOutlineCard = { ...dataRef.current.sceneOutlineCard, chapters: [{ title, summary: "短篇全文", keyEvent: "" }] };
+          initNovelChapters([title]);
           setMessages((prev) => [
             ...prev.filter((m) => m.id !== thinkingId),
             {
               id: "model-write-start",
               sender: "model",
               type: "text",
-              content: "角色档案完成！短篇不需要大纲，直接开始写正文。\n\n正在为你生成全文...",
+              content: `角色档案完成！短篇不需要大纲，直接开始写正文。\n\n正在为你生成《${title}》...`,
             },
           ]);
           setCurrentRound(14);
@@ -2361,7 +2368,7 @@ export default function ChatPanel() {
           if (msg.sender === "model" && msg.type === "text") {
             const isChapterDone = msg.id.startsWith("model-ch-done-");
             const chapterIdx = isChapterDone ? parseInt(msg.id.replace("model-ch-done-", ""), 10) : -1;
-            const hasNextChapter = isChapterDone && chapterIdx < dataRef.current.sceneOutlineCard.chapters.length - 1;
+            const hasNextChapter = isChapterDone && novelChapters.length > 1 && chapterIdx < novelChapters.length - 1;
             const isLastMessage = idx === messages.length - 1;
             return (
               <div key={msg.id} className="space-y-2">
