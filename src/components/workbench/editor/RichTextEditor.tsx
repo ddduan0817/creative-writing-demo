@@ -1156,7 +1156,7 @@ export default function RichTextEditor() {
             </>
           )}
 
-          {/* Editor area — continuous document with all chapters */}
+          {/* Editor area — show current chapter only */}
           <div className="flex-1 overflow-y-auto px-8 py-6 pl-14 relative" ref={editorWrapRef} onMouseUp={handleMouseUpSelection}>
             {/* Floating Selection Toolbar for writing mode */}
             {floatingToolbar.show && (
@@ -1172,7 +1172,10 @@ export default function RichTextEditor() {
               />
             )}
             <div className="max-w-3xl mx-auto">
-              {novelChapters.map((ch, i) => {
+              {(() => {
+                const ch = novelChapters[currentNovelChapter];
+                if (!ch) return null;
+                const i = currentNovelChapter;
                 const isChGenerating = ch.status === "generating";
                 return (
                   <div key={i} id={`chapter-${i}`} className="mb-12">
@@ -1206,8 +1209,36 @@ export default function RichTextEditor() {
                     )}
                   </div>
                 );
-              })}
+              })()}
             </div>
+
+            {/* Chapter navigation arrows */}
+            {novelChapters.length > 1 && (
+              <div className="absolute top-1/2 -translate-y-1/2 left-2 right-2 flex justify-between pointer-events-none">
+                <button
+                  onClick={() => currentNovelChapter > 0 && setCurrentNovelChapter(currentNovelChapter - 1)}
+                  disabled={currentNovelChapter === 0}
+                  className={`pointer-events-auto w-8 h-8 rounded-full flex items-center justify-center transition shadow-sm ${
+                    currentNovelChapter > 0
+                      ? "bg-white border border-gray-200 text-gray-500 hover:bg-gray-50"
+                      : "opacity-0 cursor-default"
+                  }`}
+                >
+                  <span className="text-sm">‹</span>
+                </button>
+                <button
+                  onClick={() => currentNovelChapter < novelChapters.length - 1 && setCurrentNovelChapter(currentNovelChapter + 1)}
+                  disabled={currentNovelChapter >= novelChapters.length - 1}
+                  className={`pointer-events-auto w-8 h-8 rounded-full flex items-center justify-center transition shadow-sm ${
+                    currentNovelChapter < novelChapters.length - 1
+                      ? "bg-white border border-gray-200 text-gray-500 hover:bg-gray-50"
+                      : "opacity-0 cursor-default"
+                  }`}
+                >
+                  <span className="text-sm">›</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
