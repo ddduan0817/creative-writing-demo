@@ -1183,6 +1183,7 @@ export default function RichTextEditor() {
             )}
             <div className="max-w-3xl mx-auto">
               {novelChapters.map((ch, i) => {
+                if (ch.status === "pending") return null;
                 const isChGenerating = ch.status === "generating";
                 return (
                   <div key={i} id={`chapter-${i}`} className="mb-12">
