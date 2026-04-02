@@ -1233,6 +1233,7 @@ export default function ChatPanel() {
   const setNovelChapterStatus = useEditorStore((s) => s.setNovelChapterStatus);
   const setNovelChapterContent = useEditorStore((s) => s.setNovelChapterContent);
   const setCurrentNovelChapter = useEditorStore((s) => s.setCurrentNovelChapter);
+  const setScrollToChapter = useEditorStore((s) => s.setScrollToChapter);
   const novelChapters = useEditorStore((s) => s.novelChapters);
   const workMode = useEditorStore((s) => s.workMode);
   const setWorkMode = useEditorStore((s) => s.setWorkMode);
@@ -1780,6 +1781,7 @@ export default function ChatPanel() {
     (chapterIndex: number) => {
       setNovelChapterStatus(chapterIndex, "generating");
       setCurrentNovelChapter(chapterIndex);
+      if (chapterIndex > 0) setScrollToChapter(chapterIndex);
 
       const fullText = dataRef.current.sceneChapterTexts[chapterIndex] || `这是第${chapterIndex + 1}集的正文内容。\n\n（mock内容）故事在这里继续展开...`;
 
@@ -1825,7 +1827,7 @@ export default function ChatPanel() {
         setNovelChapterContent(chapterIndex, current);
       }, 30);
     },
-    [setNovelChapterStatus, setNovelChapterContent, setCurrentNovelChapter, setStageProgress]
+    [setNovelChapterStatus, setNovelChapterContent, setCurrentNovelChapter, setScrollToChapter, setStageProgress]
   );
 
   const handleRefresh = useCallback(() => {

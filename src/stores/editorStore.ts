@@ -39,8 +39,10 @@ interface EditorState {
   // 小说正文章节（novel agent flow - 正文阶段）
   novelChapters: { title: string; content: string; status: "pending" | "generating" | "done" }[];
   currentNovelChapter: number;
+  scrollToChapter: number | null;  // signal: scroll editor to this chapter index, then reset
   initNovelChapters: (titles: string[]) => void;
   setCurrentNovelChapter: (index: number) => void;
+  setScrollToChapter: (index: number | null) => void;
   setNovelChapterStatus: (index: number, status: "pending" | "generating" | "done") => void;
   setNovelChapterContent: (index: number, content: string) => void;
 
@@ -153,8 +155,10 @@ export const useEditorStore = create<EditorState>((set) => ({
   setAgentStageData: (key, data) => set((s) => ({ agentStageData: { ...s.agentStageData, [key]: data } })),
   novelChapters: [],
   currentNovelChapter: 0,
-  initNovelChapters: (titles) => set({ novelChapters: titles.map((t) => ({ title: t, content: "", status: "pending" as const })), currentNovelChapter: 0 }),
+  scrollToChapter: null,
+  initNovelChapters: (titles) => set({ novelChapters: titles.map((t) => ({ title: t, content: "", status: "pending" as const })), currentNovelChapter: 0, scrollToChapter: null }),
   setCurrentNovelChapter: (index) => set({ currentNovelChapter: index }),
+  setScrollToChapter: (index) => set({ scrollToChapter: index }),
   setNovelChapterStatus: (index, status) => set((state) => {
     const chapters = [...state.novelChapters];
     if (chapters[index]) chapters[index] = { ...chapters[index], status };
