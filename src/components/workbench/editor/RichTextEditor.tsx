@@ -1209,7 +1209,7 @@ export default function RichTextEditor() {
                       {/* Chapter title */}
                       <h2 className="text-lg font-bold text-gray-900 mb-1">{ch.title}</h2>
                       <p className="text-xs text-gray-400 mb-4">
-                        {isChGenerating ? "生成中 ..." : ""}
+                        {isChGenerating ? "正在生成中..." : ch.status === "done" ? "已生成，可直接编辑" : ""}
                       </p>
 
                       {/* Chapter content */}
