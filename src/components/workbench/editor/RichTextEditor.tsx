@@ -164,30 +164,10 @@ export default function RichTextEditor() {
     return () => observer.disconnect();
   }, [creationStage, novelChapters.length, setCurrentNovelChapter]);
 
-  // Auto-scroll when scrollToChapter signal is set from ChatPanel
+  // Track which chapter we already scrolled to, to avoid repeat scrolls
+  const scrolledToRef = useRef<number>(-1);
   const scrollToChapter = useEditorStore((s) => s.scrollToChapter);
   const setScrollToChapter = useEditorStore((s) => s.setScrollToChapter);
-  useEffect(() => {
-    if (scrollToChapter === null || scrollToChapter < 1) return;
-    const targetIdx = scrollToChapter;
-    // Consume the signal immediately
-    setScrollToChapter(null);
-    // Wait for the chapter element to render (it was pending, now generating)
-    const tryScroll = () => {
-      const el = document.getElementById(`chapter-${targetIdx}`);
-      const container = editorWrapRef.current;
-      if (el && container) {
-        const containerRect = container.getBoundingClientRect();
-        const elRect = el.getBoundingClientRect();
-        const scrollOffset = elRect.top - containerRect.top + container.scrollTop;
-        container.scrollTop = scrollOffset;
-      } else {
-        // Element not in DOM yet, retry
-        requestAnimationFrame(tryScroll);
-      }
-    };
-    requestAnimationFrame(tryScroll);
-  }, [scrollToChapter, setScrollToChapter]);
 
   const handleAIAction = useCallback(
     (action: string) => {
@@ -1201,7 +1181,22 @@ export default function RichTextEditor() {
                 if (ch.status === "pending") return null;
                 const isChGenerating = ch.status === "generating";
                 return (
-                  <div key={i} id={`chapter-${i}`} className="mb-12">
+                  <div
+                    key={i}
+                    id={`chapter-${i}`}
+                    className="mb-12"
+                    ref={(el) => {
+                      // When a new chapter appears (generating), scroll it to top
+                      if (el && scrollToChapter === i && scrolledToRef.current !== i) {
+                        scrolledToRef.current = i;
+                        setScrollToChapter(null);
+                        // Use setTimeout to ensure layout is complete
+                        setTimeout(() => {
+                          el.scrollIntoView({ block: "start", behavior: "auto" });
+                        }, 0);
+                      }
+                    }}
+                  >
                     {/* Chapter title */}
                     <h2 className="text-lg font-bold text-gray-900 mb-1">{ch.title}</h2>
                     <p className="text-xs text-gray-400 mb-6">
