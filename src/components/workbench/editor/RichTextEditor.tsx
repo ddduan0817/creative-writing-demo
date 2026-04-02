@@ -165,23 +165,26 @@ export default function RichTextEditor() {
   }, [creationStage, novelChapters.length, setCurrentNovelChapter]);
 
   // Auto-scroll to the chapter currently being generated
+  const chapterStatuses = novelChapters.map((c) => c.status).join(",");
   useEffect(() => {
     if (creationStage < 5) return;
     const genIdx = novelChapters.findIndex((c) => c.status === "generating");
-    if (genIdx >= 0) {
-      // Small delay to ensure DOM has rendered the new chapter element
-      setTimeout(() => {
+    if (genIdx < 1) return; // no need to scroll for first chapter
+    // Double rAF to ensure DOM has painted the new chapter element
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
         const el = document.getElementById(`chapter-${genIdx}`);
         const container = editorWrapRef.current;
         if (el && container) {
           const containerRect = container.getBoundingClientRect();
           const elRect = el.getBoundingClientRect();
           const scrollOffset = elRect.top - containerRect.top + container.scrollTop;
-          container.scrollTo({ top: scrollOffset, behavior: "smooth" });
+          container.scrollTop = scrollOffset;
         }
-      }, 100);
-    }
-  }, [creationStage, novelChapters.map((c) => c.status).join(",")]);
+      });
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [creationStage, chapterStatuses]);
 
   const handleAIAction = useCallback(
     (action: string) => {
