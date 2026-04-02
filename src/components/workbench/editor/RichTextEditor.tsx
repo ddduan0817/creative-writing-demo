@@ -164,6 +164,16 @@ export default function RichTextEditor() {
     return () => observer.disconnect();
   }, [creationStage, novelChapters.length, setCurrentNovelChapter]);
 
+  // Auto-scroll to the chapter currently being generated
+  useEffect(() => {
+    if (creationStage < 5) return;
+    const genIdx = novelChapters.findIndex((c) => c.status === "generating");
+    if (genIdx >= 0) {
+      const el = document.getElementById(`chapter-${genIdx}`);
+      el?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [creationStage, novelChapters.map((c) => c.status).join(",")]);
+
   const handleAIAction = useCallback(
     (action: string) => {
       setFloatingToolbar((p) => ({ ...p, show: false }));
@@ -1172,10 +1182,7 @@ export default function RichTextEditor() {
               />
             )}
             <div className="max-w-3xl mx-auto">
-              {(() => {
-                const ch = novelChapters[currentNovelChapter];
-                if (!ch) return null;
-                const i = currentNovelChapter;
+              {novelChapters.map((ch, i) => {
                 const isChGenerating = ch.status === "generating";
                 return (
                   <div key={i} id={`chapter-${i}`} className="mb-12">
@@ -1209,36 +1216,8 @@ export default function RichTextEditor() {
                     )}
                   </div>
                 );
-              })()}
+              })}
             </div>
-
-            {/* Chapter navigation arrows */}
-            {novelChapters.length > 1 && (
-              <div className="absolute top-1/2 -translate-y-1/2 left-2 right-2 flex justify-between pointer-events-none">
-                <button
-                  onClick={() => currentNovelChapter > 0 && setCurrentNovelChapter(currentNovelChapter - 1)}
-                  disabled={currentNovelChapter === 0}
-                  className={`pointer-events-auto w-8 h-8 rounded-full flex items-center justify-center transition shadow-sm ${
-                    currentNovelChapter > 0
-                      ? "bg-white border border-gray-200 text-gray-500 hover:bg-gray-50"
-                      : "opacity-0 cursor-default"
-                  }`}
-                >
-                  <span className="text-sm">‹</span>
-                </button>
-                <button
-                  onClick={() => currentNovelChapter < novelChapters.length - 1 && setCurrentNovelChapter(currentNovelChapter + 1)}
-                  disabled={currentNovelChapter >= novelChapters.length - 1}
-                  className={`pointer-events-auto w-8 h-8 rounded-full flex items-center justify-center transition shadow-sm ${
-                    currentNovelChapter < novelChapters.length - 1
-                      ? "bg-white border border-gray-200 text-gray-500 hover:bg-gray-50"
-                      : "opacity-0 cursor-default"
-                  }`}
-                >
-                  <span className="text-sm">›</span>
-                </button>
-              </div>
-            )}
           </div>
         </div>
 
