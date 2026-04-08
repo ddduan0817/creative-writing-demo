@@ -2553,8 +2553,12 @@ export default function ChatPanel() {
                     <button
                       onClick={() => {
                         setFlowMode("inspiration");
+                        // 先显示用户消息气泡
+                        setMessages((prev) => [...prev, { id: `user-help-me-${Date.now()}`, sender: "user", type: "text", content: "帮我想一个" }]);
                         const thinkingId = `thinking-direct-settings`;
-                        setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+                        setTimeout(() => {
+                          setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+                        }, 300);
                         setTimeout(() => {
                           setMessages((prev) => [
                             ...prev.filter((m) => m.id !== thinkingId),
