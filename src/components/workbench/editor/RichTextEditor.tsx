@@ -19,6 +19,8 @@ import {
   List,
   Check,
   Loader2,
+  Maximize2,
+  Minimize2,
 } from "lucide-react";
 
 export default function RichTextEditor() {
@@ -44,6 +46,7 @@ export default function RichTextEditor() {
   const currentChapter = chapters.find((c) => c.id === currentChapterId);
   const isSimpleScene = scene === "marketing" || scene === "knowledge";
   const [tocOpen, setTocOpen] = useState(false);
+  const [fullscreenEdit, setFullscreenEdit] = useState(false);
   const [floatingToolbar, setFloatingToolbar] = useState<{
     show: boolean;
     top: number;
@@ -169,6 +172,47 @@ export default function RichTextEditor() {
   const setScrollToChapter = useEditorStore((s) => s.setScrollToChapter);
   // The "active" chapter is the latest generating or last done chapter
   const [showPreviousChapters, setShowPreviousChapters] = useState(false);
+  // Fullscreen editor refs
+  const fullscreenWrapRef = useRef<HTMLDivElement>(null);
+  const [fsFloatingToolbar, setFsFloatingToolbar] = useState<{ show: boolean; top: number; left: number }>({ show: false, top: 0, left: 0 });
+  const [fsShowAIMenu, setFsShowAIMenu] = useState(false);
+
+  // Fullscreen TipTap editor for stage 1-4 content editing
+  const fullscreenEditor = useEditor({
+    immediatelyRender: false,
+    editable: true,
+    extensions: [
+      StarterKit,
+      Underline,
+      Placeholder.configure({ placeholder: "编辑内容..." }),
+    ],
+    content: "",
+    onSelectionUpdate: ({ editor: e }) => {
+      const { from, to } = e.state.selection;
+      if (from === to) {
+        setFsFloatingToolbar({ show: false, top: 0, left: 0 });
+        setFsShowAIMenu(false);
+        return;
+      }
+      const domSelection = window.getSelection();
+      if (domSelection && domSelection.rangeCount > 0 && fullscreenWrapRef.current) {
+        const range = domSelection.getRangeAt(0);
+        const rect = range.getBoundingClientRect();
+        const wrapRect = fullscreenWrapRef.current.getBoundingClientRect();
+        setFsFloatingToolbar({
+          show: true,
+          top: rect.top - wrapRect.top + fullscreenWrapRef.current.scrollTop - 48,
+          left: rect.left - wrapRect.left + rect.width / 2 - 180,
+        });
+        setFsShowAIMenu(false);
+      }
+    },
+    editorProps: {
+      attributes: {
+        class: "tiptap focus:outline-none px-8 py-4",
+      },
+    },
+  });
   // Reset showPreviousChapters when a new chapter starts generating
   useEffect(() => {
     if (scrollToChapter !== null && scrollToChapter >= 1) {
@@ -321,6 +365,51 @@ export default function RichTextEditor() {
 
   // Check if editor is empty
   const editorIsEmpty = !editor?.getText().trim();
+
+  // Handle AI actions in fullscreen editor
+  const handleFsAIAction = useCallback(
+    (action: string) => {
+      setFsFloatingToolbar((p) => ({ ...p, show: false }));
+      if (!fullscreenEditor) return;
+      const { from, to } = fullscreenEditor.state.selection;
+      const selectedText = fullscreenEditor.state.doc.textBetween(from, to, " ");
+      if (!selectedText.trim()) {
+        showToast("请先选择要调整的文本");
+        return;
+      }
+      const mockData = getSceneMockResponses(scene);
+      let responseText: string;
+      let label: string;
+      switch (action) {
+        case "atmosphere": responseText = mockData.atmosphere; label = "氛围增强"; break;
+        case "polish": responseText = mockData.polish; label = "润色"; break;
+        case "rewrite": responseText = mockData.rewrite || mockData.polish; label = "改写"; break;
+        case "condense": responseText = mockData.condense || selectedText.slice(0, 50); label = "缩写"; break;
+        default: responseText = mockData.polish; label = "AI调整";
+      }
+      setAtmosphereDialog({ show: true, text: selectedText.slice(0, 15) + (selectedText.length > 15 ? "..." : ""), generating: true, result: "", actionLabel: label });
+      simulateAIStream(responseText, (current, done) => {
+        setAtmosphereDialog((prev) => ({ ...prev, result: current, generating: !done }));
+      });
+    },
+    [fullscreenEditor, scene, showToast]
+  );
+
+  const handleFsSelectionCopy = useCallback(() => {
+    let text = "";
+    if (fullscreenEditor) {
+      const { from, to } = fullscreenEditor.state.selection;
+      if (from !== to) text = fullscreenEditor.state.doc.textBetween(from, to, " ");
+    }
+    if (!text) {
+      const sel = window.getSelection();
+      text = sel ? sel.toString() : "";
+    }
+    if (text) {
+      navigator.clipboard.writeText(text);
+      showToast("已复制");
+    }
+  }, [fullscreenEditor, showToast]);
 
   // Agent flow: show settings/worldbuilding in editor (read-only)
   if ((scene === "novel" || scene === "screenplay" || scene === "marketing" || scene === "knowledge") && creationStage >= 1 && creationStage <= 4) {
@@ -1070,7 +1159,183 @@ export default function RichTextEditor() {
               </>
             )}
           </div>
+
+          {/* Expand to fullscreen button */}
+          <div className="flex justify-end mt-4 max-w-2xl mx-auto">
+            <button
+              onClick={() => {
+                // Build HTML from current stage content
+                let html = "";
+                if (showOutline) {
+                  html += `<h2>${ol.title}</h2>`;
+                  html += `<p><strong>${ol.badge}</strong> ${ol.info}</p>`;
+                  ol.chapters.forEach((ch) => {
+                    html += `<h3>[${ch.tag}] ${ch.title}</h3>`;
+                    html += `<p>${ch.summary}</p>`;
+                    html += `<p><em>${ch.keyEvent}</em></p>`;
+                  });
+                } else if (showCharacters) {
+                  html += `<h2>${chars.title}</h2>`;
+                  html += `<h3>${chars.leadATitle}</h3>`;
+                  html += `<p><strong>${chars.leadA.name}</strong>${chars.leadA.subtitle ? ` ${chars.leadA.subtitle}` : ""}</p>`;
+                  chars.leadA.items.forEach((item) => { html += `<p><strong>${item.label}：</strong>${item.value}</p>`; });
+                  html += `<h3>${chars.leadBTitle}</h3>`;
+                  html += `<p><strong>${chars.leadB.name}</strong>${chars.leadB.subtitle ? ` ${chars.leadB.subtitle}` : ""}</p>`;
+                  chars.leadB.items.forEach((item) => { html += `<p><strong>${item.label}：</strong>${item.value}</p>`; });
+                  html += `<h3>${chars.supportingTitle}</h3>`;
+                  chars.supporting.forEach((c) => { html += `<p><strong>${c.name}</strong> ${c.role}</p><p>${c.desc}</p>`; });
+                  html += `<h3>人物关系</h3>`;
+                  chars.relationships.split("\n").forEach((line) => { html += `<p>${line}</p>`; });
+                } else if (showWorldbuilding) {
+                  html += `<h2>${wb.title}</h2>`;
+                  html += `<p><strong>${wb.summaryLabel}</strong></p><p>${wb.summary}</p>`;
+                  html += `<p><strong>${wb.timelineLabel}</strong></p><p>${wb.timeline}</p>`;
+                  html += `<h3>${wb.scenesTitle}</h3>`;
+                  wb.scenes.forEach((s) => { html += `<p><strong>${s.name}</strong></p><p>${s.desc}</p>`; });
+                  html += `<h3>${wb.ecologyTitle}</h3>`;
+                  wb.ecology.forEach((item) => { html += `<p>· ${item}</p>`; });
+                  html += `<h3>${wb.cluesTitle}</h3>`;
+                  wb.clues.forEach((item) => { html += `<p>· ${item}</p>`; });
+                } else {
+                  html += `<h2>${settingsTitle}</h2>`;
+                  settingsData.forEach((section) => {
+                    html += `<h3>${section.group}</h3>`;
+                    if (section.type === "text") {
+                      section.items.forEach((item) => { html += `<p><strong>${item.label}</strong></p><p>${item.value}</p>`; });
+                    } else {
+                      section.items.forEach((item) => { html += `<p><strong>${item.label}：</strong>${item.value.split(" · ").join("、")}</p>`; });
+                    }
+                  });
+                }
+                fullscreenEditor?.commands.setContent(html);
+                setFullscreenEdit(true);
+              }}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition"
+              title="全屏编辑"
+            >
+              <Maximize2 className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
+
+        {/* Fullscreen editing overlay */}
+        {fullscreenEdit && (
+          <div className="fixed inset-0 z-50 bg-gray-900/60 flex items-center justify-center" onClick={() => setFullscreenEdit(false)}>
+            <div
+              className="bg-white rounded-2xl shadow-2xl w-[90vw] max-w-[900px] h-[85vh] flex flex-col overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header with stage title */}
+              <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                <p className="text-sm text-gray-500 font-medium">
+                  {showOutline ? (scene === "marketing" ? "描述视频分幕脚本" : scene === "knowledge" ? "描述结构化分析大纲" : "描述故事背景、故事线、核心冲突等") : showCharacters ? "描述角色档案" : showWorldbuilding ? "描述世界观、场景、时间线等" : "描述故事背景、故事线、核心冲突等"}
+                </p>
+              </div>
+
+              {/* Editor toolbar */}
+              {fullscreenEditor && (
+                <div className="px-6 py-2 border-b border-gray-50 flex items-center gap-1">
+                  <button onClick={() => fullscreenEditor.chain().focus().undo().run()} className="p-1.5 rounded hover:bg-gray-100 text-gray-400" title="撤销">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
+                  </button>
+                  <button onClick={() => fullscreenEditor.chain().focus().redo().run()} className="p-1.5 rounded hover:bg-gray-100 text-gray-400" title="重做">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"/></svg>
+                  </button>
+                  <div className="w-px h-4 bg-gray-200 mx-1" />
+                  <div className="relative">
+                    <button
+                      onClick={() => {
+                        const menu = document.getElementById("fs-heading-menu");
+                        if (menu) menu.classList.toggle("hidden");
+                      }}
+                      className={`flex items-center gap-0 p-1.5 rounded transition ${fullscreenEditor.isActive("heading") ? "bg-gray-100 text-gray-900" : "text-gray-400 hover:bg-gray-100"}`}
+                    >
+                      <span className="text-sm font-medium">T</span>
+                      <ChevronDown className="w-2.5 h-2.5 text-gray-400" />
+                    </button>
+                    <div id="fs-heading-menu" className="hidden absolute left-0 top-full mt-1 bg-white rounded-xl shadow-lg border border-gray-100 py-1.5 w-32 z-30">
+                      {[
+                        { label: "正文", action: () => fullscreenEditor.chain().focus().setParagraph().run() },
+                        { label: "H1 一级标题", action: () => fullscreenEditor.chain().focus().toggleHeading({ level: 1 }).run() },
+                        { label: "H2 二级标题", action: () => fullscreenEditor.chain().focus().toggleHeading({ level: 2 }).run() },
+                        { label: "H3 三级标题", action: () => fullscreenEditor.chain().focus().toggleHeading({ level: 3 }).run() },
+                      ].map((opt) => (
+                        <button
+                          key={opt.label}
+                          onClick={() => { opt.action(); document.getElementById("fs-heading-menu")?.classList.add("hidden"); }}
+                          className="w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 transition"
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <button onClick={() => fullscreenEditor.chain().focus().toggleBold().run()} className={`p-1.5 rounded transition ${fullscreenEditor.isActive("bold") ? "bg-gray-100 text-gray-900" : "text-gray-400 hover:bg-gray-100"}`} title="加粗">
+                    <span className="text-sm font-bold">B</span>
+                  </button>
+                  <button onClick={() => fullscreenEditor.chain().focus().toggleItalic().run()} className={`p-1.5 rounded transition ${fullscreenEditor.isActive("italic") ? "bg-gray-100 text-gray-900" : "text-gray-400 hover:bg-gray-100"}`} title="斜体">
+                    <span className="text-sm italic">I</span>
+                  </button>
+                  <button onClick={() => fullscreenEditor.chain().focus().toggleStrike().run()} className={`p-1.5 rounded transition ${fullscreenEditor.isActive("strike") ? "bg-gray-100 text-gray-900" : "text-gray-400 hover:bg-gray-100"}`} title="删除线">
+                    <span className="text-sm line-through">S</span>
+                  </button>
+                  <button onClick={() => fullscreenEditor.chain().focus().toggleUnderline().run()} className={`p-1.5 rounded transition ${fullscreenEditor.isActive("underline") ? "bg-gray-100 text-gray-900" : "text-gray-400 hover:bg-gray-100"}`} title="下划线">
+                    <span className="text-sm underline">U</span>
+                  </button>
+                </div>
+              )}
+
+              {/* Editor content area */}
+              <div className="flex-1 overflow-y-auto relative" ref={fullscreenWrapRef}>
+                {fsFloatingToolbar.show && (
+                  <FloatingSelectionToolbar
+                    top={fsFloatingToolbar.top}
+                    left={fsFloatingToolbar.left}
+                    editor={fullscreenEditor}
+                    showAIMenu={fsShowAIMenu}
+                    setShowAIMenu={setFsShowAIMenu}
+                    onAIAction={handleFsAIAction}
+                    onCopy={handleFsSelectionCopy}
+                    showToast={showToast}
+                  />
+                )}
+                <div className="max-w-3xl mx-auto py-6">
+                  {fullscreenEditor && <EditorContent editor={fullscreenEditor} />}
+                </div>
+              </div>
+
+              {/* Bottom bar: input + exit button */}
+              <div className="px-6 py-4 border-t border-gray-100 flex items-center gap-3">
+                <div className="flex-1 flex items-center gap-2 bg-gray-50 rounded-xl px-4 py-2.5 border border-gray-200">
+                  <input
+                    type="text"
+                    placeholder="输入改写要求"
+                    className="flex-1 text-sm text-gray-700 placeholder-gray-400 bg-transparent outline-none"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !e.nativeEvent.isComposing) {
+                        e.preventDefault();
+                        showToast("改写功能演示中...");
+                      }
+                    }}
+                  />
+                  <button
+                    onClick={() => showToast("改写功能演示中...")}
+                    className="p-1.5 bg-gray-900 text-white rounded-full hover:bg-gray-800 transition shrink-0"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                  </button>
+                </div>
+                <button
+                  onClick={() => setFullscreenEdit(false)}
+                  className="flex items-center gap-1.5 px-4 py-2.5 text-sm text-gray-500 hover:text-gray-700 bg-white rounded-xl border border-gray-200 hover:bg-gray-50 transition whitespace-nowrap"
+                >
+                  <Minimize2 className="w-3.5 h-3.5" />
+                  退出全屏
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Atmosphere Enhancement Dialog for stage 1-4 */}
         {atmosphereDialog.show && (
