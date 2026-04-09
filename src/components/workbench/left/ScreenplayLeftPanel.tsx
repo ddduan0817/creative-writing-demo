@@ -103,7 +103,6 @@ export default function ScreenplayLeftPanel() {
 
   // 角色列表 (from store)
   const characters = useEditorStore((s) => s.workflowCharacters);
-  const addWorkflowCharacter = useEditorStore((s) => s.addWorkflowCharacter);
   const removeWorkflowCharacter = useEditorStore((s) => s.removeWorkflowCharacter);
   const setCharacterFullscreen = useEditorStore((s) => s.setCharacterFullscreen);
 
@@ -121,8 +120,6 @@ export default function ScreenplayLeftPanel() {
 
   // 展开的面板
   const [expandedSection, setExpandedSection] = useState<"content" | "writing" | null>(null);
-  const [newCharacter, setNewCharacter] = useState({ name: "", desc: "", role: "主角" as "主角" | "配角" });
-  const [showAddCharacter, setShowAddCharacter] = useState(false);
 
   const setSettingsFullscreen = useEditorStore((s) => s.setSettingsFullscreen);
 
@@ -173,17 +170,6 @@ export default function ScreenplayLeftPanel() {
       }
       return { ...prev, [groupId]: [...current, tag] };
     });
-  };
-
-  // 添加角色
-  const addCharacter = () => {
-    if (!newCharacter.name.trim()) {
-      showToast("请输入角色名称");
-      return;
-    }
-    addWorkflowCharacter({ ...newCharacter });
-    setNewCharacter({ name: "", desc: "", role: "主角" });
-    showToast("角色添加成功");
   };
 
   // 获取已选内容要素标签数量
@@ -473,50 +459,12 @@ export default function ScreenplayLeftPanel() {
             {/* 角色 */}
             <div className="space-y-2">
               <button
-                onClick={() => setShowAddCharacter((v) => !v)}
+                onClick={() => setCharacterFullscreen(true)}
                 className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-dashed border-gray-200 text-sm text-gray-500 hover:border-indigo-300 hover:text-indigo-600 hover:bg-indigo-50/30 transition"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>角色</span>
               </button>
-
-              {/* 内联添加表单 */}
-              {showAddCharacter && (
-                <div className="border border-gray-200 rounded-lg p-3 space-y-2 bg-gray-50/50">
-                  <div className="flex gap-2">
-                    {(["主角", "配角"] as const).map((role) => (
-                      <button
-                        key={role}
-                        onClick={() => setNewCharacter((p) => ({ ...p, role }))}
-                        className={cn(
-                          "flex-1 py-1 text-xs rounded-md border transition",
-                          newCharacter.role === role
-                            ? "border-indigo-300 bg-indigo-50 text-indigo-700"
-                            : "border-gray-200 text-gray-500 hover:border-gray-300 bg-white"
-                        )}
-                      >
-                        {role}
-                      </button>
-                    ))}
-                  </div>
-                  <input
-                    type="text"
-                    value={newCharacter.name}
-                    onChange={(e) => setNewCharacter((p) => ({ ...p, name: e.target.value }))}
-                    placeholder="角色名称"
-                    className="w-full text-xs border border-gray-200 rounded-md px-2.5 py-1.5 focus:outline-none focus:border-indigo-300 bg-white"
-                  />
-                  <button
-                    onClick={() => {
-                      addCharacter();
-                      setShowAddCharacter(false);
-                    }}
-                    className="w-full py-1.5 text-xs font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 transition"
-                  >
-                    添加角色
-                  </button>
-                </div>
-              )}
 
               {/* 已添加角色卡片 */}
               {characters.map((char, i) => (
