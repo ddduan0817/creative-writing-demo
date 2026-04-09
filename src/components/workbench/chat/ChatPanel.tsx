@@ -2429,13 +2429,13 @@ export default function ChatPanel() {
                       <div className="flex items-center gap-2.5">
                         <button
                           onClick={handleSkipToGenerate}
-                          className="flex-1 px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
+                          className="flex-1 px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
                         >
                           跳过，直接生成
                         </button>
                         <button
                           onClick={() => handleRefresh()}
-                          className="px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
+                          className="px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
                         >
                           <RefreshCw className="w-3.5 h-3.5 inline mr-1" />
                           换一换
@@ -2472,7 +2472,7 @@ export default function ChatPanel() {
                   <div className="pl-8 space-y-2">
                     <button
                       onClick={handleSkipAdjust}
-                      className="px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
+                      className="px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
                     >
                       跳过
                     </button>
@@ -2783,13 +2783,13 @@ export default function ChatPanel() {
                   <div className="flex items-center gap-2.5">
                     <button
                       onClick={() => quickConfirm("确认内容结构，开始生成")}
-                      className="flex-1 px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
+                      className="flex-1 px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
                     >
                       确认内容结构，开始生成
                     </button>
                     <button
                       onClick={() => quickConfirm("换一换")}
-                      className="px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
+                      className="px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
                     >
                       <RefreshCw className="w-3.5 h-3.5 inline mr-1" />
                       换一换
@@ -2857,7 +2857,7 @@ export default function ChatPanel() {
                           setAgentStageData("settings", dataRef.current.isMarketing ? marketingProductInfoCard : dataRef.current.sceneSettingsCard);
                         }, 2500);
                       }}
-                      className="px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
+                      className="px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
                     >
                       {isMarketing ? "用样例商品体验" : "帮我想一个"}
                     </button>
@@ -2964,7 +2964,7 @@ export default function ChatPanel() {
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => quickConfirm(isMarketing ? "确认商品信息，生成内容结构" : "确认设定，进入下一步")}
-                          className="flex-1 px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
+                          className="flex-1 px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
                         >
                           下一步
                         </button>
@@ -2995,7 +2995,7 @@ export default function ChatPanel() {
                               }, 2000);
                             }
                           }}
-                          className="flex-1 px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
+                          className="flex-1 px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
                         >
                           换一换
                         </button>
@@ -3015,7 +3015,7 @@ export default function ChatPanel() {
                                 setFlowMode("inspiration");
                               }, 1500);
                             }}
-                            className="flex-1 px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
+                            className="flex-1 px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
                           >
                             继续完善
                           </button>
@@ -3091,9 +3091,26 @@ export default function ChatPanel() {
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => quickConfirm("确认世界观，进入下一步")}
-                          className="flex-1 px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
+                          className="flex-1 px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
                         >
                           下一步
+                        </button>
+                        <button
+                          onClick={() => {
+                            setMessages((prev) => [...prev, { id: `user-regen-wb-${Date.now()}`, sender: "user" as const, type: "text" as const, content: "换一换" }]);
+                            const thinkingId = `thinking-regen-wb`;
+                            setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+                            setTimeout(() => {
+                              setMessages((prev) => [
+                                ...prev.filter((m) => m.id !== thinkingId),
+                                { id: `model-wb-${Date.now()}`, sender: "model" as const, type: "worldbuilding-card" as const, prompt: "已重新生成一版世界观，看看这个怎么样？", data: dataRef.current.sceneWorldbuilding },
+                              ]);
+                              setAgentStageData("worldbuilding", dataRef.current.sceneWorldbuilding);
+                            }, 2000);
+                          }}
+                          className="flex-1 px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
+                        >
+                          换一换
                         </button>
                         <button
                           onClick={() => {
@@ -3110,12 +3127,12 @@ export default function ChatPanel() {
                               setFlowMode("inspiration");
                             }, 1500);
                           }}
-                          className="flex-1 px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
+                          className="flex-1 px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
                         >
                           继续完善
                         </button>
                       </div>
-                      <p className="text-[11px] text-gray-400">「下一步」确认进入角色设计 ·「继续完善」通过灵感卡片细化 · 也可直接打字修改</p>
+                      <p className="text-[11px] text-gray-400">{"「下一步」确认进入角色设计 ·「换一换」重新生成 ·「继续完善」通过灵感卡片细化 · 也可直接打字修改"}</p>
                     </div>
                   )}
                 </div>
@@ -3184,9 +3201,26 @@ export default function ChatPanel() {
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => quickConfirm("确认角色，进入下一步")}
-                          className="flex-1 px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
+                          className="flex-1 px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
                         >
                           下一步
+                        </button>
+                        <button
+                          onClick={() => {
+                            setMessages((prev) => [...prev, { id: `user-regen-char-${Date.now()}`, sender: "user" as const, type: "text" as const, content: "换一换" }]);
+                            const thinkingId = `thinking-regen-char`;
+                            setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+                            setTimeout(() => {
+                              setMessages((prev) => [
+                                ...prev.filter((m) => m.id !== thinkingId),
+                                { id: `model-char-${Date.now()}`, sender: "model" as const, type: "character-card" as const, prompt: "已重新生成一版角色档案，看看这个怎么样？", data: dataRef.current.sceneCharacterCard },
+                              ]);
+                              setAgentStageData("characters", dataRef.current.sceneCharacterCard);
+                            }, 2000);
+                          }}
+                          className="flex-1 px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
+                        >
+                          换一换
                         </button>
                         <button
                           onClick={() => {
@@ -3203,12 +3237,12 @@ export default function ChatPanel() {
                               setFlowMode("inspiration");
                             }, 1500);
                           }}
-                          className="flex-1 px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
+                          className="flex-1 px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
                         >
                           继续完善
                         </button>
                       </div>
-                      <p className="text-[11px] text-gray-400">「下一步」确认进入大纲生成 ·「继续完善」通过灵感卡片细化 · 也可直接打字修改</p>
+                      <p className="text-[11px] text-gray-400">{"「下一步」确认进入大纲生成 ·「换一换」重新生成 ·「继续完善」通过灵感卡片细化 · 也可直接打字修改"}</p>
                     </div>
                   )}
                 </div>
@@ -3268,7 +3302,7 @@ export default function ChatPanel() {
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => quickConfirm("确认大纲，开始写正文")}
-                          className="flex-1 px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
+                          className="flex-1 px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
                         >
                           开始写正文
                         </button>
