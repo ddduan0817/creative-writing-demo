@@ -36,6 +36,9 @@ import {
   marketingMockCharacterCard,
   marketingMockOutlineCard,
   marketingMockChapterTexts,
+  marketingProductInfoCard,
+  marketingPlatforms,
+  marketingContentByType,
 } from "./marketingMockData";
 import {
   knowledgeInspirationRounds,
@@ -1219,6 +1222,8 @@ type Message =
   | { id: string; sender: "model"; type: "length-select"; prompt: string }
   | { id: string; sender: "model"; type: "micro-adjust"; prompt: string; round: number }
   | { id: string; sender: "model"; type: "subtype-select"; prompt: string }
+  | { id: string; sender: "model"; type: "platform-select"; prompt: string }
+  | { id: string; sender: "model"; type: "content-structure"; prompt: string; scenarios: import("./marketingMockData").ContentScenario[] }
   | { id: string; sender: "user"; type: "card-selection"; content: string }
   | { id: string; sender: "user"; type: "text"; content: string };
 
@@ -1299,7 +1304,7 @@ export default function ChatPanel() {
   }, [isScreenplay, isMarketing, isKnowledge]);
   const sceneWelcome = useMemo(() => {
     if (isScreenplay) return "你好！欢迎来到剧本创作工作台 ✨\n\n描述一下你想创作的剧本——一句话、一个画面、甚至几个关键词就够了。\n我会帮你快速生成一版完整设定，然后我们一起调整打磨。\n\n没有想法也没关系，点击下方按钮我来帮你构思一个。";
-    if (isMarketing) return "你好！告诉我你要推广什么产品？\n\n产品名称、链接、核心卖点都可以——比如「一款隐形蓝牙耳机，主打极致隐形和防水」。\n我来帮你快速生成一版视频策略，然后一起优化。\n\n没有想法也没关系，点击下方按钮我来帮你构思一个。";
+    if (isMarketing) return "你好！欢迎来到电商内容创作工作台 ✨\n\n告诉我你要推广什么商品，以及你的目标投放平台。\n比如：「一款隐形蓝牙耳机，主打极致隐形和防水，想在抖音投放」\n\n我会帮你整理商品信息，然后根据平台特点生成内容结构。";
     if (isKnowledge) return "你好！欢迎来到深度解读工作台 ✨\n\n告诉我你想拆解哪本书？书名、文件、核心问题都可以——比如「帮我拆解《诡秘之主》的力量体系」。\n我来帮你快速生成分析框架，然后一起深入。\n\n没有想法也没关系，点击下方按钮我来帮你构思一个。";
     return "你好！欢迎来到小说创作工作台 ✨\n\n描述一下你想写的故事——一句话、一个画面、甚至几个关键词就够了。\n我会帮你快速生成一版创作设定，然后我们一起调整打磨。\n\n没有想法也没关系，点击下方按钮我来帮你构思一个。";
   }, [isScreenplay, isMarketing, isKnowledge]);
@@ -1330,9 +1335,9 @@ export default function ChatPanel() {
   const getSettingsSummary = useCallback(() => {
     const s = dataRef.current.sceneSettingsCard;
     if (dataRef.current.isMarketing) {
-      const concept = s["产品信息"] || s["视频策略"];
+      const concept = s["商品信息"] || s["产品信息"] || s["视频策略"];
       const core = concept?.[0]?.value || "";
-      return core ? `产品定位：${core}` : "";
+      return core ? `商品：${core}` : "";
     }
     if (dataRef.current.isKnowledge) {
       const concept = s["书籍信息"] || s["分析配置"];
@@ -1372,6 +1377,7 @@ export default function ChatPanel() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const hasInit = useRef(false);
   const novelVariantRef = useRef(0); // 0 = original (清岚镇), 1 = alt (潮音镇)
+  const marketingPlatformRef = useRef<string | null>(null); // 电商选中的内容平台
 
   // Auto-scroll
   useEffect(() => {
@@ -1927,9 +1933,41 @@ export default function ChatPanel() {
       return;
     }
 
-    // If at confirm stage (after settings card shown), user confirmed → auto-generate worldbuilding
+    // If at confirm stage (after settings card shown), user confirmed → next step
     if (currentRound === 4) {
-      // Auto-generate a fitting title based on the story settings
+      // ── Marketing: show content structure based on platform ──
+      if (dataRef.current.isMarketing) {
+        const platform = marketingPlatformRef.current || "抖音";
+        const platformInfo = marketingPlatforms.find((p) => p.label === platform);
+        const contentTypes = platformInfo?.contentTypes || ["short_video"];
+        const scenarios = contentTypes
+          .map((t) => marketingContentByType[t])
+          .filter(Boolean);
+
+        setAutoTitle(dataRef.current.sceneTitle);
+        const thinkingId = `thinking-mkt-content`;
+        setTimeout(() => {
+          setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+        }, 300);
+        setTimeout(() => {
+          setMessages((prev) => [
+            ...prev.filter((m) => m.id !== thinkingId),
+            {
+              id: "model-content-structure",
+              sender: "model",
+              type: "content-structure",
+              prompt: `商品信息确认！根据「${platform}」平台特点，为你生成了${scenarios.length}套内容结构方案：`,
+              scenarios,
+            },
+          ]);
+          setCurrentRound(8);
+          setCreationStage(2);
+          setAgentStageData("contentStructure", { platform, scenarios });
+        }, 2500);
+        return;
+      }
+
+      // ── Non-marketing: auto-generate worldbuilding ──
       setAutoTitle(dataRef.current.sceneTitle);
 
       const thinkingId = `thinking-auto-wb`;
@@ -1944,9 +1982,7 @@ export default function ChatPanel() {
             id: "model-worldbuilding",
             sender: "model",
             type: "worldbuilding-card",
-            prompt: dataRef.current.isMarketing
-              ? `策略确认！项目暂定为《${dataRef.current.sceneTitle}》。以下是视频故事线，看看感觉怎么样？`
-              : dataRef.current.isKnowledge
+            prompt: dataRef.current.isKnowledge
               ? `配置确认！项目暂定为《${dataRef.current.sceneTitle}》。以下是设定体系分析，看看感觉怎么样？`
               : `设定确认！故事暂定为《${dataRef.current.sceneTitle}》（可随时在顶部修改）。\n\n以下是世界观，看看感觉怎么样？`,
             data: dataRef.current.sceneWorldbuilding,
@@ -2127,6 +2163,85 @@ export default function ChatPanel() {
     if (flowMode === "none" || flowMode === "freeform") {
       setFlowMode("freeform");
 
+      // ── Marketing: new flow — detect platform, then product info card ──
+      if (dataRef.current.isMarketing) {
+        const platformKeywords = marketingPlatforms.map((p) => p.label);
+        const detectedPlatform = platformKeywords.find((kw) => text.includes(kw));
+
+        // If user is replying to a platform-select question
+        if (currentRound === -1) {
+          // currentRound -1 = awaiting platform selection from text input
+          const platform = detectedPlatform || "抖音";
+          marketingPlatformRef.current = platform;
+          const thinkingId = `thinking-mkt-product`;
+          setTimeout(() => {
+            setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+          }, 300);
+          setTimeout(() => {
+            setMessages((prev) => [
+              ...prev.filter((m) => m.id !== thinkingId),
+              {
+                id: "model-settings",
+                sender: "model",
+                type: "settings-card",
+                prompt: `好的，投放平台选择「${platform}」。\n\n以下是整理好的商品信息，确认无误后我会根据${platform}平台特点为你生成内容结构。`,
+                settings: marketingProductInfoCard,
+              },
+            ]);
+            setCurrentRound(4);
+            setCreationStage(1);
+            setAgentStageData("settings", marketingProductInfoCard);
+          }, 2000);
+          return;
+        }
+
+        // First input: check if platform is mentioned
+        if (!detectedPlatform) {
+          // No platform detected → ask for platform
+          const thinkingId = `thinking-mkt-platform`;
+          setTimeout(() => {
+            setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+          }, 300);
+          setTimeout(() => {
+            setMessages((prev) => [
+              ...prev.filter((m) => m.id !== thinkingId),
+              {
+                id: "model-platform-ask",
+                sender: "model",
+                type: "platform-select",
+                prompt: "收到商品信息！在生成内容之前，请先确认你想投放的内容平台：",
+              },
+            ]);
+            setCurrentRound(-1); // Mark: awaiting platform
+          }, 1500);
+          return;
+        }
+
+        // Platform detected in first input → directly show product info card
+        marketingPlatformRef.current = detectedPlatform;
+        const thinkingId = `thinking-mkt-product2`;
+        setTimeout(() => {
+          setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+        }, 300);
+        setTimeout(() => {
+          setMessages((prev) => [
+            ...prev.filter((m) => m.id !== thinkingId),
+            {
+              id: "model-settings",
+              sender: "model",
+              type: "settings-card",
+              prompt: `收到！投放平台为「${detectedPlatform}」。\n\n以下是整理好的商品信息，确认无误后我会根据${detectedPlatform}平台特点为你生成内容结构。`,
+              settings: marketingProductInfoCard,
+            },
+          ]);
+          setCurrentRound(4);
+          setCreationStage(1);
+          setAgentStageData("settings", marketingProductInfoCard);
+        }, 2500);
+        return;
+      }
+
+      // ── Non-marketing: existing flow ──
       const thinkingId = `thinking-ff-settings`;
 
       setTimeout(() => {
@@ -2140,9 +2255,7 @@ export default function ChatPanel() {
             id: "model-settings",
             sender: "model",
             type: "settings-card",
-            prompt: dataRef.current.isMarketing
-              ? `根据你的描述，我帮你生成了一版视频策略Brief——${getSettingsSummary()}\n\n看看感觉怎么样？确认后我会为你设计视频故事线，你也可以告诉我想调整的地方。`
-              : dataRef.current.isKnowledge
+            prompt: dataRef.current.isKnowledge
               ? `根据你的描述，我帮你生成了一版分析配置——${getSettingsSummary()}\n\n看看感觉怎么样？确认后我会开始深入分析设定体系，你也可以告诉我想调整的地方。`
               : `根据你的描述，我帮你生成了一版创作设定——${getSettingsSummary()}\n\n看看感觉怎么样？确认后我会为你构建世界观，你也可以告诉我想调整的地方。`,
             settings: dataRef.current.sceneSettingsCard,
@@ -2535,6 +2648,156 @@ export default function ChatPanel() {
             );
           }
 
+          // ── Model: platform select (marketing) ──
+          if (msg.sender === "model" && msg.type === "platform-select") {
+            return (
+              <div key={msg.id} className="space-y-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                    <span className="text-white text-[10px] font-bold">AI</span>
+                  </div>
+                  <span className="text-xs text-gray-400">文心</span>
+                </div>
+                <p className="text-sm text-gray-700 leading-relaxed pl-8">{msg.prompt}</p>
+
+                {!marketingPlatformRef.current && (
+                  <div className="pl-8 grid grid-cols-3 gap-2">
+                    {marketingPlatforms.map((p) => (
+                      <button
+                        key={p.id}
+                        onClick={() => {
+                          marketingPlatformRef.current = p.label;
+                          setMessages((prev) => [
+                            ...prev,
+                            { id: `user-platform-${Date.now()}`, sender: "user", type: "text", content: p.label },
+                          ]);
+                          const thinkingId = `thinking-mkt-pinfo`;
+                          setTimeout(() => {
+                            setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+                          }, 300);
+                          setTimeout(() => {
+                            setMessages((prev) => [
+                              ...prev.filter((m) => m.id !== thinkingId),
+                              {
+                                id: "model-settings",
+                                sender: "model",
+                                type: "settings-card",
+                                prompt: `好的，投放平台选择「${p.label}」。\n\n以下是整理好的商品信息，确认无误后我会根据${p.label}平台特点为你生成内容结构。`,
+                                settings: marketingProductInfoCard,
+                              },
+                            ]);
+                            setCurrentRound(4);
+                            setCreationStage(1);
+                            setAgentStageData("settings", marketingProductInfoCard);
+                          }, 2000);
+                        }}
+                        className="p-3 rounded-xl border-2 border-gray-100 bg-white hover:border-indigo-200 hover:shadow-sm cursor-pointer transition-all text-center"
+                      >
+                        <p className="text-sm font-medium text-gray-800">{p.label}</p>
+                        <p className="text-[10px] text-gray-400 mt-0.5">{p.desc}</p>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {marketingPlatformRef.current && (
+                  <div className="pl-8">
+                    <div className="inline-block px-4 py-2 rounded-xl border-2 border-indigo-400 bg-indigo-50/80 text-sm font-medium text-indigo-700">
+                      {marketingPlatformRef.current}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          }
+
+          {/* ── Model: content structure (marketing) ── */}
+          if (msg.sender === "model" && msg.type === "content-structure") {
+            return (
+              <div key={msg.id} className="space-y-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                    <span className="text-white text-[10px] font-bold">AI</span>
+                  </div>
+                  <span className="text-xs text-gray-400">文心</span>
+                </div>
+                <p className="text-sm text-gray-700 leading-relaxed pl-8">{msg.prompt}</p>
+
+                <div className="pl-8 space-y-3">
+                  {msg.scenarios.map((scenario, si) => (
+                    <div
+                      key={si}
+                      className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden cursor-pointer hover:border-indigo-200 transition"
+                      onClick={() => {
+                        setCreationStage(2);
+                        setAgentStageData("contentStructure", { platform: marketingPlatformRef.current, scenarios: msg.scenarios });
+                      }}
+                    >
+                      {/* Scenario header */}
+                      <div className="px-4 py-3 border-b border-gray-50 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className={
+                            "text-[10px] px-2 py-0.5 rounded font-medium " + (
+                            scenario.type === "short_video" ? "bg-rose-50 text-rose-600" :
+                            scenario.type === "live_script" ? "bg-amber-50 text-amber-600" :
+                            "bg-emerald-50 text-emerald-600")
+                          }>
+                            {scenario.typeLabel}
+                          </span>
+                          <span className="text-sm font-medium text-gray-800">{scenario.title}</span>
+                        </div>
+                        <span className="text-[10px] text-gray-400">{scenario.duration}</span>
+                      </div>
+
+                      {/* Structure */}
+                      <div className="px-4 py-2">
+                        <p className="text-xs text-gray-500 mb-2">
+                          <span className="text-gray-400">结构：</span>{scenario.structure}
+                        </p>
+                      </div>
+
+                      {/* Sections */}
+                      <div className="px-4 pb-3">
+                        <div className="space-y-1.5">
+                          {scenario.sections.map((sec, si2) => (
+                            <div key={si2} className="flex items-start gap-2 text-xs">
+                              <span className="text-gray-400 shrink-0 w-4 text-right">{si2 + 1}.</span>
+                              <div>
+                                <span className="font-medium text-gray-700">{sec.title}</span>
+                                {sec.duration && <span className="text-gray-400 ml-1">{sec.duration}</span>}
+                                <p className="text-gray-500 mt-0.5 leading-relaxed">{sec.desc}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Action buttons */}
+                <div className="pl-8 mt-2 space-y-2">
+                  <div className="flex items-center gap-2.5">
+                    <button
+                      onClick={() => quickConfirm("确认内容结构，开始生成")}
+                      className="flex-1 px-4 py-2.5 bg-indigo-50 text-indigo-600 text-sm font-medium rounded-xl border border-indigo-100 hover:bg-indigo-100 transition"
+                    >
+                      确认内容结构，开始生成
+                    </button>
+                    <button
+                      onClick={() => quickConfirm("换一换")}
+                      className="px-4 py-2.5 text-gray-500 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
+                    >
+                      <RefreshCw className="w-3.5 h-3.5 inline mr-1" />
+                      换一换
+                    </button>
+                  </div>
+                  <p className="text-[11px] text-gray-400">{"想调整？直接告诉我，比如\"加一个直播话术方案\"、\"短视频改成60秒\""}</p>
+                </div>
+              </div>
+            );
+          }
+
           // ── Model: welcome message ──
           if (msg.sender === "model" && msg.type === "welcome") {
             return (
@@ -2552,36 +2815,48 @@ export default function ChatPanel() {
                   <div className="pl-8 mt-2">
                     <button
                       onClick={() => {
-                        setFlowMode("inspiration");
-                        // 先显示用户消息气泡
-                        setMessages((prev) => [...prev, { id: `user-help-me-${Date.now()}`, sender: "user", type: "text", content: "帮我想一个" }]);
+                        setFlowMode("freeform");
+                        setMessages((prev) => [...prev, { id: `user-help-me-${Date.now()}`, sender: "user", type: "text", content: dataRef.current.isMarketing ? "帮我想一个商品案例" : "帮我想一个" }]);
                         const thinkingId = `thinking-direct-settings`;
                         setTimeout(() => {
                           setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
                         }, 300);
                         setTimeout(() => {
-                          setMessages((prev) => [
-                            ...prev.filter((m) => m.id !== thinkingId),
-                            {
-                              id: "model-settings",
-                              sender: "model",
-                              type: "settings-card",
-                              prompt: dataRef.current.isMarketing
-                                ? `我帮你生成了一版视频策略Brief——${getSettingsSummary()}\n\n看看感觉怎么样？确认后我会为你设计视频故事线，你也可以告诉我想调整的地方。`
-                                : dataRef.current.isKnowledge
-                                ? `我帮你生成了一版分析配置——${getSettingsSummary()}\n\n看看感觉怎么样？确认后我会开始深入分析设定体系，你也可以告诉我想调整的地方。`
-                                : `我帮你生成了一版创作设定——${getSettingsSummary()}\n\n看看感觉怎么样？确认后我会为你构建世界观，你也可以告诉我想调整的地方。`,
-                              settings: dataRef.current.sceneSettingsCard,
-                            },
-                          ]);
+                          if (dataRef.current.isMarketing) {
+                            // Marketing: show sample product info card + default platform
+                            marketingPlatformRef.current = "抖音";
+                            setMessages((prev) => [
+                              ...prev.filter((m) => m.id !== thinkingId),
+                              {
+                                id: "model-settings",
+                                sender: "model",
+                                type: "settings-card",
+                                prompt: `我帮你生成了一个样例商品——隐形蓝牙耳机 Pro，默认投放平台为抖音。\n\n确认商品信息后，我会根据抖音平台特点为你生成内容结构。`,
+                                settings: marketingProductInfoCard,
+                              },
+                            ]);
+                          } else {
+                            setMessages((prev) => [
+                              ...prev.filter((m) => m.id !== thinkingId),
+                              {
+                                id: "model-settings",
+                                sender: "model",
+                                type: "settings-card",
+                                prompt: dataRef.current.isKnowledge
+                                  ? `我帮你生成了一版分析配置——${getSettingsSummary()}\n\n看看感觉怎么样？确认后我会开始深入分析设定体系，你也可以告诉我想调整的地方。`
+                                  : `我帮你生成了一版创作设定——${getSettingsSummary()}\n\n看看感觉怎么样？确认后我会为你构建世界观，你也可以告诉我想调整的地方。`,
+                                settings: dataRef.current.sceneSettingsCard,
+                              },
+                            ]);
+                          }
                           setCurrentRound(4);
                           setCreationStage(1);
-                          setAgentStageData("settings", dataRef.current.sceneSettingsCard);
+                          setAgentStageData("settings", dataRef.current.isMarketing ? marketingProductInfoCard : dataRef.current.sceneSettingsCard);
                         }, 2500);
                       }}
                       className="px-4 py-2.5 bg-indigo-50 text-indigo-600 text-sm font-medium rounded-xl border border-indigo-100 hover:bg-indigo-100 transition"
                     >
-                      ✨ 帮我想一个
+                      {isMarketing ? "📦 用样例商品体验" : "✨ 帮我想一个"}
                     </button>
                   </div>
                 )}
@@ -2685,30 +2960,49 @@ export default function ChatPanel() {
                     <div className="mt-2.5 space-y-2">
                       <div className="flex items-center gap-2.5">
                         <button
-                          onClick={() => quickConfirm("确认设定，进入下一步")}
+                          onClick={() => quickConfirm(isMarketing ? "确认商品信息，生成内容结构" : "确认设定，进入下一步")}
                           className="flex-1 px-4 py-2.5 bg-indigo-50 text-indigo-600 text-sm font-medium rounded-xl border border-indigo-100 hover:bg-indigo-100 transition"
                         >
-                          确认设定，下一步
+                          {isMarketing ? "确认商品信息，下一步" : "确认设定，下一步"}
                         </button>
                         <button
                           onClick={() => {
-                            novelVariantRef.current = novelVariantRef.current === 0 ? 1 : 0;
-                            const altData = novelVariantRef.current === 1 ? mockSettingsAlt : mockSettings;
-                            const thinkingId = `thinking-regen-settings`;
-                            setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
-                            setTimeout(() => {
-                              setMessages((prev) => [
-                                ...prev.filter((m) => m.id !== thinkingId),
-                                {
-                                  id: `model-settings-${Date.now()}`,
-                                  sender: "model" as const,
-                                  type: "settings-card" as const,
-                                  prompt: "已重新生成一版设定，看看这个怎么样？",
-                                  settings: altData,
-                                },
-                              ]);
-                              setAgentStageData("settings", altData);
-                            }, 2000);
+                            if (isMarketing) {
+                              // Marketing: just regenerate with same data (mock)
+                              const thinkingId = `thinking-regen-settings`;
+                              setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+                              setTimeout(() => {
+                                setMessages((prev) => [
+                                  ...prev.filter((m) => m.id !== thinkingId),
+                                  {
+                                    id: `model-settings-${Date.now()}`,
+                                    sender: "model" as const,
+                                    type: "settings-card" as const,
+                                    prompt: "已重新整理商品信息，看看这个怎么样？",
+                                    settings: marketingProductInfoCard,
+                                  },
+                                ]);
+                                setAgentStageData("settings", marketingProductInfoCard);
+                              }, 2000);
+                            } else {
+                              novelVariantRef.current = novelVariantRef.current === 0 ? 1 : 0;
+                              const altData = novelVariantRef.current === 1 ? mockSettingsAlt : mockSettings;
+                              const thinkingId = `thinking-regen-settings`;
+                              setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+                              setTimeout(() => {
+                                setMessages((prev) => [
+                                  ...prev.filter((m) => m.id !== thinkingId),
+                                  {
+                                    id: `model-settings-${Date.now()}`,
+                                    sender: "model" as const,
+                                    type: "settings-card" as const,
+                                    prompt: "已重新生成一版设定，看看这个怎么样？",
+                                    settings: altData,
+                                  },
+                                ]);
+                                setAgentStageData("settings", altData);
+                              }, 2000);
+                            }
                           }}
                           className="px-4 py-2.5 text-gray-500 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
                         >
@@ -2716,33 +3010,35 @@ export default function ChatPanel() {
                           换一换
                         </button>
                       </div>
-                      <button
-                        onClick={() => {
-                          // Enter inspiration round 1 to refine settings
-                          const thinkingId = `thinking-refine-insp`;
-                          setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
-                          setTimeout(() => {
-                            const r1 = dataRef.current.sceneInspirationRounds[0];
-                            setMessages((prev) => [
-                              ...prev.filter((m) => m.id !== thinkingId),
-                              {
-                                id: "model-r1",
-                                sender: "model",
-                                type: "inspiration",
-                                prompt: "好的，让我们通过几个选择来完善细节吧！\n\n" + r1.prompt,
-                                cards: r1.cards,
-                                round: 1,
-                              },
-                            ]);
-                            setCurrentRound(1);
-                            setFlowMode("inspiration");
-                          }, 1500);
-                        }}
-                        className="w-full px-4 py-2.5 text-sm text-indigo-500 rounded-xl border border-dashed border-indigo-200 bg-indigo-50/30 hover:bg-indigo-50 hover:border-indigo-300 transition"
-                      >
-                        ✨ 通过灵感探索继续完善
-                      </button>
-                      <p className="text-[11px] text-gray-400">{"想调整？直接告诉我哪里不满意，比如\"题材换成科幻\"、\"女主改成医生\""}</p>
+                      {!isMarketing && (
+                        <button
+                          onClick={() => {
+                            // Enter inspiration round 1 to refine settings
+                            const thinkingId = `thinking-refine-insp`;
+                            setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+                            setTimeout(() => {
+                              const r1 = dataRef.current.sceneInspirationRounds[0];
+                              setMessages((prev) => [
+                                ...prev.filter((m) => m.id !== thinkingId),
+                                {
+                                  id: "model-r1",
+                                  sender: "model",
+                                  type: "inspiration",
+                                  prompt: "好的，让我们通过几个选择来完善细节吧！\n\n" + r1.prompt,
+                                  cards: r1.cards,
+                                  round: 1,
+                                },
+                              ]);
+                              setCurrentRound(1);
+                              setFlowMode("inspiration");
+                            }, 1500);
+                          }}
+                          className="w-full px-4 py-2.5 text-sm text-indigo-500 rounded-xl border border-dashed border-indigo-200 bg-indigo-50/30 hover:bg-indigo-50 hover:border-indigo-300 transition"
+                        >
+                          ✨ 通过灵感探索继续完善
+                        </button>
+                      )}
+                      <p className="text-[11px] text-gray-400">{isMarketing ? "想调整？直接告诉我，比如\"价格改成299\"、\"加一个核心卖点\"" : "想调整？直接告诉我哪里不满意，比如\"题材换成科幻\"、\"女主改成医生\""}</p>
                     </div>
                   )}
                 </div>
@@ -3031,7 +3327,7 @@ export default function ChatPanel() {
                 ? "想调整什么？比如「第三章加个反转」「结局改成开放式」..."
                 : flowMode === "none"
                 ? scene === "marketing"
-                  ? "描述你要推广的产品，核心卖点、目标人群..."
+                  ? "商品名称、卖点、价格、目标平台..."
                   : scene === "knowledge"
                   ? "输入书名或上传文件，比如「帮我拆解《诡秘之主》」..."
                   : "描述你的故事，比如「重生复仇的女频故事」「末日科幻」..."

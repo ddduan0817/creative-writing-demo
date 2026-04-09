@@ -537,33 +537,15 @@ export default function RichTextEditor() {
 
     const marketingSettingsData = [
       {
-        group: "产品信息",
+        group: "商品信息",
         type: "text" as const,
         items: [
-          { label: "产品名称", value: "Wireless Bluetooth Headset · 隐形蓝牙耳机" },
-          { label: "核心卖点", value: "极致隐形 · IPX5防水 · 主动降噪 · 36H续航" },
-          { label: "价格", value: "$29.99（竞品均价$49-79）" },
-          { label: "目标人群", value: "18-35岁，追求便携和性价比的年轻用户" },
-        ],
-      },
-      {
-        group: "视频策略",
-        type: "tags" as const,
-        items: [
-          { label: "时长", value: "40秒" },
-          { label: "风格", value: "UGC真人出镜 · 自然分享" },
-          { label: "平台", value: "TikTok" },
-          { label: "语言", value: "英文口语" },
-        ],
-      },
-      {
-        group: "角色与转化",
-        type: "tags" as const,
-        items: [
-          { label: "出镜角色", value: "Jimmy · 20-30岁男性 · 休闲穿搭" },
-          { label: "开篇策略", value: "视觉对比 · 普通耳机 vs 隐形耳机" },
-          { label: "转化策略", value: "功能叠加 + 价格锚定" },
-          { label: "CTA", value: "Link in bio · 限时优惠" },
+          { label: "商品名称", value: "隐形蓝牙耳机 Pro" },
+          { label: "价格", value: "¥199（日常价¥399）" },
+          { label: "品类", value: "数码3C · 蓝牙耳机" },
+          { label: "商品简介", value: "仅重3.8g的豆状隐形蓝牙耳机，佩戴后几乎看不到。IPX5防水、主动降噪、36小时超长续航。" },
+          { label: "目标用户", value: "18-35岁年轻用户，注重颜值和性价比" },
+          { label: "核心卖点", value: "极致隐形（仅3.8g）· IPX5级防水 · 主动降噪 · 36H续航 · 蓝牙5.3" },
         ],
       },
     ];
@@ -619,7 +601,7 @@ export default function RichTextEditor() {
     const settingsTitleMap: Record<string, string> = {
       novel: "创作设定",
       screenplay: "创作设定",
-      marketing: "视频策略Brief",
+      marketing: "商品信息",
       knowledge: "分析配置",
     };
     const settingsTitle = settingsTitleMap[scene] || "创作设定";
@@ -746,7 +728,7 @@ export default function RichTextEditor() {
       clues: string[];
     } = storeWb
       ? {
-          title: scene === "marketing" ? "故事线设计" : scene === "knowledge" ? "设定体系拆解" : "世界观",
+          title: scene === "marketing" ? "内容结构" : scene === "knowledge" ? "设定体系拆解" : "世界观",
           summaryLabel: scene === "marketing" ? "视频概述" : scene === "knowledge" ? "体系概述" : "世界概述",
           summary: storeWb.summary,
           timelineLabel: scene === "knowledge" ? "设定揭露节奏" : "时间线",

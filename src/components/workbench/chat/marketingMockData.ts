@@ -1,6 +1,6 @@
 // ─── Marketing (电商带货脚本) Agent Mock Data ─────────────────
 // 电商带货短视频脚本场景 · 参考4.1 Chat Agent工作流设计
-// 阶段: 产品信息采集 → 视频策略确认 → 故事线设计 → 分幕脚本生成 → 逐幕精修
+// 新流程: 商品信息采集 → 内容平台确认 → 商品信息卡片确认 → 内容结构生成（三类场景）→ 逐段精修
 
 export interface InspirationCard {
   text: string;
@@ -441,4 +441,85 @@ Jimmy微笑，手指向下指（指向Bio链接）。
 
 字幕：🔥 Only $29.99 (Was $49.99) → Link in Bio 👇
 技巧标注：多色=选择感（不是买不买，而是买哪色），价格锚定+紧迫感+明确CTA`,
+};
+
+// ─── 新流程：商品信息卡片 ──────────────────────────────────
+
+export const marketingProductInfoCard: Record<string, { label: string; value: string }[]> = {
+  "商品信息": [
+    { label: "商品名称", value: "隐形蓝牙耳机 Pro" },
+    { label: "价格", value: "¥199（日常价¥399）" },
+    { label: "品类", value: "数码3C · 蓝牙耳机" },
+    { label: "商品简介", value: "仅重3.8g的豆状隐形蓝牙耳机，佩戴后几乎看不到。IPX5防水、主动降噪、36小时超长续航，支持蓝牙5.3。" },
+    { label: "目标用户", value: "18-35岁年轻用户，注重颜值和性价比，日常通勤、运动、睡眠场景使用" },
+    { label: "核心卖点", value: "极致隐形（仅3.8g）· IPX5级防水 · 主动降噪 · 36H续航 · 蓝牙5.3" },
+  ],
+};
+
+// ─── 新流程：内容平台选项 ──────────────────────────────────
+
+export const marketingPlatforms = [
+  { id: "douyin", label: "抖音", desc: "短视频+直播", contentTypes: ["short_video", "live_script"] as const },
+  { id: "xiaohongshu", label: "小红书", desc: "图文种草+短视频", contentTypes: ["graphic_note", "short_video"] as const },
+  { id: "kuaishou", label: "快手", desc: "短视频+直播", contentTypes: ["short_video", "live_script"] as const },
+  { id: "wechat", label: "视频号", desc: "短视频", contentTypes: ["short_video"] as const },
+  { id: "tiktok", label: "TikTok", desc: "海外短视频", contentTypes: ["short_video"] as const },
+  { id: "bilibili", label: "B站", desc: "中长视频", contentTypes: ["short_video"] as const },
+];
+
+// ─── 新流程：内容结构（按内容类型索引，根据平台选择输出） ──────
+
+export interface ContentScenario {
+  type: "short_video" | "live_script" | "graphic_note";
+  typeLabel: string;
+  title: string;
+  duration: string;
+  structure: string;
+  sections: { title: string; desc: string; duration?: string }[];
+}
+
+export const marketingContentByType: Record<string, ContentScenario> = {
+  short_video: {
+    type: "short_video",
+    typeLabel: "短视频脚本",
+    title: "「隐形到底有多隐形」挑战测评",
+    duration: "45秒",
+    structure: "钩子→痛点→卖点演示×3→价格揭晓→CTA",
+    sections: [
+      { title: "开篇钩子", desc: "街头随机测试：「猜猜我现在戴着耳机吗？」路人猜错→揭晓，制造悬念和互动感", duration: "0-5s" },
+      { title: "痛点共鸣", desc: "快速展示普通耳机的三大痛点：太大太丑、运动掉落、睡觉硌耳朵", duration: "5-12s" },
+      { title: "核心卖点演示", desc: "隐形演示（侧脸特写）→ 防水测试（水龙头冲洗）→ 降噪对比（街头→安静）", duration: "12-30s" },
+      { title: "价格+促单", desc: "「原价399，今天直接199」价格字幕弹出 + 评论区置顶链接引导", duration: "30-40s" },
+      { title: "结尾互动", desc: "「你觉得值吗？评论区告诉我」引导互动提升推荐权重", duration: "40-45s" },
+    ],
+  },
+  live_script: {
+    type: "live_script",
+    typeLabel: "直播话术",
+    title: "「爆款返场」隐形耳机专场话术",
+    duration: "5分钟一轮",
+    structure: "留人→建信→说品→促单→逼单",
+    sections: [
+      { title: "留人话术", desc: "「刚进来的家人们先别走！这款耳机上次3000单10分钟抢光了，今天返场价比上次还低，先点个关注不迷路」" },
+      { title: "建立信任", desc: "「我自己用了三个月，健身、通勤、睡觉全靠它。给你们看我的使用痕迹——这个磨损就是真实用出来的」" },
+      { title: "产品讲解", desc: "逐一演示六大卖点：隐形佩戴（对镜头展示）、防水（现场倒水）、降噪（播放对比音频）、续航、蓝牙5.3、佩戴舒适度" },
+      { title: "促单话术", desc: "「今天直播间专属价199，再送一个替换耳帽套装。库存只备了500单，卖完恢复399。点下面小黄车第一个链接」" },
+      { title: "逼单话术", desc: "「已经300多单了，库存在掉。犹豫的家人们想想，少喝两杯奶茶就能用三年。3、2、1，上链接！」" },
+    ],
+  },
+  graphic_note: {
+    type: "graphic_note",
+    typeLabel: "图文笔记",
+    title: "「找了两年终于找到」真实安利帖",
+    duration: "6张图+正文",
+    structure: "封面标题→产品展示→场景体验→对比测评→价格信息→购买引导",
+    sections: [
+      { title: "封面图+标题", desc: "封面：耳朵侧脸特写（看不到耳机）\n标题：「找了两年的隐形耳机终于被我找到了！戴上真的看不见」\n标签：#隐形耳机 #蓝牙耳机推荐 #数码好物" },
+      { title: "产品展示图", desc: "耳机开箱摆拍 + 手掌对比大小（突出小巧）+ 三色展示" },
+      { title: "场景体验图", desc: "三张场景图：通勤地铁上（降噪）、跑步（防水防汗）、侧躺看手机（舒适不硌）" },
+      { title: "对比图", desc: "与AirPods/其他热门耳机的大小、价格、功能对比表格" },
+      { title: "正文文案", desc: "以第一人称「种草体」写作：入手原因→真实使用一周体验→优缺点坦诚分享→适合人群总结" },
+      { title: "购买引导", desc: "「链接放评论区了！现在199还送耳帽，真的可以冲」+ 评论区置顶链接" },
+    ],
+  },
 };
