@@ -36,6 +36,12 @@ interface EditorState {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setAgentStageData: (key: string, data: any) => void;
 
+  // Workflow mode: settings fullscreen edit (LeftPanel → RichTextEditor)
+  settingsFullscreen: boolean;
+  settingsFullscreenContent: string;
+  setSettingsFullscreen: (active: boolean, content?: string) => void;
+  setSettingsFullscreenContent: (content: string) => void;
+
   // 小说正文章节（novel agent flow - 正文阶段）
   novelChapters: { title: string; content: string; status: "pending" | "generating" | "done" }[];
   currentNovelChapter: number;
@@ -153,6 +159,11 @@ export const useEditorStore = create<EditorState>((set) => ({
   setStageProgress: (progress) => set({ stageProgress: progress }),
   agentStageData: {},
   setAgentStageData: (key, data) => set((s) => ({ agentStageData: { ...s.agentStageData, [key]: data } })),
+
+  settingsFullscreen: false,
+  settingsFullscreenContent: "",
+  setSettingsFullscreen: (active, content) => set({ settingsFullscreen: active, settingsFullscreenContent: content || "" }),
+  setSettingsFullscreenContent: (content) => set({ settingsFullscreenContent: content }),
   novelChapters: [],
   currentNovelChapter: 0,
   scrollToChapter: null,
