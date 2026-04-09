@@ -327,7 +327,7 @@ export default function LeftPanel() {
                   )}
                 />
                 {/* 底部图标：魔法棒 + 全屏 */}
-                <div className="absolute bottom-1.5 right-1.5 flex items-center gap-0.5 bg-white/90 rounded-md">
+                <div className="absolute bottom-3 right-3 flex items-center gap-0.5 bg-white rounded-md shadow-sm border border-gray-100">
                   <button
                     onClick={handleGenerate}
                     disabled={isGenerating}
