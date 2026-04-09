@@ -350,7 +350,7 @@ export default function RichTextEditor() {
     extensions: [
       StarterKit,
       Underline,
-      Placeholder.configure({ placeholder: "【故事线】请输入故事的主要情节走向...\n\n【核心冲突】故事的主要矛盾和冲突...\n\n【情感设定】角色之间的情感关系..." }),
+      Placeholder.configure({ placeholder: "【核心设定】故事的核心设定和世界观...\n\n【故事基调】整体风格和情感基调...\n\n【故事走向】主要情节发展方向...\n\n【核心冲突】故事的主要矛盾和冲突..." }),
     ],
     content: "",
     onUpdate: ({ editor: e }) => {
@@ -434,7 +434,7 @@ export default function RichTextEditor() {
       <div className="h-full flex flex-col bg-white">
         {/* Header */}
         <div className="px-6 py-3 border-b border-gray-100 flex items-center justify-center">
-          <p className="text-sm text-gray-500 font-medium">全屏编辑 · 描述故事背景、故事线、核心冲突等</p>
+          <p className="text-sm text-gray-500 font-medium">全屏编辑 · 描述核心设定、故事基调、故事走向、核心冲突等</p>
         </div>
 
         {/* Toolbar */}
@@ -762,10 +762,9 @@ export default function RichTextEditor() {
           color: "purple",
           items: [
             { label: "身份", value: "前当红影后，现清岚镇「一碗春」面馆老板娘" },
-            { label: "性格", value: "外柔内刚，失忆后展现出天然的亲和力和不服输的韧劲" },
             { label: "外貌", value: "杏眼桃腮，常扎麻花辫，最爱穿素色棉麻围裙" },
-            { label: "习惯", value: "做面时会无意识哼歌，那首歌是她失忆前拍戏时的插曲" },
-            { label: "秘密", value: "随身带着一枚旧铜钥匙，不知道它能打开什么" },
+            { label: "性格", value: "外柔内刚，失忆后展现出天然的亲和力和不服输的韧劲" },
+            { label: "背景", value: "曾是当红影后，因车祸失忆后独自来到清岚镇，盘下面馆重新开始。随身带着一枚旧铜钥匙，做面时会无意识哼歌" },
           ],
         },
         leadBTitle: "男主角",
@@ -774,10 +773,9 @@ export default function RichTextEditor() {
           color: "blue",
           items: [
             { label: "身份", value: "济世堂第四代传人，清岚镇唯一的中医" },
-            { label: "性格", value: "沉默寡言但行动力强，面对苏念时语气会不自觉变软" },
             { label: "外貌", value: "清瘦高挑，常穿白衬衫，手指修长带着淡淡药香" },
-            { label: "习惯", value: "深夜在后山竹林练八段锦，是他唯一的独处时间" },
-            { label: "秘密", value: "认出了苏念的真实身份，但选择沉默守护她的平静生活" },
+            { label: "性格", value: "沉默寡言但行动力强，面对苏念时语气会不自觉变软" },
+            { label: "背景", value: "自幼跟随祖父学医，独自经营祖传中医馆。认出了苏念的真实身份，但选择沉默守护她的平静生活" },
           ],
         },
         supportingTitle: "关键配角",
@@ -831,10 +829,9 @@ export default function RichTextEditor() {
           color: "purple",
           items: [
             { label: "身份", value: "穿越者→占卜家→小丑→魔术师→…→愚者 | 灰雾之上的主人" },
-            { label: "性格", value: "初期谨慎小心，中期理性果决，后期背负沉重。最突出的特质：善于「扮演」" },
             { label: "外貌", value: "黑发黑瞳，身材修长。常穿黑色长风衣+半高帽。随序列提升气质逐渐变为「不可直视的存在」" },
-            { label: "习惯", value: "紧张时默念自我暗示。写日记记录重要信息。对美食有执念" },
-            { label: "秘密", value: "全书最大的身份之谜：他到底是谁？作者在终卷给出了第三种答案" },
+            { label: "性格", value: "初期谨慎小心，中期理性果决，后期背负沉重。最突出的特质：善于「扮演」" },
+            { label: "背景", value: "穿越到异世界的现代人，紧张时默念自我暗示，写日记记录重要信息。全书最大的身份之谜：他到底是谁？" },
           ],
         },
         leadBTitle: "核心反派",
@@ -843,10 +840,9 @@ export default function RichTextEditor() {
           color: "red",
           items: [
             { label: "身份", value: "序列1「偷盗者」→ 试图成为「错误」途径的真神 | 亚当之弟" },
-            { label: "性格", value: "表面永远微笑的绅士。本质：极致的「偷盗者」——偷时间、偷身份、偷命运" },
             { label: "外貌", value: "单片眼镜，黑色正装，永恒的微笑。他出现过的地方，时钟会异常" },
-            { label: "行为", value: "偷盗他人的身份并完美扮演（和克莱恩的「扮演」法则形成镜像）" },
-            { label: "秘密", value: "阿蒙可能是全书最「理解」克莱恩的人——两人都在扮演，都在对抗被吞噬的命运" },
+            { label: "性格", value: "表面永远微笑的绅士。本质：极致的「偷盗者」——偷时间、偷身份、偷命运" },
+            { label: "背景", value: "偷盗他人的身份并完美扮演（和克莱恩的「扮演」法则形成镜像）。可能是全书最「理解」克莱恩的人" },
           ],
         },
         supportingTitle: "关键角色",
@@ -861,12 +857,11 @@ export default function RichTextEditor() {
     };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const storeChars = agentStageData?.characters as any;
-    const profileToItems = (p: { name?: string; identity?: string; personality?: string; appearance?: string; habit?: string; secret?: string }) => [
+    const profileToItems = (p: { name?: string; identity?: string; appearance?: string; personality?: string; background?: string }) => [
       { label: "身份", value: p.identity || "" },
-      { label: "性格", value: p.personality || "" },
       { label: "外貌", value: p.appearance || "" },
-      { label: "习惯", value: p.habit || "" },
-      { label: "秘密", value: p.secret || "" },
+      { label: "性格", value: p.personality || "" },
+      { label: "背景", value: p.background || "" },
     ];
     const chars = storeChars
       ? {
@@ -1719,7 +1714,7 @@ function CharacterFullscreenView({
                 <textarea
                   value={char.desc}
                   onChange={(e) => onUpdate(i, { ...char, desc: e.target.value })}
-                  placeholder={"输入角色详细信息，或点击魔法棒智能生成...\n\n【身份】\n【性格】\n【动机】\n【秘密】"}
+                  placeholder={"输入角色详细信息，或点击魔法棒智能生成...\n\n【身份】\n【外貌】\n【性格】\n【背景】"}
                   className="w-full text-sm px-5 pt-2 pb-4 resize-none focus:outline-none leading-relaxed placeholder:text-gray-300 min-h-[140px]"
                   rows={6}
                 />

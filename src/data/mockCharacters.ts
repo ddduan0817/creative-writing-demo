@@ -3,6 +3,7 @@ export interface Character {
   name: string;
   role: "main" | "secondary";
   identity: string;
+  appearance: string;
   motivation: string;
   personality: string[];
   background: string;
@@ -15,6 +16,7 @@ export const mockScreenplayCharacters: Character[] = [
     name: "林晓",
     role: "main",
     identity: "刑侦记者",
+    appearance: "短发干练，常穿风衣+帆布鞋，随身背着采访包",
     motivation: "追查未婚夫的双重身份，揭开隐藏的真相",
     personality: ["敏锐", "执着", "外柔内刚"],
     background:
@@ -26,6 +28,7 @@ export const mockScreenplayCharacters: Character[] = [
     name: "陈深",
     role: "main",
     identity: "林晓的未婚夫 / 神秘组织成员",
+    appearance: "西装革履，气质清冷，左手无名指的戒指永远不摘",
     motivation: "在感情与任务之间艰难抉择",
     personality: ["沉稳", "矛盾", "深情"],
     background:
@@ -37,6 +40,7 @@ export const mockScreenplayCharacters: Character[] = [
     name: "陈队长",
     role: "secondary",
     identity: "市局刑侦队队长",
+    appearance: "身材壮硕，常穿旧夹克，眉头总是微皱",
     motivation: "破获连环案件，维护城市安全",
     personality: ["老练", "正直", "不苟言笑"],
     background:
@@ -51,6 +55,7 @@ export const mockCharacters: Character[] = [
     name: "沈夜川",
     role: "main",
     identity: "天机阁末代传人",
+    appearance: "面容清冷，剑眉星目，左手腕有一道淡青色灵纹",
     motivation: "找回被封印的记忆碎片，揭开灵脉枯竭的真相",
     personality: ["隐忍", "聪慧", "外冷内热"],
     background:
@@ -62,6 +67,7 @@ export const mockCharacters: Character[] = [
     name: "姜晚吟",
     role: "main",
     identity: "南渊城城主之女 / 暗河情报网首领",
+    appearance: "容貌秀丽但目光锐利，常以面纱遮面，指间缠着暗银色细链",
     motivation: "守护南渊城，查明父亲失踪的原因",
     personality: ["果决", "细腻", "亦正亦邪"],
     background:
@@ -73,6 +79,7 @@ export const mockCharacters: Character[] = [
     name: "裴长庚",
     role: "secondary",
     identity: "皇城禁卫军统领",
+    appearance: "身形魁梧，面容刚毅，左肩有旧伤留下的疤痕",
     motivation: "执行皇命追查灵脉异变，但内心矛盾于忠诚与正义",
     personality: ["刚正", "固执", "重情义"],
     background:

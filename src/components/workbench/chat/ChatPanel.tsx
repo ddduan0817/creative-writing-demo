@@ -413,10 +413,9 @@ const characterRounds: InspirationRound[] = [
 interface CharacterProfile {
   name: string;
   identity: string;
-  personality: string;
   appearance: string;
-  habit: string;
-  secret: string;
+  personality: string;
+  background: string;
 }
 
 interface CharacterCardData {
@@ -430,18 +429,16 @@ const mockCharacterCard: CharacterCardData = {
   femaleLead: {
     name: "苏念（小名念念）",
     identity: "前当红影后，现清岚镇「一碗春」面馆老板娘",
-    personality: "外柔内刚，失忆后展现出天然的亲和力和不服输的韧劲",
     appearance: "杏眼桃腮，常扎麻花辫，最爱穿素色棉麻围裙",
-    habit: "做面时会无意识哼歌，那首歌是她失忆前拍戏时的插曲",
-    secret: "随身带着一枚旧铜钥匙，不知道它能打开什么",
+    personality: "外柔内刚，失忆后展现出天然的亲和力和不服输的韧劲",
+    background: "曾是当红影后，因车祸失忆后独自来到清岚镇，盘下面馆重新开始。随身带着一枚旧铜钥匙，做面时会无意识哼歌——那是她失忆前拍戏时的插曲。",
   },
   maleLead: {
     name: "陆知行",
     identity: "济世堂第四代传人，清岚镇唯一的中医",
-    personality: "沉默寡言但行动力强，面对苏念时语气会不自觉变软",
     appearance: "清瘦高挑，常穿白衬衫，手指修长带着淡淡药香",
-    habit: "深夜在后山竹林练八段锦，是他唯一的独处时间",
-    secret: "认出了苏念的真实身份，但选择沉默守护她的平静生活",
+    personality: "沉默寡言但行动力强，面对苏念时语气会不自觉变软",
+    background: "自幼跟随祖父学医，独自经营祖传中医馆。认出了苏念的真实身份，但选择沉默守护她的平静生活。深夜常在后山竹林独处。",
   },
   supporting: [
     { name: "王婶", role: "镇长 / 非官方媒人", desc: "热心到让人招架不住，全镇姻缘她操了一半的心。口头禅：'我看你俩啊…'" },
@@ -456,18 +453,16 @@ const mockCharacterCardAlt: CharacterCardData = {
   femaleLead: {
     name: "沈鹿（小名鹿鹿）",
     identity: "前米其林二星甜点主厨，现潮音镇「一勺海」甜品店老板",
-    personality: "外表文静内里倔强，失去味觉后从不抱怨，坚信能找回来",
     appearance: "短发利落，总戴着围裙，指尖常沾着面粉或糖霜",
-    habit: "每天清晨去海边收集不同的海盐，说「每天的海味道都不一样」",
-    secret: "失去味觉前最后尝到的味道是海盐焦糖，那个配方来自一个她想不起的人",
+    personality: "外表文静内里倔强，失去味觉后从不抱怨，坚信能找回来",
+    background: "曾是上海米其林二星甜点主厨，因一场「意外」失去味觉。离开餐厅后来到潮音镇，每天清晨去海边收集海盐，说「每天的海味道都不一样」。失去味觉前最后尝到的味道是海盐焦糖。",
   },
   maleLead: {
     name: "顾北洲",
     identity: "远洋渔民，「归潮」号船长，潮音镇最年轻的讨海人",
-    personality: "沉默寡言，海上的硬汉，上岸后对人却温柔得笨拙",
     appearance: "肤色黝黑，手掌粗糙有力，笑起来眼角有细纹",
-    habit: "每次出海回来会在女主店门口放一袋当天最新鲜的海货，从不多说什么",
-    secret: "三年前在远洋货轮上目睹了一件事，那件事和女主失去味觉有关",
+    personality: "沉默寡言，海上的硬汉，上岸后对人却温柔得笨拙",
+    background: "三年前从远洋货轮辞职回乡捕鱼，镇上人都觉得奇怪。每次出海回来会在女主店门口放一袋最新鲜的海货。三年前在远洋货轮上目睹了一件事，那件事和女主失去味觉有关。",
   },
   supporting: [
     { name: "陈嫂", role: "鱼粥摊老板", desc: "镇上的情报中心和知心大姐，嘴快心热，对女主像亲闺女" },
@@ -1401,8 +1396,8 @@ export default function ChatPanel() {
   useEffect(() => {
     // Map currentRound to stageProgress (0-1) for the NEXT line to fill
     // Stage 0→1 (设定): rounds 0-4, line fills during inspiration rounds
-    // Stage 1→2 (世界观): rounds 4-8, line fills during worldbuilding rounds
-    // Stage 2→3 (角色): rounds 8-12, line fills during character rounds
+    // Stage 1→2 (篇幅): round 5, quick selection
+    // Stage 2→3 (角色): rounds 9-12, line fills during character rounds
     // Stage 3→4 (大纲): rounds 12-13, line fills during outline generation
     const progressMap: Record<number, number> = {
       0: 0,     // welcome
@@ -1410,10 +1405,7 @@ export default function ChatPanel() {
       2: 0.50,  // inspiration round 2
       3: 0.75,  // inspiration round 3
       4: 0,     // settings confirmed, reset for next line
-      5: 0.25,  // worldbuilding round 1
-      6: 0.50,  // worldbuilding round 2
-      7: 0.75,  // worldbuilding round 3
-      8: 0,     // worldbuilding confirmed, reset
+      5: 0,     // length selection
       9: 0.25,  // character round 1
       10: 0.50, // character round 2
       11: 0.75, // character round 3
@@ -1446,13 +1438,13 @@ export default function ChatPanel() {
           },
         ]);
       } else if (scene === "novel") {
-        // Novel: show length selection first
+        // Novel: show welcome directly (length selection comes after settings)
         setMessages([
           {
-            id: "model-length",
+            id: "model-welcome",
             sender: "model",
-            type: "length-select",
-            prompt: "你好！欢迎来到小说创作工作台\n\n在开始之前，先选一下你想写的篇幅：",
+            type: "welcome",
+            prompt: "你好！欢迎来到小说创作工作台\n\n描述一下你想写的故事——一句话、一个画面、甚至几个关键词就够了。\n我会帮你快速生成一版创作设定，然后我们一起调整打磨。\n\n没有想法也没关系，点击下方按钮我来帮你构思一个。",
           },
         ]);
       } else {
@@ -1517,7 +1509,7 @@ export default function ChatPanel() {
     }, 1500);
   }, []);
 
-  // Handle novel length selection
+  // Handle novel length selection (now happens after settings confirm)
   const handleLengthSelect = useCallback((length: "short" | "medium" | "long") => {
     setNovelLength(length);
     const labels: Record<string, string> = { short: "短篇", medium: "中篇", long: "长篇" };
@@ -1527,29 +1519,28 @@ export default function ChatPanel() {
       { id: `user-length`, sender: "user", type: "card-selection", content: `我想写${labels[length]}` },
     ]);
 
-    const thinkingId = `thinking-welcome-after-length`;
+    // After length selection, directly generate characters
+    const thinkingId = `thinking-auto-char-after-length`;
     setTimeout(() => {
       setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
     }, 300);
-
-    const welcomeText = length === "short"
-      ? "好的，短篇小说！\n\n描述一下你想写的故事——一句话、一个画面、甚至几个关键词就够了。\n我会帮你快速生成一版创作设定，然后我们一起调整打磨。\n\n没有想法也没关系，点击下方按钮我来帮你构思一个。"
-      : length === "medium"
-      ? "好的，中篇小说！\n\n描述一下你想写的故事——一句话、一个画面、甚至几个关键词就够了。\n我会帮你快速生成一版创作设定，然后我们一起调整打磨。\n\n没有想法也没关系，点击下方按钮我来帮你构思一个。"
-      : "好的，长篇小说！\n\n描述一下你想写的故事——一句话、一个画面、甚至几个关键词就够了。\n我会帮你快速生成一版创作设定，然后我们一起调整打磨。\n\n没有想法也没关系，点击下方按钮我来帮你构思一个。";
 
     setTimeout(() => {
       setMessages((prev) => [
         ...prev.filter((m) => m.id !== thinkingId),
         {
-          id: "model-welcome",
+          id: "model-characters",
           sender: "model",
-          type: "welcome",
-          prompt: welcomeText,
+          type: "character-card",
+          prompt: `好的，${labels[length]}！以下是角色档案，看看感觉怎么样？`,
+          data: dataRef.current.sceneCharacterCard,
         },
       ]);
-    }, 1500);
-  }, []);
+      setCurrentRound(12);
+      setCreationStage(3);
+      setAgentStageData("characters", dataRef.current.sceneCharacterCard);
+    }, 2500);
+  }, [setCreationStage, setAgentStageData]);
 
   // Proceed to next round (after adjust or skip)
   // Rounds 1-3: inspiration → settings card at end
@@ -1604,7 +1595,7 @@ export default function ChatPanel() {
                   : "已读取完毕！以下是书籍总览和分析配置。确认无误就可以开始深入分析了，有需要调整的随时告诉我。"
                 : isRefinement
                   ? "根据你的灵感偏好，我更新了创作设定。看看现在怎么样？"
-                  : "根据你的灵感方向，我为你整理了以下创作设定。确认无误就可以开始构建世界观了，你也可以告诉我需要调整的地方。",
+                  : "根据你的灵感方向，我为你整理了以下创作设定。确认无误就可以选择篇幅了，你也可以告诉我需要调整的地方。",
               settings: dataRef.current.sceneSettingsCard,
             },
           ]);
@@ -1969,9 +1960,33 @@ export default function ChatPanel() {
         return;
       }
 
-      // ── Non-marketing: auto-generate worldbuilding ──
+      // ── Non-marketing: show length selection (novel) or auto-generate worldbuilding (knowledge) ──
       setAutoTitle(dataRef.current.sceneTitle);
 
+      if (scene === "novel") {
+        // Novel: show length selection after settings confirm
+        const thinkingId = `thinking-length-select`;
+        setTimeout(() => {
+          setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+        }, 300);
+
+        setTimeout(() => {
+          setMessages((prev) => [
+            ...prev.filter((m) => m.id !== thinkingId),
+            {
+              id: "model-length",
+              sender: "model",
+              type: "length-select",
+              prompt: `设定确认！故事暂定为《${dataRef.current.sceneTitle}》（可随时在顶部修改）。\n\n接下来选一下篇幅：`,
+            },
+          ]);
+          setCurrentRound(5); // awaiting length selection
+          setCreationStage(2);
+        }, 2000);
+        return;
+      }
+
+      // Knowledge: auto-generate worldbuilding (keep existing behavior)
       const thinkingId = `thinking-auto-wb`;
       setTimeout(() => {
         setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
@@ -1984,9 +1999,7 @@ export default function ChatPanel() {
             id: "model-worldbuilding",
             sender: "model",
             type: "worldbuilding-card",
-            prompt: dataRef.current.isKnowledge
-              ? `配置确认！项目暂定为《${dataRef.current.sceneTitle}》。以下是设定体系分析，看看感觉怎么样？`
-              : `设定确认！故事暂定为《${dataRef.current.sceneTitle}》（可随时在顶部修改）。\n\n以下是世界观，看看感觉怎么样？`,
+            prompt: `配置确认！项目暂定为《${dataRef.current.sceneTitle}》。以下是设定体系分析，看看感觉怎么样？`,
             data: dataRef.current.sceneWorldbuilding,
           },
         ]);
@@ -2015,7 +2028,7 @@ export default function ChatPanel() {
               ? "世界观确认！以下是出镜角色设计，看看感觉怎么样？"
               : dataRef.current.isKnowledge
               ? "设定体系确认！以下是核心角色分析，看看感觉怎么样？"
-              : "世界观确认！以下是角色档案，看看感觉怎么样？",
+              : "以下是角色档案，看看感觉怎么样？",
             data: dataRef.current.sceneCharacterCard,
           },
         ]);
@@ -2259,7 +2272,7 @@ export default function ChatPanel() {
             type: "settings-card",
             prompt: dataRef.current.isKnowledge
               ? `根据你的描述，我帮你生成了一版分析配置——${getSettingsSummary()}\n\n看看感觉怎么样？确认后我会开始深入分析设定体系，你也可以告诉我想调整的地方。`
-              : `根据你的描述，我帮你生成了一版创作设定——${getSettingsSummary()}\n\n看看感觉怎么样？确认后我会为你构建世界观，你也可以告诉我想调整的地方。`,
+              : `根据你的描述，我帮你生成了一版创作设定——${getSettingsSummary()}\n\n看看感觉怎么样？确认后我会为你选择篇幅并创建角色，你也可以告诉我想调整的地方。`,
             settings: dataRef.current.sceneSettingsCard,
           },
         ]);
@@ -2444,7 +2457,7 @@ export default function ChatPanel() {
                         {msg.round <= 3
                           ? `选择后进入第 ${Math.min(msg.round + 1, 3)} / 3 轮，完成后生成创作设定`
                           : msg.round <= 7
-                          ? `选择后进入第 ${Math.min(msg.round - 4, 3)} / 3 轮，完成后生成世界观`
+                          ? `选择后进入第 ${Math.min(msg.round - 4, 3)} / 3 轮，完成后更新设定`
                           : `选择后进入第 ${Math.min(msg.round - 8, 3)} / 3 轮，完成后生成角色档案`
                         }
                       </p>
@@ -2846,7 +2859,7 @@ export default function ChatPanel() {
                                 type: "settings-card",
                                 prompt: dataRef.current.isKnowledge
                                   ? `我帮你生成了一版分析配置——${getSettingsSummary()}\n\n看看感觉怎么样？确认后我会开始深入分析设定体系，你也可以告诉我想调整的地方。`
-                                  : `我帮你生成了一版创作设定——${getSettingsSummary()}\n\n看看感觉怎么样？确认后我会为你构建世界观，你也可以告诉我想调整的地方。`,
+                                  : `我帮你生成了一版创作设定——${getSettingsSummary()}\n\n看看感觉怎么样？确认后我会为你选择篇幅并创建角色，你也可以告诉我想调整的地方。`,
                                 settings: dataRef.current.sceneSettingsCard,
                               },
                             ]);
@@ -3023,7 +3036,7 @@ export default function ChatPanel() {
                       <p className="text-[11px] text-gray-400">
                         {isMarketing
                           ? "「下一步」确认进入内容生成 ·「换一换」重新生成 · 也可直接打字修改，如\"价格改成299\""
-                          : "「下一步」确认进入世界观 ·「换一换」重新生成 ·「继续完善」通过灵感卡片细化 · 也可直接打字修改"}
+                          : "「下一步」确认进入篇幅选择 ·「换一换」重新生成 ·「继续完善」通过灵感卡片细化 · 也可直接打字修改"}
                       </p>
                     </div>
                   )}
@@ -3166,7 +3179,7 @@ export default function ChatPanel() {
                         <h4 className="text-xs font-semibold text-gray-500 mb-2">女主角</h4>
                         <p className="text-sm font-medium text-indigo-600">{msg.data.femaleLead.name}</p>
                         <p className="text-xs text-gray-500 mt-0.5">{msg.data.femaleLead.identity}</p>
-                        <p className="text-xs text-gray-600 mt-1">{msg.data.femaleLead.personality}</p>
+                        <p className="text-xs text-gray-600 mt-1">{msg.data.femaleLead.appearance} · {msg.data.femaleLead.personality}</p>
                       </div>
                       <div className="border-t border-gray-100" />
                       {/* Male lead */}
@@ -3174,7 +3187,7 @@ export default function ChatPanel() {
                         <h4 className="text-xs font-semibold text-gray-500 mb-2">男主角</h4>
                         <p className="text-sm font-medium text-indigo-600">{msg.data.maleLead.name}</p>
                         <p className="text-xs text-gray-500 mt-0.5">{msg.data.maleLead.identity}</p>
-                        <p className="text-xs text-gray-600 mt-1">{msg.data.maleLead.personality}</p>
+                        <p className="text-xs text-gray-600 mt-1">{msg.data.maleLead.appearance} · {msg.data.maleLead.personality}</p>
                       </div>
                       <div className="border-t border-gray-100" />
                       {/* Supporting */}

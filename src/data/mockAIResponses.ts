@@ -156,6 +156,7 @@ export const mockAIResponses = {
     name: `柳青衣`,
     role: "secondary" as const,
     identity: `南渊城医馆掌柜 / 前天机阁药庐弟子`,
+    appearance: `容貌清秀，常穿素色衣裙，手指因常年制药而微微泛黄`,
     motivation: `保护天机阁留下的药方手札，寻找治愈灵脉枯竭后遗症的方法`,
     personality: [`温和`, `固执`, `有秘密`],
     background:
@@ -509,6 +510,7 @@ export const mockScreenplayResponses = {
     name: `周磊`,
     role: "secondary" as const,
     identity: `写字楼物业经理 / 隐藏身份待揭示`,
+    appearance: `中年男性，微胖，总穿深色西装，胸前别着物业公司徽章`,
     motivation: `维护写字楼的"正常秩序"，不希望任何人打破现状`,
     personality: [`圆滑`, `谨慎`, `善于伪装`],
     background: `在这栋写字楼做了八年物业，对每一层的租户了如指掌。三个月前他批准了B3层设备房的改建申请，签字时没有犹豫——因为申请人给了他一个他无法拒绝的理由。`,

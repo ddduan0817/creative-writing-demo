@@ -258,10 +258,9 @@ export const marketingCharacterRounds: InspirationRound[] = [
 export interface CharacterProfile {
   name: string;
   identity: string;
-  personality: string;
   appearance: string;
-  habit: string;
-  secret: string;
+  personality: string;
+  background: string;
 }
 
 export interface CharacterCardData {
@@ -275,18 +274,16 @@ export const marketingMockCharacterCard: CharacterCardData = {
   femaleLead: {
     name: "出镜者 · Jimmy",
     identity: "20-25岁男性，普通大学生/年轻上班族形象",
-    personality: "自然不做作，像在跟朋友分享好物。会用TikTok高频口语表达，有适度的惊喜感和真诚感",
     appearance: "灰色卫衣+牛仔裤，干净短发，不化妆。整体就是「屏幕里的朋友」",
-    habit: "说到关键卖点时会不自觉凑近镜头，展示产品时手势自然",
-    secret: "核心表演策略：不是在「卖货」，而是在「分享一个自己真心喜欢的东西」",
+    personality: "自然不做作，像在跟朋友分享好物。会用TikTok高频口语表达，有适度的惊喜感和真诚感",
+    background: "说到关键卖点时会不自觉凑近镜头，展示产品时手势自然。核心策略：不是在「卖货」，而是在「分享一个自己真心喜欢的东西」",
   },
   maleLead: {
     name: "产品 · 隐形蓝牙耳机",
     identity: "Wireless Bluetooth Headset · 核心SKU",
-    personality: "科技感+极致小巧，每次出场都要让观众惊叹「这么小？」",
     appearance: "纯白/纯黑/深蓝三色可选，豆状造型，光泽感好。在自然光下质感最佳",
-    habit: "每次出场都配合慢动作或特写，强调「隐形」和「精致」",
-    secret: "产品在画面中的占比要小——越小越能强调「隐形」卖点",
+    personality: "科技感+极致小巧，每次出场都要让观众惊叹「这么小？」",
+    background: "每次出场都配合慢动作或特写，强调「隐形」和「精致」。产品在画面中的占比要小——越小越能强调「隐形」卖点",
   },
   supporting: [
     { name: "字幕系统", role: "信息传达", desc: "每个核心卖点用白色粗体弹出，价格用黄色/红色突出。确保静音观看也能获取80%信息" },

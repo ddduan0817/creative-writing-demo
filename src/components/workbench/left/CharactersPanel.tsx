@@ -17,9 +17,8 @@ const personalityOptions = [
 // Mock AI 生成内容
 const mockFieldGenerations: Record<string, (name: string) => string> = {
   identity: (name) => `${name}是一位神秘的游方术士，表面上以占卜为生，实际上是某个古老组织的成员`,
-  motivation: (name) => `${name}渴望找回失去的记忆，揭开自己身世的秘密，同时保护身边重要的人`,
+  appearance: (name) => `${name}面容清冷，剑眉星目，常穿一袭灰袍，腰间别着一枚古旧的玉佩`,
   background: (name) => `${name}自幼被养父收养，在偏僻的山村长大。十年前的一场变故让他失去了所有记忆，只留下一枚古老的玉佩。此后他四处漂泊，直到在某座城市遇到了改变命运的契机...`,
-  arc: () => `从逃避过去的流浪者 → 直面命运的承担者`,
 };
 
 export default function CharactersPanel() {
@@ -48,6 +47,7 @@ export default function CharactersPanel() {
       name: "新角色",
       role: "secondary",
       identity: "",
+      appearance: "",
       motivation: "",
       personality: [],
       background: "",
@@ -260,6 +260,8 @@ function CharCard({
 
         <FieldWithAI label="身份" field="identity" placeholder="角色的社会身份/职业..." />
 
+        <FieldWithAI label="外貌" field="appearance" placeholder="外貌特征、穿着打扮..." />
+
         {/* 性格标签 */}
         <div className="mb-3">
           <label className="text-xs text-gray-500 mb-1.5 block">
@@ -282,9 +284,7 @@ function CharCard({
           </div>
         </div>
 
-        <FieldWithAI label="动机" field="motivation" placeholder="角色的核心目标/驱动力..." />
-        <FieldWithAI label="背景故事" field="background" placeholder="成长经历/重要事件..." multiline />
-        <FieldWithAI label="人物弧光" field="arc" placeholder="开场状态 → 结局改变" />
+        <FieldWithAI label="背景" field="background" placeholder="成长经历/重要事件..." multiline />
 
         {/* 操作按钮 */}
         <div className="flex justify-between pt-2 border-t border-gray-200">

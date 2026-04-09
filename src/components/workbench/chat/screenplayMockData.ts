@@ -257,10 +257,9 @@ export const screenplayCharacterRounds: InspirationRound[] = [
 export interface CharacterProfile {
   name: string;
   identity: string;
-  personality: string;
   appearance: string;
-  habit: string;
-  secret: string;
+  personality: string;
+  background: string;
 }
 
 export interface CharacterCardData {
@@ -274,18 +273,16 @@ export const screenplayMockCharacterCard: CharacterCardData = {
   femaleLead: {
     name: "林晓",
     identity: "《滨城晚报》深度调查记者，业内新锐",
-    personality: "飒爽果敢，嗅觉敏锐，嘴硬心软。面对线索时冷静如冰，面对陈深时理性全线崩溃",
     appearance: "短发干练，常穿风衣+帆布鞋，随身背着采访包。跑线索时扎马尾，约会时会换裙子",
-    habit: "紧张时咬笔帽，破案时在玻璃墙上贴便利贴画关系图",
-    secret: "三年前的车祸让她失去了部分记忆，她一直以为那只是意外",
+    personality: "飒爽果敢，嗅觉敏锐，嘴硬心软。面对线索时冷静如冰，面对陈深时理性全线崩溃",
+    background: "《滨城晚报》新锐记者，紧张时咬笔帽，破案时在玻璃墙上贴便利贴画关系图。三年前的车祸让她失去了部分记忆，她一直以为那只是意外",
   },
   maleLead: {
     name: "陈深",
     identity: "知名投资公司高级分析师（表面身份），林晓的未婚夫",
-    personality: "表面温柔完美、实则深不可测。唯一会露出真实情绪的时刻是林晓遇到危险",
     appearance: "西装革履，气质清冷。左手无名指的戒指永远不摘——那是他唯一的真心",
-    habit: "深夜独自在书房打加密电话时会无意识地转戒指",
-    secret: "他不是警方卧底，而是另一个组织的人。接近林晓最初是任务，但他真的爱上了她",
+    personality: "表面温柔完美、实则深不可测。唯一会露出真实情绪的时刻是林晓遇到危险",
+    background: "知名投资公司高级分析师（表面身份），深夜独自在书房打加密电话时会无意识地转戒指。他不是警方卧底，而是另一个组织的人，接近林晓最初是任务，但他真的爱上了她",
   },
   supporting: [
     { name: "陈队长", role: "刑侦队队长", desc: "正直的老警察，掌握关键证据但受上层压力无法公开。林晓既是他的线人也是他想保护的晚辈" },
