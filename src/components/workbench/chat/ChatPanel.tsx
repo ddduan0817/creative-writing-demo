@@ -357,15 +357,15 @@ const characterRounds: InspirationRound[] = [
     cards: [
       {
         text: "外柔内刚型：表面温柔随和，实则内心坚韧。失忆前在娱乐圈养成了察言观色的本能，失忆后反而展现出天然的亲和力。做面时专注认真，面馆被她经营得有声有色。",
-        keywords: ["温柔", "坚韧", "亲和力", "不服输"],
+        keywords: [],
       },
       {
         text: "毒舌傲娇型：嘴硬心软，失忆后依然保留了犀利和高标准。面馆经营得一丝不苟，对男主嘴上不饶人，行动却很诚实。生气时会多做一碗面摔在桌上。",
-        keywords: ["毒舌", "傲娇", "犀利", "嘴硬心软"],
+        keywords: [],
       },
       {
         text: "元气治愈型：失忆后像换了个人，开朗热情、对一切充满好奇。把面馆变成了小镇的社交中心，用美食治愈所有人。笑起来像清晨的阳光，但偶尔会在深夜突然安静下来。",
-        keywords: ["元气", "治愈", "好奇", "反差"],
+        keywords: [],
       },
     ],
     adjustPrompt: "想微调女主性格吗？比如「再强势一点」「加点文艺气质」，或者跳过继续～",
@@ -375,15 +375,15 @@ const characterRounds: InspirationRound[] = [
     cards: [
       {
         text: "沉默守护型：话少但行动力强，默默照顾女主却从不邀功。中医馆里严肃认真，面对女主时语气会不自觉变软。有一段不愿提起的过去，深夜独自在后山竹林练八段锦。",
-        keywords: ["沉默", "守护", "反差萌", "过去"],
+        keywords: [],
       },
       {
         text: "毒舌闷骚型：表面冷漠毒舌，实则闷骚到不行。和女主的日常拌嘴是全镇的连续剧。会在深夜偷偷给面馆留一把新鲜草药，附纸条写「多的，别浪费」。",
-        keywords: ["毒舌", "闷骚", "拌嘴", "偷偷关心"],
+        keywords: [],
       },
       {
         text: "温润如玉型：温和有礼，医者仁心。对所有人都很好，但对女主有明显的不同——会记住她喝什么茶、哪天该换药。在女主失忆发作时永远第一个出现。",
-        keywords: ["温润", "细心", "医者仁心", "偏爱"],
+        keywords: [],
       },
     ],
     adjustPrompt: "想调整男主什么？比如「再高冷一点」「加点反派感」，或者跳过继续～",
@@ -393,15 +393,15 @@ const characterRounds: InspirationRound[] = [
     cards: [
       {
         text: "热闹烟火型配角：王婶（热心媒人，全镇姻缘操碎心）、老张（杂货店话痨，情报中心）、陈老（茶馆智者，偶尔一句点醒所有人）、小鱼（16岁面馆学徒，萌系担当）。",
-        keywords: ["烟火气", "群像", "日常", "萌系"],
+        keywords: [],
       },
       {
         text: "暗线关联型配角：男主的青梅竹马（温柔表象下暗藏心机）、女主的前经纪人（掌握失忆真相）、神秘的镇长奶奶（知道所有人的秘密但从不主动开口）。每个人都是谜题的一块拼图。",
-        keywords: ["悬疑", "心机", "真相", "拼图"],
+        keywords: [],
       },
       {
         text: "成长陪伴型配角：小鱼（面馆学徒，治愈萌物）、花姐（隔壁花店老板娘，恋爱军师）、中医馆的老猫阿福（灵性十足，只亲近女主）。温馨日常为主，配角各有成长线。",
-        keywords: ["陪伴", "成长", "萌宠", "闺蜜"],
+        keywords: [],
       },
     ],
     adjustPrompt: "配角还想加谁？比如「加个反派」「闺蜜要更有存在感」，没有的话我来更新角色～",
@@ -1762,11 +1762,14 @@ export default function ChatPanel() {
 
   // Handle "就这样" skip
   const handleSkipAdjust = useCallback(() => {
+    setMessages((prev) => [...prev, { id: `user-skip-adj-${adjustRound}`, sender: "user" as const, type: "text" as const, content: "跳过" }]);
+    setAwaitingAdjust(false);
     proceedToNextRound(adjustRound);
   }, [adjustRound, proceedToNextRound]);
 
   // Handle "跳过，直接生成" — skip remaining inspiration rounds, jump to card generation
   const handleSkipToGenerate = useCallback(() => {
+    setMessages((prev) => [...prev, { id: `user-skip-gen-${currentRound}`, sender: "user" as const, type: "text" as const, content: "跳过，直接生成" }]);
     setAwaitingAdjust(false);
     // Determine which final round to call based on currentRound
     if (currentRound >= 1 && currentRound <= 3) {
@@ -2967,6 +2970,7 @@ export default function ChatPanel() {
                         </button>
                         <button
                           onClick={() => {
+                            setMessages((prev) => [...prev, { id: `user-regen-${Date.now()}`, sender: "user" as const, type: "text" as const, content: "换一换" }]);
                             if (isMarketing) {
                               // Marketing: just regenerate with same data (mock)
                               const thinkingId = `thinking-regen-settings`;
@@ -3013,6 +3017,7 @@ export default function ChatPanel() {
                       {!isMarketing && (
                         <button
                           onClick={() => {
+                            setMessages((prev) => [...prev, { id: `user-refine-settings-${Date.now()}`, sender: "user" as const, type: "text" as const, content: "通过灵感探索继续完善" }]);
                             // Enter inspiration round 1 to refine settings
                             const thinkingId = `thinking-refine-insp`;
                             setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
@@ -3109,6 +3114,7 @@ export default function ChatPanel() {
                       </button>
                       <button
                         onClick={() => {
+                          setMessages((prev) => [...prev, { id: `user-refine-wb-${Date.now()}`, sender: "user" as const, type: "text" as const, content: "通过灵感探索完善世界观" }]);
                           const thinkingId = `thinking-refine-wb`;
                           setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
                           setTimeout(() => {
@@ -3206,6 +3212,7 @@ export default function ChatPanel() {
                       </button>
                       <button
                         onClick={() => {
+                          setMessages((prev) => [...prev, { id: `user-refine-char-${Date.now()}`, sender: "user" as const, type: "text" as const, content: "通过灵感探索完善角色" }]);
                           const thinkingId = `thinking-refine-char`;
                           setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
                           setTimeout(() => {
