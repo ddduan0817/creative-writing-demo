@@ -218,13 +218,15 @@ export default function LeftPanel() {
       setIsGenerated(true);
       showToast("设定生成成功");
       if (uploadedFiles.length > 0 && !synopsis.trim()) {
-        setSynopsis(`【故事线】顶流影后苏瑾意外穿越到1985年的小镇，成为供销社售货员的女儿。她需要在这个没有互联网、没有智能手机的年代重新开始...
+        setSynopsis(`【核心设定】顶流影后苏瑾意外穿越到1985年的小镇，成为供销社售货员的女儿。她需要在这个没有互联网、没有智能手机的年代重新开始...
+
+【故事基调】怀旧温暖，带有轻喜剧色彩，在时代碰撞中展现人情温度
+
+【故事走向】从格格不入到融入小镇，借现代理念推动文艺改革，最终在新旧交融中找到自我
 
 【核心冲突】1. 现代娱乐理念VS80年代文艺体制的碰撞
 2. 身份隐藏与真相揭露的悬念
-3. 新旧观念的冲突与融合
-
-【情感设定】与镇上文艺青年的纯真爱情，从相互看不顺眼到惺惺相惜...`);
+3. 新旧观念的冲突与融合`);
       }
     }, 1500);
   };
@@ -300,11 +302,13 @@ export default function LeftPanel() {
                     setSynopsis(e.target.value);
                     setIsGenerated(false);
                   }}
-                  placeholder={`【故事线】请输入故事的主要情节走向...
+                  placeholder={`【核心设定】故事的核心设定和世界观...
 
-【核心冲突】故事的主要矛盾和冲突...
+【故事基调】整体风格和情感基调...
 
-【情感设定】角色之间的情感关系...`}
+【故事走向】主要情节发展方向...
+
+【核心冲突】故事的主要矛盾和冲突...`}
                   className={cn(
                     "w-full h-[180px] text-sm border rounded-lg p-3 pb-10 resize-none focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 placeholder:text-gray-300 leading-relaxed",
                     isGenerated ? "border-green-300 bg-green-50/30" : "border-gray-200"
