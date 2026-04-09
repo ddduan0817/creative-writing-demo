@@ -1671,19 +1671,24 @@ function CharacterFullscreenView({
     setTimeout(() => {
       const mockDescs: Record<string, string[]> = {
         "主角": [
-          `【身份】${char.name || "主角"}，故事核心人物\n\n【性格】坚韧、聪慧、有信仰，初期矜傲，后期学会谦逊与共情\n\n【动机】完成使命，寻找真相，守护身边重要之人\n\n【秘密】身上隐藏着不为人知的过去，这个秘密将在故事高潮时揭晓`,
-          `【身份】${char.name || "主角"}，表面普通实则身怀绝技\n\n【性格】外冷内热，做事果敢，对朋友极度忠诚\n\n【动机】揭开身世之谜，找到失踪多年的至亲\n\n【关系定位】与多方势力纠葛，在信任与背叛间抉择`,
+          `【身份】主角，故事核心人物\n\n【性格】坚韧、聪慧、有信仰，初期矜傲，后期学会谦逊与共情\n\n【动机】完成使命，寻找真相，守护身边重要之人\n\n【秘密】身上隐藏着不为人知的过去，这个秘密将在故事高潮时揭晓`,
+          `【身份】主角，表面普通实则身怀绝技\n\n【性格】外冷内热，做事果敢，对朋友极度忠诚\n\n【动机】揭开身世之谜，找到失踪多年的至亲\n\n【关系定位】与多方势力纠葛，在信任与背叛间抉择`,
         ],
         "配角": [
-          `【身份】${char.name || "配角"}，与主角关系密切的关键人物\n\n【性格】外表玩世不恭，实则心思缜密，重情重义\n\n【关系定位】主角的"伯乐"与"守护者"，也是他艺术上的"磨刀石"\n\n【秘密】一直在寻找某个未完成的承诺，主角的出现让他看到了希望`,
-          `【身份】${char.name || "配角"}，故事中推动剧情的关键角色\n\n【性格】聪明狡黠，亦正亦邪，立场模糊\n\n【动机】有着自己不可告人的目的，时而帮助时而阻碍主角\n\n【关系定位】与主角亦敌亦友，最终走向取决于故事发展`,
+          `【身份】与主角关系密切的关键人物\n\n【性格】外表玩世不恭，实则心思缜密，重情重义\n\n【关系定位】主角的"伯乐"与"守护者"，也是他艺术上的"磨刀石"\n\n【秘密】一直在寻找某个未完成的承诺，主角的出现让他看到了希望`,
+          `【身份】故事中推动剧情的关键角色\n\n【性格】聪明狡黠，亦正亦邪，立场模糊\n\n【动机】有着自己不可告人的目的，时而帮助时而阻碍主角\n\n【关系定位】与主角亦敌亦友，最终走向取决于故事发展`,
         ],
       };
       const descs = mockDescs[char.role] || mockDescs["配角"];
       const desc = char.desc
         ? char.desc + "\n\n【补充】" + (char.role === "主角" ? "内心深处渴望被理解，但害怕展露脆弱的一面。" : "看似无关紧要的小动作中隐藏着关键线索。")
         : descs[Math.floor(Math.random() * descs.length)];
-      onUpdate(i, { ...char, desc });
+      // Also generate a name if empty
+      const mockNames = char.role === "主角"
+        ? ["沈夜川", "林朝歌", "叶无双", "楚天澜", "顾长安"]
+        : ["苏怀瑾", "方若尘", "柳知秋", "白浮笙", "谢临渊"];
+      const name = char.name || mockNames[Math.floor(Math.random() * mockNames.length)];
+      onUpdate(i, { ...char, name, desc });
       setGeneratingIdx(null);
       showToast(char.desc ? "已智能优化" : "已智能填充");
     }, 1200);
@@ -1732,7 +1737,7 @@ function CharacterFullscreenView({
                 <textarea
                   value={char.desc}
                   onChange={(e) => onUpdate(i, { ...char, desc: e.target.value })}
-                  placeholder="输入角色详细信息，或点击魔法棒智能生成...\n\n【身份】\n【性格】\n【动机】\n【秘密】"
+                  placeholder={"输入角色详细信息，或点击魔法棒智能生成...\n\n【身份】\n【性格】\n【动机】\n【秘密】"}
                   className="w-full text-sm px-5 pt-2 pb-4 resize-none focus:outline-none leading-relaxed placeholder:text-gray-300 min-h-[140px]"
                   rows={6}
                 />
