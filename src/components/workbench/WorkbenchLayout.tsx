@@ -20,6 +20,8 @@ export default function WorkbenchLayout() {
   const { leftCollapsed, leftPanelExpanded, toast, scene, workMode, resetToEmpty } =
     useEditorStore();
   const settingsFullscreen = useEditorStore((s) => s.settingsFullscreen);
+  const characterFullscreen = useEditorStore((s) => s.characterFullscreen);
+  const anyFullscreen = settingsFullscreen || characterFullscreen;
 
   const hasInitialized = useRef(false);
 
@@ -96,7 +98,7 @@ export default function WorkbenchLayout() {
         <div
           className={cn(
             "border-r border-gray-100 transition-all duration-300 overflow-hidden flex-shrink-0",
-            leftCollapsed || settingsFullscreen ? "w-0 border-r-0" : leftPanelExpanded ? "w-[768px]" : "w-72"
+            leftCollapsed || anyFullscreen ? "w-0 border-r-0" : leftPanelExpanded ? "w-[768px]" : "w-72"
           )}
         >
           {renderLeftPanel()}
@@ -126,8 +128,9 @@ function ToggleButtons() {
   const { leftCollapsed, leftPanelExpanded, toggleLeft } =
     useEditorStore();
   const settingsFullscreen = useEditorStore((s) => s.settingsFullscreen);
+  const characterFullscreen = useEditorStore((s) => s.characterFullscreen);
 
-  if (settingsFullscreen) return null;
+  if (settingsFullscreen || characterFullscreen) return null;
 
   return (
     <button

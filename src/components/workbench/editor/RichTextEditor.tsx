@@ -20,6 +20,8 @@ import {
   Check,
   Loader2,
   Minimize2,
+  X,
+  Plus,
 } from "lucide-react";
 
 export default function RichTextEditor() {
@@ -46,6 +48,14 @@ export default function RichTextEditor() {
   const settingsFullscreenContent = useEditorStore((s) => s.settingsFullscreenContent);
   const setSettingsFullscreen = useEditorStore((s) => s.setSettingsFullscreen);
   const setSettingsFullscreenContent = useEditorStore((s) => s.setSettingsFullscreenContent);
+
+  const characterFullscreen = useEditorStore((s) => s.characterFullscreen);
+  const characterFullscreenScrollTo = useEditorStore((s) => s.characterFullscreenScrollTo);
+  const setCharacterFullscreen = useEditorStore((s) => s.setCharacterFullscreen);
+  const workflowCharacters = useEditorStore((s) => s.workflowCharacters);
+  const addWorkflowCharacter = useEditorStore((s) => s.addWorkflowCharacter);
+  const removeWorkflowCharacter = useEditorStore((s) => s.removeWorkflowCharacter);
+  const updateWorkflowCharacter = useEditorStore((s) => s.updateWorkflowCharacter);
 
   const currentChapter = chapters.find((c) => c.id === currentChapterId);
   const isSimpleScene = scene === "marketing" || scene === "knowledge";
@@ -467,6 +477,21 @@ export default function RichTextEditor() {
   }
 
   // Agent flow: show settings/worldbuilding in editor (read-only)
+  if (characterFullscreen) {
+    return (
+      <CharacterFullscreenView
+        characters={workflowCharacters}
+        scrollToIndex={characterFullscreenScrollTo}
+        onUpdate={updateWorkflowCharacter}
+        onRemove={removeWorkflowCharacter}
+        onAdd={addWorkflowCharacter}
+        onExit={() => setCharacterFullscreen(false)}
+        showToast={showToast}
+      />
+    );
+  }
+
+  // Agent flow: show settings/worldbuilding in editor (read-only, stages 1-4)
   if ((scene === "novel" || scene === "screenplay" || scene === "marketing" || scene === "knowledge") && creationStage >= 1 && creationStage <= 4) {
     // creationStage 1 = 设定, 2 = 世界观, 3 = 角色, 4 = 大纲, 5 = 正文(退出只读)
     const showWorldbuilding = creationStage === 2;
@@ -1588,6 +1613,122 @@ export default function RichTextEditor() {
           </div>
         </div>
       )}
+      </div>
+    </div>
+  );
+}
+
+// --- Character Fullscreen View ---
+function CharacterFullscreenView({
+  characters,
+  scrollToIndex,
+  onUpdate,
+  onRemove,
+  onAdd,
+  onExit,
+  showToast,
+}: {
+  characters: { name: string; desc: string; role: "主角" | "配角" }[];
+  scrollToIndex: number | null;
+  onUpdate: (index: number, char: { name: string; desc: string; role: "主角" | "配角" }) => void;
+  onRemove: (index: number) => void;
+  onAdd: (char: { name: string; desc: string; role: "主角" | "配角" }) => void;
+  onExit: () => void;
+  showToast: (msg: string) => void;
+}) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  // Scroll to target card on mount
+  useEffect(() => {
+    if (scrollToIndex != null && cardRefs.current[scrollToIndex]) {
+      cardRefs.current[scrollToIndex]?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [scrollToIndex]);
+
+  const handleAdd = () => {
+    onAdd({ name: "", desc: "", role: "主角" });
+    // Scroll to bottom after add
+    setTimeout(() => {
+      containerRef.current?.scrollTo({ top: containerRef.current.scrollHeight, behavior: "smooth" });
+    }, 50);
+  };
+
+  return (
+    <div className="h-full flex flex-col bg-white">
+      {/* Header */}
+      <div className="px-6 py-3 border-b border-gray-100 flex items-center justify-center">
+        <p className="text-sm text-gray-500 font-medium">角色设定</p>
+      </div>
+
+      {/* Character cards */}
+      <div className="flex-1 overflow-y-auto px-6 py-6" ref={containerRef}>
+        <div className="max-w-3xl mx-auto space-y-4">
+          {characters.map((char, i) => (
+            <div
+              key={i}
+              ref={(el) => { cardRefs.current[i] = el; }}
+              className="border border-gray-200 rounded-xl p-4 space-y-3 hover:border-gray-300 transition"
+            >
+              {/* Name + Role + Delete */}
+              <div className="flex items-center gap-3">
+                <input
+                  type="text"
+                  value={char.name}
+                  onChange={(e) => onUpdate(i, { ...char, name: e.target.value })}
+                  placeholder="角色名称"
+                  className="flex-1 text-sm font-medium border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:border-indigo-300"
+                />
+                <select
+                  value={char.role}
+                  onChange={(e) => onUpdate(i, { ...char, role: e.target.value as "主角" | "配角" })}
+                  className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:border-indigo-300 bg-white text-gray-600"
+                >
+                  <option value="主角">主角</option>
+                  <option value="配角">配角</option>
+                </select>
+                <button
+                  onClick={() => {
+                    onRemove(i);
+                    showToast("角色已删除");
+                  }}
+                  className="p-1.5 text-gray-300 hover:text-red-400 hover:bg-red-50 rounded-lg transition"
+                  title="删除角色"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              {/* Description textarea */}
+              <textarea
+                value={char.desc}
+                onChange={(e) => onUpdate(i, { ...char, desc: e.target.value })}
+                placeholder="角色简介..."
+                className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 resize-none focus:outline-none focus:border-indigo-300 leading-relaxed"
+                rows={4}
+              />
+            </div>
+          ))}
+
+          {/* Add character button */}
+          <button
+            onClick={handleAdd}
+            className="w-full flex items-center justify-center gap-1.5 py-3 border border-dashed border-gray-200 rounded-xl text-sm text-gray-400 hover:border-indigo-300 hover:text-indigo-500 hover:bg-indigo-50/30 transition"
+          >
+            <Plus className="w-4 h-4" />
+            角色
+          </button>
+        </div>
+      </div>
+
+      {/* Bottom bar */}
+      <div className="px-6 py-3 border-t border-gray-100 flex justify-end">
+        <button
+          onClick={onExit}
+          className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-500 hover:text-gray-700 bg-white rounded-lg border border-gray-200 hover:bg-gray-50 transition"
+        >
+          <Minimize2 className="w-3.5 h-3.5" />
+          退出全屏
+        </button>
       </div>
     </div>
   );

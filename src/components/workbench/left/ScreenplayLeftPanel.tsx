@@ -101,8 +101,11 @@ export default function ScreenplayLeftPanel() {
   // 单集时长选择
   const [episodeDuration, setEpisodeDuration] = useState<string | null>(null);
 
-  // 角色列表
-  const [characters, setCharacters] = useState<{ name: string; desc: string; role: "主角" | "配角" }[]>([]);
+  // 角色列表 (from store)
+  const characters = useEditorStore((s) => s.workflowCharacters);
+  const addWorkflowCharacter = useEditorStore((s) => s.addWorkflowCharacter);
+  const removeWorkflowCharacter = useEditorStore((s) => s.removeWorkflowCharacter);
+  const setCharacterFullscreen = useEditorStore((s) => s.setCharacterFullscreen);
 
   // 场景选择
   const [sceneType, setSceneType] = useState<"short_drama" | "comic_drama">("short_drama");
@@ -178,14 +181,9 @@ export default function ScreenplayLeftPanel() {
       showToast("请输入角色名称");
       return;
     }
-    setCharacters((prev) => [...prev, { ...newCharacter }]);
+    addWorkflowCharacter({ ...newCharacter });
     setNewCharacter({ name: "", desc: "", role: "主角" });
     showToast("角色添加成功");
-  };
-
-  // 删除角色
-  const removeCharacter = (index: number) => {
-    setCharacters((prev) => prev.filter((_, i) => i !== index));
   };
 
   // 获取已选内容要素标签数量
@@ -532,10 +530,7 @@ export default function ScreenplayLeftPanel() {
                 <div
                   key={i}
                   className="group relative flex items-stretch border border-gray-200 rounded-xl hover:border-gray-300 transition cursor-pointer"
-                  onClick={() => {
-                    const charText = `【${char.role}】${char.name}\n${char.desc || ""}`;
-                    setSettingsFullscreen(true, charText);
-                  }}
+                  onClick={() => setCharacterFullscreen(true, i)}
                 >
                   {/* 卡片内容 */}
                   <div className="flex-1 p-3.5 min-w-0">
@@ -553,18 +548,14 @@ export default function ScreenplayLeftPanel() {
                   {/* 右侧操作栏 */}
                   <div className="flex flex-col items-center justify-center gap-2 px-2 border-l border-gray-100 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button
-                      onClick={(e) => { e.stopPropagation(); removeCharacter(i); }}
+                      onClick={(e) => { e.stopPropagation(); removeWorkflowCharacter(i); }}
                       className="p-1 text-gray-300 hover:text-red-400 hover:bg-red-50 rounded transition"
                       title="删除角色"
                     >
                       <X className="w-3.5 h-3.5" />
                     </button>
                     <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        const charText = `【${char.role}】${char.name}\n${char.desc || ""}`;
-                        setSettingsFullscreen(true, charText);
-                      }}
+                      onClick={(e) => { e.stopPropagation(); setCharacterFullscreen(true, i); }}
                       className="p-1 text-gray-300 hover:text-gray-500 hover:bg-gray-50 rounded transition"
                       title="全屏编辑"
                     >
