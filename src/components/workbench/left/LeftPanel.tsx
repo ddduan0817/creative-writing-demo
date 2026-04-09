@@ -500,43 +500,6 @@ export default function LeftPanel() {
                     placeholder="角色名称"
                     className="w-full text-xs border border-gray-200 rounded-md px-2.5 py-1.5 focus:outline-none focus:border-indigo-300 bg-white"
                   />
-                  <div className="relative">
-                    <textarea
-                      value={newCharacter.desc}
-                      onChange={(e) => setNewCharacter((p) => ({ ...p, desc: e.target.value }))}
-                      placeholder="角色简介（选填）"
-                      className="w-full text-xs border border-gray-200 rounded-md px-2.5 py-1.5 pb-8 resize-none focus:outline-none focus:border-indigo-300 bg-white"
-                      rows={3}
-                    />
-                    <div className="absolute bottom-2 right-2 flex items-center gap-0.5 bg-white rounded-md shadow-sm border border-gray-100">
-                      <button
-                        onClick={() => {
-                          setNewCharacter((p) => ({
-                            ...p,
-                            desc: p.role === "主角"
-                              ? "性格坚毅果敢，外冷内热。身怀绝技却低调行事，在关键时刻总能化险为夷。内心深处渴望守护重要之人。"
-                              : "表面玩世不恭，实则心思缜密。与主角亦敌亦友，在故事中起到推动关键剧情的作用。",
-                          }));
-                          showToast("已生成角色简介");
-                        }}
-                        className="p-1 text-gray-300 hover:text-indigo-500 hover:bg-indigo-50 rounded transition"
-                        title="AI 生成角色简介"
-                      >
-                        <Wand2 className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        onClick={() => {
-                          addCharacter();
-                          setShowAddCharacter(false);
-                          setTimeout(() => setCharacterFullscreen(true, characters.length), 50);
-                        }}
-                        className="p-1 text-gray-300 hover:text-gray-500 hover:bg-gray-50 rounded transition"
-                        title="全屏编辑"
-                      >
-                        <Maximize2 className="w-3 h-3" />
-                      </button>
-                    </div>
-                  </div>
                   <button
                     onClick={() => {
                       addCharacter();

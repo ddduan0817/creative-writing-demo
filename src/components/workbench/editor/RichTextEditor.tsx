@@ -22,6 +22,7 @@ import {
   Minimize2,
   X,
   Plus,
+  Wand2,
 } from "lucide-react";
 
 export default function RichTextEditor() {
@@ -1638,20 +1639,54 @@ function CharacterFullscreenView({
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [generatingIdx, setGeneratingIdx] = useState<number | null>(null);
 
   // Scroll to target card on mount
   useEffect(() => {
     if (scrollToIndex != null && cardRefs.current[scrollToIndex]) {
       cardRefs.current[scrollToIndex]?.scrollIntoView({ behavior: "smooth", block: "center" });
+      // Focus the textarea
+      const textarea = cardRefs.current[scrollToIndex]?.querySelector("textarea");
+      if (textarea) setTimeout(() => textarea.focus(), 300);
     }
   }, [scrollToIndex]);
 
   const handleAdd = () => {
     onAdd({ name: "", desc: "", role: "主角" });
-    // Scroll to bottom after add
     setTimeout(() => {
       containerRef.current?.scrollTo({ top: containerRef.current.scrollHeight, behavior: "smooth" });
-    }, 50);
+      // Focus the new card's name input
+      const lastCard = cardRefs.current[characters.length]; // will be set after re-render
+      if (lastCard) {
+        const input = lastCard.querySelector("input");
+        if (input) input.focus();
+      }
+    }, 80);
+  };
+
+  const handleAIGenerate = (i: number) => {
+    const char = characters[i];
+    setGeneratingIdx(i);
+    // Mock AI generation
+    setTimeout(() => {
+      const mockDescs: Record<string, string[]> = {
+        "主角": [
+          `【身份】${char.name || "主角"}，故事核心人物\n\n【性格】坚韧、聪慧、有信仰，初期矜傲，后期学会谦逊与共情\n\n【动机】完成使命，寻找真相，守护身边重要之人\n\n【秘密】身上隐藏着不为人知的过去，这个秘密将在故事高潮时揭晓`,
+          `【身份】${char.name || "主角"}，表面普通实则身怀绝技\n\n【性格】外冷内热，做事果敢，对朋友极度忠诚\n\n【动机】揭开身世之谜，找到失踪多年的至亲\n\n【关系定位】与多方势力纠葛，在信任与背叛间抉择`,
+        ],
+        "配角": [
+          `【身份】${char.name || "配角"}，与主角关系密切的关键人物\n\n【性格】外表玩世不恭，实则心思缜密，重情重义\n\n【关系定位】主角的"伯乐"与"守护者"，也是他艺术上的"磨刀石"\n\n【秘密】一直在寻找某个未完成的承诺，主角的出现让他看到了希望`,
+          `【身份】${char.name || "配角"}，故事中推动剧情的关键角色\n\n【性格】聪明狡黠，亦正亦邪，立场模糊\n\n【动机】有着自己不可告人的目的，时而帮助时而阻碍主角\n\n【关系定位】与主角亦敌亦友，最终走向取决于故事发展`,
+        ],
+      };
+      const descs = mockDescs[char.role] || mockDescs["配角"];
+      const desc = char.desc
+        ? char.desc + "\n\n【补充】" + (char.role === "主角" ? "内心深处渴望被理解，但害怕展露脆弱的一面。" : "看似无关紧要的小动作中隐藏着关键线索。")
+        : descs[Math.floor(Math.random() * descs.length)];
+      onUpdate(i, { ...char, desc });
+      setGeneratingIdx(null);
+      showToast(char.desc ? "已智能优化" : "已智能填充");
+    }, 1200);
   };
 
   return (
@@ -1663,30 +1698,65 @@ function CharacterFullscreenView({
 
       {/* Character cards */}
       <div className="flex-1 overflow-y-auto px-6 py-6" ref={containerRef}>
-        <div className="max-w-3xl mx-auto space-y-4">
+        <div className="max-w-3xl mx-auto space-y-5">
           {characters.map((char, i) => (
             <div
               key={i}
               ref={(el) => { cardRefs.current[i] = el; }}
-              className="border border-gray-200 rounded-xl p-4 space-y-3 hover:border-gray-300 transition"
+              className="group relative flex items-stretch border border-gray-200 rounded-xl hover:border-gray-300 transition focus-within:border-indigo-300 focus-within:ring-2 focus-within:ring-indigo-100"
             >
-              {/* Name + Role + Delete */}
-              <div className="flex items-center gap-3">
-                <input
-                  type="text"
-                  value={char.name}
-                  onChange={(e) => onUpdate(i, { ...char, name: e.target.value })}
-                  placeholder="角色名称"
-                  className="flex-1 text-sm font-medium border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:border-indigo-300"
-                />
-                <select
-                  value={char.role}
-                  onChange={(e) => onUpdate(i, { ...char, role: e.target.value as "主角" | "配角" })}
-                  className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:border-indigo-300 bg-white text-gray-600"
-                >
-                  <option value="主角">主角</option>
-                  <option value="配角">配角</option>
-                </select>
+              {/* Card body */}
+              <div className="flex-1 min-w-0">
+                {/* Top row: name input + role dropdown */}
+                <div className="flex items-center gap-2 px-4 pt-3 pb-2 border-b border-gray-100">
+                  <input
+                    type="text"
+                    value={char.name}
+                    onChange={(e) => onUpdate(i, { ...char, name: e.target.value })}
+                    placeholder="角色名称"
+                    className="flex-1 text-sm font-medium bg-transparent focus:outline-none placeholder:text-gray-300"
+                  />
+                  <select
+                    value={char.role}
+                    onChange={(e) => onUpdate(i, { ...char, role: e.target.value as "主角" | "配角" })}
+                    className="text-xs border border-gray-200 rounded-md px-2 py-1 focus:outline-none focus:border-indigo-300 bg-white text-gray-500 cursor-pointer"
+                  >
+                    <option value="主角">主角</option>
+                    <option value="配角">配角</option>
+                  </select>
+                </div>
+
+                {/* Description body */}
+                <div className="relative">
+                  <textarea
+                    value={char.desc}
+                    onChange={(e) => onUpdate(i, { ...char, desc: e.target.value })}
+                    placeholder={char.role === "主角"
+                      ? "输入角色详细信息，或点击右下角魔法棒智能生成...\n\n【身份】\n【性格】\n【动机】\n【秘密】"
+                      : "输入角色详细信息，或点击右下角魔法棒智能生成...\n\n【身份】\n【性格】\n【关系定位】\n【秘密】"}
+                    className="w-full text-sm px-4 py-3 pb-10 resize-none focus:outline-none leading-relaxed placeholder:text-gray-300 min-h-[160px]"
+                    rows={6}
+                  />
+
+                  {/* Bottom-right: wand icon */}
+                  <div className="absolute bottom-2 right-2 flex items-center gap-1">
+                    <button
+                      onClick={() => handleAIGenerate(i)}
+                      disabled={generatingIdx === i}
+                      className="p-1.5 text-gray-300 hover:text-indigo-500 hover:bg-indigo-50 rounded-lg transition disabled:opacity-50"
+                      title={char.desc ? "智能优化" : "智能填写"}
+                    >
+                      {generatingIdx === i
+                        ? <Loader2 className="w-4 h-4 animate-spin text-indigo-400" />
+                        : <Wand2 className="w-4 h-4" />
+                      }
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right side action bar - X delete */}
+              <div className="flex flex-col items-center justify-center px-2 border-l border-gray-100 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button
                   onClick={() => {
                     onRemove(i);
@@ -1698,14 +1768,6 @@ function CharacterFullscreenView({
                   <X className="w-4 h-4" />
                 </button>
               </div>
-              {/* Description textarea */}
-              <textarea
-                value={char.desc}
-                onChange={(e) => onUpdate(i, { ...char, desc: e.target.value })}
-                placeholder="角色简介..."
-                className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 resize-none focus:outline-none focus:border-indigo-300 leading-relaxed"
-                rows={4}
-              />
             </div>
           ))}
 
