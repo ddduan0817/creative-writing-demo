@@ -19,6 +19,7 @@ import {
   List,
   Check,
   Loader2,
+  Minimize2,
 } from "lucide-react";
 
 export default function RichTextEditor() {
@@ -40,6 +41,11 @@ export default function RichTextEditor() {
     workMode,
     agentStageData,
   } = useEditorStore();
+
+  const settingsFullscreen = useEditorStore((s) => s.settingsFullscreen);
+  const settingsFullscreenContent = useEditorStore((s) => s.settingsFullscreenContent);
+  const setSettingsFullscreen = useEditorStore((s) => s.setSettingsFullscreen);
+  const setSettingsFullscreenContent = useEditorStore((s) => s.setSettingsFullscreenContent);
 
   const currentChapter = chapters.find((c) => c.id === currentChapterId);
   const isSimpleScene = scene === "marketing" || scene === "knowledge";
@@ -321,6 +327,140 @@ export default function RichTextEditor() {
 
   // Check if editor is empty
   const editorIsEmpty = !editor?.getText().trim();
+
+  // --- Fullscreen edit mode (workflow settings) ---
+  const fullscreenWrapRef = useRef<HTMLDivElement>(null);
+  const [fsFloatingToolbar, setFsFloatingToolbar] = useState<{ show: boolean; top: number; left: number }>({ show: false, top: 0, left: 0 });
+  const [fsShowAIMenu, setFsShowAIMenu] = useState(false);
+
+  const fullscreenEditor = useEditor({
+    immediatelyRender: false,
+    editable: true,
+    extensions: [
+      StarterKit,
+      Underline,
+      Placeholder.configure({ placeholder: "【故事线】请输入故事的主要情节走向...\n\n【核心冲突】故事的主要矛盾和冲突...\n\n【情感设定】角色之间的情感关系..." }),
+    ],
+    content: "",
+    onUpdate: ({ editor: e }) => {
+      setSettingsFullscreenContent(e.getHTML());
+    },
+    onSelectionUpdate: ({ editor: e }) => {
+      const { from, to } = e.state.selection;
+      if (from === to) {
+        setFsFloatingToolbar({ show: false, top: 0, left: 0 });
+        setFsShowAIMenu(false);
+        return;
+      }
+      const domSelection = window.getSelection();
+      if (domSelection && domSelection.rangeCount > 0 && fullscreenWrapRef.current) {
+        const range = domSelection.getRangeAt(0);
+        const rect = range.getBoundingClientRect();
+        const wrapRect = fullscreenWrapRef.current.getBoundingClientRect();
+        setFsFloatingToolbar({
+          show: true,
+          top: rect.top - wrapRect.top + fullscreenWrapRef.current.scrollTop - 48,
+          left: rect.left - wrapRect.left + rect.width / 2 - 180,
+        });
+        setFsShowAIMenu(false);
+      }
+    },
+    editorProps: {
+      attributes: {
+        class: "tiptap focus:outline-none px-8 py-6 min-h-[300px]",
+      },
+    },
+  });
+
+  // Sync content into fullscreen editor when entering fullscreen
+  useEffect(() => {
+    if (settingsFullscreen && fullscreenEditor) {
+      const html = settingsFullscreenContent
+        ? settingsFullscreenContent.split("\n\n").map((p: string) => `<p>${p.replace(/\n/g, "<br>")}</p>`).join("")
+        : "";
+      // Only set content if editor is currently empty or just opened
+      if (!fullscreenEditor.getText().trim()) {
+        fullscreenEditor.commands.setContent(html);
+      }
+    }
+  }, [settingsFullscreen, fullscreenEditor]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleExitFullscreen = useCallback(() => {
+    setFsFloatingToolbar({ show: false, top: 0, left: 0 });
+    setFsShowAIMenu(false);
+    setSettingsFullscreen(false);
+  }, [setSettingsFullscreen]);
+
+  const handleFsMouseUpSelection = useCallback(() => {
+    const sel = window.getSelection();
+    if (sel && sel.toString().trim() && fullscreenWrapRef.current) {
+      const range = sel.getRangeAt(0);
+      const rect = range.getBoundingClientRect();
+      const wrapRect = fullscreenWrapRef.current.getBoundingClientRect();
+      setFsFloatingToolbar({
+        show: true,
+        top: rect.top - wrapRect.top + fullscreenWrapRef.current.scrollTop - 48,
+        left: rect.left - wrapRect.left + rect.width / 2 - 180,
+      });
+      setFsShowAIMenu(false);
+    } else {
+      setFsFloatingToolbar({ show: false, top: 0, left: 0 });
+      setFsShowAIMenu(false);
+    }
+  }, []);
+
+  const handleFsCopy = useCallback(() => {
+    if (fullscreenEditor) {
+      const { from, to } = fullscreenEditor.state.selection;
+      const text = fullscreenEditor.state.doc.textBetween(from, to, " ");
+      if (text) { navigator.clipboard.writeText(text); showToast("已复制"); }
+    }
+  }, [fullscreenEditor, showToast]);
+
+  // Fullscreen edit: render a full TipTap editor when settingsFullscreen is true
+  if (settingsFullscreen && fullscreenEditor) {
+    return (
+      <div className="h-full flex flex-col bg-white">
+        {/* Header */}
+        <div className="px-6 py-3 border-b border-gray-100 flex items-center justify-between">
+          <p className="text-sm text-gray-500 font-medium">全屏编辑 · 描述故事背景、故事线、核心冲突等</p>
+          <button
+            onClick={handleExitFullscreen}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-500 hover:text-gray-700 bg-white rounded-lg border border-gray-200 hover:bg-gray-50 transition"
+          >
+            <Minimize2 className="w-3.5 h-3.5" />
+            退出全屏
+          </button>
+        </div>
+
+        {/* Toolbar */}
+        <EditorToolbar editor={fullscreenEditor} />
+
+        {/* Editor content */}
+        <div className="flex-1 overflow-y-auto relative" ref={fullscreenWrapRef} onMouseUp={handleFsMouseUpSelection}>
+          {fsFloatingToolbar.show && (
+            <FloatingSelectionToolbar
+              top={fsFloatingToolbar.top}
+              left={fsFloatingToolbar.left}
+              editor={fullscreenEditor}
+              showAIMenu={fsShowAIMenu}
+              setShowAIMenu={setFsShowAIMenu}
+              onAIAction={(action) => {
+                setFsShowAIMenu(false);
+                setFsFloatingToolbar({ show: false, top: 0, left: 0 });
+                showToast(`${action}功能演示中...`);
+              }}
+              onCopy={handleFsCopy}
+              showToast={showToast}
+            />
+          )}
+          <div className="max-w-3xl mx-auto">
+            <EditorContent editor={fullscreenEditor} />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Agent flow: show settings/worldbuilding in editor (read-only)
   if ((scene === "novel" || scene === "screenplay" || scene === "marketing" || scene === "knowledge") && creationStage >= 1 && creationStage <= 4) {
