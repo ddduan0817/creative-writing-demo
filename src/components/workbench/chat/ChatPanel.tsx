@@ -3066,7 +3066,7 @@ export default function ChatPanel() {
                 {/* Worldbuilding Card - click to expand/collapse */}
                 <div className="pl-8">
                   <div
-                    className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden relative cursor-pointer hover:border-emerald-200 transition"
+                    className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden relative cursor-pointer hover:border-indigo-200 transition"
                     onClick={() => {
                       setCreationStage(2);
                       setAgentStageData("worldbuilding", msg.data);
@@ -3084,7 +3084,7 @@ export default function ChatPanel() {
                         <h4 className="text-xs font-semibold text-gray-500 mb-2">核心场景</h4>
                         <div className="flex flex-wrap gap-1.5">
                             {msg.data.scenes.map((s) => (
-                              <span key={s.name} className="px-2.5 py-1 bg-emerald-50 text-emerald-600 text-xs rounded-full">
+                              <span key={s.name} className="px-2.5 py-1 bg-indigo-50 text-indigo-600 text-xs rounded-full">
                                 {s.name}
                               </span>
                             ))}
@@ -3161,7 +3161,7 @@ export default function ChatPanel() {
                 {/* Character Card - click to expand/collapse */}
                 <div className="pl-8">
                   <div
-                    className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden relative cursor-pointer hover:border-purple-200 transition"
+                    className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden relative cursor-pointer hover:border-indigo-200 transition"
                     onClick={() => {
                       setCreationStage(3);
                       setAgentStageData("characters", msg.data);
@@ -3171,7 +3171,7 @@ export default function ChatPanel() {
                       {/* Female lead */}
                       <div className="px-4 py-3">
                         <h4 className="text-xs font-semibold text-gray-500 mb-2">女主角</h4>
-                        <p className="text-sm font-medium text-purple-600">{msg.data.femaleLead.name}</p>
+                        <p className="text-sm font-medium text-indigo-600">{msg.data.femaleLead.name}</p>
                         <p className="text-xs text-gray-500 mt-0.5">{msg.data.femaleLead.identity}</p>
                         <p className="text-xs text-gray-600 mt-1">{msg.data.femaleLead.personality}</p>
                       </div>
@@ -3179,7 +3179,7 @@ export default function ChatPanel() {
                       {/* Male lead */}
                       <div className="px-4 py-3">
                         <h4 className="text-xs font-semibold text-gray-500 mb-2">男主角</h4>
-                        <p className="text-sm font-medium text-blue-600">{msg.data.maleLead.name}</p>
+                        <p className="text-sm font-medium text-indigo-600">{msg.data.maleLead.name}</p>
                         <p className="text-xs text-gray-500 mt-0.5">{msg.data.maleLead.identity}</p>
                         <p className="text-xs text-gray-600 mt-1">{msg.data.maleLead.personality}</p>
                       </div>
@@ -3189,7 +3189,7 @@ export default function ChatPanel() {
                         <h4 className="text-xs font-semibold text-gray-500 mb-2">关键配角</h4>
                         <div className="flex flex-wrap gap-1.5">
                             {msg.data.supporting.map((c) => (
-                              <span key={c.name} className="px-2.5 py-1 bg-amber-50 text-amber-600 text-xs rounded-full">
+                              <span key={c.name} className="px-2.5 py-1 bg-indigo-50 text-indigo-600 text-xs rounded-full">
                                 {c.name}
                               </span>
                             ))}
