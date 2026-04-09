@@ -2346,52 +2346,6 @@ export default function ChatPanel() {
                 ? "我可以帮你拆解作品设定、分析角色体系，随时向我提问吧！"
                 : "我可以帮你构思情节、打磨文笔、解答创作疑问，随时向我提问吧！"}
             </p>
-            <div className="mt-6 flex gap-2">
-              <button
-                onClick={() => {
-                  setFlowMode("freeform");
-                  setMessages((prev) => [...prev, { id: `user-help-me-${Date.now()}`, sender: "user", type: "text", content: dataRef.current.isMarketing ? "帮我想一个商品案例" : "帮我想一个" }]);
-                  const thinkingId = `thinking-direct-settings`;
-                  setTimeout(() => {
-                    setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
-                  }, 300);
-                  setTimeout(() => {
-                    if (dataRef.current.isMarketing) {
-                      marketingPlatformRef.current = "抖音";
-                      setMessages((prev) => [
-                        ...prev.filter((m) => m.id !== thinkingId),
-                        {
-                          id: "model-settings",
-                          sender: "model",
-                          type: "settings-card",
-                          prompt: `我帮你生成了一个样例商品——隐形蓝牙耳机 Pro，默认投放平台为抖音。\n\n确认商品信息后，我会根据抖音平台特点为你生成内容结构。`,
-                          settings: marketingProductInfoCard,
-                        },
-                      ]);
-                    } else {
-                      setMessages((prev) => [
-                        ...prev.filter((m) => m.id !== thinkingId),
-                        {
-                          id: "model-settings",
-                          sender: "model",
-                          type: "settings-card",
-                          prompt: dataRef.current.isKnowledge
-                            ? `我帮你生成了一版分析配置——${getSettingsSummary()}\n\n看看感觉怎么样？确认后我会开始深入分析设定体系，你也可以告诉我想调整的地方。`
-                            : `我帮你生成了一版创作设定——${getSettingsSummary()}\n\n看看感觉怎么样？确认后我会为你选择篇幅并创建角色，你也可以告诉我想调整的地方。`,
-                          settings: dataRef.current.sceneSettingsCard,
-                        },
-                      ]);
-                    }
-                    setCurrentRound(4);
-                    setCreationStage(1);
-                    setAgentStageData("settings", dataRef.current.isMarketing ? marketingProductInfoCard : dataRef.current.sceneSettingsCard);
-                  }, 2500);
-                }}
-                className="px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
-              >
-                {isMarketing ? "用样例商品体验" : "帮我想一个"}
-              </button>
-            </div>
           </div>
         )}
         {messages.map((msg, idx) => {
