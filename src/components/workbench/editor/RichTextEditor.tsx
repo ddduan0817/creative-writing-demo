@@ -1703,71 +1703,57 @@ function CharacterFullscreenView({
             <div
               key={i}
               ref={(el) => { cardRefs.current[i] = el; }}
-              className="group relative flex items-stretch border border-gray-200 rounded-xl hover:border-gray-300 transition focus-within:border-indigo-300 focus-within:ring-2 focus-within:ring-indigo-100"
+              className="relative border border-gray-200 rounded-xl hover:border-gray-300 transition focus-within:border-indigo-400 focus-within:shadow-[0_0_0_2px_rgba(99,102,241,0.15)]"
             >
-              {/* Card body */}
-              <div className="flex-1 min-w-0">
-                {/* Top row: name input + role dropdown */}
-                <div className="flex items-center gap-2 px-4 pt-3 pb-2 border-b border-gray-100">
-                  <input
-                    type="text"
-                    value={char.name}
-                    onChange={(e) => onUpdate(i, { ...char, name: e.target.value })}
-                    placeholder="角色名称"
-                    className="flex-1 text-sm font-medium bg-transparent focus:outline-none placeholder:text-gray-300"
-                  />
-                  <select
-                    value={char.role}
-                    onChange={(e) => onUpdate(i, { ...char, role: e.target.value as "主角" | "配角" })}
-                    className="text-xs border border-gray-200 rounded-md px-2 py-1 focus:outline-none focus:border-indigo-300 bg-white text-gray-500 cursor-pointer"
-                  >
-                    <option value="主角">主角</option>
-                    <option value="配角">配角</option>
-                  </select>
-                </div>
+              {/* Role dropdown - top right */}
+              <select
+                value={char.role}
+                onChange={(e) => onUpdate(i, { ...char, role: e.target.value as "主角" | "配角" })}
+                className="absolute top-3 right-3 text-xs border border-gray-200 rounded-md px-2 py-1 focus:outline-none focus:border-indigo-300 bg-white text-gray-500 cursor-pointer z-10"
+              >
+                <option value="主角">主角</option>
+                <option value="配角">配角</option>
+              </select>
 
-                {/* Description body */}
-                <div className="relative">
-                  <textarea
-                    value={char.desc}
-                    onChange={(e) => onUpdate(i, { ...char, desc: e.target.value })}
-                    placeholder={char.role === "主角"
-                      ? "输入角色详细信息，或点击右下角魔法棒智能生成...\n\n【身份】\n【性格】\n【动机】\n【秘密】"
-                      : "输入角色详细信息，或点击右下角魔法棒智能生成...\n\n【身份】\n【性格】\n【关系定位】\n【秘密】"}
-                    className="w-full text-sm px-4 py-3 pb-10 resize-none focus:outline-none leading-relaxed placeholder:text-gray-300 min-h-[160px]"
-                    rows={6}
-                  />
+              {/* Name - borderless input */}
+              <input
+                type="text"
+                value={char.name}
+                onChange={(e) => onUpdate(i, { ...char, name: e.target.value })}
+                placeholder="角色名称"
+                className="w-full text-sm font-medium bg-transparent px-5 pt-4 pb-1 pr-24 focus:outline-none placeholder:text-gray-300"
+              />
 
-                  {/* Bottom-right: wand icon */}
-                  <div className="absolute bottom-2 right-2 flex items-center gap-1">
-                    <button
-                      onClick={() => handleAIGenerate(i)}
-                      disabled={generatingIdx === i}
-                      className="p-1.5 text-gray-300 hover:text-indigo-500 hover:bg-indigo-50 rounded-lg transition disabled:opacity-50"
-                      title={char.desc ? "智能优化" : "智能填写"}
-                    >
-                      {generatingIdx === i
-                        ? <Loader2 className="w-4 h-4 animate-spin text-indigo-400" />
-                        : <Wand2 className="w-4 h-4" />
-                      }
-                    </button>
-                  </div>
-                </div>
-              </div>
+              {/* Description - borderless textarea */}
+              <textarea
+                value={char.desc}
+                onChange={(e) => onUpdate(i, { ...char, desc: e.target.value })}
+                placeholder="输入角色详细信息，或点击魔法棒智能生成...\n\n【身份】\n【性格】\n【动机】\n【秘密】"
+                className="w-full text-sm px-5 pt-2 pb-4 pr-12 resize-none focus:outline-none leading-relaxed placeholder:text-gray-300 min-h-[140px]"
+                rows={6}
+              />
 
-              {/* Right side action bar - X delete */}
-              <div className="flex flex-col items-center justify-center px-2 border-l border-gray-100 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button
-                  onClick={() => {
-                    onRemove(i);
-                    showToast("角色已删除");
-                  }}
-                  className="p-1.5 text-gray-300 hover:text-red-400 hover:bg-red-50 rounded-lg transition"
-                  title="删除角色"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
+              {/* X delete - right side, vertically centered */}
+              <button
+                onClick={() => { onRemove(i); showToast("角色已删除"); }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-gray-200 hover:text-red-400 hover:bg-red-50 rounded-lg transition"
+                title="删除角色"
+              >
+                <X className="w-4 h-4" />
+              </button>
+
+              {/* Wand icon - bottom right */}
+              <button
+                onClick={() => handleAIGenerate(i)}
+                disabled={generatingIdx === i}
+                className="absolute bottom-3 right-3 p-1.5 text-gray-200 hover:text-indigo-500 hover:bg-indigo-50 rounded-lg transition disabled:opacity-50"
+                title={char.desc ? "智能优化" : "智能填写"}
+              >
+                {generatingIdx === i
+                  ? <Loader2 className="w-4 h-4 animate-spin text-indigo-400" />
+                  : <Wand2 className="w-4 h-4" />
+                }
+              </button>
             </div>
           ))}
 
