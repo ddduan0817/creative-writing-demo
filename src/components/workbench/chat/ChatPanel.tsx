@@ -2429,13 +2429,13 @@ export default function ChatPanel() {
                       <div className="flex items-center gap-2.5">
                         <button
                           onClick={handleSkipToGenerate}
-                          className="flex-1 px-4 py-2.5 text-gray-500 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
+                          className="flex-1 px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
                         >
                           跳过，直接生成
                         </button>
                         <button
                           onClick={() => handleRefresh()}
-                          className="px-4 py-2.5 text-gray-500 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
+                          className="px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
                         >
                           <RefreshCw className="w-3.5 h-3.5 inline mr-1" />
                           换一换
@@ -2472,7 +2472,7 @@ export default function ChatPanel() {
                   <div className="pl-8 space-y-2">
                     <button
                       onClick={handleSkipAdjust}
-                      className="px-4 py-2.5 text-gray-500 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
+                      className="px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
                     >
                       跳过
                     </button>
@@ -2522,7 +2522,7 @@ export default function ChatPanel() {
                           generateChapter(nextCh);
                         }, 1500);
                       }}
-                      className="px-4 py-2 bg-indigo-50 text-indigo-600 text-sm font-medium rounded-xl border border-indigo-100 hover:bg-indigo-100 transition"
+                      className="px-4 py-2 text-gray-700 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
                     >
                       ▶ 继续生成下一章
                     </button>
@@ -2783,13 +2783,13 @@ export default function ChatPanel() {
                   <div className="flex items-center gap-2.5">
                     <button
                       onClick={() => quickConfirm("确认内容结构，开始生成")}
-                      className="flex-1 px-4 py-2.5 bg-indigo-50 text-indigo-600 text-sm font-medium rounded-xl border border-indigo-100 hover:bg-indigo-100 transition"
+                      className="flex-1 px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
                     >
                       确认内容结构，开始生成
                     </button>
                     <button
                       onClick={() => quickConfirm("换一换")}
-                      className="px-4 py-2.5 text-gray-500 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
+                      className="px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
                     >
                       <RefreshCw className="w-3.5 h-3.5 inline mr-1" />
                       换一换
@@ -2857,7 +2857,7 @@ export default function ChatPanel() {
                           setAgentStageData("settings", dataRef.current.isMarketing ? marketingProductInfoCard : dataRef.current.sceneSettingsCard);
                         }, 2500);
                       }}
-                      className="px-4 py-2.5 bg-indigo-50 text-indigo-600 text-sm font-medium rounded-xl border border-indigo-100 hover:bg-indigo-100 transition"
+                      className="px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
                     >
                       {isMarketing ? "📦 用样例商品体验" : "✨ 帮我想一个"}
                     </button>
@@ -2963,7 +2963,7 @@ export default function ChatPanel() {
                     <div className="mt-2.5 space-y-2">
                       <button
                         onClick={() => quickConfirm(isMarketing ? "确认商品信息，生成内容结构" : "确认设定，进入下一步")}
-                        className="w-full px-4 py-2.5 bg-indigo-50 text-indigo-600 text-sm font-medium rounded-xl border border-indigo-100 hover:bg-indigo-100 transition"
+                        className="w-full px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
                       >
                         {isMarketing ? "确认商品信息，下一步" : "确认设定，下一步"}
                       </button>
@@ -3007,7 +3007,7 @@ export default function ChatPanel() {
                               }, 2000);
                             }
                           }}
-                        className="w-full px-4 py-2.5 text-gray-500 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
+                        className="w-full px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
                       >
                         <RefreshCw className="w-3.5 h-3.5 inline mr-1" />
                         换一换
@@ -3036,7 +3036,7 @@ export default function ChatPanel() {
                               setFlowMode("inspiration");
                             }, 1500);
                           }}
-                          className="w-full px-4 py-2.5 text-sm text-indigo-500 rounded-xl border border-dashed border-indigo-200 bg-indigo-50/30 hover:bg-indigo-50 hover:border-indigo-300 transition"
+                          className="w-full px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
                         >
                           ✨ 通过灵感探索继续完善
                         </button>
@@ -3106,7 +3106,7 @@ export default function ChatPanel() {
                     <div className="mt-2.5 space-y-2">
                       <button
                         onClick={() => quickConfirm("确认世界观，进入下一步")}
-                        className="w-full px-4 py-2.5 bg-indigo-50 text-indigo-600 text-sm font-medium rounded-xl border border-indigo-100 hover:bg-indigo-100 transition"
+                        className="w-full px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
                       >
                         确认世界观，下一步
                       </button>
@@ -3132,7 +3132,7 @@ export default function ChatPanel() {
                             setFlowMode("inspiration");
                           }, 1500);
                         }}
-                        className="w-full px-4 py-2.5 text-sm text-indigo-500 rounded-xl border border-dashed border-indigo-200 bg-indigo-50/30 hover:bg-indigo-50 hover:border-indigo-300 transition"
+                        className="w-full px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
                       >
                         ✨ 通过灵感探索完善世界观
                       </button>
@@ -3204,7 +3204,7 @@ export default function ChatPanel() {
                     <div className="mt-2.5 space-y-2">
                       <button
                         onClick={() => quickConfirm("确认角色，进入下一步")}
-                        className="w-full px-4 py-2.5 bg-indigo-50 text-indigo-600 text-sm font-medium rounded-xl border border-indigo-100 hover:bg-indigo-100 transition"
+                        className="w-full px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
                       >
                         确认角色，下一步
                       </button>
@@ -3230,7 +3230,7 @@ export default function ChatPanel() {
                             setFlowMode("inspiration");
                           }, 1500);
                         }}
-                        className="w-full px-4 py-2.5 text-sm text-indigo-500 rounded-xl border border-dashed border-indigo-200 bg-indigo-50/30 hover:bg-indigo-50 hover:border-indigo-300 transition"
+                        className="w-full px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
                       >
                         ✨ 通过灵感探索完善角色
                       </button>
@@ -3293,7 +3293,7 @@ export default function ChatPanel() {
                     <div className="mt-2.5 space-y-2">
                       <button
                         onClick={() => quickConfirm("确认大纲，开始写正文")}
-                        className="w-full px-4 py-2.5 bg-indigo-50 text-indigo-600 text-sm font-medium rounded-xl border border-indigo-100 hover:bg-indigo-100 transition"
+                        className="w-full px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
                       >
                         开始写正文
                       </button>
