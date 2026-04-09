@@ -10,9 +10,27 @@ import {
   Sparkles,
   Users,
   Loader2,
+  Maximize2,
+  Minimize2,
+  ChevronDown,
+  Wand2,
+  RefreshCw,
+  MoveHorizontal,
+  Palette,
+  Send,
+  Copy,
+  Type,
+  Bold,
+  Italic,
+  Underline as UnderlineIcon,
+  Strikethrough,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { cn } from "@/lib/utils";
+import { useEditor, EditorContent } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import Underline from "@tiptap/extension-underline";
+import Placeholder from "@tiptap/extension-placeholder";
 
 // 内容要素标签数据
 const contentTagGroups = [
@@ -118,6 +136,72 @@ export default function ScreenplayLeftPanel() {
   // 展开的面板
   const [expandedSection, setExpandedSection] = useState<"content" | "writing" | "character" | null>(null);
   const [newCharacter, setNewCharacter] = useState({ name: "", desc: "", role: "主角" as "主角" | "配角" });
+
+  // 全屏编辑
+  const [fullscreenEdit, setFullscreenEdit] = useState(false);
+  const fullscreenWrapRef = useRef<HTMLDivElement>(null);
+  const [showAIMenu, setShowAIMenu] = useState(false);
+  const [floatingToolbar, setFloatingToolbar] = useState<{ show: boolean; top: number; left: number }>({ show: false, top: 0, left: 0 });
+  const [showHeadingMenu, setShowHeadingMenu] = useState(false);
+
+  const fullscreenEditor = useEditor({
+    immediatelyRender: false,
+    editable: true,
+    extensions: [
+      StarterKit,
+      Underline,
+      Placeholder.configure({ placeholder: "【故事线】请输入故事的主要情节走向...\n\n【核心冲突】故事的主要矛盾和冲突...\n\n【核心卖点】一句话提炼最抓人的卖点..." }),
+    ],
+    content: "",
+    onSelectionUpdate: ({ editor: e }) => {
+      const { from, to } = e.state.selection;
+      if (from === to) {
+        setFloatingToolbar({ show: false, top: 0, left: 0 });
+        setShowAIMenu(false);
+        return;
+      }
+      const domSelection = window.getSelection();
+      if (domSelection && domSelection.rangeCount > 0 && fullscreenWrapRef.current) {
+        const range = domSelection.getRangeAt(0);
+        const rect = range.getBoundingClientRect();
+        const wrapRect = fullscreenWrapRef.current.getBoundingClientRect();
+        setFloatingToolbar({
+          show: true,
+          top: rect.top - wrapRect.top + fullscreenWrapRef.current.scrollTop - 48,
+          left: rect.left - wrapRect.left + rect.width / 2 - 180,
+        });
+        setShowAIMenu(false);
+      }
+    },
+    editorProps: {
+      attributes: {
+        class: "tiptap focus:outline-none px-8 py-6 min-h-[300px]",
+      },
+    },
+  });
+
+  const openFullscreen = useCallback(() => {
+    if (fullscreenEditor) {
+      const html = synopsis
+        ? synopsis.split("\n\n").map((p) => `<p>${p.replace(/\n/g, "<br>")}</p>`).join("")
+        : "";
+      fullscreenEditor.commands.setContent(html);
+    }
+    setFullscreenEdit(true);
+  }, [fullscreenEditor, synopsis]);
+
+  const closeFullscreen = useCallback(() => {
+    if (fullscreenEditor) {
+      const text = fullscreenEditor.getText();
+      if (text.trim()) {
+        setSynopsis(text);
+        setIsGenerated(false);
+      }
+    }
+    setFullscreenEdit(false);
+    setFloatingToolbar({ show: false, top: 0, left: 0 });
+    setShowAIMenu(false);
+  }, [fullscreenEditor]);
 
   // 切换展开面板
   const toggleSection = (section: "content" | "writing" | "character") => {
@@ -276,22 +360,31 @@ export default function ScreenplayLeftPanel() {
 
             {/* 故事梗概 */}
             <div>
-              <textarea
-                value={synopsis}
-                onChange={(e) => {
-                  setSynopsis(e.target.value);
-                  setIsGenerated(false);
-                }}
-                placeholder={`【故事线】请输入故事的主要情节走向...
+              <div className="relative">
+                <textarea
+                  value={synopsis}
+                  onChange={(e) => {
+                    setSynopsis(e.target.value);
+                    setIsGenerated(false);
+                  }}
+                  placeholder={`【故事线】请输入故事的主要情节走向...
 
 【核心冲突】故事的主要矛盾和冲突...
 
 【核心卖点】一句话提炼最抓人的卖点...`}
-                className={cn(
-                  "w-full h-[180px] text-sm border rounded-lg p-3 resize-none focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 placeholder:text-gray-300 leading-relaxed",
-                  isGenerated ? "border-green-300 bg-green-50/30" : "border-gray-200"
-                )}
-              />
+                  className={cn(
+                    "w-full h-[180px] text-sm border rounded-lg p-3 resize-none focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 placeholder:text-gray-300 leading-relaxed",
+                    isGenerated ? "border-green-300 bg-green-50/30" : "border-gray-200"
+                  )}
+                />
+                <button
+                  onClick={openFullscreen}
+                  className="absolute bottom-2 right-2 p-1.5 text-gray-300 hover:text-gray-500 hover:bg-gray-50 rounded-md transition"
+                  title="全屏编辑"
+                >
+                  <Maximize2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
 
               {/* 生成设定按钮 */}
               <button
@@ -814,6 +907,158 @@ export default function ScreenplayLeftPanel() {
                 )}
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* 全屏编辑遮罩 */}
+      {fullscreenEdit && (
+        <div className="fixed inset-0 z-50 bg-gray-900/60 flex items-center justify-center" onClick={closeFullscreen}>
+          <div
+            className="bg-white rounded-2xl shadow-2xl w-[90vw] max-w-[900px] h-[85vh] flex flex-col overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="px-6 py-4 border-b border-gray-100 text-center">
+              <p className="text-sm text-gray-500 font-medium">描述故事背景、故事线、核心冲突等</p>
+            </div>
+
+            {/* Toolbar */}
+            {fullscreenEditor && (
+              <div className="px-6 py-2 border-b border-gray-50 flex items-center gap-0.5">
+                <button onClick={() => fullscreenEditor.chain().focus().undo().run()} className="p-1.5 rounded hover:bg-gray-100 text-gray-400" title="撤销">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
+                </button>
+                <button onClick={() => fullscreenEditor.chain().focus().redo().run()} className="p-1.5 rounded hover:bg-gray-100 text-gray-400" title="重做">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"/></svg>
+                </button>
+                <div className="w-px h-4 bg-gray-200 mx-1" />
+                <div className="relative">
+                  <button
+                    onClick={() => setShowHeadingMenu((v) => !v)}
+                    className={`flex items-center gap-0 p-1.5 rounded transition ${fullscreenEditor.isActive("heading") ? "bg-gray-100 text-gray-900" : "text-gray-400 hover:bg-gray-100"}`}
+                  >
+                    <Type className="w-4 h-4" />
+                    <ChevronDown className="w-2.5 h-2.5 text-gray-400" />
+                  </button>
+                  {showHeadingMenu && (
+                    <div className="absolute left-0 top-full mt-1 bg-white rounded-xl shadow-lg border border-gray-100 py-1.5 w-32 z-30">
+                      {[
+                        { label: "正文", action: () => fullscreenEditor.chain().focus().setParagraph().run() },
+                        { label: "H1 一级标题", action: () => fullscreenEditor.chain().focus().toggleHeading({ level: 1 }).run() },
+                        { label: "H2 二级标题", action: () => fullscreenEditor.chain().focus().toggleHeading({ level: 2 }).run() },
+                        { label: "H3 三级标题", action: () => fullscreenEditor.chain().focus().toggleHeading({ level: 3 }).run() },
+                      ].map((opt) => (
+                        <button
+                          key={opt.label}
+                          onClick={() => { opt.action(); setShowHeadingMenu(false); }}
+                          className="w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 transition"
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <button onClick={() => fullscreenEditor.chain().focus().toggleBold().run()} className={`p-1.5 rounded transition ${fullscreenEditor.isActive("bold") ? "bg-gray-100 text-gray-900" : "text-gray-400 hover:bg-gray-100"}`} title="加粗">
+                  <Bold className="w-4 h-4" />
+                </button>
+                <button onClick={() => fullscreenEditor.chain().focus().toggleItalic().run()} className={`p-1.5 rounded transition ${fullscreenEditor.isActive("italic") ? "bg-gray-100 text-gray-900" : "text-gray-400 hover:bg-gray-100"}`} title="斜体">
+                  <Italic className="w-4 h-4" />
+                </button>
+                <button onClick={() => fullscreenEditor.chain().focus().toggleStrike().run()} className={`p-1.5 rounded transition ${fullscreenEditor.isActive("strike") ? "bg-gray-100 text-gray-900" : "text-gray-400 hover:bg-gray-100"}`} title="删除线">
+                  <Strikethrough className="w-4 h-4" />
+                </button>
+                <button onClick={() => fullscreenEditor.chain().focus().toggleUnderline().run()} className={`p-1.5 rounded transition ${fullscreenEditor.isActive("underline") ? "bg-gray-100 text-gray-900" : "text-gray-400 hover:bg-gray-100"}`} title="下划线">
+                  <UnderlineIcon className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+
+            {/* Editor content */}
+            <div className="flex-1 overflow-y-auto relative" ref={fullscreenWrapRef}>
+              {floatingToolbar.show && (
+                <div
+                  className="absolute z-20"
+                  style={{ top: floatingToolbar.top, left: Math.max(0, Math.min(floatingToolbar.left, 500)) }}
+                >
+                  <div className="flex items-center bg-white rounded-lg shadow-lg border border-gray-200 h-9 px-1 gap-0.5">
+                    <button
+                      onClick={() => setShowAIMenu((v) => !v)}
+                      className="flex items-center gap-1 px-2.5 py-1 text-sm text-blue-600 font-medium hover:bg-blue-50 rounded-md transition"
+                    >
+                      <Wand2 className="w-3.5 h-3.5" />
+                      <span className="text-[13px]">AI 调整</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (fullscreenEditor) {
+                          const { from, to } = fullscreenEditor.state.selection;
+                          const text = fullscreenEditor.state.doc.textBetween(from, to, " ");
+                          if (text) { navigator.clipboard.writeText(text); showToast("已复制"); }
+                        }
+                      }}
+                      className="flex items-center gap-1 px-2 py-1 text-sm text-gray-600 hover:bg-gray-50 rounded-md transition"
+                    >
+                      <Copy className="w-3.5 h-3.5" />
+                      <span className="text-[13px]">复制</span>
+                    </button>
+                    <div className="w-px h-4 bg-gray-200 mx-0.5" />
+                    <button onClick={() => fullscreenEditor?.chain().focus().toggleBold().run()} className={`p-1.5 rounded-md transition ${fullscreenEditor?.isActive("bold") ? "bg-gray-100 text-gray-900" : "text-gray-500 hover:bg-gray-50"}`}>
+                      <Bold className="w-4 h-4" />
+                    </button>
+                    <button onClick={() => fullscreenEditor?.chain().focus().toggleItalic().run()} className={`p-1.5 rounded-md transition ${fullscreenEditor?.isActive("italic") ? "bg-gray-100 text-gray-900" : "text-gray-500 hover:bg-gray-50"}`}>
+                      <Italic className="w-4 h-4" />
+                    </button>
+                    <button onClick={() => fullscreenEditor?.chain().focus().toggleUnderline().run()} className={`p-1.5 rounded-md transition ${fullscreenEditor?.isActive("underline") ? "bg-gray-100 text-gray-900" : "text-gray-500 hover:bg-gray-50"}`}>
+                      <UnderlineIcon className="w-4 h-4" />
+                    </button>
+                    <button onClick={() => fullscreenEditor?.chain().focus().toggleStrike().run()} className={`p-1.5 rounded-md transition ${fullscreenEditor?.isActive("strike") ? "bg-gray-100 text-gray-900" : "text-gray-500 hover:bg-gray-50"}`}>
+                      <Strikethrough className="w-4 h-4" />
+                    </button>
+                  </div>
+                  {showAIMenu && (
+                    <div className="mt-1.5 w-[280px]">
+                      <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-3 mb-1.5">
+                        <div className="flex items-start gap-2">
+                          <textarea placeholder="输入改写要求" rows={2} className="flex-1 text-sm text-gray-700 placeholder-gray-400 outline-none bg-transparent resize-none" onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); showToast("改写功能演示中..."); } }} />
+                          <button onClick={() => showToast("改写功能演示中...")} className="mt-auto p-2 bg-gray-900 text-white rounded-full hover:bg-gray-800 transition shrink-0"><Send className="w-4 h-4" /></button>
+                        </div>
+                      </div>
+                      <div className="bg-white rounded-xl shadow-lg border border-gray-200 py-1.5">
+                        {[
+                          { icon: Wand2, label: "润色一下" },
+                          { icon: Sparkles, label: "丰富一下" },
+                          { icon: MoveHorizontal, label: "写短一下" },
+                          { icon: RefreshCw, label: "继续写点" },
+                          { icon: Palette, label: "氛围增强" },
+                        ].map((item) => (
+                          <button key={item.label} onClick={() => { setShowAIMenu(false); setFloatingToolbar({ show: false, top: 0, left: 0 }); showToast(`${item.label}功能演示中...`); }} className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
+                            <item.icon className="w-4 h-4 text-gray-400" />
+                            {item.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+              <div className="max-w-3xl mx-auto">
+                {fullscreenEditor && <EditorContent editor={fullscreenEditor} />}
+              </div>
+            </div>
+
+            {/* Bottom bar */}
+            <div className="px-6 py-4 border-t border-gray-100 flex items-center gap-3">
+              <div className="flex-1 flex items-center gap-2 bg-gray-50 rounded-xl px-4 py-2.5 border border-gray-200">
+                <input type="text" placeholder="输入改写要求" className="flex-1 text-sm text-gray-700 placeholder-gray-400 bg-transparent outline-none" onKeyDown={(e) => { if (e.key === "Enter" && !e.nativeEvent.isComposing) { e.preventDefault(); showToast("改写功能演示中..."); } }} />
+                <button onClick={() => showToast("改写功能演示中...")} className="p-1.5 bg-gray-900 text-white rounded-full hover:bg-gray-800 transition shrink-0"><Send className="w-4 h-4" /></button>
+              </div>
+              <button onClick={closeFullscreen} className="flex items-center gap-1.5 px-4 py-2.5 text-sm text-gray-500 hover:text-gray-700 bg-white rounded-xl border border-gray-200 hover:bg-gray-50 transition whitespace-nowrap">
+                <Minimize2 className="w-3.5 h-3.5" />
+                退出全屏
+              </button>
+            </div>
           </div>
         </div>
       )}
