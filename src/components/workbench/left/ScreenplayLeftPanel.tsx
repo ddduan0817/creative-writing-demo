@@ -531,24 +531,27 @@ export default function ScreenplayLeftPanel() {
               {characters.map((char, i) => (
                 <div
                   key={i}
-                  className="group relative border border-gray-200 rounded-lg p-3 hover:border-gray-300 transition cursor-pointer"
+                  className="group relative flex items-stretch border border-gray-200 rounded-xl hover:border-gray-300 transition cursor-pointer"
                   onClick={() => {
                     const charText = `【${char.role}】${char.name}\n${char.desc || ""}`;
                     setSettingsFullscreen(true, charText);
                   }}
                 >
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-sm font-medium text-gray-800 truncate">{char.name}</span>
-                    <span className={cn(
-                      "text-[10px] px-1.5 py-0.5 rounded-full flex-shrink-0",
-                      char.role === "主角" ? "bg-indigo-50 text-indigo-500" : "bg-gray-100 text-gray-400"
-                    )}>
-                      {char.role}
-                    </span>
+                  {/* 卡片内容 */}
+                  <div className="flex-1 p-3.5 min-w-0">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium text-gray-800 truncate">{char.name}</span>
+                      <span className={cn(
+                        "text-[10px] px-2 py-0.5 rounded flex-shrink-0 ml-2",
+                        char.role === "主角" ? "bg-gray-100 text-gray-600" : "bg-gray-100 text-gray-400"
+                      )}>
+                        {char.role}
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-500 leading-relaxed line-clamp-3">{char.desc || "暂无描述"}</p>
                   </div>
-                  <p className="text-xs text-gray-500 leading-relaxed line-clamp-3">{char.desc || "暂无描述"}</p>
-                  {/* hover 显示操作按钮 */}
-                  <div className="absolute bottom-2 right-2 hidden group-hover:flex items-center gap-1">
+                  {/* 右侧操作栏 */}
+                  <div className="flex flex-col items-center justify-center gap-2 px-2 border-l border-gray-100 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button
                       onClick={(e) => { e.stopPropagation(); removeCharacter(i); }}
                       className="p-1 text-gray-300 hover:text-red-400 hover:bg-red-50 rounded transition"
