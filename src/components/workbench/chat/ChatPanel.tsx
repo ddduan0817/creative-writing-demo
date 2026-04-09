@@ -1303,10 +1303,10 @@ export default function ChatPanel() {
     return "一碗春";
   }, [isScreenplay, isMarketing, isKnowledge]);
   const sceneWelcome = useMemo(() => {
-    if (isScreenplay) return "你好！欢迎来到剧本创作工作台 ✨\n\n描述一下你想创作的剧本——一句话、一个画面、甚至几个关键词就够了。\n我会帮你快速生成一版完整设定，然后我们一起调整打磨。\n\n没有想法也没关系，点击下方按钮我来帮你构思一个。";
-    if (isMarketing) return "你好！欢迎来到电商内容创作工作台 ✨\n\n告诉我你要推广什么商品，以及你的目标投放平台。\n比如：「一款隐形蓝牙耳机，主打极致隐形和防水，想在抖音投放」\n\n我会帮你整理商品信息，然后根据平台特点生成内容结构。";
-    if (isKnowledge) return "你好！欢迎来到深度解读工作台 ✨\n\n告诉我你想拆解哪本书？书名、文件、核心问题都可以——比如「帮我拆解《诡秘之主》的力量体系」。\n我来帮你快速生成分析框架，然后一起深入。\n\n没有想法也没关系，点击下方按钮我来帮你构思一个。";
-    return "你好！欢迎来到小说创作工作台 ✨\n\n描述一下你想写的故事——一句话、一个画面、甚至几个关键词就够了。\n我会帮你快速生成一版创作设定，然后我们一起调整打磨。\n\n没有想法也没关系，点击下方按钮我来帮你构思一个。";
+    if (isScreenplay) return "你好！欢迎来到剧本创作工作台\n\n描述一下你想创作的剧本——一句话、一个画面、甚至几个关键词就够了。\n我会帮你快速生成一版完整设定，然后我们一起调整打磨。\n\n没有想法也没关系，点击下方按钮我来帮你构思一个。";
+    if (isMarketing) return "你好！欢迎来到电商内容创作工作台\n\n告诉我你要推广什么商品，以及你的目标投放平台。\n比如：「一款隐形蓝牙耳机，主打极致隐形和防水，想在抖音投放」\n\n我会帮你整理商品信息，然后根据平台特点生成内容结构。";
+    if (isKnowledge) return "你好！欢迎来到深度解读工作台\n\n告诉我你想拆解哪本书？书名、文件、核心问题都可以——比如「帮我拆解《诡秘之主》的力量体系」。\n我来帮你快速生成分析框架，然后一起深入。\n\n没有想法也没关系，点击下方按钮我来帮你构思一个。";
+    return "你好！欢迎来到小说创作工作台\n\n描述一下你想写的故事——一句话、一个画面、甚至几个关键词就够了。\n我会帮你快速生成一版创作设定，然后我们一起调整打磨。\n\n没有想法也没关系，点击下方按钮我来帮你构思一个。";
   }, [isScreenplay, isMarketing, isKnowledge]);
 
   const dataRef = useRef({
@@ -1452,7 +1452,7 @@ export default function ChatPanel() {
             id: "model-length",
             sender: "model",
             type: "length-select",
-            prompt: "你好！欢迎来到小说创作工作台 ✨\n\n在开始之前，先选一下你想写的篇幅：",
+            prompt: "你好！欢迎来到小说创作工作台\n\n在开始之前，先选一下你想写的篇幅：",
           },
         ]);
       } else {
@@ -2154,7 +2154,7 @@ export default function ChatPanel() {
               id: "model-all-done",
               sender: "model",
               type: "text",
-              content: "全部章节生成完毕！🎉\n\n你可以在编辑区点击左上角的目录图标查看和切换章节，随时修改任何内容。如果需要我帮忙润色、改写或调整某一章，直接告诉我就好。",
+              content: "全部章节生成完毕！\n\n你可以在编辑区点击左上角的目录图标查看和切换章节，随时修改任何内容。如果需要我帮忙润色、改写或调整某一章，直接告诉我就好。",
             },
           ]);
         }, 1500);
@@ -2859,7 +2859,7 @@ export default function ChatPanel() {
                       }}
                       className="px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
                     >
-                      {isMarketing ? "📦 用样例商品体验" : "✨ 帮我想一个"}
+                      {isMarketing ? "用样例商品体验" : "帮我想一个"}
                     </button>
                   </div>
                 )}
@@ -2961,29 +2961,23 @@ export default function ChatPanel() {
                   {/* Action buttons */}
                   {currentRound === 4 && (
                     <div className="mt-2.5 space-y-2">
-                      <button
-                        onClick={() => quickConfirm(isMarketing ? "确认商品信息，生成内容结构" : "确认设定，进入下一步")}
-                        className="w-full px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
-                      >
-                        {isMarketing ? "确认商品信息，下一步" : "确认设定，下一步"}
-                      </button>
-                      <button
-                        onClick={() => {
-                          setMessages((prev) => [...prev, { id: `user-regen-${Date.now()}`, sender: "user" as const, type: "text" as const, content: "换一换" }]);
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => quickConfirm(isMarketing ? "确认商品信息，生成内容结构" : "确认设定，进入下一步")}
+                          className="flex-1 px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
+                        >
+                          下一步
+                        </button>
+                        <button
+                          onClick={() => {
+                            setMessages((prev) => [...prev, { id: `user-regen-${Date.now()}`, sender: "user" as const, type: "text" as const, content: "换一换" }]);
                             if (isMarketing) {
-                              // Marketing: just regenerate with same data (mock)
                               const thinkingId = `thinking-regen-settings`;
                               setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
                               setTimeout(() => {
                                 setMessages((prev) => [
                                   ...prev.filter((m) => m.id !== thinkingId),
-                                  {
-                                    id: `model-settings-${Date.now()}`,
-                                    sender: "model" as const,
-                                    type: "settings-card" as const,
-                                    prompt: "已重新整理商品信息，看看这个怎么样？",
-                                    settings: marketingProductInfoCard,
-                                  },
+                                  { id: `model-settings-${Date.now()}`, sender: "model" as const, type: "settings-card" as const, prompt: "已重新整理商品信息，看看这个怎么样？", settings: marketingProductInfoCard },
                                 ]);
                                 setAgentStageData("settings", marketingProductInfoCard);
                               }, 2000);
@@ -2995,53 +2989,43 @@ export default function ChatPanel() {
                               setTimeout(() => {
                                 setMessages((prev) => [
                                   ...prev.filter((m) => m.id !== thinkingId),
-                                  {
-                                    id: `model-settings-${Date.now()}`,
-                                    sender: "model" as const,
-                                    type: "settings-card" as const,
-                                    prompt: "已重新生成一版设定，看看这个怎么样？",
-                                    settings: altData,
-                                  },
+                                  { id: `model-settings-${Date.now()}`, sender: "model" as const, type: "settings-card" as const, prompt: "已重新生成一版设定，看看这个怎么样？", settings: altData },
                                 ]);
                                 setAgentStageData("settings", altData);
                               }, 2000);
                             }
                           }}
-                        className="w-full px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
-                      >
-                        <RefreshCw className="w-3.5 h-3.5 inline mr-1" />
-                        换一换
-                      </button>
-                      {!isMarketing && (
-                        <button
-                          onClick={() => {
-                            setMessages((prev) => [...prev, { id: `user-refine-settings-${Date.now()}`, sender: "user" as const, type: "text" as const, content: "通过灵感探索继续完善" }]);
-                            // Enter inspiration round 1 to refine settings
-                            const thinkingId = `thinking-refine-insp`;
-                            setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
-                            setTimeout(() => {
-                              const r1 = dataRef.current.sceneInspirationRounds[0];
-                              setMessages((prev) => [
-                                ...prev.filter((m) => m.id !== thinkingId),
-                                {
-                                  id: "model-r1",
-                                  sender: "model",
-                                  type: "inspiration",
-                                  prompt: "好的，让我们通过几个选择来完善细节吧！\n\n" + r1.prompt,
-                                  cards: r1.cards,
-                                  round: 1,
-                                },
-                              ]);
-                              setCurrentRound(1);
-                              setFlowMode("inspiration");
-                            }, 1500);
-                          }}
-                          className="w-full px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
+                          className="flex-1 px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
                         >
-                          ✨ 通过灵感探索继续完善
+                          换一换
                         </button>
-                      )}
-                      <p className="text-[11px] text-gray-400">{isMarketing ? "想调整？直接告诉我，比如\"价格改成299\"、\"加一个核心卖点\"" : "想调整？直接告诉我哪里不满意，比如\"题材换成科幻\"、\"女主改成医生\""}</p>
+                        {!isMarketing && (
+                          <button
+                            onClick={() => {
+                              setMessages((prev) => [...prev, { id: `user-refine-settings-${Date.now()}`, sender: "user" as const, type: "text" as const, content: "继续完善" }]);
+                              const thinkingId = `thinking-refine-insp`;
+                              setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+                              setTimeout(() => {
+                                const r1 = dataRef.current.sceneInspirationRounds[0];
+                                setMessages((prev) => [
+                                  ...prev.filter((m) => m.id !== thinkingId),
+                                  { id: "model-r1", sender: "model", type: "inspiration", prompt: "好的，让我们通过几个选择来完善细节吧！\n\n" + r1.prompt, cards: r1.cards, round: 1 },
+                                ]);
+                                setCurrentRound(1);
+                                setFlowMode("inspiration");
+                              }, 1500);
+                            }}
+                            className="flex-1 px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
+                          >
+                            继续完善
+                          </button>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-gray-400">
+                        {isMarketing
+                          ? "「下一步」确认进入内容生成 ·「换一换」重新生成 · 也可直接打字修改，如\"价格改成299\""
+                          : "「下一步」确认进入世界观 ·「换一换」重新生成 ·「继续完善」通过灵感卡片细化 · 也可直接打字修改"}
+                      </p>
                     </div>
                   )}
                 </div>
@@ -3104,39 +3088,34 @@ export default function ChatPanel() {
                   {/* Action buttons */}
                   {currentRound === 8 && (
                     <div className="mt-2.5 space-y-2">
-                      <button
-                        onClick={() => quickConfirm("确认世界观，进入下一步")}
-                        className="w-full px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
-                      >
-                        确认世界观，下一步
-                      </button>
-                      <button
-                        onClick={() => {
-                          setMessages((prev) => [...prev, { id: `user-refine-wb-${Date.now()}`, sender: "user" as const, type: "text" as const, content: "通过灵感探索完善世界观" }]);
-                          const thinkingId = `thinking-refine-wb`;
-                          setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
-                          setTimeout(() => {
-                            const r1 = dataRef.current.sceneWorldbuildingRounds[0];
-                            setMessages((prev) => [
-                              ...prev.filter((m) => m.id !== thinkingId),
-                              {
-                                id: "model-r5",
-                                sender: "model",
-                                type: "inspiration",
-                                prompt: "好的，让我们通过几个选择来完善世界观细节吧！" + r1.prompt,
-                                cards: r1.cards,
-                                round: 5,
-                              },
-                            ]);
-                            setCurrentRound(5);
-                            setFlowMode("inspiration");
-                          }, 1500);
-                        }}
-                        className="w-full px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
-                      >
-                        ✨ 通过灵感探索完善世界观
-                      </button>
-                      <p className="text-[11px] text-gray-400">{"想调整？比如\"加个竹林\"、\"小镇改成海边渔村\""}</p>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => quickConfirm("确认世界观，进入下一步")}
+                          className="flex-1 px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
+                        >
+                          下一步
+                        </button>
+                        <button
+                          onClick={() => {
+                            setMessages((prev) => [...prev, { id: `user-refine-wb-${Date.now()}`, sender: "user" as const, type: "text" as const, content: "继续完善" }]);
+                            const thinkingId = `thinking-refine-wb`;
+                            setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+                            setTimeout(() => {
+                              const r1 = dataRef.current.sceneWorldbuildingRounds[0];
+                              setMessages((prev) => [
+                                ...prev.filter((m) => m.id !== thinkingId),
+                                { id: "model-r5", sender: "model", type: "inspiration", prompt: "好的，让我们通过几个选择来完善世界观细节吧！" + r1.prompt, cards: r1.cards, round: 5 },
+                              ]);
+                              setCurrentRound(5);
+                              setFlowMode("inspiration");
+                            }, 1500);
+                          }}
+                          className="flex-1 px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
+                        >
+                          继续完善
+                        </button>
+                      </div>
+                      <p className="text-[11px] text-gray-400">「下一步」确认进入角色设计 ·「继续完善」通过灵感卡片细化 · 也可直接打字修改</p>
                     </div>
                   )}
                 </div>
@@ -3202,39 +3181,34 @@ export default function ChatPanel() {
                   {/* Action buttons */}
                   {currentRound === 12 && (
                     <div className="mt-2.5 space-y-2">
-                      <button
-                        onClick={() => quickConfirm("确认角色，进入下一步")}
-                        className="w-full px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
-                      >
-                        确认角色，下一步
-                      </button>
-                      <button
-                        onClick={() => {
-                          setMessages((prev) => [...prev, { id: `user-refine-char-${Date.now()}`, sender: "user" as const, type: "text" as const, content: "通过灵感探索完善角色" }]);
-                          const thinkingId = `thinking-refine-char`;
-                          setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
-                          setTimeout(() => {
-                            const r1 = dataRef.current.sceneCharacterRounds[0];
-                            setMessages((prev) => [
-                              ...prev.filter((m) => m.id !== thinkingId),
-                              {
-                                id: "model-r9",
-                                sender: "model",
-                                type: "inspiration",
-                                prompt: "好的，让我们通过几个选择来完善角色细节吧！" + r1.prompt,
-                                cards: r1.cards,
-                                round: 9,
-                              },
-                            ]);
-                            setCurrentRound(9);
-                            setFlowMode("inspiration");
-                          }, 1500);
-                        }}
-                        className="w-full px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
-                      >
-                        ✨ 通过灵感探索完善角色
-                      </button>
-                      <p className="text-[11px] text-gray-400">{"想调整？比如\"女主性格改成更强势\"、\"加一个反派角色\""}</p>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => quickConfirm("确认角色，进入下一步")}
+                          className="flex-1 px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
+                        >
+                          下一步
+                        </button>
+                        <button
+                          onClick={() => {
+                            setMessages((prev) => [...prev, { id: `user-refine-char-${Date.now()}`, sender: "user" as const, type: "text" as const, content: "继续完善" }]);
+                            const thinkingId = `thinking-refine-char`;
+                            setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+                            setTimeout(() => {
+                              const r1 = dataRef.current.sceneCharacterRounds[0];
+                              setMessages((prev) => [
+                                ...prev.filter((m) => m.id !== thinkingId),
+                                { id: "model-r9", sender: "model", type: "inspiration", prompt: "好的，让我们通过几个选择来完善角色细节吧！" + r1.prompt, cards: r1.cards, round: 9 },
+                              ]);
+                              setCurrentRound(9);
+                              setFlowMode("inspiration");
+                            }, 1500);
+                          }}
+                          className="flex-1 px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
+                        >
+                          继续完善
+                        </button>
+                      </div>
+                      <p className="text-[11px] text-gray-400">「下一步」确认进入大纲生成 ·「继续完善」通过灵感卡片细化 · 也可直接打字修改</p>
                     </div>
                   )}
                 </div>
@@ -3291,13 +3265,15 @@ export default function ChatPanel() {
                   {/* Action buttons */}
                   {currentRound === 13 && (
                     <div className="mt-2.5 space-y-2">
-                      <button
-                        onClick={() => quickConfirm("确认大纲，开始写正文")}
-                        className="w-full px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
-                      >
-                        开始写正文
-                      </button>
-                      <p className="text-[11px] text-gray-400">{"想调整？比如\"第三章增加一个反转\"、\"结局改成开放式\""}</p>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => quickConfirm("确认大纲，开始写正文")}
+                          className="flex-1 px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
+                        >
+                          开始写正文
+                        </button>
+                      </div>
+                      <p className="text-[11px] text-gray-400">{"「开始写正文」确认大纲并逐章生成正文 · 也可直接打字修改，如\"第三章增加一个反转\""}</p>
                     </div>
                   )}
                 </div>
