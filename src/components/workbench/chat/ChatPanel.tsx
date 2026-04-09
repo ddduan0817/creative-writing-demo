@@ -3375,7 +3375,7 @@ export default function ChatPanel() {
                   className="flex items-center gap-1 h-8 px-2.5 rounded-full border border-gray-200 text-gray-400 hover:bg-gray-50 hover:text-gray-600 transition text-xs"
                 >
                   <Plus className="w-3.5 h-3.5" />
-                  <span>传文件</span>
+                  <span>文件</span>
                 </button>
               ) : (
                 <>
