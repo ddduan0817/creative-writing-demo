@@ -2425,20 +2425,20 @@ export default function ChatPanel() {
 
                   {/* Refresh & Skip buttons */}
                   {isActive && (
-                    <div className="mt-1.5">
-                      <div className="flex items-center gap-3">
-                        <button
-                          onClick={() => handleRefresh()}
-                          className="flex items-center gap-1.5 px-2 py-1.5 text-xs text-gray-400 hover:text-indigo-500 transition"
-                        >
-                          <RefreshCw className="w-3 h-3" />
-                          换一换
-                        </button>
+                    <div className="mt-2.5 space-y-2">
+                      <div className="flex items-center gap-2.5">
                         <button
                           onClick={handleSkipToGenerate}
-                          className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-400 hover:text-indigo-500 border border-gray-200 rounded-full hover:border-indigo-200 transition"
+                          className="flex-1 px-4 py-2.5 text-gray-500 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
                         >
                           跳过，直接生成
+                        </button>
+                        <button
+                          onClick={() => handleRefresh()}
+                          className="px-4 py-2.5 text-gray-500 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
+                        >
+                          <RefreshCw className="w-3.5 h-3.5 inline mr-1" />
+                          换一换
                         </button>
                       </div>
                       <p className="text-[11px] text-gray-400 mt-1.5">
@@ -2469,14 +2469,14 @@ export default function ChatPanel() {
                 </div>
                 <p className="text-sm text-gray-700 leading-relaxed pl-8">{msg.prompt}</p>
                 {isActive && (
-                  <div className="pl-8">
+                  <div className="pl-8 space-y-2">
                     <button
                       onClick={handleSkipAdjust}
-                      className="px-3.5 py-1.5 text-xs text-gray-500 bg-gray-50 rounded-full border border-gray-200 hover:bg-gray-100 transition"
+                      className="px-4 py-2.5 text-gray-500 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
                     >
-                      继续
+                      跳过
                     </button>
-                    <p className="text-[11px] text-gray-400 mt-1.5">跳过微调，进入下一轮选择</p>
+                    <p className="text-[11px] text-gray-400">跳过微调，进入下一轮选择</p>
                   </div>
                 )}
               </div>
@@ -2961,16 +2961,15 @@ export default function ChatPanel() {
                   {/* Action buttons */}
                   {currentRound === 4 && (
                     <div className="mt-2.5 space-y-2">
-                      <div className="flex items-center gap-2.5">
-                        <button
-                          onClick={() => quickConfirm(isMarketing ? "确认商品信息，生成内容结构" : "确认设定，进入下一步")}
-                          className="flex-1 px-4 py-2.5 bg-indigo-50 text-indigo-600 text-sm font-medium rounded-xl border border-indigo-100 hover:bg-indigo-100 transition"
-                        >
-                          {isMarketing ? "确认商品信息，下一步" : "确认设定，下一步"}
-                        </button>
-                        <button
-                          onClick={() => {
-                            setMessages((prev) => [...prev, { id: `user-regen-${Date.now()}`, sender: "user" as const, type: "text" as const, content: "换一换" }]);
+                      <button
+                        onClick={() => quickConfirm(isMarketing ? "确认商品信息，生成内容结构" : "确认设定，进入下一步")}
+                        className="w-full px-4 py-2.5 bg-indigo-50 text-indigo-600 text-sm font-medium rounded-xl border border-indigo-100 hover:bg-indigo-100 transition"
+                      >
+                        {isMarketing ? "确认商品信息，下一步" : "确认设定，下一步"}
+                      </button>
+                      <button
+                        onClick={() => {
+                          setMessages((prev) => [...prev, { id: `user-regen-${Date.now()}`, sender: "user" as const, type: "text" as const, content: "换一换" }]);
                             if (isMarketing) {
                               // Marketing: just regenerate with same data (mock)
                               const thinkingId = `thinking-regen-settings`;
@@ -3008,12 +3007,11 @@ export default function ChatPanel() {
                               }, 2000);
                             }
                           }}
-                          className="px-4 py-2.5 text-gray-500 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
-                        >
-                          <RefreshCw className="w-3.5 h-3.5 inline mr-1" />
-                          换一换
-                        </button>
-                      </div>
+                        className="w-full px-4 py-2.5 text-gray-500 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
+                      >
+                        <RefreshCw className="w-3.5 h-3.5 inline mr-1" />
+                        换一换
+                      </button>
                       {!isMarketing && (
                         <button
                           onClick={() => {
