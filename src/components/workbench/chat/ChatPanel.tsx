@@ -1214,6 +1214,7 @@ type Message =
   | { id: string; sender: "model"; type: "outline-card"; prompt: string; data: OutlineCardData }
   | { id: string; sender: "model"; type: "welcome"; prompt: string }
   | { id: string; sender: "model"; type: "stage-intro"; prompt: string; stage: "worldbuilding" | "characters" | "outline" }
+  | { id: string; sender: "model"; type: "guide"; prompt: string }
   | { id: string; sender: "model"; type: "length-select"; prompt: string }
   | { id: string; sender: "model"; type: "micro-adjust"; prompt: string; round: number }
   | { id: string; sender: "model"; type: "subtype-select"; prompt: string }
@@ -1851,7 +1852,7 @@ export default function ChatPanel() {
     }
 
     // If user types at a card/preview stage, check if it's a confirm or a modification
-    const isConfirmIntent = /确认|下一步|方向不错|没问题|生成设定|开始写|开始生成/.test(text);
+    const isConfirmIntent = /确认|下一步|方向不错|没问题|生成设定|帮我生成|直接生成|开始写|开始生成/.test(text);
 
     // Modification request (not a confirm)
     if (!isConfirmIntent && (currentRound === 4 || currentRound === 8 || currentRound === 12 || currentRound === 13)) {
@@ -2240,30 +2241,57 @@ export default function ChatPanel() {
         return;
       }
 
-      // ── Non-marketing: existing flow ──
-      const thinkingId = `thinking-ff-settings`;
+      // ── Non-marketing: guide user to fill in setting fields first ──
+
+      // If already in guidance round (-2), user is providing more info → generate settings card
+      if (currentRound === -2) {
+        const thinkingId = `thinking-ff-settings`;
+        setTimeout(() => {
+          setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+        }, 300);
+
+        setTimeout(() => {
+          setMessages((prev) => [
+            ...prev.filter((m) => m.id !== thinkingId),
+            {
+              id: "model-settings",
+              sender: "model",
+              type: "settings-card",
+              prompt: dataRef.current.isKnowledge
+                ? `根据你的描述，我帮你生成了一版分析配置——${getSettingsSummary()}\n\n看看感觉怎么样？确认后我会开始深入分析设定体系，你也可以告诉我想调整的地方。`
+                : `根据你的描述，我帮你生成了一版创作设定——${getSettingsSummary()}\n\n看看感觉怎么样？确认后我会为你选择篇幅并创建角色，你也可以告诉我想调整的地方。`,
+              settings: dataRef.current.sceneSettingsCard,
+            },
+          ]);
+          setCurrentRound(4);
+          setCreationStage(1);
+          setAgentStageData("settings", dataRef.current.sceneSettingsCard);
+        }, 2500);
+        return;
+      }
+
+      // First input: analyze user's description and guide them
+      const thinkingId = `thinking-ff-guide`;
 
       setTimeout(() => {
         setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
       }, 300);
 
       setTimeout(() => {
+        const guidePrompt = dataRef.current.isKnowledge
+          ? `收到！我大概理解了你想分析的方向。\n\n为了生成更精准的分析配置，你可以再补充一些信息：\n· **分析维度** — 想从哪些角度切入？（世界观、角色体系、叙事结构……）\n· **关注重点** — 有特别想深挖的部分吗？\n· **分析深度** — 概览性梳理还是逐层拆解？\n\n当然，你也可以直接说「帮我生成」，我会根据已有信息先出一版。`
+          : `收到！这个方向很有意思。\n\n为了生成更贴合你想法的设定，可以再聊聊：\n· **故事基调** — 整体偏什么风格？（轻松日常 / 热血燃向 / 悬疑烧脑 / 虐心催泪……）\n· **故事走向** — 大致的情节发展？（逆袭 / 探案 / 成长 / 复仇……）\n· **核心冲突** — 主角面临的最大矛盾是什么？\n\n想到什么说什么就行，或者直接说「帮我生成」，我先出一版设定。`;
         setMessages((prev) => [
           ...prev.filter((m) => m.id !== thinkingId),
           {
-            id: "model-settings",
+            id: "model-guide",
             sender: "model",
-            type: "settings-card",
-            prompt: dataRef.current.isKnowledge
-              ? `根据你的描述，我帮你生成了一版分析配置——${getSettingsSummary()}\n\n看看感觉怎么样？确认后我会开始深入分析设定体系，你也可以告诉我想调整的地方。`
-              : `根据你的描述，我帮你生成了一版创作设定——${getSettingsSummary()}\n\n看看感觉怎么样？确认后我会为你选择篇幅并创建角色，你也可以告诉我想调整的地方。`,
-            settings: dataRef.current.sceneSettingsCard,
+            type: "guide",
+            prompt: guidePrompt,
           },
         ]);
-        setCurrentRound(4);
-        setCreationStage(1);
-        setAgentStageData("settings", dataRef.current.sceneSettingsCard);
-      }, 2500);
+        setCurrentRound(-2);
+      }, 2000);
     }
   }, [input, awaitingAdjust, adjustRound, currentRound, flowMode, writingChapter, novelChapters, novelLength, setCreationStage, setStageProgress, setAutoTitle, setAgentStageData, proceedToNextRound, initNovelChapters, generateChapter, getSettingsSummary]);
 
@@ -2888,6 +2916,56 @@ export default function ChatPanel() {
                   <span className="text-xs text-gray-400">文心</span>
                 </div>
                 <div className="text-sm text-gray-700 leading-relaxed pl-8 whitespace-pre-wrap">{msg.prompt}</div>
+              </div>
+            );
+          }
+
+          // ── Model: guide (first-input analysis) ──
+          if (msg.sender === "model" && msg.type === "guide") {
+            return (
+              <div key={msg.id} className="space-y-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                    <span className="text-white text-[10px] font-bold">AI</span>
+                  </div>
+                  <span className="text-xs text-gray-400">文心</span>
+                </div>
+                <div className="text-sm text-gray-700 leading-relaxed pl-8 whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: msg.prompt.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} />
+                {currentRound === -2 && (
+                  <div className="pl-8 mt-1">
+                    <button
+                      onClick={() => {
+                        setFlowMode("freeform");
+                        setMessages((prev) => [...prev, { id: `user-gen-now-${Date.now()}`, sender: "user", type: "text", content: "帮我生成" }]);
+                        const thinkingId = `thinking-ff-settings`;
+                        setTimeout(() => {
+                          setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+                        }, 300);
+                        setTimeout(() => {
+                          setMessages((prev) => [
+                            ...prev.filter((m) => m.id !== thinkingId),
+                            {
+                              id: "model-settings",
+                              sender: "model",
+                              type: "settings-card",
+                              prompt: dataRef.current.isKnowledge
+                                ? `根据你的描述，我帮你生成了一版分析配置——${getSettingsSummary()}\n\n看看感觉怎么样？确认后我会开始深入分析设定体系，你也可以告诉我想调整的地方。`
+                                : `根据你的描述，我帮你生成了一版创作设定——${getSettingsSummary()}\n\n看看感觉怎么样？确认后我会为你选择篇幅并创建角色，你也可以告诉我想调整的地方。`,
+                              settings: dataRef.current.sceneSettingsCard,
+                            },
+                          ]);
+                          setCurrentRound(4);
+                          setCreationStage(1);
+                          setAgentStageData("settings", dataRef.current.sceneSettingsCard);
+                        }, 2500);
+                      }}
+                      title="根据已有信息直接生成设定"
+                      className="px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
+                    >
+                      直接生成设定
+                    </button>
+                  </div>
+                )}
               </div>
             );
           }
