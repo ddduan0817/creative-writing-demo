@@ -1805,26 +1805,25 @@ export default function ChatPanel() {
           clearInterval(streamInterval);
           setNovelChapterStatus(chapterIndex, "done");
           setNovelChapterContent(chapterIndex, fullText);
-          // Notify in chat — for short novels, always single chapter
+          // Update the existing "正在生成" message instead of appending a new one
           const isShort = dataRef.current.novelLength === "short";
           const totalChapters = isShort ? 1 : dataRef.current.sceneOutlineCard.chapters.length;
           const isSingleChapter = totalChapters <= 1;
           const chTitle = isSingleChapter
             ? (dataRef.current.sceneTitle || "正文")
             : (dataRef.current.sceneOutlineCard.chapters[chapterIndex]?.title || `第${chapterIndex + 1}章`);
-          setMessages((prev) => [
-            ...prev,
-            {
-              id: `model-ch-done-${chapterIndex}`,
-              sender: "model" as const,
-              type: "text" as const,
-              content: isSingleChapter
-                ? `《${chTitle}》生成完毕！你可以在编辑区查看。\n\n想调整哪里直接告诉我，比如「开头节奏太慢」「对话再自然一些」。`
-                : chapterIndex < totalChapters - 1
-                ? `「${chTitle}」生成完毕！你可以在编辑区查看。\n\n想调整直接告诉我，满意就说「继续」写下一章。`
-                : `「${chTitle}」生成完毕！全部 ${totalChapters} 章已完成。\n\n想调整任何章节直接告诉我，比如「第三章结尾再加点悬念」。`,
-            },
-          ]);
+          const doneContent = isSingleChapter
+            ? `角色档案完成！短篇不需要大纲，直接开始写正文。\n\n《${chTitle}》生成完毕！你可以在编辑区查看。\n\n想调整哪里直接告诉我，比如「开头节奏太慢」「对话再自然一些」。`
+            : chapterIndex < totalChapters - 1
+            ? `「${chTitle}」生成完毕！你可以在编辑区查看。\n\n想调整直接告诉我，满意就说「继续」写下一章。`
+            : `「${chTitle}」生成完毕！全部 ${totalChapters} 章已完成。\n\n想调整任何章节直接告诉我，比如「第三章结尾再加点悬念」。`;
+          // Find and update the "正在生成" message for this chapter
+          const genMsgId = chapterIndex === 0 ? "model-write-start" : `model-gen-ch-${chapterIndex}`;
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === genMsgId ? { ...m, content: doneContent } : m
+            )
+          );
           // Update progress bar for 正文 stage
           const doneCount = chapterIndex + 1;
           const total = Math.max(totalChapters, 1);
