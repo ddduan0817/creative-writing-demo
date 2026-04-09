@@ -1423,12 +1423,12 @@ export default function ChatPanel() {
     if ((scene === "novel" || scene === "screenplay") && workMode === null) return;
     hasInit.current = true;
 
-    const thinkingId = `thinking-init`;
-    setMessages([{ id: thinkingId, sender: "model", type: "thinking" }]);
+    if (isScreenplay) {
+      // Screenplay: show thinking then subtype selection
+      const thinkingId = `thinking-init`;
+      setMessages([{ id: thinkingId, sender: "model", type: "thinking" }]);
 
-    setTimeout(() => {
-      if (isScreenplay) {
-        // Screenplay: show subtype selection first
+      setTimeout(() => {
         setMessages([
           {
             id: "model-subtype",
@@ -1437,27 +1437,11 @@ export default function ChatPanel() {
             prompt: "你好！欢迎来到剧本创作工作台。你想创作哪种类型？",
           },
         ]);
-      } else if (scene === "novel") {
-        // Novel: show welcome directly (length selection comes after settings)
-        setMessages([
-          {
-            id: "model-welcome",
-            sender: "model",
-            type: "welcome",
-            prompt: "你好！欢迎来到小说创作工作台\n\n描述一下你想写的故事——一句话、一个画面、甚至几个关键词就够了。\n我会帮你快速生成一版创作设定，然后我们一起调整打磨。\n\n没有想法也没关系，点击下方按钮我来帮你构思一个。",
-          },
-        ]);
-      } else {
-        setMessages([
-          {
-            id: "model-welcome",
-            sender: "model",
-            type: "welcome",
-            prompt: sceneWelcome,
-          },
-        ]);
-      }
-    }, 1200);
+      }, 1200);
+    } else {
+      // Novel / Marketing / Knowledge: start empty, show background guide
+      setMessages([]);
+    }
   }, [scene, workMode]);
 
   // Toggle keyword favorite
@@ -2345,6 +2329,71 @@ export default function ChatPanel() {
 
       {/* Messages Area */}
       <div className="flex-1 overflow-y-auto px-5 py-5 space-y-5" ref={scrollRef}>
+
+        {/* Empty state: background guide */}
+        {messages.length === 0 && (
+          <div className="flex flex-col items-center justify-center h-full text-center select-none">
+            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center mb-4 shadow-lg shadow-indigo-200/50">
+              <span className="text-white text-lg font-bold">言</span>
+            </div>
+            <p className="text-base font-medium text-gray-700 mb-1">
+              {isMarketing ? "嗨！我是你的带货创作助手" : isKnowledge ? "嗨！我是你的作品分析助手" : "嗨！我是你的创意写作助手"}
+            </p>
+            <p className="text-xs text-gray-400 max-w-[240px] leading-relaxed">
+              {isMarketing
+                ? "我可以帮你策划带货脚本、优化卖点文案，随时向我提问吧！"
+                : isKnowledge
+                ? "我可以帮你拆解作品设定、分析角色体系，随时向我提问吧！"
+                : "我可以帮你构思情节、打磨文笔、解答创作疑问，随时向我提问吧！"}
+            </p>
+            <div className="mt-6 flex gap-2">
+              <button
+                onClick={() => {
+                  setFlowMode("freeform");
+                  setMessages((prev) => [...prev, { id: `user-help-me-${Date.now()}`, sender: "user", type: "text", content: dataRef.current.isMarketing ? "帮我想一个商品案例" : "帮我想一个" }]);
+                  const thinkingId = `thinking-direct-settings`;
+                  setTimeout(() => {
+                    setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+                  }, 300);
+                  setTimeout(() => {
+                    if (dataRef.current.isMarketing) {
+                      marketingPlatformRef.current = "抖音";
+                      setMessages((prev) => [
+                        ...prev.filter((m) => m.id !== thinkingId),
+                        {
+                          id: "model-settings",
+                          sender: "model",
+                          type: "settings-card",
+                          prompt: `我帮你生成了一个样例商品——隐形蓝牙耳机 Pro，默认投放平台为抖音。\n\n确认商品信息后，我会根据抖音平台特点为你生成内容结构。`,
+                          settings: marketingProductInfoCard,
+                        },
+                      ]);
+                    } else {
+                      setMessages((prev) => [
+                        ...prev.filter((m) => m.id !== thinkingId),
+                        {
+                          id: "model-settings",
+                          sender: "model",
+                          type: "settings-card",
+                          prompt: dataRef.current.isKnowledge
+                            ? `我帮你生成了一版分析配置——${getSettingsSummary()}\n\n看看感觉怎么样？确认后我会开始深入分析设定体系，你也可以告诉我想调整的地方。`
+                            : `我帮你生成了一版创作设定——${getSettingsSummary()}\n\n看看感觉怎么样？确认后我会为你选择篇幅并创建角色，你也可以告诉我想调整的地方。`,
+                          settings: dataRef.current.sceneSettingsCard,
+                        },
+                      ]);
+                    }
+                    setCurrentRound(4);
+                    setCreationStage(1);
+                    setAgentStageData("settings", dataRef.current.isMarketing ? marketingProductInfoCard : dataRef.current.sceneSettingsCard);
+                  }, 2500);
+                }}
+                className="px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
+              >
+                {isMarketing ? "用样例商品体验" : "帮我想一个"}
+              </button>
+            </div>
+          </div>
+        )}
         {messages.map((msg, idx) => {
           // ── Thinking indicator ──
           if (msg.type === "thinking") {
