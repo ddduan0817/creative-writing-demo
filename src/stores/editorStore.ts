@@ -42,6 +42,15 @@ interface EditorState {
   setSettingsFullscreen: (active: boolean, content?: string) => void;
   setSettingsFullscreenContent: (content: string) => void;
 
+  // Workflow mode: character management (shared between LeftPanel & RichTextEditor)
+  workflowCharacters: { name: string; desc: string; role: "主角" | "配角" }[];
+  addWorkflowCharacter: (char: { name: string; desc: string; role: "主角" | "配角" }) => void;
+  removeWorkflowCharacter: (index: number) => void;
+  updateWorkflowCharacter: (index: number, char: { name: string; desc: string; role: "主角" | "配角" }) => void;
+  characterFullscreen: boolean;
+  characterFullscreenScrollTo: number | null;
+  setCharacterFullscreen: (active: boolean, scrollTo?: number | null) => void;
+
   // 小说正文章节（novel agent flow - 正文阶段）
   novelChapters: { title: string; content: string; status: "pending" | "generating" | "done" }[];
   currentNovelChapter: number;
@@ -164,6 +173,13 @@ export const useEditorStore = create<EditorState>((set) => ({
   settingsFullscreenContent: "",
   setSettingsFullscreen: (active, content) => set({ settingsFullscreen: active, settingsFullscreenContent: content || "" }),
   setSettingsFullscreenContent: (content) => set({ settingsFullscreenContent: content }),
+  workflowCharacters: [],
+  addWorkflowCharacter: (char) => set((s) => ({ workflowCharacters: [...s.workflowCharacters, char] })),
+  removeWorkflowCharacter: (index) => set((s) => ({ workflowCharacters: s.workflowCharacters.filter((_, i) => i !== index) })),
+  updateWorkflowCharacter: (index, char) => set((s) => ({ workflowCharacters: s.workflowCharacters.map((c, i) => i === index ? char : c) })),
+  characterFullscreen: false,
+  characterFullscreenScrollTo: null,
+  setCharacterFullscreen: (active, scrollTo) => set({ characterFullscreen: active, characterFullscreenScrollTo: scrollTo ?? null }),
   novelChapters: [],
   currentNovelChapter: 0,
   scrollToChapter: null,
@@ -448,6 +464,8 @@ export const useEditorStore = create<EditorState>((set) => ({
       stageProgress: 0,
       novelChapters: [],
       currentNovelChapter: 0,
+      workflowCharacters: [],
+      characterFullscreen: false,
       title: isScreenplay ? "雨夜追凶" : (sceneNames[sceneType] || "未命名文档"),
       titleManuallyEdited: false,
       leftPanelExpanded: false,
