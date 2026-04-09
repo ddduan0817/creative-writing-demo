@@ -19,6 +19,7 @@ export default function WorkbenchLayout() {
   const isBackup = searchParams.get("v") === "backup1";
   const { leftCollapsed, leftPanelExpanded, toast, scene, workMode, resetToEmpty } =
     useEditorStore();
+  const settingsFullscreen = useEditorStore((s) => s.settingsFullscreen);
 
   const hasInitialized = useRef(false);
 
@@ -95,7 +96,7 @@ export default function WorkbenchLayout() {
         <div
           className={cn(
             "border-r border-gray-100 transition-all duration-300 overflow-hidden flex-shrink-0",
-            leftCollapsed ? "w-0" : leftPanelExpanded ? "w-[768px]" : "w-72"
+            leftCollapsed || settingsFullscreen ? "w-0 border-r-0" : leftPanelExpanded ? "w-[768px]" : "w-72"
           )}
         >
           {renderLeftPanel()}
@@ -124,6 +125,9 @@ export default function WorkbenchLayout() {
 function ToggleButtons() {
   const { leftCollapsed, leftPanelExpanded, toggleLeft } =
     useEditorStore();
+  const settingsFullscreen = useEditorStore((s) => s.settingsFullscreen);
+
+  if (settingsFullscreen) return null;
 
   return (
     <button

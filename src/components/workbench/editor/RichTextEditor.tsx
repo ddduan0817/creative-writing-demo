@@ -422,15 +422,8 @@ export default function RichTextEditor() {
     return (
       <div className="h-full flex flex-col bg-white">
         {/* Header */}
-        <div className="px-6 py-3 border-b border-gray-100 flex items-center justify-between">
+        <div className="px-6 py-3 border-b border-gray-100 flex items-center justify-center">
           <p className="text-sm text-gray-500 font-medium">全屏编辑 · 描述故事背景、故事线、核心冲突等</p>
-          <button
-            onClick={handleExitFullscreen}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-500 hover:text-gray-700 bg-white rounded-lg border border-gray-200 hover:bg-gray-50 transition"
-          >
-            <Minimize2 className="w-3.5 h-3.5" />
-            退出全屏
-          </button>
         </div>
 
         {/* Toolbar */}
@@ -457,6 +450,17 @@ export default function RichTextEditor() {
           <div className="max-w-3xl mx-auto">
             <EditorContent editor={fullscreenEditor} />
           </div>
+        </div>
+
+        {/* Bottom bar */}
+        <div className="px-6 py-3 border-t border-gray-100 flex justify-end">
+          <button
+            onClick={handleExitFullscreen}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-500 hover:text-gray-700 bg-white rounded-lg border border-gray-200 hover:bg-gray-50 transition"
+          >
+            <Minimize2 className="w-3.5 h-3.5" />
+            退出全屏
+          </button>
         </div>
       </div>
     );

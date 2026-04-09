@@ -327,21 +327,21 @@ export default function LeftPanel() {
                   )}
                 />
                 {/* 底部图标：魔法棒 + 全屏 */}
-                <div className="absolute bottom-2 right-2 flex items-center gap-1">
+                <div className="absolute bottom-1.5 right-1.5 flex items-center gap-0.5 bg-white/90 rounded-md">
                   <button
                     onClick={handleGenerate}
                     disabled={isGenerating}
-                    className="p-1.5 text-gray-300 hover:text-indigo-500 hover:bg-indigo-50 rounded-md transition disabled:opacity-50"
+                    className="p-1 text-gray-300 hover:text-indigo-500 hover:bg-indigo-50 rounded transition disabled:opacity-50"
                     title="AI 生成设定"
                   >
-                    {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Wand2 className="w-4 h-4" />}
+                    {isGenerating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Wand2 className="w-3.5 h-3.5" />}
                   </button>
                   <button
                     onClick={() => setSettingsFullscreen(true, synopsis)}
-                    className="p-1.5 text-gray-300 hover:text-gray-500 hover:bg-gray-50 rounded-md transition"
+                    className="p-1 text-gray-300 hover:text-gray-500 hover:bg-gray-50 rounded transition"
                     title="全屏编辑"
                   >
-                    <Maximize2 className="w-3.5 h-3.5" />
+                    <Maximize2 className="w-3 h-3" />
                   </button>
                 </div>
               </div>
