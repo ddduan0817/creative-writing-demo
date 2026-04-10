@@ -37,7 +37,6 @@ import {
   marketingMockOutlineCard,
   marketingMockChapterTexts,
   marketingProductInfoCard,
-  marketingPlatforms,
   marketingContentByType,
 } from "./marketingMockData";
 import {
@@ -1246,7 +1245,7 @@ type Message =
   | { id: string; sender: "model"; type: "length-select"; prompt: string }
   | { id: string; sender: "model"; type: "micro-adjust"; prompt: string; round: number }
   | { id: string; sender: "model"; type: "subtype-select"; prompt: string }
-  | { id: string; sender: "model"; type: "platform-select"; prompt: string }
+  | { id: string; sender: "model"; type: "scene-select"; prompt: string }
   | { id: string; sender: "model"; type: "content-structure"; prompt: string; scenarios: import("./marketingMockData").ContentScenario[] }
   | { id: string; sender: "user"; type: "card-selection"; content: string }
   | { id: string; sender: "user"; type: "text"; content: string };
@@ -1959,17 +1958,11 @@ export default function ChatPanel() {
 
     // If at confirm stage (after settings card shown), user confirmed → next step
     if (currentRound === 4) {
-      // ── Marketing: show content structure based on platform ──
+      // ── Marketing: show scene selection after product info confirmed ──
       if (dataRef.current.isMarketing) {
-        const platform = marketingPlatformRef.current || "抖音";
-        const platformInfo = marketingPlatforms.find((p) => p.label === platform);
-        const contentTypes = platformInfo?.contentTypes || ["short_video"];
-        const scenarios = contentTypes
-          .map((t) => marketingContentByType[t])
-          .filter(Boolean);
-
+        marketingPlatformRef.current = null;
         setAutoTitle(dataRef.current.sceneTitle);
-        const thinkingId = `thinking-mkt-content`;
+        const thinkingId = `thinking-mkt-scene`;
         setTimeout(() => {
           setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
         }, 300);
@@ -1977,17 +1970,15 @@ export default function ChatPanel() {
           setMessages((prev) => [
             ...prev.filter((m) => m.id !== thinkingId),
             {
-              id: "model-content-structure",
+              id: "model-scene-select",
               sender: "model",
-              type: "content-structure",
-              prompt: `商品信息确认！根据「${platform}」平台特点，为你生成了${scenarios.length}套内容结构方案：`,
-              scenarios,
+              type: "scene-select",
+              prompt: "商品信息确认！接下来选择你想创作的内容类型：",
             },
           ]);
-          setCurrentRound(8);
+          setCurrentRound(6); // awaiting scene selection
           setCreationStage(2);
-          setAgentStageData("contentStructure", { platform, scenarios });
-        }, 2500);
+        }, 2000);
         return;
       }
 
@@ -2719,8 +2710,14 @@ export default function ChatPanel() {
             );
           }
 
-          // ── Model: platform select (marketing) ──
-          if (msg.sender === "model" && msg.type === "platform-select") {
+          // ── Model: scene select (marketing) ──
+          if (msg.sender === "model" && msg.type === "scene-select") {
+            const scenes = [
+              { id: "short_video", label: "短视频脚本", desc: "短视频拍摄台本", icon: "🎬" },
+              { id: "live_script", label: "直播文案", desc: "直播话术与节奏设计", icon: "🎙️" },
+              { id: "graphic_note", label: "小红书笔记", desc: "图文种草笔记", icon: "📝" },
+            ];
+            const selectedScene = marketingPlatformRef.current;
             return (
               <div key={msg.id} className="space-y-3">
                 <div className="flex items-center gap-2 mb-1">
@@ -2731,18 +2728,20 @@ export default function ChatPanel() {
                 </div>
                 <p className="text-sm text-gray-700 leading-relaxed pl-8">{msg.prompt}</p>
 
-                {!marketingPlatformRef.current && (
+                {!selectedScene ? (
                   <div className="pl-8 grid grid-cols-3 gap-2">
-                    {marketingPlatforms.map((p) => (
+                    {scenes.map((s) => (
                       <button
-                        key={p.id}
+                        key={s.id}
                         onClick={() => {
-                          marketingPlatformRef.current = p.label;
+                          marketingPlatformRef.current = s.id;
                           setMessages((prev) => [
                             ...prev,
-                            { id: `user-platform-${Date.now()}`, sender: "user", type: "text", content: p.label },
+                            { id: `user-scene-${Date.now()}`, sender: "user", type: "text", content: s.label },
                           ]);
-                          const thinkingId = `thinking-mkt-pinfo`;
+                          const scenario = marketingContentByType[s.id];
+                          if (!scenario) return;
+                          const thinkingId = `thinking-mkt-content`;
                           setTimeout(() => {
                             setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
                           }, 300);
@@ -2750,31 +2749,30 @@ export default function ChatPanel() {
                             setMessages((prev) => [
                               ...prev.filter((m) => m.id !== thinkingId),
                               {
-                                id: "model-settings",
+                                id: "model-content-structure",
                                 sender: "model",
-                                type: "settings-card",
-                                prompt: `好的，投放平台选择「${p.label}」。\n\n以下是整理好的商品信息，确认无误后我会根据${p.label}平台特点为你生成内容结构。`,
-                                settings: marketingProductInfoCard,
+                                type: "content-structure",
+                                prompt: `好的，为你生成「${s.label}」的内容结构方案：`,
+                                scenarios: [scenario],
                               },
                             ]);
-                            setCurrentRound(4);
-                            setCreationStage(1);
-                            setAgentStageData("settings", marketingProductInfoCard);
+                            setCurrentRound(8);
+                            setCreationStage(2);
+                            setAgentStageData("contentStructure", { platform: s.id, scenarios: [scenario] });
                           }, 2000);
                         }}
                         className="p-3 rounded-xl border-2 border-gray-100 bg-white hover:border-indigo-200 hover:shadow-sm cursor-pointer transition-all text-center"
                       >
-                        <p className="text-sm font-medium text-gray-800">{p.label}</p>
-                        <p className="text-[10px] text-gray-400 mt-0.5">{p.desc}</p>
+                        <p className="text-lg mb-1">{s.icon}</p>
+                        <p className="text-sm font-medium text-gray-800">{s.label}</p>
+                        <p className="text-[10px] text-gray-400 mt-0.5">{s.desc}</p>
                       </button>
                     ))}
                   </div>
-                )}
-
-                {marketingPlatformRef.current && (
+                ) : (
                   <div className="pl-8">
                     <div className="inline-block px-4 py-2 rounded-xl border-2 border-indigo-400 bg-indigo-50/80 text-sm font-medium text-indigo-700">
-                      {marketingPlatformRef.current}
+                      {scenes.find((s) => s.id === selectedScene)?.label || selectedScene}
                     </div>
                   </div>
                 )}
@@ -2903,7 +2901,7 @@ export default function ChatPanel() {
                                 id: "model-settings",
                                 sender: "model",
                                 type: "settings-card",
-                                prompt: `我帮你生成了一个样例商品——隐形蓝牙耳机 Pro，默认投放平台为抖音。\n\n确认商品信息后，我会根据抖音平台特点为你生成内容结构。`,
+                                prompt: `我帮你生成了一个样例商品——隐形蓝牙耳机 Pro。\n\n确认商品信息后，你可以选择创作场景（短视频脚本/直播文案/小红书笔记）。`,
                                 settings: marketingProductInfoCard,
                               },
                             ]);
@@ -3087,8 +3085,8 @@ export default function ChatPanel() {
                     <div className="mt-2.5 space-y-2">
                       <div className="flex items-center gap-2">
                         <button
-                          onClick={() => quickConfirm(isMarketing ? "确认商品信息，生成内容结构" : "确认设定，进入下一步")}
-                          data-tip={isMarketing ? "确认进入内容生成" : "确认进入篇幅选择"}
+                          onClick={() => quickConfirm(isMarketing ? "确认商品信息，选择创作场景" : "确认设定，进入下一步")}
+                          data-tip={isMarketing ? "确认进入场景选择" : "确认进入篇幅选择"}
                           className="flex-1 px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
                         >
                           下一步
