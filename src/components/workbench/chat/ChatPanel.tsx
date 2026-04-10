@@ -200,7 +200,6 @@ const mockSettings: Record<string, { label: string; value: string }[]> = {
     { label: "叙事视角", value: "第三人称" },
     { label: "叙事结构", value: "线性叙事（穿插记忆闪回）" },
     { label: "文风", value: "文艺抒情" },
-    { label: "篇幅", value: "中长篇（8-15万字）" },
   ],
 };
 
@@ -224,7 +223,6 @@ const mockSettingsAlt: Record<string, { label: string; value: string }[]> = {
     { label: "叙事视角", value: "第一人称" },
     { label: "叙事结构", value: "双线叙事（现实+味觉记忆闪回）" },
     { label: "文风", value: "细腻感性" },
-    { label: "篇幅", value: "中篇（8-12万字）" },
   ],
 };
 
@@ -1755,7 +1753,25 @@ export default function ChatPanel() {
             id: `model-adj-${round}`,
             sender: "model",
             type: "micro-adjust",
-            prompt: roundData.adjustPrompt,
+            prompt: (() => {
+              const base = roundData.adjustPrompt;
+              // Replace trailing skip hint with round-aware version
+              const stageRound = round <= 3 ? round : round <= 7 ? round - 4 : round - 8;
+              const totalRounds = 3;
+              const stageLabel = round <= 3 ? "完善设定" : round <= 7 ? "完善世界观" : "完善角色";
+              const skipHint = stageRound < totalRounds - 1
+                ? `或者直接跳过进入第${stageRound + 1}轮${stageLabel}`
+                : stageRound < totalRounds
+                ? `或者直接跳过进入最后一轮${stageLabel}`
+                : undefined;
+              if (skipHint) {
+                return base.replace(/[，,]?\s*或者直接跳过[～~]?$/, `，${skipHint}`)
+                           .replace(/[，,]?\s*或者跳过继续[～~]?$/, `，${skipHint}`)
+                           .replace(/[，,]?\s*没有就跳过[～~]?$/, `，${skipHint}`)
+                           .replace(/[，,]?\s*没有的话我来更新.*$/, `，${skipHint}`);
+              }
+              return base;
+            })(),
             round,
           },
         ]);
@@ -1992,7 +2008,7 @@ export default function ChatPanel() {
               id: "model-length",
               sender: "model",
               type: "length-select",
-              prompt: `设定确认！故事暂定为《${dataRef.current.sceneTitle}》（可随时在顶部修改）。\n\n接下来选一下篇幅：`,
+              prompt: `设定确认！故事暂定为《${dataRef.current.sceneTitle}》（可随时在左侧编辑区顶部修改小说标题）。\n\n接下来选一下篇幅：`,
             },
           ]);
           setCurrentRound(5); // awaiting length selection
@@ -2396,11 +2412,11 @@ export default function ChatPanel() {
               <span className="text-white text-lg font-bold">言</span>
             </div>
             <p className="text-base font-medium text-gray-700 mb-1">
-              {isMarketing ? "嗨！我是你的带货创作助手" : isKnowledge ? "嗨！我是你的作品分析助手" : "嗨！我是你的创意写作助手"}
+              {isMarketing ? "嗨！我是你的营销创作助手" : isKnowledge ? "嗨！我是你的作品分析助手" : "嗨！我是你的创意写作助手"}
             </p>
             <p className="text-xs text-gray-400 max-w-[240px] leading-relaxed">
               {isMarketing
-                ? "我可以帮你策划带货脚本、优化卖点文案，随时向我提问吧！"
+                ? "我可以帮你策划短视频脚本、创作直播台本，优化卖点文案，随时向我提问吧！"
                 : isKnowledge
                 ? "我可以帮你拆解作品设定、分析角色体系，随时向我提问吧！"
                 : "我可以帮你构思情节、打磨文笔、解答创作疑问，随时向我提问吧！"}
@@ -2469,8 +2485,7 @@ export default function ChatPanel() {
                         </button>
 
                         {/* Keywords */}
-                        {!isOther && (
-                          <div className="flex flex-wrap gap-1.5 mt-1.5 ml-8">
+                        <div className="flex flex-wrap gap-1.5 mt-1.5 ml-8">
                             {card.keywords.map((kw) => {
                               const isFav = favKeywords.has(kw);
                               return (
@@ -2492,33 +2507,46 @@ export default function ChatPanel() {
                               );
                             })}
                           </div>
-                        )}
                       </div>
                     );
                   })}
 
-                  {/* Refresh & Skip buttons */}
-                  {isActive && (
-                    <div className="mt-2.5 space-y-2">
-                      <div className="flex items-center gap-2.5">
-                        <button
-                          onClick={handleSkipToGenerate}
-                          data-tip={msg.round <= 3 ? "跳过剩余轮次，直接生成创作设定" : msg.round <= 7 ? "跳过剩余轮次，直接更新设定" : "跳过剩余轮次，直接生成角色档案"}
-                          className="flex-1 px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
-                        >
-                          跳过，直接生成
-                        </button>
-                        <button
-                          onClick={() => handleRefresh()}
-                          data-tip="重新生成本轮选项"
-                          className="px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
-                        >
-                          <RefreshCw className="w-3.5 h-3.5 inline mr-1" />
-                          换一换
-                        </button>
+                  {/* Refresh & Skip buttons + round progress */}
+                  {isActive && (() => {
+                    const stageRound = msg.round <= 3 ? msg.round : msg.round <= 7 ? msg.round - 4 : msg.round - 8;
+                    const totalRounds = 3;
+                    return (
+                      <div className="mt-2.5 space-y-2">
+                        <div className="flex items-center gap-2.5">
+                          <button
+                            onClick={handleSkipToGenerate}
+                            data-tip={msg.round <= 3 ? "跳过剩余轮次，直接生成创作设定" : msg.round <= 7 ? "跳过剩余轮次，直接更新设定" : "跳过剩余轮次，直接生成角色档案"}
+                            className="flex-1 px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
+                          >
+                            跳过，直接生成
+                          </button>
+                          <button
+                            onClick={() => handleRefresh()}
+                            data-tip="重新生成本轮选项"
+                            className="px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
+                          >
+                            <RefreshCw className="w-3.5 h-3.5 inline mr-1" />
+                            换一换
+                          </button>
+                        </div>
+                        {/* Round progress */}
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1 h-1 bg-gray-100 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-indigo-400 rounded-full transition-all duration-300"
+                              style={{ width: `${(stageRound / totalRounds) * 100}%` }}
+                            />
+                          </div>
+                          <span className="text-[11px] text-gray-400 shrink-0">{stageRound}/{totalRounds}轮</span>
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    );
+                  })()}
                 </div>
               </div>
             );
@@ -2536,17 +2564,24 @@ export default function ChatPanel() {
                   <span className="text-xs text-gray-400">文心</span>
                 </div>
                 <p className="text-sm text-gray-700 leading-relaxed pl-8">{msg.prompt}</p>
-                {isActive && (
-                  <div className="pl-8 space-y-2">
-                    <button
-                      onClick={handleSkipAdjust}
-                      data-tip="跳过微调，进入下一轮选择"
-                      className="px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
-                    >
-                      跳过
-                    </button>
-                  </div>
-                )}
+                {isActive && (() => {
+                    const stageRound = msg.round <= 3 ? msg.round : msg.round <= 7 ? msg.round - 4 : msg.round - 8;
+                    const totalRounds = 3;
+                    const isLastRound = stageRound >= totalRounds;
+                    const buttonLabel = "继续";
+                    const tipText = isLastRound ? "无需微调，继续生成" : `跳过微调，进入第${stageRound + 1}轮选择`;
+                    return (
+                      <div className="pl-8 space-y-2">
+                        <button
+                          onClick={handleSkipAdjust}
+                          data-tip={tipText}
+                          className="px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
+                        >
+                          {buttonLabel}
+                        </button>
+                      </div>
+                    );
+                  })()}
               </div>
             );
           }
@@ -3074,7 +3109,7 @@ export default function ChatPanel() {
                     {/* Gradient fade overlay */}
                     <div className="absolute bottom-8 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
                     <div className="relative px-4 py-2.5 text-center border-t border-gray-50">
-                      <span className="text-[11px] text-gray-400">点击在编辑区查看完整设定</span>
+                      <span className="text-[11px] text-gray-400">点击左侧预览区查看完整创作设定</span>
                     </div>
                   </div>
                   {/* Action buttons */}
@@ -3199,7 +3234,7 @@ export default function ChatPanel() {
                     {/* Gradient fade */}
                     <div className="absolute bottom-8 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
                     <div className="relative px-4 py-2.5 text-center border-t border-gray-50">
-                      <span className="text-[11px] text-gray-400">点击在编辑区查看完整世界观</span>
+                      <span className="text-[11px] text-gray-400">点击左侧预览区查看完整世界观</span>
                     </div>
                   </div>
                   {/* Action buttons */}
@@ -3311,7 +3346,7 @@ export default function ChatPanel() {
                     </div>
                     <div className="absolute bottom-8 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
                     <div className="relative px-4 py-2.5 text-center border-t border-gray-50">
-                      <span className="text-[11px] text-gray-400">点击在编辑区查看完整角色档案</span>
+                      <span className="text-[11px] text-gray-400">点击左侧预览区查看完整角色档案</span>
                     </div>
                   </div>
                   {/* Action buttons */}
@@ -3414,7 +3449,7 @@ export default function ChatPanel() {
                     </div>
                     <div className="absolute bottom-8 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
                     <div className="relative px-4 py-2.5 text-center border-t border-gray-50">
-                      <span className="text-[11px] text-gray-400">点击在编辑区查看完整大纲</span>
+                      <span className="text-[11px] text-gray-400">点击左侧预览区查看完整大纲</span>
                     </div>
                   </div>
                   {/* Action buttons */}
@@ -3463,7 +3498,7 @@ export default function ChatPanel() {
                 ? "想调整什么？比如「第三章加个反转」「结局改成开放式」..."
                 : flowMode === "none"
                 ? scene === "marketing"
-                  ? "商品名称、卖点、价格、目标平台..."
+                  ? "告诉我你要推广的商品，比如名称、卖点、目标人群，我来帮你策划内容"
                   : scene === "knowledge"
                   ? "输入书名或上传文件，比如「帮我拆解《诡秘之主》」..."
                   : "描述你的故事，比如「重生复仇的女频故事」「末日科幻」..."
@@ -3481,7 +3516,7 @@ export default function ChatPanel() {
                   className="flex items-center gap-1 h-8 px-2.5 rounded-full border border-gray-200 text-gray-400 hover:bg-gray-50 hover:text-gray-600 transition text-xs"
                 >
                   <Plus className="w-3.5 h-3.5" />
-                  <span>文件</span>
+                  <span>文档</span>
                 </button>
               ) : (
                 <>

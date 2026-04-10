@@ -382,9 +382,10 @@ function HistoryPanel({
 
 // ─── 查看资料弹窗 ───────────────────────────────────────────────
 const materialTabs = [
-  { key: "settings", label: "设定", stage: 1 },
-  { key: "worldbuilding", label: "世界观", stage: 2 },
-  { key: "characters", label: "角色", stage: 3 },
+  { key: "settings", label: "创作设定", stage: 1 },
+  { key: "elements", label: "写作要素", stage: 1 },
+  { key: "writing", label: "写作方式", stage: 1 },
+  { key: "characters", label: "角色设定", stage: 3 },
   { key: "outline", label: "大纲", stage: 4 },
 ] as const;
 
@@ -477,6 +478,35 @@ function MaterialContent({ tab, creationStage }: { tab: string; creationStage: n
             ))}
           </div>
         </div>
+      </div>
+    );
+  }
+
+  if (tab === "writing") {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h3 className="text-sm font-semibold text-gray-700 mb-3 pb-2 border-b border-gray-100">写作方式</h3>
+          <div className="space-y-2.5">
+            {[
+              { label: "叙事视角", value: "第三人称" },
+              { label: "叙事结构", value: "线性叙事（穿插记忆闪回）" },
+              { label: "文风", value: "文艺抒情" },
+            ].map((item) => (
+              <div key={item.label} className="flex items-start gap-4">
+                <span className="text-sm text-gray-400 w-16 shrink-0">{item.label}</span>
+                <span className="text-sm text-gray-700">{item.value}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (tab === "elements") {
+    return (
+      <div className="space-y-6">
         <div>
           <h3 className="text-sm font-semibold text-gray-700 mb-3 pb-2 border-b border-gray-100">写作要素</h3>
           <div className="space-y-2.5">
@@ -495,43 +525,6 @@ function MaterialContent({ tab, creationStage }: { tab: string; creationStage: n
                     <span key={tag} className="px-2.5 py-1 bg-indigo-50 text-indigo-600 text-sm rounded-full">{tag}</span>
                   ))}
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (tab === "worldbuilding") {
-    return (
-      <div className="space-y-6">
-        <div>
-          <h3 className="text-sm font-semibold text-gray-700 mb-3 pb-2 border-b border-gray-100">故事世界</h3>
-          <div className="space-y-3">
-            <div>
-              <span className="text-xs font-medium text-gray-400 block mb-1">世界概述</span>
-              <p className="text-sm text-gray-700 leading-relaxed">当代中国南方小镇「清岚镇」——一个依山傍水的千年古镇，青石板路、白墙黑瓦，手机信号时有时无。年轻人大多外出谋生，留下的都是老人和几个「不愿离开的怪人」。</p>
-            </div>
-            <div>
-              <span className="text-xs font-medium text-gray-400 block mb-1">时间线</span>
-              <p className="text-sm text-gray-700 leading-relaxed">故事跨越一年四季，从盛夏到次年初夏。四季变化推动情感发展：夏天相遇→秋天暧昧→冬天误会→春天和解→初夏告白。</p>
-            </div>
-          </div>
-        </div>
-        <div>
-          <h3 className="text-sm font-semibold text-gray-700 mb-3 pb-2 border-b border-gray-100">核心场景</h3>
-          <div className="space-y-2.5">
-            {[
-              { name: "清岚镇·主街", desc: "唯一的主街，两侧是各种老字号店铺。早上有赶早市的吆喝声，傍晚有归家的炊烟。" },
-              { name: "一碗春面馆", desc: "女主盘下的老面馆，前店后院。院子里有棵百年老桂花树，秋天整条街都能闻到香气。" },
-              { name: "济世堂中医馆", desc: "男主经营的祖传中医馆，就在面馆隔壁。一墙之隔，药香和面香混在一起。" },
-              { name: "古戏台", desc: "镇中心的百年老戏台，逢年过节唱戏。后来成了两人关系转折的重要场所。" },
-              { name: "后山竹林", desc: "镇子背后的大片竹林，是男主独处的地方，也是两人第一次敞开心扉的场所。" },
-            ].map((s) => (
-              <div key={s.name} className="bg-gray-50/60 rounded-lg p-3">
-                <span className="text-sm font-medium text-emerald-600 block mb-1">{s.name}</span>
-                <p className="text-sm text-gray-600 leading-relaxed">{s.desc}</p>
               </div>
             ))}
           </div>

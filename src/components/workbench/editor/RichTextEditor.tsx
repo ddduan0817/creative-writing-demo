@@ -530,7 +530,6 @@ export default function RichTextEditor() {
           { label: "叙事视角", value: "第三人称" },
           { label: "叙事结构", value: "线性叙事（穿插记忆闪回）" },
           { label: "文风", value: "文艺抒情" },
-          { label: "篇幅", value: "中长篇（8-15万字）" },
         ],
       },
     ];

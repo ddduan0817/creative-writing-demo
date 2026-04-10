@@ -258,7 +258,7 @@ export default function LeftPanel() {
             {/* 标题 */}
             <div className="flex items-center gap-2">
               <FileText className="w-4 h-4 text-gray-500" />
-              <span className="text-sm font-medium text-gray-700">设定</span>
+              <span className="text-sm font-medium text-gray-700">创作设定</span>
             </div>
 
             {/* 上传参考材料 */}
@@ -461,7 +461,7 @@ export default function LeftPanel() {
                 className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-dashed border-gray-200 text-sm text-gray-500 hover:border-indigo-300 hover:text-indigo-600 hover:bg-indigo-50/30 transition"
               >
                 <Plus className="w-3.5 h-3.5" />
-                <span>角色</span>
+                <span>角色设定</span>
               </button>
 
               {/* 已添加角色卡片 */}

@@ -4,16 +4,16 @@ import { useEditorStore } from "@/stores/editorStore";
 
 const stagesByScene: Record<string, { id: number; label: string }[]> = {
   novel: [
-    { id: 0, label: "设定" },
+    { id: 0, label: "创作设定" },
     { id: 1, label: "世界观" },
-    { id: 2, label: "角色" },
+    { id: 2, label: "角色设定" },
     { id: 3, label: "大纲" },
     { id: 4, label: "正文" },
   ],
   screenplay: [
-    { id: 0, label: "设定" },
+    { id: 0, label: "创作设定" },
     { id: 1, label: "世界观" },
-    { id: 2, label: "角色" },
+    { id: 2, label: "角色设定" },
     { id: 3, label: "大纲" },
     { id: 4, label: "正文" },
   ],
