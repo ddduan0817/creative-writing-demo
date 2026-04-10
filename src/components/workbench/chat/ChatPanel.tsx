@@ -2034,6 +2034,24 @@ export default function ChatPanel() {
 
     // If at worldbuilding confirm stage, user confirmed → auto-generate characters
     if (currentRound === 8) {
+      // ── Marketing: guide user to provide role/character info ──
+      if (dataRef.current.isMarketing) {
+        const thinkingId = `thinking-mkt-role-guide`;
+        setTimeout(() => {
+          setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+        }, 300);
+        setTimeout(() => {
+          const guidePrompt = `内容结构确认！接下来我需要了解一下出镜角色的信息：\n\n· **出镜者** — 谁来出镜？（真人/虚拟人/无人出镜）\n· **角色定位** — 什么身份？（达人/素人/品牌方/专家）\n· **表演风格** — 什么风格？（自然分享/专业测评/搞笑夸张/走心种草）\n· **形象描述** — 外形、穿着、气质等\n\n想到什么说什么就行，或者直接说「帮我生成」，我根据内容类型自动匹配角色。`;
+          setMessages((prev) => [
+            ...prev.filter((m) => m.id !== thinkingId),
+            { id: "model-role-guide", sender: "model", type: "guide", prompt: guidePrompt },
+          ]);
+          setCurrentRound(10); // awaiting role info
+        }, 2000);
+        return;
+      }
+
+      // ── Non-marketing: auto-generate character card ──
       const thinkingId = `thinking-auto-char`;
       setTimeout(() => {
         setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
@@ -2051,6 +2069,30 @@ export default function ChatPanel() {
               : dataRef.current.isKnowledge
               ? "设定体系确认！以下是核心角色分析，看看感觉怎么样？"
               : "以下是角色档案，看看感觉怎么样？",
+            data: dataRef.current.sceneCharacterCard,
+          },
+        ]);
+        setCurrentRound(12);
+        setCreationStage(3);
+        setAgentStageData("characters", dataRef.current.sceneCharacterCard);
+      }, 2500);
+      return;
+    }
+
+    // Marketing: user provided role info (round 10) → generate character card
+    if (currentRound === 10 && dataRef.current.isMarketing) {
+      const thinkingId = `thinking-mkt-char`;
+      setTimeout(() => {
+        setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+      }, 300);
+      setTimeout(() => {
+        setMessages((prev) => [
+          ...prev.filter((m) => m.id !== thinkingId),
+          {
+            id: "model-characters",
+            sender: "model",
+            type: "character-card",
+            prompt: "根据你提供的信息，我整理了以下出镜角色设定。确认无误后进入下一步，你也可以告诉我需要调整的地方。",
             data: dataRef.current.sceneCharacterCard,
           },
         ]);
@@ -2997,6 +3039,38 @@ export default function ChatPanel() {
                       className="px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
                     >
                       {isMarketing ? "直接生成商品信息" : "直接生成设定"}
+                    </button>
+                  </div>
+                )}
+                {currentRound === 10 && isMarketing && (
+                  <div className="pl-8 mt-1">
+                    <button
+                      onClick={() => {
+                        setMessages((prev) => [...prev, { id: `user-gen-role-${Date.now()}`, sender: "user", type: "text", content: "帮我生成" }]);
+                        const thinkingId = `thinking-mkt-char-auto`;
+                        setTimeout(() => {
+                          setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+                        }, 300);
+                        setTimeout(() => {
+                          setMessages((prev) => [
+                            ...prev.filter((m) => m.id !== thinkingId),
+                            {
+                              id: "model-characters",
+                              sender: "model",
+                              type: "character-card",
+                              prompt: "根据内容类型，我为你自动匹配了出镜角色设定。确认无误后进入下一步，你也可以告诉我需要调整的地方。",
+                              data: dataRef.current.sceneCharacterCard,
+                            },
+                          ]);
+                          setCurrentRound(12);
+                          setCreationStage(3);
+                          setAgentStageData("characters", dataRef.current.sceneCharacterCard);
+                        }, 2500);
+                      }}
+                      data-tip="根据内容类型自动匹配角色"
+                      className="px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
+                    >
+                      直接生成角色
                     </button>
                   </div>
                 )}
