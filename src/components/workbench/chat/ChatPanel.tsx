@@ -2960,7 +2960,7 @@ export default function ChatPanel() {
                                 id: "model-settings",
                                 sender: "model",
                                 type: "settings-card",
-                                prompt: `我帮你生成了一个样例商品——隐形蓝牙耳机 Pro。\n\n确认商品信息后，你可以选择创作场景（短视频脚本/直播文案/小红书笔记）。`,
+                                prompt: `我帮你生成了一个样例商品——隐形蓝牙耳机 Pro。\n\n确认商品信息后，你可以选择内容类型（短视频脚本/直播文案/小红书笔记）。`,
                                 settings: marketingProductInfoCard,
                               },
                             ]);
@@ -3176,7 +3176,7 @@ export default function ChatPanel() {
                     <div className="mt-2.5 space-y-2">
                       <div className="flex items-center gap-2">
                         <button
-                          onClick={() => quickConfirm(isMarketing ? "确认商品信息，选择创作场景" : "确认设定，进入下一步")}
+                          onClick={() => quickConfirm(isMarketing ? "确认商品信息，选择内容类型" : "确认设定，进入下一步")}
                           data-tip={isMarketing ? "确认进入场景选择" : "确认进入篇幅选择"}
                           className="flex-1 px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
                         >
