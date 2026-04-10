@@ -2860,6 +2860,18 @@ export default function ChatPanel() {
                         <span className="text-[10px] text-gray-400">{scenario.duration}</span>
                       </div>
 
+                      {/* Overview & Timeline */}
+                      <div className="px-4 py-2 space-y-2">
+                        <div>
+                          <span className="text-[11px] text-gray-400">视频概述</span>
+                          <p className="text-xs text-gray-600 leading-relaxed mt-0.5">{scenario.overview}</p>
+                        </div>
+                        <div>
+                          <span className="text-[11px] text-gray-400">时间线</span>
+                          <p className="text-xs text-gray-500 mt-0.5">{scenario.timeline}</p>
+                        </div>
+                      </div>
+
                       {/* Structure */}
                       <div className="px-4 py-2">
                         <p className="text-xs text-gray-500 mb-2">
@@ -2868,7 +2880,7 @@ export default function ChatPanel() {
                       </div>
 
                       {/* Sections */}
-                      <div className="px-4 pb-3">
+                      <div className="px-4 pb-2">
                         <div className="space-y-1.5">
                           {scenario.sections.map((sec, si2) => (
                             <div key={si2} className="flex items-start gap-2 text-xs">
@@ -2881,6 +2893,11 @@ export default function ChatPanel() {
                             </div>
                           ))}
                         </div>
+                      </div>
+
+                      {/* Footer */}
+                      <div className="px-4 py-2 border-t border-gray-50 text-center">
+                        <span className="text-[11px] text-gray-400">点击左侧预览区查看完整内容结构</span>
                       </div>
                     </div>
                   ))}
@@ -3540,7 +3557,7 @@ export default function ChatPanel() {
                 ? "想调整什么？比如「第三章加个反转」「结局改成开放式」..."
                 : flowMode === "none"
                 ? scene === "marketing"
-                  ? "告诉我你要推广的商品，包括商品名称、价格、品类、商品简介、目标用户、核心卖点"
+                  ? "告诉我你要推广的商品，包括商品名称、价格、品类、商品简介、目标用户、核心卖点、平台"
                   : scene === "knowledge"
                   ? "输入书名或上传文件，比如「帮我拆解《诡秘之主》」..."
                   : "描述你的故事，比如「重生复仇的女频故事」「末日科幻」..."

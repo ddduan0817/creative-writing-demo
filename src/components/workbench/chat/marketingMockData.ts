@@ -471,6 +471,8 @@ export interface ContentScenario {
   typeLabel: string;
   title: string;
   duration: string;
+  overview: string;
+  timeline: string;
   structure: string;
   sections: { title: string; desc: string; duration?: string }[];
 }
@@ -481,6 +483,8 @@ export const marketingContentByType: Record<string, ContentScenario> = {
     typeLabel: "短视频脚本",
     title: "「隐形到底有多隐形」挑战测评",
     duration: "45秒",
+    overview: "40秒UGC风格TikTok带货视频。真人出镜对比开场，功能逐个击破，价格锚定+多色展示收口。目标：3秒抓住注意力，30秒建立信任，最后10秒促成转化。",
+    timeline: "0-5s 对比钩子 → 5-14s 痛点+隐形演示 → 14-18s 防水测试 → 18-27s 降噪+舒适度 → 27-32s 多色展示 → 32-40s 价格揭晓+CTA",
     structure: "钩子→痛点→卖点演示×3→价格揭晓→CTA",
     sections: [
       { title: "开篇钩子", desc: "街头随机测试：「猜猜我现在戴着耳机吗？」路人猜错→揭晓，制造悬念和互动感", duration: "0-5s" },
@@ -495,6 +499,8 @@ export const marketingContentByType: Record<string, ContentScenario> = {
     typeLabel: "直播话术",
     title: "「爆款返场」隐形耳机专场话术",
     duration: "5分钟一轮",
+    overview: "5分钟一轮的直播带货话术，真人出镜互动式讲解。以留人话术开场，逐步建立信任，逐一演示六大卖点，最后以限时限量促单收尾。目标：留住观众→建立信任→促成下单。",
+    timeline: "0-30s 留人开场 → 30s-1min 建立信任 → 1-3min 产品讲解演示 → 3-4min 促单话术 → 4-5min 逼单收尾",
     structure: "留人→建信→说品→促单→逼单",
     sections: [
       { title: "留人话术", desc: "「刚进来的家人们先别走！这款耳机上次3000单10分钟抢光了，今天返场价比上次还低，先点个关注不迷路」" },
@@ -509,6 +515,8 @@ export const marketingContentByType: Record<string, ContentScenario> = {
     typeLabel: "图文笔记",
     title: "「找了两年终于找到」真实安利帖",
     duration: "6张图+正文",
+    overview: "小红书图文种草笔记，以真实用户分享口吻撰写。封面+产品展示+场景体验+对比测评+正文+购买引导，6图配长文，打造「素人真实安利」的可信感。目标：吸引点击→建立共鸣→引导购买。",
+    timeline: "封面标题（吸引点击）→ 产品展示（视觉种草）→ 场景体验×3（代入感）→ 对比测评（理性决策）→ 正文（情感共鸣）→ 购买引导（转化收口）",
     structure: "封面标题→产品展示→场景体验→对比测评→价格信息→购买引导",
     sections: [
       { title: "封面图+标题", desc: "封面：耳朵侧脸特写（看不到耳机）\n标题：「找了两年的隐形耳机终于被我找到了！戴上真的看不见」\n标签：#隐形耳机 #蓝牙耳机推荐 #数码好物" },
