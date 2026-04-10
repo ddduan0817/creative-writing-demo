@@ -2209,16 +2209,10 @@ export default function ChatPanel() {
     if (flowMode === "none" || flowMode === "freeform") {
       setFlowMode("freeform");
 
-      // ── Marketing: new flow — detect platform, then product info card ──
+      // ── Marketing: guide user to fill product info fields ──
       if (dataRef.current.isMarketing) {
-        const platformKeywords = marketingPlatforms.map((p) => p.label);
-        const detectedPlatform = platformKeywords.find((kw) => text.includes(kw));
-
-        // If user is replying to a platform-select question
-        if (currentRound === -1) {
-          // currentRound -1 = awaiting platform selection from text input
-          const platform = detectedPlatform || "抖音";
-          marketingPlatformRef.current = platform;
+        // If already in guidance round (-2), user provides more info → generate product info card
+        if (currentRound === -2) {
           const thinkingId = `thinking-mkt-product`;
           setTimeout(() => {
             setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
@@ -2230,7 +2224,7 @@ export default function ChatPanel() {
                 id: "model-settings",
                 sender: "model",
                 type: "settings-card",
-                prompt: `好的，投放平台选择「${platform}」。\n\n以下是整理好的商品信息，确认无误后我会根据${platform}平台特点为你生成内容结构。`,
+                prompt: `根据你提供的信息，我整理了以下商品信息卡片。确认无误后进入下一步，你也可以告诉我需要调整的地方。`,
                 settings: marketingProductInfoCard,
               },
             ]);
@@ -2241,49 +2235,20 @@ export default function ChatPanel() {
           return;
         }
 
-        // First input: check if platform is mentioned
-        if (!detectedPlatform) {
-          // No platform detected → ask for platform
-          const thinkingId = `thinking-mkt-platform`;
-          setTimeout(() => {
-            setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
-          }, 300);
-          setTimeout(() => {
-            setMessages((prev) => [
-              ...prev.filter((m) => m.id !== thinkingId),
-              {
-                id: "model-platform-ask",
-                sender: "model",
-                type: "platform-select",
-                prompt: "收到商品信息！在生成内容之前，请先确认你想投放的内容平台：",
-              },
-            ]);
-            setCurrentRound(-1); // Mark: awaiting platform
-          }, 1500);
-          return;
-        }
-
-        // Platform detected in first input → directly show product info card
-        marketingPlatformRef.current = detectedPlatform;
-        const thinkingId = `thinking-mkt-product2`;
+        // First input: analyze and guide user to fill missing fields
+        const thinkingId = `thinking-mkt-guide`;
         setTimeout(() => {
           setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
         }, 300);
+
         setTimeout(() => {
+          const guidePrompt = `收到！我来帮你策划营销内容。\n\n为了生成更精准的方案，请补充以下商品信息：\n· **商品名称** — 产品的完整名称\n· **价格** — 售价及优惠信息\n· **品类** — 所属类目，如美妆、数码、食品等\n· **商品简介** — 核心功能和特点\n· **目标用户** — 面向什么人群？\n· **核心卖点** — 最打动用户的1-3个卖点\n\n已有的信息不用重复说，补充缺少的就行。或者直接说「帮我生成」，我根据已有信息先出一版。`;
           setMessages((prev) => [
             ...prev.filter((m) => m.id !== thinkingId),
-            {
-              id: "model-settings",
-              sender: "model",
-              type: "settings-card",
-              prompt: `收到！投放平台为「${detectedPlatform}」。\n\n以下是整理好的商品信息，确认无误后我会根据${detectedPlatform}平台特点为你生成内容结构。`,
-              settings: marketingProductInfoCard,
-            },
+            { id: "model-guide", sender: "model", type: "guide", prompt: guidePrompt },
           ]);
-          setCurrentRound(4);
-          setCreationStage(1);
-          setAgentStageData("settings", marketingProductInfoCard);
-        }, 2500);
+          setCurrentRound(-2);
+        }, 2000);
         return;
       }
 
@@ -3008,27 +2973,32 @@ export default function ChatPanel() {
                           setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
                         }, 300);
                         setTimeout(() => {
+                          const isMkt = dataRef.current.isMarketing;
+                          const settingsData = isMkt ? marketingProductInfoCard : dataRef.current.sceneSettingsCard;
+                          const settingsPrompt = isMkt
+                            ? `根据你提供的信息，我整理了以下商品信息卡片。确认无误后进入下一步，你也可以告诉我需要调整的地方。`
+                            : dataRef.current.isKnowledge
+                            ? `根据你的描述，我帮你生成了一版分析配置——${getSettingsSummary()}\n\n看看感觉怎么样？确认后我会开始深入分析设定体系，你也可以告诉我想调整的地方。`
+                            : `根据你的描述，我帮你生成了一版创作设定——${getSettingsSummary()}\n\n看看感觉怎么样？确认后我会为你选择篇幅并创建角色，你也可以告诉我想调整的地方。`;
                           setMessages((prev) => [
                             ...prev.filter((m) => m.id !== thinkingId),
                             {
                               id: "model-settings",
                               sender: "model",
                               type: "settings-card",
-                              prompt: dataRef.current.isKnowledge
-                                ? `根据你的描述，我帮你生成了一版分析配置——${getSettingsSummary()}\n\n看看感觉怎么样？确认后我会开始深入分析设定体系，你也可以告诉我想调整的地方。`
-                                : `根据你的描述，我帮你生成了一版创作设定——${getSettingsSummary()}\n\n看看感觉怎么样？确认后我会为你选择篇幅并创建角色，你也可以告诉我想调整的地方。`,
-                              settings: dataRef.current.sceneSettingsCard,
+                              prompt: settingsPrompt,
+                              settings: settingsData,
                             },
                           ]);
                           setCurrentRound(4);
                           setCreationStage(1);
-                          setAgentStageData("settings", dataRef.current.sceneSettingsCard);
+                          setAgentStageData("settings", settingsData);
                         }, 2500);
                       }}
-                      data-tip="根据已有信息直接生成设定"
+                      data-tip={isMarketing ? "根据已有信息直接生成商品信息卡片" : "根据已有信息直接生成设定"}
                       className="px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
                     >
-                      直接生成设定
+                      {isMarketing ? "直接生成商品信息" : "直接生成设定"}
                     </button>
                   </div>
                 )}
@@ -3498,7 +3468,7 @@ export default function ChatPanel() {
                 ? "想调整什么？比如「第三章加个反转」「结局改成开放式」..."
                 : flowMode === "none"
                 ? scene === "marketing"
-                  ? "告诉我你要推广的商品，包括商品名称、价格、品类、商品简介、目标用户、核心卖点、平台"
+                  ? "告诉我你要推广的商品，包括商品名称、价格、品类、商品简介、目标用户、核心卖点"
                   : scene === "knowledge"
                   ? "输入书名或上传文件，比如「帮我拆解《诡秘之主》」..."
                   : "描述你的故事，比如「重生复仇的女频故事」「末日科幻」..."
