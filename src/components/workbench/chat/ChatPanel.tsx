@@ -3234,35 +3234,118 @@ export default function ChatPanel() {
                         <span className="text-[11px] text-gray-400">风格 {script.style}</span>
                       </div>
                     </div>
-                    {/* Characters */}
+
+                    {/* 1. Characters Table */}
                     <div className="px-4 py-2 border-b border-gray-50">
-                      <h4 className="text-xs font-semibold text-gray-500 mb-1.5">角色表</h4>
-                      {script.characters.map((c, ci) => (
-                        <div key={ci} className="flex items-baseline gap-2 mb-1">
-                          <span className="text-xs font-medium text-gray-700">{c.name}</span>
-                          <span className="text-[11px] text-gray-400">{c.identity}</span>
-                        </div>
-                      ))}
+                      <h4 className="text-xs font-semibold text-gray-500 mb-1.5">1. 角色表</h4>
+                      <table className="w-full text-[11px]">
+                        <thead>
+                          <tr className="border-b border-gray-100">
+                            <th className="text-left py-1 pr-3 text-gray-400 font-medium w-16">角色</th>
+                            <th className="text-left py-1 text-gray-400 font-medium">人设描述</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {script.characters.map((c, ci) => (
+                            <tr key={ci} className="border-b border-gray-50 last:border-0">
+                              <td className="py-1.5 pr-3 text-gray-700 font-medium align-top">{c.name}</td>
+                              <td className="py-1.5 text-gray-600">{c.description}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
-                    {/* Scenes (max height with fade) */}
-                    <div className="relative max-h-[280px] overflow-hidden">
-                      <div className="px-4 py-2 space-y-3">
-                        {script.scenes.map((s, si) => (
-                          <div key={si} className="border-l-2 border-indigo-200 pl-3 py-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-500 font-mono">{s.heading}</span>
-                              <span className="text-[10px] text-gray-400">{s.duration}</span>
-                            </div>
-                            <p className="text-xs text-gray-600 leading-relaxed mb-1">{s.visual}</p>
-                            <p className="text-xs text-gray-800 leading-relaxed italic">{s.dialogue}</p>
-                            {s.sellingPoint && (
-                              <span className="inline-block mt-1 text-[10px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-600">{s.sellingPoint}</span>
-                            )}
-                          </div>
-                        ))}
+
+                    {/* 2. Scene Plan Table */}
+                    {script.scenePlans && script.scenePlans.length > 0 && (
+                      <div className="px-4 py-2 border-b border-gray-50">
+                        <h4 className="text-xs font-semibold text-gray-500 mb-1.5">2. 场景规划</h4>
+                        <table className="w-full text-[11px]">
+                          <thead>
+                            <tr className="border-b border-gray-100">
+                              <th className="text-left py-1 pr-2 text-gray-400 font-medium w-10">编号</th>
+                              <th className="text-left py-1 pr-2 text-gray-400 font-medium w-16">地点</th>
+                              <th className="text-left py-1 pr-2 text-gray-400 font-medium w-16">时间</th>
+                              <th className="text-left py-1 text-gray-400 font-medium">用途</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {script.scenePlans.map((sp, spi) => (
+                              <tr key={spi} className="border-b border-gray-50 last:border-0">
+                                <td className="py-1.5 pr-2 text-gray-500 align-top">{sp.sceneNo}</td>
+                                <td className="py-1.5 pr-2 text-gray-700 align-top">{sp.location}</td>
+                                <td className="py-1.5 pr-2 text-gray-500 align-top">{sp.timeSpace}</td>
+                                <td className="py-1.5 text-gray-600">{sp.purpose}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+
+                    {/* 3. Scene-by-scene script */}
+                    <div className="relative max-h-[320px] overflow-hidden">
+                      <div className="px-4 py-2">
+                        <h4 className="text-xs font-semibold text-gray-500 mb-1.5">3. 完整分幕剧本</h4>
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-[11px] min-w-[600px]">
+                            <thead>
+                              <tr className="border-b border-gray-100">
+                                <th className="text-left py-1 pr-2 text-gray-400 font-medium w-8">幕号</th>
+                                <th className="text-left py-1 pr-2 text-gray-400 font-medium w-28">场景头</th>
+                                <th className="text-left py-1 pr-2 text-gray-400 font-medium w-12">人物</th>
+                                <th className="text-left py-1 pr-2 text-gray-400 font-medium w-14">时长</th>
+                                <th className="text-left py-1 pr-2 text-gray-400 font-medium w-28">产品露出</th>
+                                <th className="text-left py-1 pr-2 text-gray-400 font-medium">画面描述</th>
+                                <th className="text-left py-1 text-gray-400 font-medium">台词</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {script.scenes.map((s, si) => (
+                                <tr key={si} className="border-b border-gray-50 last:border-0 align-top">
+                                  <td className="py-1.5 pr-2 text-gray-500">{s.act}</td>
+                                  <td className="py-1.5 pr-2 text-gray-700 text-[10px]">{s.heading}</td>
+                                  <td className="py-1.5 pr-2 text-gray-600">{s.characters.join("、")}</td>
+                                  <td className="py-1.5 pr-2 text-gray-500">{s.duration}</td>
+                                  <td className="py-1.5 pr-2 text-gray-600 text-[10px]">{s.productExposure}</td>
+                                  <td className="py-1.5 pr-2 text-gray-600 text-[10px] leading-relaxed">{s.visual}</td>
+                                  <td className="py-1.5 text-gray-800 text-[10px] leading-relaxed italic">{s.dialogue}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
                       </div>
                       <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
                     </div>
+
+                    {/* 4. Selling Point Verification */}
+                    {script.sellingPointChecks && script.sellingPointChecks.length > 0 && (
+                      <div className="px-4 py-2 border-t border-gray-50">
+                        <h4 className="text-xs font-semibold text-gray-500 mb-1.5">4. 卖点植入核验</h4>
+                        <table className="w-full text-[11px]">
+                          <thead>
+                            <tr className="border-b border-gray-100">
+                              <th className="text-left py-1 pr-2 text-gray-400 font-medium">卖点类型</th>
+                              <th className="text-left py-1 pr-2 text-gray-400 font-medium">卖点内容</th>
+                              <th className="text-left py-1 pr-2 text-gray-400 font-medium w-12">植入次数</th>
+                              <th className="text-left py-1 text-gray-400 font-medium">合规性</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {script.sellingPointChecks.map((sp, spi) => (
+                              <tr key={spi} className="border-b border-gray-50 last:border-0">
+                                <td className="py-1 pr-2 text-gray-600">{sp.type}</td>
+                                <td className="py-1 pr-2 text-gray-700">{sp.content}</td>
+                                <td className="py-1 pr-2 text-gray-500">{sp.count}</td>
+                                <td className="py-1 text-emerald-600">{sp.compliance}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+
                     {/* Footer */}
                     <div className="px-4 py-2 border-t border-gray-50 text-center">
                       <span className="text-[11px] text-gray-400">点击左侧预览区查看完整分幕剧本</span>
@@ -3360,34 +3443,30 @@ export default function ChatPanel() {
                     {/* Storyboard table */}
                     <div className="relative max-h-[300px] overflow-hidden">
                       <div className="overflow-x-auto">
-                        <table className="w-full text-xs">
+                        <table className="w-full text-[11px] min-w-[700px]">
                           <thead>
                             <tr className="bg-gray-50 text-gray-500">
-                              <th className="px-2 py-1.5 text-left font-medium">镜号</th>
-                              <th className="px-2 py-1.5 text-left font-medium">幕</th>
-                              <th className="px-2 py-1.5 text-left font-medium">景别</th>
-                              <th className="px-2 py-1.5 text-left font-medium">运镜</th>
-                              <th className="px-2 py-1.5 text-left font-medium min-w-[140px]">画面描述</th>
-                              <th className="px-2 py-1.5 text-left font-medium min-w-[120px]">台词/音效</th>
-                              <th className="px-2 py-1.5 text-center font-medium">时长</th>
+                              <th className="px-2 py-1.5 text-left font-medium w-8">镜号</th>
+                              <th className="px-2 py-1.5 text-left font-medium w-10">所属幕</th>
+                              <th className="px-2 py-1.5 text-left font-medium w-10">景别</th>
+                              <th className="px-2 py-1.5 text-left font-medium w-10">运镜</th>
+                              <th className="px-2 py-1.5 text-left font-medium">画面描述</th>
+                              <th className="px-2 py-1.5 text-left font-medium">台词/音效</th>
+                              <th className="px-2 py-1.5 text-center font-medium w-12">时长(s)</th>
                               <th className="px-2 py-1.5 text-left font-medium">产品露出</th>
                             </tr>
                           </thead>
                           <tbody>
                             {sb.shots.map((shot) => (
-                              <tr key={shot.shotNo} className="border-t border-gray-50 hover:bg-gray-50/50">
+                              <tr key={shot.shotNo} className="border-t border-gray-50 hover:bg-gray-50/50 align-top">
                                 <td className="px-2 py-1.5 text-gray-500 font-mono">{shot.shotNo}</td>
                                 <td className="px-2 py-1.5 text-gray-500">{shot.act}</td>
                                 <td className="px-2 py-1.5 text-gray-600">{shot.shotSize}</td>
                                 <td className="px-2 py-1.5 text-gray-600">{shot.cameraMove}</td>
-                                <td className="px-2 py-1.5 text-gray-700">{shot.visual}</td>
-                                <td className="px-2 py-1.5 text-gray-600 italic">{shot.audioDialogue}</td>
-                                <td className="px-2 py-1.5 text-center text-gray-500">{shot.duration}s</td>
-                                <td className="px-2 py-1.5">
-                                  {shot.productExposure !== "无" && (
-                                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-600">{shot.productExposure}</span>
-                                  )}
-                                </td>
+                                <td className="px-2 py-1.5 text-gray-700 text-[10px] leading-relaxed">{shot.visual}</td>
+                                <td className="px-2 py-1.5 text-gray-600 text-[10px] leading-relaxed whitespace-pre-line">{shot.audioDialogue}</td>
+                                <td className="px-2 py-1.5 text-center text-gray-500">{shot.duration}</td>
+                                <td className="px-2 py-1.5 text-[10px] text-gray-600">{shot.productExposure}</td>
                               </tr>
                             ))}
                           </tbody>
@@ -3395,6 +3474,37 @@ export default function ChatPanel() {
                       </div>
                       <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
                     </div>
+
+                    {/* Duration validation */}
+                    <div className="px-4 py-2 border-t border-gray-50">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[11px] text-gray-500 font-medium">时长校验</span>
+                        <span className={`text-[10px] px-2 py-0.5 rounded font-medium ${
+                          Math.abs(sb.totalDuration - sb.targetDuration) <= 3
+                            ? "bg-green-50 text-green-600"
+                            : "bg-red-50 text-red-600"
+                        }`}>
+                          总时长 {sb.totalDuration}s，{Math.abs(sb.totalDuration - sb.targetDuration) <= 3 ? "符合" : "不符合"} {sb.targetDuration}s±3s 的要求
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Selling point coverage */}
+                    {sb.sellingPointCoverage && sb.sellingPointCoverage.length > 0 && (
+                      <div className="px-4 py-2 border-t border-gray-50">
+                        <h4 className="text-[11px] text-gray-500 font-medium mb-1.5">卖点覆盖校验</h4>
+                        <div className="space-y-0.5">
+                          {sb.sellingPointCoverage.map((sp, spi) => (
+                            <div key={spi} className="flex items-baseline gap-1.5 text-[10px]">
+                              <span className="text-gray-500">·</span>
+                              <span className="text-gray-600">{sp.type}：</span>
+                              <span className="text-gray-500">{sp.content}（{sp.shotRefs}）</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
                     {/* Footer */}
                     <div className="px-4 py-2 border-t border-gray-50 text-center">
                       <span className="text-[11px] text-gray-400">点击左侧预览区查看完整分镜表</span>

@@ -607,8 +607,14 @@ export const mockVideoBrief: VideoBrief = {
 
 export interface ScriptCharacter {
   name: string;
-  identity: string;
-  appearance: string;
+  description: string;
+}
+
+export interface ScenePlan {
+  sceneNo: number;
+  location: string;
+  timeSpace: string;
+  purpose: string;
 }
 
 export interface ScriptScene {
@@ -622,72 +628,102 @@ export interface ScriptScene {
   sellingPoint?: string;
 }
 
+export interface SellingPointCheck {
+  type: string;
+  content: string;
+  count: string;
+  compliance: string;
+}
+
 export interface VideoScript {
   title: string;
   duration: string;
   style: string;
   characters: ScriptCharacter[];
+  scenePlans: ScenePlan[];
   scenes: ScriptScene[];
+  sellingPointChecks: SellingPointCheck[];
 }
 
 export const mockVideoScript: VideoScript = {
-  title: "「你还在戴这种耳机？」",
+  title: "花知晓柔光持妆气垫 · 短视频脚本",
   duration: "60s",
-  style: "反转型 · UGC真人出镜",
+  style: "反转型 · 真人出镜",
   characters: [
-    { name: "Jimmy", identity: "20-25岁男性，普通大学生/年轻上班族", appearance: "灰色卫衣+牛仔裤，干净短发，像屏幕里的朋友" },
+    { name: "女主", description: "25 岁职场白领，油皮，日常赶时间化妆，对持妆效果有高要求，自带「吐槽体质」" },
+  ],
+  scenePlans: [
+    { sceneNo: 1, location: "卧室", timeSpace: "日 / 内", purpose: "早上赶时间化妆，展示旧气垫翻车效果" },
+    { sceneNo: 2, location: "办公室", timeSpace: "日 / 内", purpose: "下午工作场景，展示花知晓气垫 12 小时持妆效果" },
   ],
   scenes: [
     {
       act: 1,
-      heading: "幕1 室内-卧室 日 内",
-      characters: ["Jimmy"],
+      heading: "1 卧室 日 内",
+      characters: ["女主"],
       duration: "0-5s",
-      productExposure: "普通耳机（对比道具）",
-      visual: "Jimmy坐在床边，手里拿着一副普通白色有线耳机，线缠成一团，表情无奈。拿起来戴上，耳机从耳朵滑落。",
-      dialogue: "\"你还在戴这种耳机？\"（举起缠成一团的耳机线）\"难怪别人一直看你。\"（耳机滑落，叹气）",
+      productExposure: "旧气垫",
+      visual: "女主对着镜子，用旧气垫快速拍脸，T 区明显卡粉结块，眉头紧皱，对着镜头翻白眼",
+      dialogue: "\"说真的，所有气垫都逃不过下午脱妆，我已经放弃了...\"",
       sellingPoint: "痛点铺垫",
     },
     {
       act: 2,
-      heading: "幕2 室内-卧室 日 内",
-      characters: ["Jimmy"],
+      heading: "2 卧室 日 内",
+      characters: ["女主"],
       duration: "5-15s",
-      productExposure: "隐形蓝牙耳机 Pro 首次出场",
-      visual: "Jimmy伸手从桌上拿起隐形耳机，放在掌心展示——极小的豆状造型。塞入耳朵，转头展示侧面，耳机几乎不可见。",
-      dialogue: "\"Until I found this.\"（掌心展示耳机特写）\"Look——can you even see it?\"（转头，指向耳朵，挑眉）",
-      sellingPoint: "核心卖点①：极致隐形",
+      productExposure: "花知晓柔光持妆气垫（镜头扫过）",
+      visual: "女主看到桌上的花知晓气垫，拿起晃了晃，满脸怀疑",
+      dialogue: "\"直到我闺蜜硬塞给我这个花知晓气垫，说能持妆 12 小时？我才不信，今天就测给你们看！\"",
+      sellingPoint: "核心卖点①：控油持妆 12 小时",
     },
     {
       act: 3,
-      heading: "幕3 室内-洗手间 日 内",
-      characters: ["Jimmy"],
+      heading: "3 办公室 日 内",
+      characters: ["女主"],
       duration: "15-25s",
-      productExposure: "耳机防水特写",
-      visual: "Jimmy走到水龙头前，打开水流，把耳机直接放在水下冲洗3秒。慢动作特写水花飞溅。拿起甩干，塞回耳朵，点头确认还能用。",
-      dialogue: "\"What really shocked me——\"（耳机放入水流下）\"Fully waterproof. Like, actually waterproof.\"（拿起耳机，惊喜表情）",
-      sellingPoint: "核心卖点②：IPX5防水",
+      productExposure: "旧气垫脱妆效果（手机前置画面）",
+      visual: "女主对着手机前置摄像头，展示 T 区斑驳脱妆、鼻翼卡粉的状态，用手指蹭下浮粉",
+      dialogue: "\"你看，这才 3 小时，旧气垫已经成这样了，斑驳到能当面具！\"",
+      sellingPoint: "对比强化痛点",
     },
     {
       act: 4,
-      heading: "幕4 室内-客厅 日 内",
-      characters: ["Jimmy"],
+      heading: "4 办公室 日 内",
+      characters: ["女主"],
       duration: "25-40s",
-      productExposure: "降噪功能演示",
-      visual: "背景播放嘈杂街道音效（画面加波纹特效）。Jimmy戴上耳机，环境音瞬间消失，画面波纹平息。Jimmy闭眼，享受安静，然后睁眼微笑。接着切换到沙发侧躺画面，展示耳机贴合耳朵不突出。",
-      dialogue: "\"Noise cancelling? Check.\"（戴上耳机，环境音消失）\"The world just goes quiet.\"（闭眼，满足微笑）\"And you can even sleep with these on——zero pressure.\"（侧躺展示）",
-      sellingPoint: "核心卖点③：主动降噪 + 次要卖点：舒适佩戴",
+      productExposure: "花知晓气垫（补妆过程）",
+      visual: "女主掏出花知晓气垫，快速拍打全脸，微米级粉体均匀覆盖卡粉处，皮肤呈现自然柔光质感",
+      dialogue: "\"再看看花知晓的，微米级粉体，上脸完全不卡粉，还带 SPF50+ 高倍防晒，早上涂了都不用额外涂防晒！\"",
+      sellingPoint: "核心卖点②：微米级粉体不卡粉 + 核心卖点③：SPF50+",
     },
     {
       act: 5,
-      heading: "幕5 室内-卧室 日 内",
-      characters: ["Jimmy"],
-      duration: "40-60s",
-      productExposure: "三色产品展示 + 价格字幕",
-      visual: "桌上展示白/黑/蓝三色耳机排列。价格字幕动画弹出：¥399划掉→¥199红色放大。Jimmy面对镜头，微笑，手指向下指向Bio链接。",
-      dialogue: "\"Three colors. 36 hours battery. And right now?\"（展示三色）\"Only ¥199. Was ¥399.\"（价格字幕弹出）\"Trust me, you NEED this. Link in bio.\"（手指向下，坚定微笑）",
+      heading: "5 办公室 日 内",
+      characters: ["女主"],
+      duration: "40-50s",
+      productExposure: "花知晓气垫（12 小时持妆效果）",
+      visual: "女主展示 12 小时后的底妆，T 区依然清爽无脱妆，皮肤透亮，用纸巾按压 T 区无油迹",
+      dialogue: "\"现在已经 12 小时了！你看，还是这么服帖，控油持妆真的绝，玻尿酸保湿也不拔干，烟酰胺还能悄悄提亮肤色！\"",
+      sellingPoint: "次要卖点：玻尿酸保湿 + 烟酰胺提亮",
+    },
+    {
+      act: 6,
+      heading: "6 办公室 日 内",
+      characters: ["女主"],
+      duration: "50-60s",
+      productExposure: "花知晓气垫（正装 + 替换芯）、价格弹窗",
+      visual: "女主拿着花知晓气垫，旁边展示正装 + 15g 替换芯，屏幕弹出价格：「到手价 129 元（日常价 169 元）」",
+      dialogue: "\"现在到手价只要 129 元，还送 15g 替换芯，四分钟搞定全脸，油皮姐妹真的可以冲！点击下方小黄车购买！\"",
       sellingPoint: "价格锚定 + CTA",
     },
+  ],
+  sellingPointChecks: [
+    { type: "核心卖点 1", content: "控油持妆 12 小时", count: "2 次", compliance: "符合≥2 处呈现要求" },
+    { type: "核心卖点 2", content: "微米级粉体不卡粉", count: "2 次", compliance: "符合≥2 处呈现要求" },
+    { type: "核心卖点 3", content: "SPF50+ 高倍防晒", count: "1 次", compliance: "符合≥1 处呈现要求" },
+    { type: "次要卖点", content: "玻尿酸保湿、烟酰胺提亮", count: "各 1 次", compliance: "符合≤1 处呈现要求" },
+    { type: "差异化卖点", content: "四分钟快速上妆、油皮适配", count: "各 1 次", compliance: "符合场景植入要求" },
   ],
 };
 
@@ -704,33 +740,39 @@ export interface StoryboardShot {
   productExposure: string;
 }
 
+export interface SellingPointCoverage {
+  type: string;
+  content: string;
+  shotRefs: string;
+}
+
 export interface Storyboard {
   title: string;
   targetDuration: number;
   totalDuration: number;
   shots: StoryboardShot[];
+  sellingPointCoverage: SellingPointCoverage[];
 }
 
 export const mockStoryboard: Storyboard = {
-  title: "「你还在戴这种耳机？」分镜表",
+  title: "花知晓柔光持妆气垫 · 分镜表",
   targetDuration: 60,
-  totalDuration: 59,
+  totalDuration: 60,
   shots: [
-    { shotNo: 1, act: 1, shotSize: "中景", cameraMove: "固定", visual: "Jimmy坐床边，手拿缠成团的有线耳机，表情无奈", audioDialogue: "\"你还在戴这种耳机？\"", duration: 3, productExposure: "对比道具" },
-    { shotNo: 2, act: 1, shotSize: "特写", cameraMove: "推", visual: "耳机从耳朵滑落的瞬间", audioDialogue: "\"难怪别人一直看你。\"（叹气）", duration: 2, productExposure: "无" },
-    { shotNo: 3, act: 2, shotSize: "特写", cameraMove: "固定", visual: "掌心展示隐形耳机，极小豆状造型，光泽感", audioDialogue: "\"Until I found this.\"", duration: 3, productExposure: "产品首次出场" },
-    { shotNo: 4, act: 2, shotSize: "中近景", cameraMove: "固定", visual: "耳机塞入耳朵，转头展示侧面，几乎不可见", audioDialogue: "\"Can you even see it?\"（挑眉）", duration: 4, productExposure: "隐形效果" },
-    { shotNo: 5, act: 2, shotSize: "特写", cameraMove: "慢推", visual: "耳朵侧面微距特写，耳机完全贴合", audioDialogue: "BGM轻快节拍", duration: 3, productExposure: "隐形效果" },
-    { shotNo: 6, act: 3, shotSize: "中景", cameraMove: "固定", visual: "Jimmy站在水龙头前，打开水流", audioDialogue: "\"What really shocked me——\"", duration: 2, productExposure: "无" },
-    { shotNo: 7, act: 3, shotSize: "特写", cameraMove: "固定", visual: "耳机在水流下冲洗，慢动作水花飞溅", audioDialogue: "水流音效", duration: 4, productExposure: "防水演示" },
-    { shotNo: 8, act: 3, shotSize: "中近景", cameraMove: "固定", visual: "拿起耳机甩水，塞回耳朵，确认OK手势", audioDialogue: "\"Fully waterproof. Actually waterproof.\"", duration: 4, productExposure: "防水验证" },
-    { shotNo: 9, act: 4, shotSize: "中景", cameraMove: "固定", visual: "背景嘈杂波纹特效，Jimmy表情被噪音困扰", audioDialogue: "嘈杂街道环境音", duration: 3, productExposure: "无" },
-    { shotNo: 10, act: 4, shotSize: "中近景", cameraMove: "固定", visual: "戴上耳机瞬间，波纹消失，画面变安静", audioDialogue: "\"Noise cancelling? Check.\"（环境音消失）", duration: 4, productExposure: "降噪功能" },
-    { shotNo: 11, act: 4, shotSize: "中近景", cameraMove: "固定", visual: "闭眼享受安静，微笑", audioDialogue: "\"The world just goes quiet.\"", duration: 3, productExposure: "降噪体验" },
-    { shotNo: 12, act: 4, shotSize: "侧面中景", cameraMove: "固定", visual: "沙发侧躺，展示耳机贴合不突出", audioDialogue: "\"Sleep with these on—zero pressure.\"", duration: 5, productExposure: "舒适佩戴" },
-    { shotNo: 13, act: 5, shotSize: "俯拍特写", cameraMove: "固定", visual: "桌面三色耳机排列（白/黑/蓝）", audioDialogue: "\"Three colors. 36 hours battery.\"", duration: 4, productExposure: "三色展示" },
-    { shotNo: 14, act: 5, shotSize: "中景", cameraMove: "固定", visual: "价格字幕动画弹出：¥399→¥199", audioDialogue: "\"Only ¥199. Was ¥399.\"", duration: 5, productExposure: "价格锚定" },
-    { shotNo: 15, act: 5, shotSize: "中近景", cameraMove: "固定", visual: "Jimmy微笑，手指向下指", audioDialogue: "\"Trust me, you NEED this. Link in bio.\"", duration: 5, productExposure: "CTA" },
-    { shotNo: 16, act: 5, shotSize: "特写", cameraMove: "推", visual: "产品Logo + 价格 + 二维码定帧", audioDialogue: "BGM结尾", duration: 4, productExposure: "品牌露出" },
+    { shotNo: 1, act: 1, shotSize: "特写", cameraMove: "推镜", visual: "女主手指沾着旧气垫粉膏，T区卡粉结块的皮肤纹理清晰可见", audioDialogue: "女主：\"说真的，所有气垫都逃不过下午脱妆，我已经放弃了...\"\n音效：无奈叹气声", duration: 5, productExposure: "旧气垫（部分）" },
+    { shotNo: 2, act: 2, shotSize: "近景", cameraMove: "固定", visual: "女主拿起桌上的花知晓气垫，镜头聚焦气垫外壳的品牌logo，女主满脸怀疑地挑眉", audioDialogue: "女主：\"直到我闺蜜硬塞给我这个花知晓气垫，说能持妆12小时？我才不信，今天就测给你们看！\"\n音效：疑惑语气词\"嗯？\"", duration: 10, productExposure: "花知晓柔光持妆气垫（完整）" },
+    { shotNo: 3, act: 3, shotSize: "特写", cameraMove: "固定", visual: "手机前置摄像头画面，女主T区斑驳脱妆，鼻翼卡粉结块，手指蹭下浮粉", audioDialogue: "女主：\"你看，这才3小时，旧气垫已经成这样了，斑驳到能当面具！\"\n音效：嫌弃的\"啧\"声", duration: 8, productExposure: "旧气垫脱妆效果（无产品露出）" },
+    { shotNo: 4, act: 4, shotSize: "中景", cameraMove: "跟拍", visual: "女主快速打开花知晓气垫，粉扑沾取粉体，镜头特写微米级细腻粉质", audioDialogue: "旁白：\"微米级粉体，上脸完全不卡粉！\"\n音效：粉扑拍打皮肤的轻响", duration: 7, productExposure: "花知晓气垫（粉芯+粉扑）" },
+    { shotNo: 5, act: 4, shotSize: "近景", cameraMove: "固定", visual: "女主用粉扑快速拍打全脸，卡粉处被均匀覆盖，皮肤呈现自然柔光质感", audioDialogue: "女主：\"还带SPF50+高倍防晒，早上涂了都不用额外涂防晒！\"\n音效：轻快的背景音起", duration: 6, productExposure: "花知晓气垫（手持）" },
+    { shotNo: 6, act: 5, shotSize: "特写", cameraMove: "固定", visual: "女主展示12小时后的底妆，T区清爽无油光，纸巾按压T区后无明显粉迹", audioDialogue: "女主：\"现在已经12小时了！你看，还是这么服帖，控油持妆真的绝！\"\n音效：惊讶的\"哇\"声", duration: 8, productExposure: "花知晓气垫（放置在桌面）" },
+    { shotNo: 7, act: 5, shotSize: "近景", cameraMove: "拉镜", visual: "女主侧脸展示透亮底妆，镜头拉远露出桌上的花知晓气垫", audioDialogue: "女主：\"玻尿酸保湿不拔干，烟酰胺还能悄悄提亮肤色！\"", duration: 6, productExposure: "花知晓气垫（完整）" },
+    { shotNo: 8, act: 6, shotSize: "中景", cameraMove: "固定", visual: "女主双手举着花知晓气垫，旁边特写正装+15g替换芯的套装，屏幕弹出价格弹窗", audioDialogue: "女主：\"现在到手价只要129元，还送15g替换芯，四分钟搞定全脸，油皮姐妹真的可以冲！点击下方小黄车购买！\"\n音效：急促的下单提示音", duration: 10, productExposure: "花知晓气垫（正装+替换芯）、价格弹窗" },
+  ],
+  sellingPointCoverage: [
+    { type: "核心卖点1（控油持妆12小时）", content: "镜号6、7", shotRefs: "2 次呈现" },
+    { type: "核心卖点2（微米级粉体不卡粉）", content: "镜号4、5", shotRefs: "2 次呈现" },
+    { type: "核心卖点3（SPF50+高倍防晒）", content: "镜号5", shotRefs: "1 次呈现" },
+    { type: "次要卖点（玻尿酸保湿、烟酰胺提亮）", content: "镜号7", shotRefs: "1 次呈现" },
+    { type: "差异化卖点（四分钟快速上妆、油皮适配）", content: "镜号8", shotRefs: "1 次呈现" },
   ],
 };
