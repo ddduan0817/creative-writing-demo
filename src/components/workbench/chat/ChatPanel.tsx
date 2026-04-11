@@ -4,7 +4,6 @@ import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { useEditorStore } from "@/stores/editorStore";
 import {
   Send,
-  Mic,
   Plus,
   FileUp,
   ImageIcon,
@@ -2041,7 +2040,7 @@ export default function ChatPanel() {
           setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
         }, 300);
         setTimeout(() => {
-          const guidePrompt = `内容结构确认！接下来我需要了解一下出镜角色的信息：\n\n· **出镜者** — 谁来出镜？（真人/虚拟人/无人出镜）\n· **角色定位** — 什么身份？（达人/素人/品牌方/专家）\n· **表演风格** — 什么风格？（自然分享/专业测评/搞笑夸张/走心种草）\n· **形象描述** — 外形、穿着、气质等\n\n想到什么说什么就行，或者直接说「帮我生成」，我根据内容类型自动匹配角色。`;
+          const guidePrompt = `内容结构确认！接下来我需要了解一下出镜角色的信息：\n\n· **出镜者** — 谁来出镜？（真人/虚拟人/无人出镜）\n· **角色定位** — 什么身份？（达人/素人/品牌方/专家）\n· **表演风格** — 什么风格？（自然分享/专业测评/搞笑夸张/走心种草）\n· **形象描述** — 外形、穿着、气质等\n\n想到什么说什么就行，或者点击下方按钮直接生成，我根据内容类型自动匹配角色。`;
           setMessages((prev) => [
             ...prev.filter((m) => m.id !== thinkingId),
             { id: "model-role-guide", sender: "model", type: "guide", prompt: guidePrompt },
@@ -2275,7 +2274,7 @@ export default function ChatPanel() {
         }, 300);
 
         setTimeout(() => {
-          const guidePrompt = `收到！我来帮你策划营销内容。\n\n为了生成更精准的方案，请补充以下商品信息：\n· **商品名称** — 产品的完整名称\n· **价格** — 售价及优惠信息\n· **品类** — 所属类目，如美妆、数码、食品等\n· **商品简介** — 核心功能和特点\n· **目标用户** — 面向什么人群？\n· **核心卖点** — 最打动用户的1-3个卖点\n\n已有的信息不用重复说，补充缺少的就行。或者直接说「帮我生成」，我根据已有信息先出一版。`;
+          const guidePrompt = `收到！我来帮你策划营销内容。\n\n为了生成更精准的方案，请补充以下商品信息：\n· **商品名称** — 产品的完整名称\n· **价格** — 售价及优惠信息\n· **品类** — 所属类目，如美妆、数码、食品等\n· **商品简介** — 核心功能和特点\n· **目标用户** — 面向什么人群？\n· **核心卖点** — 最打动用户的1-3个卖点\n\n已有的信息不用重复说，补充缺少的就行。或者点击下方按钮，我根据已有信息先出一版。`;
           setMessages((prev) => [
             ...prev.filter((m) => m.id !== thinkingId),
             { id: "model-guide", sender: "model", type: "guide", prompt: guidePrompt },
@@ -2323,8 +2322,8 @@ export default function ChatPanel() {
 
       setTimeout(() => {
         const guidePrompt = dataRef.current.isKnowledge
-          ? `收到！我大概理解了你想分析的方向。\n\n为了生成更精准的分析配置，你可以再补充一些信息：\n· **分析维度** — 想从哪些角度切入？（世界观、角色体系、叙事结构……）\n· **关注重点** — 有特别想深挖的部分吗？\n· **分析深度** — 概览性梳理还是逐层拆解？\n\n当然，你也可以直接说「帮我生成」，我会根据已有信息先出一版。`
-          : `收到！这个方向很有意思。\n\n为了生成更贴合你想法的设定，可以再聊聊：\n· **故事基调** — 整体偏什么风格？（轻松日常 / 热血燃向 / 悬疑烧脑 / 虐心催泪……）\n· **故事走向** — 大致的情节发展？（逆袭 / 探案 / 成长 / 复仇……）\n· **核心冲突** — 主角面临的最大矛盾是什么？\n\n想到什么说什么就行，或者直接说「帮我生成」，我先出一版设定。`;
+          ? `收到！我大概理解了你想分析的方向。\n\n为了生成更精准的分析配置，你可以再补充一些信息：\n· **分析维度** — 想从哪些角度切入？（世界观、角色体系、叙事结构……）\n· **关注重点** — 有特别想深挖的部分吗？\n· **分析深度** — 概览性梳理还是逐层拆解？\n\n当然，你也可以点击下方按钮直接生成，我会根据已有信息先出一版。`
+          : `收到！这个方向很有意思。\n\n为了生成更贴合你想法的设定，可以再聊聊：\n· **故事基调** — 整体偏什么风格？（轻松日常 / 热血燃向 / 悬疑烧脑 / 虐心催泪……）\n· **故事走向** — 大致的情节发展？（逆袭 / 探案 / 成长 / 复仇……）\n· **核心冲突** — 主角面临的最大矛盾是什么？\n\n想到什么说什么就行，或者点击下方按钮，我先出一版设定。`;
         setMessages((prev) => [
           ...prev.filter((m) => m.id !== thinkingId),
           {
@@ -3616,9 +3615,6 @@ export default function ChatPanel() {
               )}
             </div>
             <div className="flex items-center gap-1.5">
-              <button className="p-1.5 text-gray-400 hover:text-gray-600 transition">
-                <Mic className="w-4 h-4" />
-              </button>
               <button
                 onClick={handleSend}
                 className="p-1.5 bg-gray-900 text-white rounded-full hover:bg-gray-800 transition"
