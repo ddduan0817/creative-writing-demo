@@ -2005,7 +2005,6 @@ export default function ChatPanel() {
             },
           ]);
           setCurrentRound(6); // awaiting scene selection
-          setCreationStage(2);
         }, 2000);
         return;
       }
