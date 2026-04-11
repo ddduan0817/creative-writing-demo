@@ -1017,8 +1017,7 @@ export default function RichTextEditor() {
 
                 {/* 结构信息 */}
                 <div>
-                  <span className="text-sm font-bold text-gray-700">{ol.badge}</span>
-                  <span className="text-sm text-gray-500 ml-3">{ol.info}</span>
+                  <span className="text-sm text-gray-500">{ol.info}</span>
                 </div>
 
                 {/* 章节列表 */}

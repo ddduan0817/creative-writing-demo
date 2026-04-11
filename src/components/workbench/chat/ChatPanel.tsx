@@ -1836,13 +1836,13 @@ export default function ChatPanel() {
           const doneContent = isSingleChapter
             ? `角色档案完成！短篇不需要大纲，直接开始写正文。\n\n《${chTitle}》生成完毕！你可以在编辑区查看。\n\n想调整哪里直接告诉我，比如「开头节奏太慢」「对话再自然一些」。`
             : chapterIndex < totalChapters - 1
-            ? `「${chTitle}」生成完毕！你可以在编辑区查看。\n\n想调整直接告诉我，满意就说「继续」写下一章。`
+            ? `「${chTitle}」生成完毕！你可以在编辑区查看。\n\n想调整直接告诉我，满意就点击下方「继续」写下一章。`
             : `「${chTitle}」生成完毕！全部 ${totalChapters} 章已完成。\n\n想调整任何章节直接告诉我，比如「第三章结尾再加点悬念」。`;
           // Find and update the "正在生成" message for this chapter
           const genMsgId = chapterIndex === 0 ? "model-write-start" : `model-gen-ch-${chapterIndex}`;
           setMessages((prev) =>
             prev.map((m) =>
-              m.id === genMsgId ? { ...m, content: doneContent } : m
+              m.id === genMsgId ? { ...m, id: `model-ch-done-${chapterIndex}`, content: doneContent } : m
             )
           );
           // Update progress bar for 正文 stage
@@ -3488,8 +3488,7 @@ export default function ChatPanel() {
                   >
                     <div className="max-h-[220px] overflow-hidden">
                       {/* Structure info */}
-                      <div className="px-4 py-3 flex items-center gap-3">
-                        <span className="px-2.5 py-1 bg-indigo-50 text-indigo-600 text-xs rounded-full font-medium">{msg.data.structure}</span>
+                      <div className="px-4 py-3">
                         <span className="text-xs text-gray-400">{msg.data.totalChapters}章 · {msg.data.estimatedWords}</span>
                       </div>
                       <div className="border-t border-gray-100" />
