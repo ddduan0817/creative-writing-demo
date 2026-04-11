@@ -3578,7 +3578,7 @@ export default function ChatPanel() {
                   <div className="pl-8 mt-1">
                     <button
                       onClick={() => {
-                        setMessages((prev) => [...prev, { id: `user-gen-brief-${Date.now()}`, sender: "user", type: "text", content: "随机生成一版" }]);
+                        setMessages((prev) => [...prev, { id: `user-gen-brief-${Date.now()}`, sender: "user", type: "text", content: "帮我生成" }]);
                         const thinkingId = `thinking-mkt-brief`;
                         setTimeout(() => {
                           setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
@@ -3596,6 +3596,7 @@ export default function ChatPanel() {
                           ]);
                           setCurrentRound(21);
                           setCreationStage(2);
+                          setAgentStageData("videoBrief", mockVideoBrief);
                         }, 2500);
                       }}
                       data-tip="随机生成创意Brief"
