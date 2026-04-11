@@ -1108,6 +1108,80 @@ export default function RichTextEditor() {
                 </div>
               </>
             ) : showWorldbuilding ? (
+              agentStageData?.videoBrief ? (() => {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const brief = agentStageData.videoBrief as any;
+                return (
+                  <>
+                    <div>
+                      <h2 className="text-lg font-bold text-gray-900 mb-1">创意Brief</h2>
+                      <p className="text-xs text-gray-400">如需修改，请在右侧对话中告诉我</p>
+                    </div>
+
+                    {/* 信息确认 */}
+                    <div>
+                      <h3 className="text-sm font-bold text-gray-700 mb-3">信息确认</h3>
+                      <div className="space-y-1 ml-1">
+                        {brief.confirmedParams?.map((p: { label: string; value: string }, i: number) => (
+                          <div key={i} className="flex items-baseline gap-2">
+                            <span className="text-xs text-gray-400 shrink-0">{p.label}</span>
+                            <span className="text-sm text-gray-700">{p.value}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* 卖点矩阵 */}
+                    <div>
+                      <h3 className="text-sm font-bold text-gray-700 mb-3">商品卖点矩阵</h3>
+                      <div className="space-y-3 ml-1">
+                        <div>
+                          <span className="text-xs font-bold text-rose-500 block mb-1">核心卖点</span>
+                          {brief.sellingPoints?.core?.map((p: string, i: number) => (
+                            <p key={i} className="text-sm text-gray-700 leading-relaxed">① {p}</p>
+                          ))}
+                        </div>
+                        <div>
+                          <span className="text-xs font-bold text-amber-500 block mb-1">次要卖点</span>
+                          <p className="text-sm text-gray-600 leading-relaxed">{brief.sellingPoints?.secondary?.join("、")}</p>
+                        </div>
+                        <div>
+                          <span className="text-xs font-bold text-emerald-500 block mb-1">差异化卖点</span>
+                          {brief.sellingPoints?.differentiated?.map((p: string, i: number) => (
+                            <p key={i} className="text-sm text-gray-600 leading-relaxed">{p}</p>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 受众画像 */}
+                    <div>
+                      <h3 className="text-sm font-bold text-gray-700 mb-3">目标受众画像</h3>
+                      <div className="space-y-1 ml-1">
+                        <div className="flex items-baseline gap-2"><span className="text-xs text-gray-400">年龄</span><span className="text-sm text-gray-700">{brief.audience?.age}</span></div>
+                        <div className="flex items-baseline gap-2"><span className="text-xs text-gray-400">身份</span><span className="text-sm text-gray-700">{brief.audience?.identity}</span></div>
+                        <div className="flex items-baseline gap-2"><span className="text-xs text-gray-400">痛点</span><span className="text-sm text-gray-700">{brief.audience?.painPoints}</span></div>
+                        <div className="flex items-baseline gap-2"><span className="text-xs text-gray-400">消费偏好</span><span className="text-sm text-gray-700">{brief.audience?.preference}</span></div>
+                      </div>
+                    </div>
+
+                    {/* 创意方向 */}
+                    <div>
+                      <h3 className="text-sm font-bold text-gray-700 mb-3">创意方向</h3>
+                      <div className="space-y-4 ml-1">
+                        {brief.directions?.map((dir: { title: string; storyType: string; overview: string; hook: string }, i: number) => (
+                          <div key={i}>
+                            <span className="text-sm font-bold text-gray-800 block mb-0.5">{dir.title}</span>
+                            <p className="text-xs text-gray-400 mb-1">故事类型：{dir.storyType}</p>
+                            <p className="text-sm text-gray-600 leading-relaxed mb-1">{dir.overview}</p>
+                            <p className="text-sm text-indigo-500 italic">钩子：{dir.hook}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                );
+              })() :
               <>
                 <div>
                   <h2 className="text-lg font-bold text-gray-900 mb-1">{wb.title}</h2>

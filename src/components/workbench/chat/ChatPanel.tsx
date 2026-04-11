@@ -1737,6 +1737,7 @@ export default function ChatPanel() {
           ]);
           setCurrentRound(23);
           setCreationStage(3);
+          setAgentStageData("videoScript", mockVideoScript);
         }, 2500);
         return;
       }
@@ -1810,7 +1811,7 @@ export default function ChatPanel() {
 
   // Handle "就这样" skip
   const handleSkipAdjust = useCallback(() => {
-    setMessages((prev) => [...prev, { id: `user-skip-adj-${adjustRound}`, sender: "user" as const, type: "text" as const, content: "跳过" }]);
+    setMessages((prev) => [...prev, { id: `user-skip-adj-${adjustRound}`, sender: "user" as const, type: "text" as const, content: "继续" }]);
     setAwaitingAdjust(false);
     proceedToNextRound(adjustRound);
   }, [adjustRound, proceedToNextRound]);
@@ -2149,6 +2150,7 @@ export default function ChatPanel() {
         ]);
         setCurrentRound(21);
         setCreationStage(2);
+        setAgentStageData("videoBrief", mockVideoBrief);
       }, 2500);
       return;
     }
@@ -2919,7 +2921,7 @@ export default function ChatPanel() {
                               setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
                             }, 300);
                             setTimeout(() => {
-                              const guidePrompt = `好的，短视频脚本！为了生成更精准的创意方案，请补充以下信息：\n\n· **目标平台** — 抖音 / 小红书 / 快手 / 视频号\n· **视频时长** — 15s / 30s / 60s / 3min\n· **视频风格** — 反转型 / 对比型 / 场景沉浸型 / 教程型 / 情绪共鸣型\n· **特殊要求** — 选填，比如「要有真实翻车感」「结尾露出价格」\n\n想到什么说什么就行，或者点击下方按钮，我用默认参数先出一版。`;
+                              const guidePrompt = `好的，短视频脚本！为了生成更精准的创意方案，请补充以下信息：\n\n· **目标平台** — 抖音 / 小红书 / 快手 / 视频号\n· **视频时长** — 15s / 30s / 60s / 3min\n· **视频风格** — 反转型 / 对比型 / 场景沉浸型 / 教程型 / 情绪共鸣型\n· **特殊要求** — 选填，比如「要有真实翻车感」「结尾露出价格」\n\n想到什么说什么就行，或者点击下方按钮，我随机生成一版。`;
                               setMessages((prev) => [
                                 ...prev.filter((m) => m.id !== thinkingId),
                                 { id: "model-video-params-guide", sender: "model", type: "guide", prompt: guidePrompt },
@@ -3577,7 +3579,7 @@ export default function ChatPanel() {
                   <div className="pl-8 mt-1">
                     <button
                       onClick={() => {
-                        setMessages((prev) => [...prev, { id: `user-gen-brief-${Date.now()}`, sender: "user", type: "text", content: "用默认参数生成" }]);
+                        setMessages((prev) => [...prev, { id: `user-gen-brief-${Date.now()}`, sender: "user", type: "text", content: "随机生成一版" }]);
                         const thinkingId = `thinking-mkt-brief`;
                         setTimeout(() => {
                           setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
@@ -3597,7 +3599,7 @@ export default function ChatPanel() {
                           setCreationStage(2);
                         }, 2500);
                       }}
-                      data-tip="使用默认参数生成创意Brief"
+                      data-tip="随机生成创意Brief"
                       className="px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
                     >
                       直接生成
