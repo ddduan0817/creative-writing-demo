@@ -496,7 +496,7 @@ export const marketingContentByType: Record<string, ContentScenario> = {
   },
   live_script: {
     type: "live_script",
-    typeLabel: "直播话术",
+    typeLabel: "直播台本",
     title: "「爆款返场」隐形耳机专场话术",
     duration: "5分钟一轮",
     overview: "5分钟一轮的直播带货话术，真人出镜互动式讲解。以留人话术开场，逐步建立信任，逐一演示六大卖点，最后以限时限量促单收尾。目标：留住观众→建立信任→促成下单。",

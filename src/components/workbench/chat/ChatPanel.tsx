@@ -2755,8 +2755,8 @@ export default function ChatPanel() {
           if (msg.sender === "model" && msg.type === "scene-select") {
             const scenes = [
               { id: "short_video", label: "短视频脚本", desc: "短视频拍摄台本", icon: "🎬" },
-              { id: "live_script", label: "直播文案", desc: "直播话术与节奏设计", icon: "🎙️" },
-              { id: "graphic_note", label: "小红书笔记", desc: "图文种草笔记", icon: "📝" },
+              { id: "live_script", label: "直播台本", desc: "直播话术与节奏设计", icon: "🎙️" },
+              { id: "graphic_note", label: "图文笔记", desc: "图文种草笔记", icon: "📝" },
             ];
             const selectedScene = marketingPlatformRef.current;
             return (
@@ -2959,7 +2959,7 @@ export default function ChatPanel() {
                                 id: "model-settings",
                                 sender: "model",
                                 type: "settings-card",
-                                prompt: `我帮你生成了一个样例商品——隐形蓝牙耳机 Pro。\n\n确认商品信息后，你可以选择内容类型（短视频脚本/直播文案/小红书笔记）。`,
+                                prompt: `我帮你生成了一个样例商品——隐形蓝牙耳机 Pro。\n\n确认商品信息后，你可以选择内容类型（短视频脚本/直播台本/图文笔记）。`,
                                 settings: marketingProductInfoCard,
                               },
                             ]);
@@ -3546,16 +3546,24 @@ export default function ChatPanel() {
             }}
             placeholder={
               currentRound === 4
-                ? "想调整什么？比如「题材换成科幻」「加入穿越元素」..."
+                ? scene === "marketing"
+                  ? "想调整什么？比如「卖点换成防水」「目标人群改成学生」..."
+                  : "想调整什么？比如「题材换成科幻」「加入穿越元素」..."
                 : currentRound === 8
-                ? "想调整什么？比如「加个竹林」「小镇改成海边」..."
+                ? scene === "marketing"
+                  ? "想调整什么？比如「时长改短一点」「开头换个钩子」..."
+                  : "想调整什么？比如「加个竹林」「小镇改成海边」..."
                 : currentRound === 12
-                ? "想调整什么？比如「女主性格改强势一点」「加个反派」..."
+                ? scene === "marketing"
+                  ? "想调整什么？比如「换成女性出镜」「表演风格再自然一点」..."
+                  : "想调整什么？比如「女主性格改强势一点」「加个反派」..."
                 : currentRound === 13
-                ? "想调整什么？比如「第三章加个反转」「结局改成开放式」..."
+                ? scene === "marketing"
+                  ? "想调整什么？比如「第三幕加个反转」「结尾CTA再强一点」..."
+                  : "想调整什么？比如「第三章加个反转」「结局改成开放式」..."
                 : flowMode === "none"
                 ? scene === "marketing"
-                  ? "告诉我你要推广的商品，包括商品名称、价格、品类、商品简介、目标用户、核心卖点、平台"
+                  ? "告诉我你要推广的商品，包括商品名称、价格、品类、商品简介、目标用户、核心卖点"
                   : scene === "knowledge"
                   ? "输入书名或上传文件，比如「帮我拆解《诡秘之主》」..."
                   : "描述你的故事，比如「重生复仇的女频故事」「末日科幻」..."
