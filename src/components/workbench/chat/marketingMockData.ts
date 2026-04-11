@@ -528,3 +528,209 @@ export const marketingContentByType: Record<string, ContentScenario> = {
     ],
   },
 };
+
+// ─── 短视频脚本：R1 Brief 数据 ──────────────────────────────
+
+export interface SellingPointMatrix {
+  core: string[];
+  secondary: string[];
+  differentiated: string[];
+}
+
+export interface AudienceProfile {
+  age: string;
+  identity: string;
+  painPoints: string;
+  preference: string;
+}
+
+export interface CreativeDirection {
+  title: string;
+  storyType: string;
+  overview: string;
+  hook: string;
+}
+
+export interface VideoBrief {
+  confirmedParams: { label: string; value: string }[];
+  sellingPoints: SellingPointMatrix;
+  audience: AudienceProfile;
+  directions: CreativeDirection[];
+  recommendIndex: number;
+}
+
+export const mockVideoBrief: VideoBrief = {
+  confirmedParams: [
+    { label: "商品名称", value: "隐形蓝牙耳机 Pro" },
+    { label: "价格", value: "¥199（日常价¥399）" },
+    { label: "品类", value: "数码3C · 蓝牙耳机" },
+    { label: "目标平台", value: "抖音" },
+    { label: "视频时长", value: "60s" },
+    { label: "视频风格", value: "反转型" },
+    { label: "目标人群", value: "18-35岁年轻用户，追求便携和性价比" },
+  ],
+  sellingPoints: {
+    core: ["极致隐形（仅3.8g，佩戴后几乎不可见）", "IPX5级防水（水龙头冲洗不损坏）", "主动降噪（环境音一键屏蔽）"],
+    secondary: ["36小时超长续航", "蓝牙5.3低延迟", "3色可选（白/黑/蓝）", "佩戴舒适不硌耳"],
+    differentiated: ["豆状造型——市面最小的主动降噪耳机", "199元价位唯一同时具备防水+降噪+隐形三大特性"],
+  },
+  audience: {
+    age: "18-35岁",
+    identity: "通勤族 / 运动爱好者 / 学生，日常需要长时间佩戴耳机",
+    painPoints: "传统耳机太大太显眼、运动时容易掉落、睡觉硌耳朵、下雨/出汗担心损坏",
+    preference: "追求高性价比、看重真实使用效果、易被场景化内容种草",
+  },
+  directions: [
+    {
+      title: "方向1：日常翻车逆袭型",
+      storyType: "场景反转",
+      overview: "主人公展示普通耳机的各种尴尬瞬间（太大、掉落、硌耳朵），一句「Until I found this…」转折亮出隐形耳机，逐一演示隐形、防水、降噪功能，最后价格揭晓制造惊喜。",
+      hook: "「你还在戴这种耳机？难怪别人一直看你」",
+    },
+    {
+      title: "方向2：极限测试打脸型",
+      storyType: "硬核对比反转",
+      overview: "开头声称「这耳机能防水？我不信」，然后进行一系列极限测试——水龙头冲洗、跑步机狂甩、侧躺压耳。每次测试后耳机完好，主人公表情从怀疑到震惊到真香。",
+      hook: "「我赌100块这耳机扛不住水龙头」",
+    },
+    {
+      title: "方向3：朋友安利反转型",
+      storyType: "社交互动反转",
+      overview: "朋友吐槽主人公的耳机又大又丑，拿出隐形耳机现场安利。主人公从嫌弃到试戴后「看不见？？」的惊讶，再到了解价格后秒下单。全程自然对话，像真实安利。",
+      hook: "「你这耳机也太丑了吧——看看我这个」",
+    },
+  ],
+  recommendIndex: 0,
+};
+
+// ─── 短视频脚本：R2 分幕剧本数据 ──────────────────────────────
+
+export interface ScriptCharacter {
+  name: string;
+  identity: string;
+  appearance: string;
+}
+
+export interface ScriptScene {
+  act: number;
+  heading: string;
+  characters: string[];
+  duration: string;
+  productExposure: string;
+  visual: string;
+  dialogue: string;
+  sellingPoint?: string;
+}
+
+export interface VideoScript {
+  title: string;
+  duration: string;
+  style: string;
+  characters: ScriptCharacter[];
+  scenes: ScriptScene[];
+}
+
+export const mockVideoScript: VideoScript = {
+  title: "「你还在戴这种耳机？」",
+  duration: "60s",
+  style: "反转型 · UGC真人出镜",
+  characters: [
+    { name: "Jimmy", identity: "20-25岁男性，普通大学生/年轻上班族", appearance: "灰色卫衣+牛仔裤，干净短发，像屏幕里的朋友" },
+  ],
+  scenes: [
+    {
+      act: 1,
+      heading: "幕1 室内-卧室 日 内",
+      characters: ["Jimmy"],
+      duration: "0-5s",
+      productExposure: "普通耳机（对比道具）",
+      visual: "Jimmy坐在床边，手里拿着一副普通白色有线耳机，线缠成一团，表情无奈。拿起来戴上，耳机从耳朵滑落。",
+      dialogue: "\"你还在戴这种耳机？\"（举起缠成一团的耳机线）\"难怪别人一直看你。\"（耳机滑落，叹气）",
+      sellingPoint: "痛点铺垫",
+    },
+    {
+      act: 2,
+      heading: "幕2 室内-卧室 日 内",
+      characters: ["Jimmy"],
+      duration: "5-15s",
+      productExposure: "隐形蓝牙耳机 Pro 首次出场",
+      visual: "Jimmy伸手从桌上拿起隐形耳机，放在掌心展示——极小的豆状造型。塞入耳朵，转头展示侧面，耳机几乎不可见。",
+      dialogue: "\"Until I found this.\"（掌心展示耳机特写）\"Look——can you even see it?\"（转头，指向耳朵，挑眉）",
+      sellingPoint: "核心卖点①：极致隐形",
+    },
+    {
+      act: 3,
+      heading: "幕3 室内-洗手间 日 内",
+      characters: ["Jimmy"],
+      duration: "15-25s",
+      productExposure: "耳机防水特写",
+      visual: "Jimmy走到水龙头前，打开水流，把耳机直接放在水下冲洗3秒。慢动作特写水花飞溅。拿起甩干，塞回耳朵，点头确认还能用。",
+      dialogue: "\"What really shocked me——\"（耳机放入水流下）\"Fully waterproof. Like, actually waterproof.\"（拿起耳机，惊喜表情）",
+      sellingPoint: "核心卖点②：IPX5防水",
+    },
+    {
+      act: 4,
+      heading: "幕4 室内-客厅 日 内",
+      characters: ["Jimmy"],
+      duration: "25-40s",
+      productExposure: "降噪功能演示",
+      visual: "背景播放嘈杂街道音效（画面加波纹特效）。Jimmy戴上耳机，环境音瞬间消失，画面波纹平息。Jimmy闭眼，享受安静，然后睁眼微笑。接着切换到沙发侧躺画面，展示耳机贴合耳朵不突出。",
+      dialogue: "\"Noise cancelling? Check.\"（戴上耳机，环境音消失）\"The world just goes quiet.\"（闭眼，满足微笑）\"And you can even sleep with these on——zero pressure.\"（侧躺展示）",
+      sellingPoint: "核心卖点③：主动降噪 + 次要卖点：舒适佩戴",
+    },
+    {
+      act: 5,
+      heading: "幕5 室内-卧室 日 内",
+      characters: ["Jimmy"],
+      duration: "40-60s",
+      productExposure: "三色产品展示 + 价格字幕",
+      visual: "桌上展示白/黑/蓝三色耳机排列。价格字幕动画弹出：¥399划掉→¥199红色放大。Jimmy面对镜头，微笑，手指向下指向Bio链接。",
+      dialogue: "\"Three colors. 36 hours battery. And right now?\"（展示三色）\"Only ¥199. Was ¥399.\"（价格字幕弹出）\"Trust me, you NEED this. Link in bio.\"（手指向下，坚定微笑）",
+      sellingPoint: "价格锚定 + CTA",
+    },
+  ],
+};
+
+// ─── 短视频脚本：R3 分镜表数据 ──────────────────────────────
+
+export interface StoryboardShot {
+  shotNo: number;
+  act: number;
+  shotSize: string;
+  cameraMove: string;
+  visual: string;
+  audioDialogue: string;
+  duration: number;
+  productExposure: string;
+}
+
+export interface Storyboard {
+  title: string;
+  targetDuration: number;
+  totalDuration: number;
+  shots: StoryboardShot[];
+}
+
+export const mockStoryboard: Storyboard = {
+  title: "「你还在戴这种耳机？」分镜表",
+  targetDuration: 60,
+  totalDuration: 59,
+  shots: [
+    { shotNo: 1, act: 1, shotSize: "中景", cameraMove: "固定", visual: "Jimmy坐床边，手拿缠成团的有线耳机，表情无奈", audioDialogue: "\"你还在戴这种耳机？\"", duration: 3, productExposure: "对比道具" },
+    { shotNo: 2, act: 1, shotSize: "特写", cameraMove: "推", visual: "耳机从耳朵滑落的瞬间", audioDialogue: "\"难怪别人一直看你。\"（叹气）", duration: 2, productExposure: "无" },
+    { shotNo: 3, act: 2, shotSize: "特写", cameraMove: "固定", visual: "掌心展示隐形耳机，极小豆状造型，光泽感", audioDialogue: "\"Until I found this.\"", duration: 3, productExposure: "产品首次出场" },
+    { shotNo: 4, act: 2, shotSize: "中近景", cameraMove: "固定", visual: "耳机塞入耳朵，转头展示侧面，几乎不可见", audioDialogue: "\"Can you even see it?\"（挑眉）", duration: 4, productExposure: "隐形效果" },
+    { shotNo: 5, act: 2, shotSize: "特写", cameraMove: "慢推", visual: "耳朵侧面微距特写，耳机完全贴合", audioDialogue: "BGM轻快节拍", duration: 3, productExposure: "隐形效果" },
+    { shotNo: 6, act: 3, shotSize: "中景", cameraMove: "固定", visual: "Jimmy站在水龙头前，打开水流", audioDialogue: "\"What really shocked me——\"", duration: 2, productExposure: "无" },
+    { shotNo: 7, act: 3, shotSize: "特写", cameraMove: "固定", visual: "耳机在水流下冲洗，慢动作水花飞溅", audioDialogue: "水流音效", duration: 4, productExposure: "防水演示" },
+    { shotNo: 8, act: 3, shotSize: "中近景", cameraMove: "固定", visual: "拿起耳机甩水，塞回耳朵，确认OK手势", audioDialogue: "\"Fully waterproof. Actually waterproof.\"", duration: 4, productExposure: "防水验证" },
+    { shotNo: 9, act: 4, shotSize: "中景", cameraMove: "固定", visual: "背景嘈杂波纹特效，Jimmy表情被噪音困扰", audioDialogue: "嘈杂街道环境音", duration: 3, productExposure: "无" },
+    { shotNo: 10, act: 4, shotSize: "中近景", cameraMove: "固定", visual: "戴上耳机瞬间，波纹消失，画面变安静", audioDialogue: "\"Noise cancelling? Check.\"（环境音消失）", duration: 4, productExposure: "降噪功能" },
+    { shotNo: 11, act: 4, shotSize: "中近景", cameraMove: "固定", visual: "闭眼享受安静，微笑", audioDialogue: "\"The world just goes quiet.\"", duration: 3, productExposure: "降噪体验" },
+    { shotNo: 12, act: 4, shotSize: "侧面中景", cameraMove: "固定", visual: "沙发侧躺，展示耳机贴合不突出", audioDialogue: "\"Sleep with these on—zero pressure.\"", duration: 5, productExposure: "舒适佩戴" },
+    { shotNo: 13, act: 5, shotSize: "俯拍特写", cameraMove: "固定", visual: "桌面三色耳机排列（白/黑/蓝）", audioDialogue: "\"Three colors. 36 hours battery.\"", duration: 4, productExposure: "三色展示" },
+    { shotNo: 14, act: 5, shotSize: "中景", cameraMove: "固定", visual: "价格字幕动画弹出：¥399→¥199", audioDialogue: "\"Only ¥199. Was ¥399.\"", duration: 5, productExposure: "价格锚定" },
+    { shotNo: 15, act: 5, shotSize: "中近景", cameraMove: "固定", visual: "Jimmy微笑，手指向下指", audioDialogue: "\"Trust me, you NEED this. Link in bio.\"", duration: 5, productExposure: "CTA" },
+    { shotNo: 16, act: 5, shotSize: "特写", cameraMove: "推", visual: "产品Logo + 价格 + 二维码定帧", audioDialogue: "BGM结尾", duration: 4, productExposure: "品牌露出" },
+  ],
+};

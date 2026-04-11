@@ -37,6 +37,9 @@ import {
   marketingMockChapterTexts,
   marketingProductInfoCard,
   marketingContentByType,
+  mockVideoBrief,
+  mockVideoScript,
+  mockStoryboard,
 } from "./marketingMockData";
 import {
   knowledgeInspirationRounds,
@@ -1246,6 +1249,9 @@ type Message =
   | { id: string; sender: "model"; type: "subtype-select"; prompt: string }
   | { id: string; sender: "model"; type: "scene-select"; prompt: string }
   | { id: string; sender: "model"; type: "content-structure"; prompt: string; scenarios: import("./marketingMockData").ContentScenario[] }
+  | { id: string; sender: "model"; type: "video-brief"; prompt: string; brief: import("./marketingMockData").VideoBrief }
+  | { id: string; sender: "model"; type: "video-script"; prompt: string; script: import("./marketingMockData").VideoScript }
+  | { id: string; sender: "model"; type: "video-storyboard"; prompt: string; storyboard: import("./marketingMockData").Storyboard }
   | { id: string; sender: "user"; type: "card-selection"; content: string }
   | { id: string; sender: "user"; type: "text"; content: string };
 
@@ -1712,6 +1718,28 @@ export default function ChatPanel() {
         }, 2500);
         return;
       }
+
+      // Short video: creative direction micro-adjust done (round 21) → generate script
+      if (fromRound === 21) {
+        const thinkingId = `thinking-mkt-script`;
+        setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+
+        setTimeout(() => {
+          setMessages((prev) => [
+            ...prev.filter((m) => m.id !== thinkingId),
+            {
+              id: "model-video-script",
+              sender: "model",
+              type: "video-script",
+              prompt: "基于你选择的创意方向，以下是完整的分幕剧本。确认无误后生成分镜表：",
+              script: mockVideoScript,
+            },
+          ]);
+          setCurrentRound(23);
+          setCreationStage(3);
+        }, 2500);
+        return;
+      }
     },
     [setCreationStage, flowMode, setAgentStageData]
   );
@@ -2098,6 +2126,95 @@ export default function ChatPanel() {
         setCurrentRound(12);
         setCreationStage(3);
         setAgentStageData("characters", dataRef.current.sceneCharacterCard);
+      }, 2500);
+      return;
+    }
+
+    // Marketing short_video: user provided video params (round 20) → generate Brief
+    if (currentRound === 20 && dataRef.current.isMarketing) {
+      const thinkingId = `thinking-mkt-brief`;
+      setTimeout(() => {
+        setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+      }, 300);
+      setTimeout(() => {
+        setMessages((prev) => [
+          ...prev.filter((m) => m.id !== thinkingId),
+          {
+            id: "model-video-brief",
+            sender: "model",
+            type: "video-brief",
+            prompt: "已获取全部创作参数！以下是创意Brief，请选择一个创意方向：",
+            brief: mockVideoBrief,
+          },
+        ]);
+        setCurrentRound(21);
+        setCreationStage(2);
+      }, 2500);
+      return;
+    }
+
+    // Marketing short_video: user typed at Brief stage (round 21) — treat as direction choice or modification
+    if (currentRound === 21 && dataRef.current.isMarketing) {
+      // Treat any text input as selecting direction 1 for now
+      const thinkingId = `thinking-mkt-direction`;
+      setTimeout(() => {
+        setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+      }, 300);
+      setTimeout(() => {
+        setMessages((prev) => [
+          ...prev.filter((m) => m.id !== thinkingId),
+          {
+            id: "model-brief-adjust",
+            sender: "model",
+            type: "micro-adjust",
+            prompt: "好的选择！这个方向很有冲击力。\n\n想微调什么吗？比如「钩子再夸张一点」「加个闺蜜角色」，或者点击下方「继续」直接生成分幕剧本。",
+            round: 21,
+          },
+        ]);
+        setAwaitingAdjust(true);
+        setAdjustRound(21);
+      }, 1500);
+      return;
+    }
+
+    // Marketing short_video: user typed at script stage (round 23) — modification
+    if (currentRound === 23 && dataRef.current.isMarketing) {
+      const thinkingId = `thinking-mkt-script-mod`;
+      setTimeout(() => {
+        setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+      }, 300);
+      setTimeout(() => {
+        setMessages((prev) => [
+          ...prev.filter((m) => m.id !== thinkingId),
+          {
+            id: `model-video-script-${Date.now()}`,
+            sender: "model",
+            type: "video-script",
+            prompt: "好的，已根据你的要求调整了分幕剧本。确认无误后生成分镜表：",
+            script: mockVideoScript,
+          },
+        ]);
+      }, 2500);
+      return;
+    }
+
+    // Marketing short_video: user typed at storyboard stage (round 24) — modification
+    if (currentRound === 24 && dataRef.current.isMarketing) {
+      const thinkingId = `thinking-mkt-sb-mod`;
+      setTimeout(() => {
+        setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+      }, 300);
+      setTimeout(() => {
+        setMessages((prev) => [
+          ...prev.filter((m) => m.id !== thinkingId),
+          {
+            id: `model-video-storyboard-${Date.now()}`,
+            sender: "model",
+            type: "video-storyboard",
+            prompt: "好的，已根据你的要求调整了分镜表：",
+            storyboard: mockStoryboard,
+          },
+        ]);
       }, 2500);
       return;
     }
@@ -2562,6 +2679,20 @@ export default function ChatPanel() {
                 </div>
                 <p className="text-sm text-gray-700 leading-relaxed pl-8">{msg.prompt}</p>
                 {isActive && (() => {
+                    // For short_video round 21, show a simple "继续" button without progress bar
+                    if (msg.round === 21) {
+                      return (
+                        <div className="pl-8 space-y-2">
+                          <button
+                            onClick={handleSkipAdjust}
+                            data-tip="跳过微调，直接生成分幕剧本"
+                            className="px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
+                          >
+                            继续
+                          </button>
+                        </div>
+                      );
+                    }
                     const stageRound = msg.round <= 3 ? msg.round : msg.round <= 7 ? msg.round - 4 : msg.round - 8;
                     const totalRounds = 3;
                     const isLastRound = stageRound >= totalRounds;
@@ -2780,6 +2911,25 @@ export default function ChatPanel() {
                             ...prev,
                             { id: `user-scene-${Date.now()}`, sender: "user", type: "text", content: s.label },
                           ]);
+
+                          // ── short_video: go to video params guide ──
+                          if (s.id === "short_video") {
+                            const thinkingId = `thinking-mkt-video-params`;
+                            setTimeout(() => {
+                              setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+                            }, 300);
+                            setTimeout(() => {
+                              const guidePrompt = `好的，短视频脚本！为了生成更精准的创意方案，请补充以下信息：\n\n· **目标平台** — 抖音 / 小红书 / 快手 / 视频号\n· **视频时长** — 15s / 30s / 60s / 3min\n· **视频风格** — 反转型 / 对比型 / 场景沉浸型 / 教程型 / 情绪共鸣型\n· **特殊要求** — 选填，比如「要有真实翻车感」「结尾露出价格」\n\n想到什么说什么就行，或者点击下方按钮，我用默认参数先出一版。`;
+                              setMessages((prev) => [
+                                ...prev.filter((m) => m.id !== thinkingId),
+                                { id: "model-video-params-guide", sender: "model", type: "guide", prompt: guidePrompt },
+                              ]);
+                              setCurrentRound(20);
+                            }, 2000);
+                            return;
+                          }
+
+                          // ── other scenes: go to content structure ──
                           const scenario = marketingContentByType[s.id];
                           if (!scenario) return;
                           const thinkingId = `thinking-mkt-content`;
@@ -2922,6 +3072,339 @@ export default function ChatPanel() {
                     </button>
                   </div>
                 </div>
+              </div>
+            );
+          }
+
+          {/* ── Model: video brief with creative directions (short_video R1) ── */}
+          if (msg.sender === "model" && msg.type === "video-brief") {
+            const brief = msg.brief;
+            const selectedDir = selections[21];
+            return (
+              <div key={msg.id} className="space-y-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                    <span className="text-white text-[10px] font-bold">AI</span>
+                  </div>
+                  <span className="text-xs text-gray-400">文心</span>
+                </div>
+                <p className="text-sm text-gray-700 leading-relaxed pl-8">{msg.prompt}</p>
+
+                {/* Brief info card */}
+                <div className="pl-8">
+                  <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    {/* Confirmed params */}
+                    <div className="px-4 py-3 border-b border-gray-50">
+                      <h4 className="text-xs font-semibold text-gray-500 mb-2">信息确认</h4>
+                      <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                        {brief.confirmedParams.map((p, i) => (
+                          <div key={i} className="flex items-baseline gap-1">
+                            <span className="text-[11px] text-gray-400 shrink-0">{p.label}</span>
+                            <span className="text-xs text-gray-700">{p.value}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    {/* Selling points matrix */}
+                    <div className="px-4 py-3 border-b border-gray-50">
+                      <h4 className="text-xs font-semibold text-gray-500 mb-2">商品卖点矩阵</h4>
+                      <div className="space-y-1.5">
+                        <div>
+                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-rose-50 text-rose-600 font-medium">核心卖点</span>
+                          <div className="mt-1 space-y-0.5">
+                            {brief.sellingPoints.core.map((p, i) => (
+                              <p key={i} className="text-xs text-gray-700 pl-2">① {p}</p>
+                            ))}
+                          </div>
+                        </div>
+                        <div>
+                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-600 font-medium">次要卖点</span>
+                          <p className="text-xs text-gray-500 pl-2 mt-1">{brief.sellingPoints.secondary.join("、")}</p>
+                        </div>
+                        <div>
+                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-600 font-medium">差异化卖点</span>
+                          <div className="mt-1 space-y-0.5">
+                            {brief.sellingPoints.differentiated.map((p, i) => (
+                              <p key={i} className="text-xs text-gray-600 pl-2">{p}</p>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    {/* Audience */}
+                    <div className="px-4 py-3">
+                      <h4 className="text-xs font-semibold text-gray-500 mb-2">目标受众画像</h4>
+                      <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                        <div className="flex items-baseline gap-1"><span className="text-[11px] text-gray-400">年龄</span><span className="text-xs text-gray-700">{brief.audience.age}</span></div>
+                        <div className="flex items-baseline gap-1"><span className="text-[11px] text-gray-400">身份</span><span className="text-xs text-gray-700">{brief.audience.identity}</span></div>
+                        <div className="col-span-2 flex items-baseline gap-1"><span className="text-[11px] text-gray-400">痛点</span><span className="text-xs text-gray-700">{brief.audience.painPoints}</span></div>
+                        <div className="col-span-2 flex items-baseline gap-1"><span className="text-[11px] text-gray-400">消费偏好</span><span className="text-xs text-gray-700">{brief.audience.preference}</span></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Creative direction cards */}
+                <p className="text-sm text-gray-600 pl-8 font-medium">请选择创意方向：</p>
+                <div className="pl-8 space-y-2">
+                  {brief.directions.map((dir, di) => {
+                    const isSelected = selectedDir === di;
+                    const isOther = selectedDir !== undefined && selectedDir !== di;
+                    return (
+                      <button
+                        key={di}
+                        onClick={() => {
+                          if (selectedDir !== undefined) return;
+                          setSelections((prev) => ({ ...prev, [21]: di }));
+                          setMessages((prev) => [
+                            ...prev,
+                            { id: `user-dir-${Date.now()}`, sender: "user", type: "card-selection", content: dir.title },
+                          ]);
+                          // Show micro-adjust
+                          const thinkingId = `thinking-dir-adj`;
+                          setTimeout(() => {
+                            setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+                          }, 300);
+                          setTimeout(() => {
+                            setMessages((prev) => [
+                              ...prev.filter((m) => m.id !== thinkingId),
+                              {
+                                id: "model-brief-adjust",
+                                sender: "model",
+                                type: "micro-adjust",
+                                prompt: "好的选择！这个方向很有冲击力。\n\n想微调什么吗？比如「钩子再夸张一点」「加个闺蜜角色」，或者点击下方「继续」直接生成分幕剧本。",
+                                round: 21,
+                              },
+                            ]);
+                            setAwaitingAdjust(true);
+                            setAdjustRound(21);
+                          }, 1500);
+                        }}
+                        className={`w-full text-left p-3.5 rounded-xl border-2 transition-all duration-200 ${
+                          isSelected
+                            ? "border-indigo-400 bg-indigo-50/80 shadow-sm"
+                            : isOther
+                            ? "border-gray-100 bg-white opacity-50"
+                            : "border-gray-100 bg-white hover:border-indigo-200 hover:shadow-sm cursor-pointer"
+                        }`}
+                      >
+                        <div className="flex items-start gap-2.5">
+                          <span className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-medium shrink-0 mt-0.5 ${
+                            isSelected ? "bg-indigo-500 text-white" : "bg-gray-100 text-gray-400"
+                          }`}>{di + 1}</span>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-gray-800">{dir.title}</p>
+                            <p className="text-[11px] text-gray-400 mt-0.5">故事类型：{dir.storyType}</p>
+                            <p className="text-xs text-gray-600 mt-1 leading-relaxed">{dir.overview}</p>
+                            <p className="text-xs text-indigo-500 mt-1.5 italic">钩子：{dir.hook}</p>
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          }
+
+          {/* ── Model: video script (short_video R2) ── */}
+          if (msg.sender === "model" && msg.type === "video-script") {
+            const script = msg.script;
+            return (
+              <div key={msg.id} className="space-y-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                    <span className="text-white text-[10px] font-bold">AI</span>
+                  </div>
+                  <span className="text-xs text-gray-400">文心</span>
+                </div>
+                <p className="text-sm text-gray-700 leading-relaxed pl-8">{msg.prompt}</p>
+
+                <div className="pl-8">
+                  <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    {/* Header */}
+                    <div className="px-4 py-3 border-b border-gray-50">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] px-2 py-0.5 rounded bg-rose-50 text-rose-600 font-medium">分幕剧本</span>
+                        <span className="text-xs text-gray-500">{script.title}</span>
+                      </div>
+                      <div className="flex items-center gap-3 mt-1.5">
+                        <span className="text-[11px] text-gray-400">时长 {script.duration}</span>
+                        <span className="text-[11px] text-gray-400">风格 {script.style}</span>
+                      </div>
+                    </div>
+                    {/* Characters */}
+                    <div className="px-4 py-2 border-b border-gray-50">
+                      <h4 className="text-xs font-semibold text-gray-500 mb-1.5">角色表</h4>
+                      {script.characters.map((c, ci) => (
+                        <div key={ci} className="flex items-baseline gap-2 mb-1">
+                          <span className="text-xs font-medium text-gray-700">{c.name}</span>
+                          <span className="text-[11px] text-gray-400">{c.identity}</span>
+                        </div>
+                      ))}
+                    </div>
+                    {/* Scenes (max height with fade) */}
+                    <div className="relative max-h-[280px] overflow-hidden">
+                      <div className="px-4 py-2 space-y-3">
+                        {script.scenes.map((s, si) => (
+                          <div key={si} className="border-l-2 border-indigo-200 pl-3 py-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-500 font-mono">{s.heading}</span>
+                              <span className="text-[10px] text-gray-400">{s.duration}</span>
+                            </div>
+                            <p className="text-xs text-gray-600 leading-relaxed mb-1">{s.visual}</p>
+                            <p className="text-xs text-gray-800 leading-relaxed italic">{s.dialogue}</p>
+                            {s.sellingPoint && (
+                              <span className="inline-block mt-1 text-[10px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-600">{s.sellingPoint}</span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                      <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
+                    </div>
+                    {/* Footer */}
+                    <div className="px-4 py-2 border-t border-gray-50 text-center">
+                      <span className="text-[11px] text-gray-400">点击左侧预览区查看完整分幕剧本</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Action buttons */}
+                {currentRound === 23 && (
+                  <div className="pl-8 mt-2 space-y-2">
+                    <div className="flex items-center gap-2.5">
+                      <button
+                        onClick={() => {
+                          setMessages((prev) => [...prev, { id: `user-confirm-script-${Date.now()}`, sender: "user", type: "text", content: "确认剧本，生成分镜表" }]);
+                          const thinkingId = `thinking-mkt-storyboard`;
+                          setTimeout(() => {
+                            setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+                          }, 300);
+                          setTimeout(() => {
+                            setMessages((prev) => [
+                              ...prev.filter((m) => m.id !== thinkingId),
+                              {
+                                id: "model-video-storyboard",
+                                sender: "model",
+                                type: "video-storyboard",
+                                prompt: "分幕剧本确认！以下是完整的分镜表：",
+                                storyboard: mockStoryboard,
+                              },
+                            ]);
+                            setCurrentRound(24);
+                            setCreationStage(4);
+                          }, 2500);
+                        }}
+                        data-tip="确认剧本，生成分镜表"
+                        className="flex-1 px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
+                      >
+                        确认，生成分镜表
+                      </button>
+                      <button
+                        onClick={() => {
+                          setMessages((prev) => [...prev, { id: `user-regen-script-${Date.now()}`, sender: "user", type: "text", content: "换一换" }]);
+                          const thinkingId = `thinking-regen-script`;
+                          setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+                          setTimeout(() => {
+                            setMessages((prev) => [
+                              ...prev.filter((m) => m.id !== thinkingId),
+                              { id: `model-video-script-${Date.now()}`, sender: "model" as const, type: "video-script" as const, prompt: "已重新生成一版分幕剧本，看看这个怎么样？", script: mockVideoScript },
+                            ]);
+                          }, 2000);
+                        }}
+                        data-tip="重新生成分幕剧本"
+                        className="px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
+                      >
+                        <RefreshCw className="w-3.5 h-3.5 inline mr-1" />
+                        换一换
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          }
+
+          {/* ── Model: video storyboard (short_video R3) ── */}
+          if (msg.sender === "model" && msg.type === "video-storyboard") {
+            const sb = msg.storyboard;
+            return (
+              <div key={msg.id} className="space-y-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                    <span className="text-white text-[10px] font-bold">AI</span>
+                  </div>
+                  <span className="text-xs text-gray-400">文心</span>
+                </div>
+                <p className="text-sm text-gray-700 leading-relaxed pl-8">{msg.prompt}</p>
+
+                <div className="pl-8">
+                  <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    {/* Header */}
+                    <div className="px-4 py-3 border-b border-gray-50">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] px-2 py-0.5 rounded bg-violet-50 text-violet-600 font-medium">分镜表</span>
+                          <span className="text-xs text-gray-500">{sb.title}</span>
+                        </div>
+                        <span className={`text-[10px] px-2 py-0.5 rounded font-medium ${
+                          Math.abs(sb.totalDuration - sb.targetDuration) <= 3
+                            ? "bg-green-50 text-green-600"
+                            : "bg-red-50 text-red-600"
+                        }`}>
+                          {sb.totalDuration}s / {sb.targetDuration}s
+                        </span>
+                      </div>
+                    </div>
+                    {/* Storyboard table */}
+                    <div className="relative max-h-[300px] overflow-hidden">
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-xs">
+                          <thead>
+                            <tr className="bg-gray-50 text-gray-500">
+                              <th className="px-2 py-1.5 text-left font-medium">镜号</th>
+                              <th className="px-2 py-1.5 text-left font-medium">幕</th>
+                              <th className="px-2 py-1.5 text-left font-medium">景别</th>
+                              <th className="px-2 py-1.5 text-left font-medium">运镜</th>
+                              <th className="px-2 py-1.5 text-left font-medium min-w-[140px]">画面描述</th>
+                              <th className="px-2 py-1.5 text-left font-medium min-w-[120px]">台词/音效</th>
+                              <th className="px-2 py-1.5 text-center font-medium">时长</th>
+                              <th className="px-2 py-1.5 text-left font-medium">产品露出</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {sb.shots.map((shot) => (
+                              <tr key={shot.shotNo} className="border-t border-gray-50 hover:bg-gray-50/50">
+                                <td className="px-2 py-1.5 text-gray-500 font-mono">{shot.shotNo}</td>
+                                <td className="px-2 py-1.5 text-gray-500">{shot.act}</td>
+                                <td className="px-2 py-1.5 text-gray-600">{shot.shotSize}</td>
+                                <td className="px-2 py-1.5 text-gray-600">{shot.cameraMove}</td>
+                                <td className="px-2 py-1.5 text-gray-700">{shot.visual}</td>
+                                <td className="px-2 py-1.5 text-gray-600 italic">{shot.audioDialogue}</td>
+                                <td className="px-2 py-1.5 text-center text-gray-500">{shot.duration}s</td>
+                                <td className="px-2 py-1.5">
+                                  {shot.productExposure !== "无" && (
+                                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-600">{shot.productExposure}</span>
+                                  )}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                      <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
+                    </div>
+                    {/* Footer */}
+                    <div className="px-4 py-2 border-t border-gray-50 text-center">
+                      <span className="text-[11px] text-gray-400">点击左侧预览区查看完整分镜表</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Completion message */}
+                <p className="text-sm text-gray-600 leading-relaxed pl-8">
+                  分镜表生成完毕！想调整任何部分直接告诉我，比如「第3镜换成特写」「加个转场」。
+                </p>
               </div>
             );
           }
@@ -3087,6 +3570,37 @@ export default function ChatPanel() {
                       className="px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
                     >
                       直接生成角色
+                    </button>
+                  </div>
+                )}
+                {currentRound === 20 && isMarketing && (
+                  <div className="pl-8 mt-1">
+                    <button
+                      onClick={() => {
+                        setMessages((prev) => [...prev, { id: `user-gen-brief-${Date.now()}`, sender: "user", type: "text", content: "用默认参数生成" }]);
+                        const thinkingId = `thinking-mkt-brief`;
+                        setTimeout(() => {
+                          setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+                        }, 300);
+                        setTimeout(() => {
+                          setMessages((prev) => [
+                            ...prev.filter((m) => m.id !== thinkingId),
+                            {
+                              id: "model-video-brief",
+                              sender: "model",
+                              type: "video-brief",
+                              prompt: "已获取全部创作参数！以下是创意Brief，请选择一个创意方向：",
+                              brief: mockVideoBrief,
+                            },
+                          ]);
+                          setCurrentRound(21);
+                          setCreationStage(2);
+                        }, 2500);
+                      }}
+                      data-tip="使用默认参数生成创意Brief"
+                      className="px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
+                    >
+                      直接生成
                     </button>
                   </div>
                 )}
@@ -3561,6 +4075,14 @@ export default function ChatPanel() {
                 ? scene === "marketing"
                   ? "想调整什么？比如「第三幕加个反转」「结尾CTA再强一点」..."
                   : "想调整什么？比如「第三章加个反转」「结局改成开放式」..."
+                : currentRound === 20
+                ? "补充视频参数，比如「抖音，60秒，反转型」..."
+                : currentRound === 21
+                ? "选择一个创意方向，或者直接输入你的想法..."
+                : currentRound === 23
+                ? "想调整剧本吗？比如「第二幕台词再自然一点」「加个配角」..."
+                : currentRound === 24
+                ? "想调整分镜吗？比如「第3镜换成特写」「加个转场」..."
                 : flowMode === "none"
                 ? scene === "marketing"
                   ? "告诉我你要推广的商品，包括商品名称、价格、品类、商品简介、目标用户、核心卖点、平台"
