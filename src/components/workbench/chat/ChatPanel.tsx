@@ -40,6 +40,10 @@ import {
   mockVideoBrief,
   mockVideoScript,
   mockStoryboard,
+  mockLiveBrief,
+  mockLiveScript,
+  mockGraphicBrief,
+  mockGraphicNote,
 } from "./marketingMockData";
 import {
   knowledgeInspirationRounds,
@@ -1252,6 +1256,8 @@ type Message =
   | { id: string; sender: "model"; type: "video-brief"; prompt: string; brief: import("./marketingMockData").VideoBrief }
   | { id: string; sender: "model"; type: "video-script"; prompt: string; script: import("./marketingMockData").VideoScript }
   | { id: string; sender: "model"; type: "video-storyboard"; prompt: string; storyboard: import("./marketingMockData").Storyboard }
+  | { id: string; sender: "model"; type: "live-script"; prompt: string; data: import("./marketingMockData").LiveScriptData }
+  | { id: string; sender: "model"; type: "graphic-note"; prompt: string; data: import("./marketingMockData").GraphicNoteData }
   | { id: string; sender: "user"; type: "card-selection"; content: string }
   | { id: string; sender: "user"; type: "text"; content: string };
 
@@ -1719,25 +1725,56 @@ export default function ChatPanel() {
         return;
       }
 
-      // Short video: creative direction micro-adjust done (round 21) → generate script
+      // Marketing: creative direction micro-adjust done (round 21) → generate output
       if (fromRound === 21) {
+        const platform = marketingPlatformRef.current;
         const thinkingId = `thinking-mkt-script`;
         setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
 
         setTimeout(() => {
-          setMessages((prev) => [
-            ...prev.filter((m) => m.id !== thinkingId),
-            {
-              id: "model-video-script",
-              sender: "model",
-              type: "video-script",
-              prompt: "基于你选择的创意方向，以下是完整的分幕剧本。确认无误后生成分镜表：",
-              script: mockVideoScript,
-            },
-          ]);
-          setCurrentRound(23);
-          setCreationStage(3);
-          setAgentStageData("videoScript", mockVideoScript);
+          if (platform === "live_script") {
+            setMessages((prev) => [
+              ...prev.filter((m) => m.id !== thinkingId),
+              {
+                id: "model-live-script",
+                sender: "model",
+                type: "live-script",
+                prompt: "基于你选择的话术风格，以下是完整的直播台本。确认无误后即可使用：",
+                data: mockLiveScript,
+              },
+            ]);
+            setCurrentRound(23);
+            setCreationStage(3);
+            setAgentStageData("liveScript", mockLiveScript);
+          } else if (platform === "graphic_note") {
+            setMessages((prev) => [
+              ...prev.filter((m) => m.id !== thinkingId),
+              {
+                id: "model-graphic-note",
+                sender: "model",
+                type: "graphic-note",
+                prompt: "基于你选择的内容角度，以下是完整的图文笔记。确认无误后即可使用：",
+                data: mockGraphicNote,
+              },
+            ]);
+            setCurrentRound(23);
+            setCreationStage(3);
+            setAgentStageData("graphicNote", mockGraphicNote);
+          } else {
+            setMessages((prev) => [
+              ...prev.filter((m) => m.id !== thinkingId),
+              {
+                id: "model-video-script",
+                sender: "model",
+                type: "video-script",
+                prompt: "基于你选择的创意方向，以下是完整的分幕剧本。确认无误后生成分镜表：",
+                script: mockVideoScript,
+              },
+            ]);
+            setCurrentRound(23);
+            setCreationStage(3);
+            setAgentStageData("videoScript", mockVideoScript);
+          }
         }, 2500);
         return;
       }
@@ -2130,8 +2167,10 @@ export default function ChatPanel() {
       return;
     }
 
-    // Marketing short_video: user provided video params (round 20) → generate Brief
+    // Marketing: user provided params (round 20) → generate Brief
     if (currentRound === 20 && dataRef.current.isMarketing) {
+      const platform = marketingPlatformRef.current;
+      const brief = platform === "live_script" ? mockLiveBrief : platform === "graphic_note" ? mockGraphicBrief : mockVideoBrief;
       const thinkingId = `thinking-mkt-brief`;
       setTimeout(() => {
         setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
@@ -2144,19 +2183,20 @@ export default function ChatPanel() {
             sender: "model",
             type: "video-brief",
             prompt: "已获取全部创作参数！以下是创意Brief，请选择一个创意方向：",
-            brief: mockVideoBrief,
+            brief,
           },
         ]);
         setCurrentRound(21);
         setCreationStage(2);
-        setAgentStageData("videoBrief", mockVideoBrief);
+        setAgentStageData("videoBrief", brief);
       }, 2500);
       return;
     }
 
-    // Marketing short_video: user typed at Brief stage (round 21) — treat as direction choice or modification
+    // Marketing: user typed at Brief stage (round 21) — treat as direction choice or modification
     if (currentRound === 21 && dataRef.current.isMarketing) {
-      // Treat any text input as selecting direction 1 for now
+      const platform = marketingPlatformRef.current;
+      const outputLabel = platform === "live_script" ? "直播台本" : platform === "graphic_note" ? "图文笔记" : "分幕剧本";
       const thinkingId = `thinking-mkt-direction`;
       setTimeout(() => {
         setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
@@ -2168,7 +2208,7 @@ export default function ChatPanel() {
             id: "model-brief-adjust",
             sender: "model",
             type: "micro-adjust",
-            prompt: "好的选择！这个方向很有冲击力。\n\n想微调什么吗？比如「钩子再夸张一点」「加个闺蜜角色」，或者点击下方「继续」直接生成分幕剧本。",
+            prompt: `好的选择！这个方向很有冲击力。\n\n想微调什么吗？比如「钩子再夸张一点」「换个风格」，或者点击下方「继续」直接生成${outputLabel}。`,
             round: 21,
           },
         ]);
@@ -2178,23 +2218,30 @@ export default function ChatPanel() {
       return;
     }
 
-    // Marketing short_video: user typed at script stage (round 23) — modification
+    // Marketing: user typed at output stage (round 23) — modification
     if (currentRound === 23 && dataRef.current.isMarketing) {
-      const thinkingId = `thinking-mkt-script-mod`;
+      const platform = marketingPlatformRef.current;
+      const thinkingId = `thinking-mkt-output-mod`;
       setTimeout(() => {
         setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
       }, 300);
       setTimeout(() => {
-        setMessages((prev) => [
-          ...prev.filter((m) => m.id !== thinkingId),
-          {
-            id: `model-video-script-${Date.now()}`,
-            sender: "model",
-            type: "video-script",
-            prompt: "好的，已根据你的要求调整了分幕剧本。确认无误后生成分镜表：",
-            script: mockVideoScript,
-          },
-        ]);
+        if (platform === "live_script") {
+          setMessages((prev) => [
+            ...prev.filter((m) => m.id !== thinkingId),
+            { id: `model-live-script-${Date.now()}`, sender: "model", type: "live-script", prompt: "好的，已根据你的要求调整了直播台本：", data: mockLiveScript },
+          ]);
+        } else if (platform === "graphic_note") {
+          setMessages((prev) => [
+            ...prev.filter((m) => m.id !== thinkingId),
+            { id: `model-graphic-note-${Date.now()}`, sender: "model", type: "graphic-note", prompt: "好的，已根据你的要求调整了图文笔记：", data: mockGraphicNote },
+          ]);
+        } else {
+          setMessages((prev) => [
+            ...prev.filter((m) => m.id !== thinkingId),
+            { id: `model-video-script-${Date.now()}`, sender: "model", type: "video-script", prompt: "好的，已根据你的要求调整了分幕剧本。确认无误后生成分镜表：", script: mockVideoScript },
+          ]);
+        }
       }, 2500);
       return;
     }
@@ -2930,6 +2977,40 @@ export default function ChatPanel() {
                             return;
                           }
 
+                          // ── live_script: go to live params guide ──
+                          if (s.id === "live_script") {
+                            const thinkingId = `thinking-mkt-live-params`;
+                            setTimeout(() => {
+                              setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+                            }, 300);
+                            setTimeout(() => {
+                              const guidePrompt = `好的，直播台本！为了生成更精准的话术方案，请补充以下信息：\n\n· **直播平台** — 抖音 / 快手 / 淘宝 / 视频号\n· **直播时长** — 15min（单品）/ 30min / 1h / 2h+\n· **话术风格** — 闺蜜安利型 / 专业讲解型 / 激情叫卖型 / 情感故事型\n· **特殊要求** — 选填，比如「需要现场上妆演示」「多品连讲」\n\n想到什么说什么就行，或者点击下方按钮，我随机生成一版。`;
+                              setMessages((prev) => [
+                                ...prev.filter((m) => m.id !== thinkingId),
+                                { id: "model-live-params-guide", sender: "model", type: "guide", prompt: guidePrompt },
+                              ]);
+                              setCurrentRound(20);
+                            }, 2000);
+                            return;
+                          }
+
+                          // ── graphic_note: go to note params guide ──
+                          if (s.id === "graphic_note") {
+                            const thinkingId = `thinking-mkt-note-params`;
+                            setTimeout(() => {
+                              setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+                            }, 300);
+                            setTimeout(() => {
+                              const guidePrompt = `好的，图文笔记！为了生成更精准的种草内容，请补充以下信息：\n\n· **目标平台** — 小红书 / 微博 / 公众号\n· **图片数量** — 3张 / 6张 / 9张\n· **笔记风格** — 真实测评型 / 日常分享型 / 成分科普型 / 好物合集型\n· **特殊要求** — 选填，比如「需要对比图」「突出性价比」\n\n想到什么说什么就行，或者点击下方按钮，我随机生成一版。`;
+                              setMessages((prev) => [
+                                ...prev.filter((m) => m.id !== thinkingId),
+                                { id: "model-note-params-guide", sender: "model", type: "guide", prompt: guidePrompt },
+                              ]);
+                              setCurrentRound(20);
+                            }, 2000);
+                            return;
+                          }
+
                           // ── other scenes: go to content structure ──
                           const scenario = marketingContentByType[s.id];
                           if (!scenario) return;
@@ -3520,6 +3601,306 @@ export default function ChatPanel() {
             );
           }
 
+          {/* ── Model: live script (live_script R2) ── */}
+          if (msg.sender === "model" && msg.type === "live-script") {
+            const ls = msg.data;
+            return (
+              <div key={msg.id} className="space-y-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                    <span className="text-white text-[10px] font-bold">AI</span>
+                  </div>
+                  <span className="text-xs text-gray-400">文心</span>
+                </div>
+                <p className="text-sm text-gray-700 leading-relaxed pl-8">{msg.prompt}</p>
+
+                <div className="pl-8">
+                  <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    {/* Header */}
+                    <div className="px-4 py-3 border-b border-gray-50">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] px-2 py-0.5 rounded bg-amber-50 text-amber-600 font-medium">直播台本</span>
+                        <span className="text-xs text-gray-500">{ls.title}</span>
+                      </div>
+                      <div className="flex items-center gap-3 mt-1.5">
+                        <span className="text-[11px] text-gray-400">时长 {ls.duration}</span>
+                        <span className="text-[11px] text-gray-400">风格 {ls.style}</span>
+                      </div>
+                    </div>
+
+                    {/* Rhythm Plan */}
+                    <div className="px-4 py-2 border-b border-gray-50">
+                      <h4 className="text-xs font-semibold text-gray-500 mb-1.5">直播节奏规划</h4>
+                      <table className="w-full text-[11px]">
+                        <thead>
+                          <tr className="border-b border-gray-100">
+                            <th className="text-left py-1 pr-2 text-gray-400 font-medium w-20">时间段</th>
+                            <th className="text-left py-1 pr-2 text-gray-400 font-medium w-28">环节</th>
+                            <th className="text-left py-1 text-gray-400 font-medium">目标</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {ls.rhythmPlan.map((rp, rpi) => (
+                            <tr key={rpi} className="border-b border-gray-50 last:border-0">
+                              <td className="py-1 pr-2 text-gray-500">{rp.timeRange}</td>
+                              <td className="py-1 pr-2 text-gray-700 font-medium">{rp.phase}</td>
+                              <td className="py-1 text-gray-600">{rp.goal}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Script phases */}
+                    <div className="relative max-h-[320px] overflow-hidden">
+                      <div className="px-4 py-2">
+                        <h4 className="text-xs font-semibold text-gray-500 mb-1.5">完整台本</h4>
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-[11px] min-w-[600px]">
+                            <thead>
+                              <tr className="border-b border-gray-100">
+                                <th className="text-left py-1 pr-2 text-gray-400 font-medium w-16">时间段</th>
+                                <th className="text-left py-1 pr-2 text-gray-400 font-medium w-16">环节</th>
+                                <th className="text-left py-1 pr-2 text-gray-400 font-medium">话术</th>
+                                <th className="text-left py-1 pr-2 text-gray-400 font-medium w-32">互动设计</th>
+                                <th className="text-left py-1 text-gray-400 font-medium w-28">产品露出</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {ls.phases.map((p, pi) => (
+                                <tr key={pi} className="border-b border-gray-50 last:border-0 align-top">
+                                  <td className="py-1.5 pr-2 text-gray-500 text-[10px]">{p.timeRange}</td>
+                                  <td className="py-1.5 pr-2 text-gray-700 font-medium text-[10px]">{p.phase}</td>
+                                  <td className="py-1.5 pr-2 text-gray-600 text-[10px] leading-relaxed">{p.script}</td>
+                                  <td className="py-1.5 pr-2 text-indigo-500 text-[10px] leading-relaxed">{p.interaction}</td>
+                                  <td className="py-1.5 text-gray-500 text-[10px]">{p.productExposure}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                      <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
+                    </div>
+
+                    {/* Interaction library */}
+                    <div className="px-4 py-2 border-t border-gray-50">
+                      <h4 className="text-xs font-semibold text-gray-500 mb-1.5">互动话术库</h4>
+                      <div className="space-y-1.5">
+                        {ls.interactionLibrary.map((lib, li) => (
+                          <div key={li}>
+                            <span className="text-[10px] font-medium text-gray-600">{lib.type}：</span>
+                            <span className="text-[10px] text-gray-500">{lib.lines.join(" / ")}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Selling Point Checks */}
+                    {ls.sellingPointChecks && ls.sellingPointChecks.length > 0 && (
+                      <div className="px-4 py-2 border-t border-gray-50">
+                        <h4 className="text-xs font-semibold text-gray-500 mb-1.5">卖点植入核验</h4>
+                        <table className="w-full text-[11px]">
+                          <thead>
+                            <tr className="border-b border-gray-100">
+                              <th className="text-left py-1 pr-2 text-gray-400 font-medium">卖点类型</th>
+                              <th className="text-left py-1 pr-2 text-gray-400 font-medium">卖点内容</th>
+                              <th className="text-left py-1 pr-2 text-gray-400 font-medium w-12">植入次数</th>
+                              <th className="text-left py-1 text-gray-400 font-medium">合规性</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {ls.sellingPointChecks.map((sp, spi) => (
+                              <tr key={spi} className="border-b border-gray-50 last:border-0">
+                                <td className="py-1 pr-2 text-gray-600">{sp.type}</td>
+                                <td className="py-1 pr-2 text-gray-700">{sp.content}</td>
+                                <td className="py-1 pr-2 text-gray-500">{sp.count}</td>
+                                <td className="py-1 text-emerald-600">{sp.compliance}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+
+                    {/* Footer */}
+                    <div className="px-4 py-2 border-t border-gray-50 text-center">
+                      <span className="text-[11px] text-gray-400">点击左侧预览区查看完整台本</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Action buttons */}
+                {currentRound === 23 && marketingPlatformRef.current === "live_script" && (
+                  <div className="pl-8 mt-2 flex items-center gap-2.5">
+                    <button
+                      onClick={() => {
+                        setMessages((prev) => [...prev, { id: `user-regen-live-${Date.now()}`, sender: "user", type: "text", content: "换一换" }]);
+                        const thinkingId = `thinking-regen-live`;
+                        setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+                        setTimeout(() => {
+                          setMessages((prev) => [
+                            ...prev.filter((m) => m.id !== thinkingId),
+                            { id: `model-live-script-${Date.now()}`, sender: "model" as const, type: "live-script" as const, prompt: "已重新生成一版直播台本，看看这个怎么样？", data: mockLiveScript },
+                          ]);
+                        }, 2000);
+                      }}
+                      className="px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
+                    >
+                      <RefreshCw className="w-3.5 h-3.5 inline mr-1" />
+                      换一换
+                    </button>
+                  </div>
+                )}
+
+                <p className="text-sm text-gray-600 leading-relaxed pl-8">
+                  直播台本生成完毕！想调整任何部分直接告诉我，比如「逼单话术再强一点」「开场加个互动」。
+                </p>
+              </div>
+            );
+          }
+
+          {/* ── Model: graphic note (graphic_note R2) ── */}
+          if (msg.sender === "model" && msg.type === "graphic-note") {
+            const note = msg.data;
+            return (
+              <div key={msg.id} className="space-y-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                    <span className="text-white text-[10px] font-bold">AI</span>
+                  </div>
+                  <span className="text-xs text-gray-400">文心</span>
+                </div>
+                <p className="text-sm text-gray-700 leading-relaxed pl-8">{msg.prompt}</p>
+
+                <div className="pl-8">
+                  <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    {/* Header */}
+                    <div className="px-4 py-3 border-b border-gray-50">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-50 text-emerald-600 font-medium">图文笔记</span>
+                        <span className="text-xs text-gray-500">{note.style}</span>
+                      </div>
+                    </div>
+
+                    {/* Title */}
+                    <div className="px-4 py-3 border-b border-gray-50">
+                      <h3 className="text-sm font-bold text-gray-800 leading-relaxed">{note.title}</h3>
+                      {note.subtitle && (
+                        <span className="inline-block mt-1 text-[10px] px-2 py-0.5 rounded bg-rose-50 text-rose-500 font-medium">封面文字：{note.subtitle}</span>
+                      )}
+                    </div>
+
+                    {/* Body sections */}
+                    <div className="relative max-h-[280px] overflow-hidden">
+                      <div className="px-4 py-2 space-y-3">
+                        {note.body.map((b, bi) => (
+                          <div key={bi}>
+                            <span className="text-[10px] font-medium text-gray-400 block mb-1">{b.section}</span>
+                            <p className="text-xs text-gray-700 leading-relaxed whitespace-pre-line">{b.content}</p>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
+                    </div>
+
+                    {/* Image plan */}
+                    <div className="px-4 py-2 border-t border-gray-50">
+                      <h4 className="text-xs font-semibold text-gray-500 mb-1.5">配图规划（共{note.images.length}张）</h4>
+                      <table className="w-full text-[11px]">
+                        <thead>
+                          <tr className="border-b border-gray-100">
+                            <th className="text-left py-1 pr-2 text-gray-400 font-medium w-12">图序</th>
+                            <th className="text-left py-1 pr-2 text-gray-400 font-medium">内容描述</th>
+                            <th className="text-left py-1 text-gray-400 font-medium w-28">拍摄建议</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {note.images.map((img, ii) => (
+                            <tr key={ii} className="border-b border-gray-50 last:border-0 align-top">
+                              <td className="py-1 pr-2 text-gray-500">{img.order}</td>
+                              <td className="py-1 pr-2 text-gray-700">{img.content}</td>
+                              <td className="py-1 text-gray-500 text-[10px]">{img.shootingTip}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Tags */}
+                    <div className="px-4 py-2 border-t border-gray-50">
+                      <h4 className="text-xs font-semibold text-gray-500 mb-1.5">推荐标签</h4>
+                      <div className="flex flex-wrap gap-1.5">
+                        {note.tags.map((tag, ti) => (
+                          <span key={ti} className="text-[10px] px-2 py-0.5 rounded-full bg-blue-50 text-blue-500">{tag}</span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Selling Point Checks */}
+                    {note.sellingPointChecks && note.sellingPointChecks.length > 0 && (
+                      <div className="px-4 py-2 border-t border-gray-50">
+                        <h4 className="text-xs font-semibold text-gray-500 mb-1.5">卖点植入核验</h4>
+                        <table className="w-full text-[11px]">
+                          <thead>
+                            <tr className="border-b border-gray-100">
+                              <th className="text-left py-1 pr-2 text-gray-400 font-medium">卖点类型</th>
+                              <th className="text-left py-1 pr-2 text-gray-400 font-medium">卖点内容</th>
+                              <th className="text-left py-1 pr-2 text-gray-400 font-medium w-12">植入次数</th>
+                              <th className="text-left py-1 text-gray-400 font-medium">合规性</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {note.sellingPointChecks.map((sp, spi) => (
+                              <tr key={spi} className="border-b border-gray-50 last:border-0">
+                                <td className="py-1 pr-2 text-gray-600">{sp.type}</td>
+                                <td className="py-1 pr-2 text-gray-700">{sp.content}</td>
+                                <td className="py-1 pr-2 text-gray-500">{sp.count}</td>
+                                <td className="py-1 text-emerald-600">{sp.compliance}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+
+                    {/* Footer */}
+                    <div className="px-4 py-2 border-t border-gray-50 text-center">
+                      <span className="text-[11px] text-gray-400">点击左侧预览区查看完整笔记</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Action buttons */}
+                {currentRound === 23 && marketingPlatformRef.current === "graphic_note" && (
+                  <div className="pl-8 mt-2 flex items-center gap-2.5">
+                    <button
+                      onClick={() => {
+                        setMessages((prev) => [...prev, { id: `user-regen-note-${Date.now()}`, sender: "user", type: "text", content: "换一换" }]);
+                        const thinkingId = `thinking-regen-note`;
+                        setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+                        setTimeout(() => {
+                          setMessages((prev) => [
+                            ...prev.filter((m) => m.id !== thinkingId),
+                            { id: `model-graphic-note-${Date.now()}`, sender: "model" as const, type: "graphic-note" as const, prompt: "已重新生成一版图文笔记，看看这个怎么样？", data: mockGraphicNote },
+                          ]);
+                        }, 2000);
+                      }}
+                      className="px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
+                    >
+                      <RefreshCw className="w-3.5 h-3.5 inline mr-1" />
+                      换一换
+                    </button>
+                  </div>
+                )}
+
+                <p className="text-sm text-gray-600 leading-relaxed pl-8">
+                  图文笔记生成完毕！想调整任何部分直接告诉我，比如「标题再吸引一点」「加个使用前后对比」。
+                </p>
+              </div>
+            );
+          }
+
           // ── Model: welcome message ──
           if (msg.sender === "model" && msg.type === "welcome") {
             return (
@@ -3689,6 +4070,8 @@ export default function ChatPanel() {
                     <button
                       onClick={() => {
                         setMessages((prev) => [...prev, { id: `user-gen-brief-${Date.now()}`, sender: "user", type: "text", content: "帮我生成" }]);
+                        const platform = marketingPlatformRef.current;
+                        const brief = platform === "live_script" ? mockLiveBrief : platform === "graphic_note" ? mockGraphicBrief : mockVideoBrief;
                         const thinkingId = `thinking-mkt-brief`;
                         setTimeout(() => {
                           setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
@@ -3701,12 +4084,12 @@ export default function ChatPanel() {
                               sender: "model",
                               type: "video-brief",
                               prompt: "已获取全部创作参数！以下是创意Brief，请选择一个创意方向：",
-                              brief: mockVideoBrief,
+                              brief,
                             },
                           ]);
                           setCurrentRound(21);
                           setCreationStage(2);
-                          setAgentStageData("videoBrief", mockVideoBrief);
+                          setAgentStageData("videoBrief", brief);
                         }, 2500);
                       }}
                       data-tip="随机生成创意Brief"
@@ -4188,11 +4571,19 @@ export default function ChatPanel() {
                   ? "想调整什么？比如「第三幕加个反转」「结尾CTA再强一点」..."
                   : "想调整什么？比如「第三章加个反转」「结局改成开放式」..."
                 : currentRound === 20
-                ? "补充视频参数，比如「抖音，60秒，反转型」..."
+                ? marketingPlatformRef.current === "live_script"
+                  ? "补充直播参数，比如「抖音，15分钟，闺蜜安利型」..."
+                  : marketingPlatformRef.current === "graphic_note"
+                  ? "补充笔记参数，比如「小红书，6张图，真实测评」..."
+                  : "补充视频参数，比如「抖音，60秒，反转型」..."
                 : currentRound === 21
                 ? "选择一个创意方向，或者直接输入你的想法..."
                 : currentRound === 23
-                ? "想调整剧本吗？比如「第二幕台词再自然一点」「加个配角」..."
+                ? marketingPlatformRef.current === "live_script"
+                  ? "想调整台本吗？比如「逼单话术再强一点」「加个互动环节」..."
+                  : marketingPlatformRef.current === "graphic_note"
+                  ? "想调整笔记吗？比如「标题再吸引一点」「加个对比段落」..."
+                  : "想调整剧本吗？比如「第二幕台词再自然一点」「加个配角」..."
                 : currentRound === 24
                 ? "想调整分镜吗？比如「第3镜换成特写」「加个转场」..."
                 : flowMode === "none"

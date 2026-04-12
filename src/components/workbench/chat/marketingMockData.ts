@@ -776,3 +776,259 @@ export const mockStoryboard: Storyboard = {
     { type: "差异化卖点（四分钟快速上妆、油皮适配）", content: "镜号8", shotRefs: "1 次呈现" },
   ],
 };
+
+// ─── 直播台本：Brief ──────────────────────────────────────
+
+export const mockLiveBrief: VideoBrief = {
+  confirmedParams: [
+    { label: "商品名称", value: "花知晓柔光持妆气垫" },
+    { label: "价格", value: "¥129（日常价¥169）" },
+    { label: "品类", value: "美妆 · 底妆" },
+    { label: "目标平台", value: "抖音直播" },
+    { label: "直播时长", value: "15分钟（单品讲解）" },
+    { label: "话术风格", value: "闺蜜安利型" },
+    { label: "特殊要求", value: "需要现场上妆演示" },
+  ],
+  sellingPoints: {
+    core: ["控油持妆 12 小时", "微米级粉体不卡粉", "SPF50+ 高倍防晒"],
+    secondary: ["玻尿酸保湿不拔干", "烟酰胺提亮肤色"],
+    differentiated: ["四分钟快速上妆", "油皮亲妈", "附赠 15g 替换芯"],
+  },
+  audience: {
+    age: "20-35 岁",
+    identity: "职场女性 / 大学生，油性/混油皮肤，日常化妆需求",
+    painPoints: "底妆午后脱妆、卡粉浮粉、夏天需要频繁补妆",
+    preference: "追求性价比，喜欢看真人实测",
+  },
+  directions: [
+    {
+      title: "闺蜜安利型",
+      storyType: "口语化分享",
+      overview: "像跟闺蜜聊天一样安利产品，边上妆边讲感受，真实不做作",
+      hook: "「姐妹们我跟你们说，这个气垫我用了一个月，再也回不去了」",
+    },
+    {
+      title: "现场实测型",
+      storyType: "实验对比",
+      overview: "直播间现场半脸对比实测，左旧右新，12 小时后验证效果",
+      hook: "「今天我就在直播间实测，12 小时后你们来看效果」",
+    },
+    {
+      title: "专业讲解型",
+      storyType: "成分科普",
+      overview: "从成分和技术角度讲解产品优势，配合上妆演示",
+      hook: "「今天给你们讲讲为什么这款气垫能做到 12 小时持妆」",
+    },
+  ],
+  recommendIndex: 0,
+};
+
+// ─── 直播台本：完整台本数据 ──────────────────────────────
+
+export interface LiveScriptPhase {
+  timeRange: string;
+  phase: string;
+  script: string;
+  interaction: string;
+  productExposure: string;
+}
+
+export interface LiveScriptData {
+  title: string;
+  duration: string;
+  style: string;
+  rhythmPlan: { timeRange: string; phase: string; goal: string }[];
+  phases: LiveScriptPhase[];
+  interactionLibrary: { type: string; lines: string[] }[];
+  sellingPointChecks: SellingPointCheck[];
+}
+
+export const mockLiveScript: LiveScriptData = {
+  title: "花知晓柔光持妆气垫 · 直播台本",
+  duration: "15分钟",
+  style: "闺蜜安利型",
+  rhythmPlan: [
+    { timeRange: "0-2min", phase: "开场暖场", goal: "拉停留、攒人气" },
+    { timeRange: "2-5min", phase: "痛点铺垫", goal: "引共鸣、埋需求" },
+    { timeRange: "5-10min", phase: "产品讲解 + 上妆演示", goal: "展示卖点、建立信任" },
+    { timeRange: "10-13min", phase: "效果验证", goal: "用实际效果说服" },
+    { timeRange: "13-15min", phase: "逼单收尾", goal: "制造紧迫感、引导下单" },
+  ],
+  phases: [
+    {
+      timeRange: "0-30s",
+      phase: "开场",
+      script: "家人们今天不废话！直接上我最近用空了两盒的气垫，花知晓柔光持妆气垫！我跟你们说，油皮姐妹今天一定要蹲住！",
+      interaction: "扣「1」想看实测",
+      productExposure: "无",
+    },
+    {
+      timeRange: "30s-2min",
+      phase: "暖场互动",
+      script: "先问问大家，你们是不是也有这种困扰——早上化完妆美美出门，下午一照镜子，T区油田大爆发，鼻翼卡粉，底妆斑驳成面具？扣「有」的让我看看有多少姐妹！",
+      interaction: "扣「有」看有多少姐妹 / 扣「油田」同款",
+      productExposure: "无",
+    },
+    {
+      timeRange: "2-4min",
+      phase: "痛点铺垫",
+      script: "我之前也是这样，试了好多气垫都不行，一到下午就脱妆。直到我闺蜜硬塞给我这个花知晓的气垫——说实话当时我也不信，12小时持妆？骗鬼呢！结果用了一次就真香了。",
+      interaction: "「你们猜我用了多久被圈粉的？扣时间」",
+      productExposure: "花知晓气垫出镜（手持展示）",
+    },
+    {
+      timeRange: "4-6min",
+      phase: "产品讲解",
+      script: "来，我先给大家看看这个粉体——微米级的，你们看多细腻！上脸是真的不卡粉。而且它有SPF50+防晒，早上涂了这个就不用额外涂防晒了，懒人直接省一步！",
+      interaction: "「想看我现场上妆的扣 666」",
+      productExposure: "气垫开盖展示粉芯 + 粉扑",
+    },
+    {
+      timeRange: "6-8min",
+      phase: "现场上妆",
+      script: "好！666够了，我现在就给你们上妆！看到没，粉扑沾取粉体，轻轻拍打就行——T区重点多拍两下。你们看这个柔光感！皮肤立马变得好通透，而且完全不厚重。",
+      interaction: "「看到效果了吗？看到的扣 好好看」",
+      productExposure: "上妆全过程（气垫 + 粉扑 + 上脸）",
+    },
+    {
+      timeRange: "8-10min",
+      phase: "卖点叠加",
+      script: "关键是这个气垫还添加了玻尿酸和烟酰胺，保湿不拔干，还能提亮肤色。油皮用了控油，干皮用了保湿，真的是通杀。而且四分钟就能搞定全脸！",
+      interaction: "「油皮的扣油 / 干皮的扣干 / 混合的扣混」",
+      productExposure: "产品正面特写",
+    },
+    {
+      timeRange: "10-12min",
+      phase: "效果验证",
+      script: "好了你们看，我已经上完妆了。我答应你们今天直播结束之前再给你们看效果，但是先看看之前我实测的照片——12小时之后，T区还是这么清爽，纸巾按压没有浮粉！",
+      interaction: "「信了的扣 冲 / 还在犹豫的扣 ?」",
+      productExposure: "展示持妆效果照片",
+    },
+    {
+      timeRange: "12-14min",
+      phase: "逼单",
+      script: "来！今天直播间价格——129元！日常可是169！而且买一送一个替换芯！15g替换芯！等于两盒的量只要129！这个价格我也是争取了好久才拿到的，数量有限哦！",
+      interaction: "扣「已拍」已下单 / 扣「犹豫」我帮你分析",
+      productExposure: "正装 + 替换芯套装展示",
+    },
+    {
+      timeRange: "14-15min",
+      phase: "收尾",
+      script: "还没下单的姐妹抓紧了！129到手，送替换芯，四分钟搞定全脸，油皮亲妈！今天过了就恢复原价了！好，下一个品我们马上安排！",
+      interaction: "「下单了的扣 冲冲冲 / 关注直播间下次不迷路」",
+      productExposure: "产品 + 价格弹窗",
+    },
+  ],
+  interactionLibrary: [
+    { type: "留人话术", lines: ["新来的姐妹先别走！马上放价！", "还有5分钟就要改价了，蹲住！", "在线人数破X了，感谢家人们！"] },
+    { type: "逼单话术", lines: ["库存只剩XX单了！", "这个价格只有今天！", "已经有XX位姐妹下单了，跟上！"] },
+    { type: "转化话术", lines: ["犹豫的姐妹看评论区实测图！", "不好用随时来找我！", "先拍先得，数量有限！"] },
+  ],
+  sellingPointChecks: [
+    { type: "核心卖点 1", content: "控油持妆 12 小时", count: "3 次", compliance: "符合≥2 处呈现要求" },
+    { type: "核心卖点 2", content: "微米级粉体不卡粉", count: "2 次", compliance: "符合≥2 处呈现要求" },
+    { type: "核心卖点 3", content: "SPF50+ 高倍防晒", count: "1 次", compliance: "符合≥1 处呈现要求" },
+    { type: "次要卖点", content: "玻尿酸保湿、烟酰胺提亮", count: "各 1 次", compliance: "符合≤1 处呈现要求" },
+    { type: "差异化卖点", content: "四分钟快速上妆、油皮适配", count: "各 1 次", compliance: "符合场景植入要求" },
+  ],
+};
+
+// ─── 图文笔记：Brief ──────────────────────────────────────
+
+export const mockGraphicBrief: VideoBrief = {
+  confirmedParams: [
+    { label: "商品名称", value: "花知晓柔光持妆气垫" },
+    { label: "价格", value: "¥129（日常价¥169）" },
+    { label: "品类", value: "美妆 · 底妆" },
+    { label: "目标平台", value: "小红书" },
+    { label: "图片数量", value: "6 张" },
+    { label: "笔记风格", value: "真实测评型" },
+    { label: "特殊要求", value: "需要对比图" },
+  ],
+  sellingPoints: {
+    core: ["控油持妆 12 小时", "微米级粉体不卡粉", "SPF50+ 高倍防晒"],
+    secondary: ["玻尿酸保湿不拔干", "烟酰胺提亮肤色"],
+    differentiated: ["四分钟快速上妆", "油皮亲妈", "附赠 15g 替换芯"],
+  },
+  audience: {
+    age: "18-30 岁",
+    identity: "大学生 / 职场新人，关注美妆护肤，活跃于小红书",
+    painPoints: "底妆午后脱妆、卡粉浮粉、选气垫踩雷",
+    preference: "看真实测评和对比图，偏好性价比高的国货",
+  },
+  directions: [
+    {
+      title: "真实测评型",
+      storyType: "实测对比",
+      overview: "12 小时真实跟妆实测，配前后对比图和 T 区特写，用数据说话",
+      hook: "油皮亲妈！花知晓气垫 12 小时实测，下午 5 点 T 区居然还在！",
+    },
+    {
+      title: "日常分享型",
+      storyType: "生活记录",
+      overview: "以日常上班化妆场景切入，自然安利产品，有生活感",
+      hook: "上班族的 4 分钟底妆，这个气垫我已经回购第三盒了",
+    },
+    {
+      title: "成分党科普型",
+      storyType: "知识科普",
+      overview: "从微米级粉体、玻尿酸成分切入，讲清楚为什么好用",
+      hook: "为什么这款气垫能做到 12 小时不脱妆？一个美妆博主的成分分析",
+    },
+  ],
+  recommendIndex: 0,
+};
+
+// ─── 图文笔记：完整笔记数据 ──────────────────────────────
+
+export interface NoteImagePlan {
+  order: string;
+  content: string;
+  shootingTip: string;
+}
+
+export interface GraphicNoteData {
+  title: string;
+  subtitle: string;
+  style: string;
+  body: { section: string; content: string }[];
+  images: NoteImagePlan[];
+  tags: string[];
+  sellingPointChecks: SellingPointCheck[];
+}
+
+export const mockGraphicNote: GraphicNoteData = {
+  title: "油皮亲妈！花知晓气垫12小时实测，下午5点T区居然还在！",
+  subtitle: "油皮翻身！",
+  style: "真实测评型",
+  body: [
+    {
+      section: "开头 · Hook",
+      content: "姐妹们我真的要疯了！！！\n作为一个大油田，这辈子最大的痛苦就是早上化完妆，中午照镜子就想哭——T区浮粉、鼻翼卡粉、底妆斑驳得像面具\n直到我闺蜜硬塞给我这个花知晓柔光持妆气垫，说能持妆12小时？？？\n我当时：骗鬼呢！\n结果......",
+    },
+    {
+      section: "中段 · 产品体验",
+      content: "先说上脸感受：微米级粉体是真的细腻！用粉扑轻拍，完全不卡粉不假面，皮肤马上有那种自然的柔光感\n\n重点来了：\n· 控油持妆12小时 — 我早上8点上妆，下午5点拍了对比图（看图3），T区居然还是清爽的！！\n· SPF50+防晒 — 早上涂了这个就不用额外涂防晒，懒人福音\n· 玻尿酸+烟酰胺 — 控油但不拔干，还悄悄提亮了肤色\n\n四分钟就能搞定全脸底妆，赶时间的姐妹真的懂！",
+    },
+    {
+      section: "收尾 · CTA",
+      content: "总结：\n这是我用过的气垫里，对油皮最友好的，没有之一。现在活动价只要129元，还送15g替换芯，等于两盒的量！日常价169，真的别犹豫了。\n\n链接放评论区了，姐妹们冲！",
+    },
+  ],
+  images: [
+    { order: "封面", content: "左右对比：旧气垫脱妆 vs 花知晓 12 小时后", shootingTip: "自然光，怼脸拍，左右分屏" },
+    { order: "图2", content: "花知晓气垫开盖特写 + 粉扑质感", shootingTip: "45° 俯拍，浅色背景" },
+    { order: "图3", content: "12 小时对比图：早 8 点 vs 下午 5 点 T 区特写", shootingTip: "同角度同光线拍摄" },
+    { order: "图4", content: "上妆过程：粉扑拍打全脸", shootingTip: "镜前自拍，展示手法" },
+    { order: "图5", content: "纸巾按压 T 区验证 — 无浮粉无油迹", shootingTip: "特写纸巾 + 脸部" },
+    { order: "图6", content: "正装 + 替换芯套装 + 价格标注", shootingTip: "平铺摆拍，标注到手价" },
+  ],
+  tags: ["#花知晓气垫", "#油皮气垫推荐", "#持妆测试", "#底妆推荐", "#国货气垫", "#花知晓", "#控油持妆", "#油皮亲妈"],
+  sellingPointChecks: [
+    { type: "核心卖点 1", content: "控油持妆 12 小时", count: "3 次", compliance: "符合≥2 处呈现要求" },
+    { type: "核心卖点 2", content: "微米级粉体不卡粉", count: "2 次", compliance: "符合≥2 处呈现要求" },
+    { type: "核心卖点 3", content: "SPF50+ 高倍防晒", count: "1 次", compliance: "符合≥1 处呈现要求" },
+    { type: "次要卖点", content: "玻尿酸保湿、烟酰胺提亮", count: "各 1 次", compliance: "符合≤1 处呈现要求" },
+    { type: "差异化卖点", content: "四分钟快速上妆、油皮适配", count: "各 1 次", compliance: "符合场景植入要求" },
+  ],
+};
