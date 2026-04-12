@@ -1035,6 +1035,217 @@ export default function RichTextEditor() {
                 </div>
               </>
             ) : showCharacters ? (
+              agentStageData?.videoScript ? (() => {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const script = agentStageData.videoScript as any;
+                return (
+                  <>
+                    <div>
+                      <h2 className="text-lg font-bold text-gray-900 mb-1">分幕剧本</h2>
+                      <p className="text-xs text-gray-400">如需修改，请在右侧对话中告诉我</p>
+                    </div>
+
+                    <div>
+                      <div className="flex items-center gap-3 mb-3">
+                        <span className="text-xs text-gray-500">时长 {script.duration}</span>
+                        <span className="text-xs text-gray-500">风格 {script.style}</span>
+                      </div>
+                    </div>
+
+                    {/* 角色表 */}
+                    <div>
+                      <h3 className="text-sm font-bold text-gray-700 mb-2">1. 角色表</h3>
+                      <div className="space-y-1.5 ml-1">
+                        {script.characters?.map((c: { name: string; description: string }, i: number) => (
+                          <div key={i}>
+                            <span className="text-sm font-bold text-gray-800">{c.name}</span>
+                            <p className="text-sm text-gray-600 leading-relaxed mt-0.5">{c.description}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* 场景规划 */}
+                    {script.scenePlans?.length > 0 && (
+                      <div>
+                        <h3 className="text-sm font-bold text-gray-700 mb-2">2. 场景规划</h3>
+                        <div className="space-y-1.5 ml-1">
+                          {script.scenePlans.map((sp: { sceneNo: number; location: string; timeSpace: string; purpose: string }, i: number) => (
+                            <div key={i} className="flex items-baseline gap-2">
+                              <span className="text-xs text-gray-400 shrink-0">场景{sp.sceneNo}</span>
+                              <span className="text-sm text-gray-700">{sp.location}</span>
+                              <span className="text-xs text-gray-400">{sp.timeSpace}</span>
+                              <span className="text-sm text-gray-600">{sp.purpose}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* 分幕 */}
+                    <div>
+                      <h3 className="text-sm font-bold text-gray-700 mb-2">3. 完整分幕剧本</h3>
+                      <div className="space-y-4 ml-1">
+                        {script.scenes?.map((s: { act: number; heading: string; characters: string[]; duration: string; productExposure: string; visual: string; dialogue: string; sellingPoint?: string }, i: number) => (
+                          <div key={i} className="border-l-2 border-indigo-200 pl-3">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-xs font-bold text-gray-500">幕{s.act}</span>
+                              <span className="text-[10px] text-gray-400">{s.heading}</span>
+                              <span className="text-[10px] text-gray-400">{s.duration}</span>
+                            </div>
+                            <p className="text-xs text-gray-400 mb-0.5">产品露出：{s.productExposure}</p>
+                            <p className="text-sm text-gray-700 leading-relaxed mb-1">{s.visual}</p>
+                            <p className="text-sm text-gray-800 leading-relaxed italic">{s.dialogue}</p>
+                            {s.sellingPoint && <span className="inline-block mt-1 text-[10px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-600">{s.sellingPoint}</span>}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* 卖点核验 */}
+                    {script.sellingPointChecks?.length > 0 && (
+                      <div>
+                        <h3 className="text-sm font-bold text-gray-700 mb-2">4. 卖点植入核验</h3>
+                        <div className="space-y-1 ml-1">
+                          {script.sellingPointChecks.map((sp: { type: string; content: string; count: string; compliance: string }, i: number) => (
+                            <div key={i} className="flex items-baseline gap-2 text-xs">
+                              <span className="text-gray-600">{sp.type}</span>
+                              <span className="text-gray-500">{sp.content}</span>
+                              <span className="text-gray-400">{sp.count}</span>
+                              <span className="text-emerald-600">{sp.compliance}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </>
+                );
+              })() : agentStageData?.liveScript ? (() => {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const ls = agentStageData.liveScript as any;
+                return (
+                  <>
+                    <div>
+                      <h2 className="text-lg font-bold text-gray-900 mb-1">直播台本</h2>
+                      <p className="text-xs text-gray-400">如需修改，请在右侧对话中告诉我</p>
+                    </div>
+
+                    <div>
+                      <div className="flex items-center gap-3 mb-3">
+                        <span className="text-xs text-gray-500">时长 {ls.duration}</span>
+                        <span className="text-xs text-gray-500">风格 {ls.style}</span>
+                      </div>
+                    </div>
+
+                    {/* 节奏规划 */}
+                    <div>
+                      <h3 className="text-sm font-bold text-gray-700 mb-2">直播节奏规划</h3>
+                      <div className="space-y-1.5 ml-1">
+                        {ls.rhythmPlan?.map((rp: { timeRange: string; phase: string; goal: string }, i: number) => (
+                          <div key={i} className="flex items-baseline gap-2">
+                            <span className="text-xs text-gray-400 shrink-0 w-16">{rp.timeRange}</span>
+                            <span className="text-sm font-medium text-gray-700 shrink-0 w-28">{rp.phase}</span>
+                            <span className="text-sm text-gray-600">{rp.goal}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* 完整台本 */}
+                    <div>
+                      <h3 className="text-sm font-bold text-gray-700 mb-2">完整台本</h3>
+                      <div className="space-y-4 ml-1">
+                        {ls.phases?.map((p: { timeRange: string; phase: string; script: string; interaction: string; productExposure: string }, i: number) => (
+                          <div key={i} className="border-l-2 border-amber-200 pl-3">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-xs font-bold text-gray-500">{p.phase}</span>
+                              <span className="text-[10px] text-gray-400">{p.timeRange}</span>
+                            </div>
+                            <p className="text-sm text-gray-700 leading-relaxed mb-1">{p.script}</p>
+                            <p className="text-xs text-indigo-500 mb-0.5">互动：{p.interaction}</p>
+                            <p className="text-xs text-gray-400">产品露出：{p.productExposure}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* 互动话术库 */}
+                    {ls.interactionLibrary?.length > 0 && (
+                      <div>
+                        <h3 className="text-sm font-bold text-gray-700 mb-2">互动话术库</h3>
+                        <div className="space-y-2 ml-1">
+                          {ls.interactionLibrary.map((lib: { type: string; lines: string[] }, i: number) => (
+                            <div key={i}>
+                              <span className="text-xs font-bold text-gray-500">{lib.type}</span>
+                              <div className="space-y-0.5 mt-0.5">
+                                {lib.lines.map((line: string, li: number) => (
+                                  <p key={li} className="text-sm text-gray-600 leading-relaxed">· {line}</p>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </>
+                );
+              })() : agentStageData?.graphicNote ? (() => {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const note = agentStageData.graphicNote as any;
+                return (
+                  <>
+                    <div>
+                      <h2 className="text-lg font-bold text-gray-900 mb-1">图文笔记</h2>
+                      <p className="text-xs text-gray-400">如需修改，请在右侧对话中告诉我</p>
+                    </div>
+
+                    {/* 标题 */}
+                    <div>
+                      <h3 className="text-base font-bold text-gray-800 leading-relaxed">{note.title}</h3>
+                      {note.subtitle && <span className="inline-block mt-1 text-[10px] px-2 py-0.5 rounded bg-rose-50 text-rose-500 font-medium">封面文字：{note.subtitle}</span>}
+                    </div>
+
+                    {/* 正文 */}
+                    <div>
+                      <h3 className="text-sm font-bold text-gray-700 mb-2">正文</h3>
+                      <div className="space-y-3 ml-1">
+                        {note.body?.map((b: { section: string; content: string }, i: number) => (
+                          <div key={i}>
+                            <span className="text-xs font-bold text-gray-400 block mb-1">{b.section}</span>
+                            <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">{b.content}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* 配图规划 */}
+                    <div>
+                      <h3 className="text-sm font-bold text-gray-700 mb-2">配图规划（共{note.images?.length}张）</h3>
+                      <div className="space-y-2 ml-1">
+                        {note.images?.map((img: { order: string; content: string; shootingTip: string }, i: number) => (
+                          <div key={i}>
+                            <div className="flex items-baseline gap-2">
+                              <span className="text-xs font-bold text-gray-500 shrink-0">{img.order}</span>
+                              <span className="text-sm text-gray-700">{img.content}</span>
+                            </div>
+                            <p className="text-xs text-gray-400 ml-8">拍摄：{img.shootingTip}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* 标签 */}
+                    <div>
+                      <h3 className="text-sm font-bold text-gray-700 mb-2">推荐标签</h3>
+                      <div className="flex flex-wrap gap-1.5 ml-1">
+                        {note.tags?.map((tag: string, i: number) => (
+                          <span key={i} className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-500">{tag}</span>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                );
+              })() :
               <>
                 <div>
                   <h2 className="text-lg font-bold text-gray-900 mb-1">{chars.title}</h2>
