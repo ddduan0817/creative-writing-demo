@@ -2263,6 +2263,7 @@ export default function ChatPanel() {
             storyboard: mockStoryboard,
           },
         ]);
+        setAgentStageData("storyboard", mockStoryboard);
       }, 2500);
       return;
     }
@@ -3458,6 +3459,7 @@ export default function ChatPanel() {
                             ]);
                             setCurrentRound(24);
                             setCreationStage(4);
+                            setAgentStageData("storyboard", mockStoryboard);
                           }, 2500);
                         }}
                         data-tip="确认剧本，生成分镜表"

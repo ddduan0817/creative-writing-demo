@@ -1009,6 +1009,85 @@ export default function RichTextEditor() {
           <div className="max-w-2xl mx-auto space-y-8" style={{ outline: "none" }}>
             {/* ── 各阶段内容展示 ── */}
             {showOutline ? (
+              agentStageData?.storyboard ? (() => {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const sb = agentStageData.storyboard as any;
+                const durationOk = sb.totalDuration <= sb.targetDuration;
+                return (
+                  <>
+                    <div>
+                      <h2 className="text-lg font-bold text-gray-900 mb-1">{sb.title}</h2>
+                      <p className="text-xs text-gray-400">如需修改，请在右侧对话中告诉我</p>
+                    </div>
+
+                    {/* 时长校验 */}
+                    <div className="flex items-center gap-2">
+                      <span className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full ${durationOk ? "bg-green-50 text-green-600" : "bg-red-50 text-red-600"}`}>
+                        {durationOk ? "PASS" : "OVER"} 目标 {sb.targetDuration}s / 实际 {sb.totalDuration}s
+                      </span>
+                    </div>
+
+                    {/* 分镜表 */}
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-xs border-collapse">
+                        <thead>
+                          <tr className="bg-gray-50 text-gray-500">
+                            <th className="border border-gray-200 px-2 py-1.5 text-left font-medium">镜号</th>
+                            <th className="border border-gray-200 px-2 py-1.5 text-left font-medium">幕</th>
+                            <th className="border border-gray-200 px-2 py-1.5 text-left font-medium">景别</th>
+                            <th className="border border-gray-200 px-2 py-1.5 text-left font-medium">运镜</th>
+                            <th className="border border-gray-200 px-2 py-1.5 text-left font-medium">画面描述</th>
+                            <th className="border border-gray-200 px-2 py-1.5 text-left font-medium">音频/台词</th>
+                            <th className="border border-gray-200 px-2 py-1.5 text-left font-medium">时长</th>
+                            <th className="border border-gray-200 px-2 py-1.5 text-left font-medium">产品露出</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {sb.shots?.map((shot: { shotNo: number; act: number; shotSize: string; cameraMove: string; visual: string; audioDialogue: string; duration: number; productExposure: string }) => (
+                            <tr key={shot.shotNo} className="hover:bg-gray-50/50">
+                              <td className="border border-gray-200 px-2 py-1.5 text-center">{shot.shotNo}</td>
+                              <td className="border border-gray-200 px-2 py-1.5 text-center">{shot.act}</td>
+                              <td className="border border-gray-200 px-2 py-1.5">{shot.shotSize}</td>
+                              <td className="border border-gray-200 px-2 py-1.5">{shot.cameraMove}</td>
+                              <td className="border border-gray-200 px-2 py-1.5 max-w-[200px]">{shot.visual}</td>
+                              <td className="border border-gray-200 px-2 py-1.5 max-w-[200px] whitespace-pre-line">{shot.audioDialogue}</td>
+                              <td className="border border-gray-200 px-2 py-1.5 text-center">{shot.duration}s</td>
+                              <td className="border border-gray-200 px-2 py-1.5">{shot.productExposure}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* 卖点覆盖校验 */}
+                    {sb.sellingPointCoverage?.length > 0 && (
+                      <div>
+                        <h3 className="text-sm font-bold text-gray-700 mb-2">卖点覆盖校验</h3>
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-xs border-collapse">
+                            <thead>
+                              <tr className="bg-gray-50 text-gray-500">
+                                <th className="border border-gray-200 px-2 py-1.5 text-left font-medium">卖点类型</th>
+                                <th className="border border-gray-200 px-2 py-1.5 text-left font-medium">覆盖镜号</th>
+                                <th className="border border-gray-200 px-2 py-1.5 text-left font-medium">呈现次数</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {sb.sellingPointCoverage.map((sp: { type: string; content: string; shotRefs: string }, i: number) => (
+                                <tr key={i}>
+                                  <td className="border border-gray-200 px-2 py-1.5">{sp.type}</td>
+                                  <td className="border border-gray-200 px-2 py-1.5">{sp.content}</td>
+                                  <td className="border border-gray-200 px-2 py-1.5">{sp.shotRefs}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                );
+              })() : (
               <>
                 <div>
                   <h2 className="text-lg font-bold text-gray-900 mb-1">{ol.title}</h2>
@@ -1034,6 +1113,7 @@ export default function RichTextEditor() {
                   ))}
                 </div>
               </>
+              )
             ) : showCharacters ? (
               agentStageData?.videoScript ? (() => {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
