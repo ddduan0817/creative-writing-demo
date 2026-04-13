@@ -1017,7 +1017,7 @@ export default function RichTextEditor() {
                   <>
                     <div>
                       <h2 className="text-lg font-bold text-gray-900 mb-1">{sb.title}</h2>
-                      <p className="text-xs text-gray-400">如需修改，请在右侧对话中告诉我</p>
+                      <p className="text-xs text-gray-400">可直接编辑，也可在对话中修改</p>
                     </div>
 
                     {/* 时长校验 */}
@@ -1028,7 +1028,7 @@ export default function RichTextEditor() {
                     </div>
 
                     {/* 分镜表 */}
-                    <div className="overflow-x-auto">
+                    <div className="overflow-x-auto" contentEditable suppressContentEditableWarning>
                       <table className="w-full text-xs border-collapse">
                         <thead>
                           <tr className="bg-gray-50 text-gray-500">
@@ -1061,7 +1061,7 @@ export default function RichTextEditor() {
 
                     {/* 卖点覆盖校验 */}
                     {sb.sellingPointCoverage?.length > 0 && (
-                      <div>
+                      <div contentEditable suppressContentEditableWarning>
                         <h3 className="text-sm font-bold text-gray-700 mb-2">卖点覆盖校验</h3>
                         <div className="overflow-x-auto">
                           <table className="w-full text-xs border-collapse">
@@ -1207,7 +1207,7 @@ export default function RichTextEditor() {
                   <>
                     <div>
                       <h2 className="text-lg font-bold text-gray-900 mb-1">直播台本</h2>
-                      <p className="text-xs text-gray-400">如需修改，请在右侧对话中告诉我</p>
+                      <p className="text-xs text-gray-400">可直接编辑，也可在对话中修改</p>
                     </div>
 
                     <div>
@@ -1218,7 +1218,7 @@ export default function RichTextEditor() {
                     </div>
 
                     {/* 节奏规划 */}
-                    <div>
+                    <div contentEditable suppressContentEditableWarning>
                       <h3 className="text-sm font-bold text-gray-700 mb-2">直播节奏规划</h3>
                       <div className="space-y-1.5 ml-1">
                         {ls.rhythmPlan?.map((rp: { timeRange: string; phase: string; goal: string }, i: number) => (
@@ -1232,7 +1232,7 @@ export default function RichTextEditor() {
                     </div>
 
                     {/* 完整台本 */}
-                    <div>
+                    <div contentEditable suppressContentEditableWarning>
                       <h3 className="text-sm font-bold text-gray-700 mb-2">完整台本</h3>
                       <div className="space-y-4 ml-1">
                         {ls.phases?.map((p: { timeRange: string; phase: string; script: string; interaction: string; productExposure: string }, i: number) => (
@@ -1251,7 +1251,7 @@ export default function RichTextEditor() {
 
                     {/* 互动话术库 */}
                     {ls.interactionLibrary?.length > 0 && (
-                      <div>
+                      <div contentEditable suppressContentEditableWarning>
                         <h3 className="text-sm font-bold text-gray-700 mb-2">互动话术库</h3>
                         <div className="space-y-2 ml-1">
                           {ls.interactionLibrary.map((lib: { type: string; lines: string[] }, i: number) => (
@@ -1276,17 +1276,17 @@ export default function RichTextEditor() {
                   <>
                     <div>
                       <h2 className="text-lg font-bold text-gray-900 mb-1">图文笔记</h2>
-                      <p className="text-xs text-gray-400">如需修改，请在右侧对话中告诉我</p>
+                      <p className="text-xs text-gray-400">可直接编辑，也可在对话中修改</p>
                     </div>
 
                     {/* 标题 */}
-                    <div>
+                    <div contentEditable suppressContentEditableWarning>
                       <h3 className="text-base font-bold text-gray-800 leading-relaxed">{note.title}</h3>
                       {note.subtitle && <span className="inline-block mt-1 text-[10px] px-2 py-0.5 rounded bg-rose-50 text-rose-500 font-medium">封面文字：{note.subtitle}</span>}
                     </div>
 
                     {/* 正文 */}
-                    <div>
+                    <div contentEditable suppressContentEditableWarning>
                       <h3 className="text-sm font-bold text-gray-700 mb-2">正文</h3>
                       <div className="space-y-3 ml-1">
                         {note.body?.map((b: { section: string; content: string }, i: number) => (
@@ -1299,7 +1299,7 @@ export default function RichTextEditor() {
                     </div>
 
                     {/* 配图规划 */}
-                    <div>
+                    <div contentEditable suppressContentEditableWarning>
                       <h3 className="text-sm font-bold text-gray-700 mb-2">配图规划（共{note.images?.length}张）</h3>
                       <div className="space-y-2 ml-1">
                         {note.images?.map((img: { order: string; content: string; shootingTip: string }, i: number) => (
@@ -1315,7 +1315,7 @@ export default function RichTextEditor() {
                     </div>
 
                     {/* 标签 */}
-                    <div>
+                    <div contentEditable suppressContentEditableWarning>
                       <h3 className="text-sm font-bold text-gray-700 mb-2">推荐标签</h3>
                       <div className="flex flex-wrap gap-1.5 ml-1">
                         {note.tags?.map((tag: string, i: number) => (
