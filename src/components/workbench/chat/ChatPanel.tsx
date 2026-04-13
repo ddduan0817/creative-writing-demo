@@ -2422,7 +2422,7 @@ export default function ChatPanel() {
                 id: "model-settings",
                 sender: "model",
                 type: "settings-card",
-                prompt: `根据你提供的信息，我整理了以下商品信息卡片。确认无误后进入下一步，你也可以告诉我需要调整的地方。`,
+                prompt: `根据你提供的信息，我整理了以下商品信息卡片。确认无误后，下一步选择内容类型。你也可以告诉我需要调整的地方。`,
                 settings: marketingProductInfoCard,
               },
             ]);
@@ -4050,7 +4050,7 @@ export default function ChatPanel() {
                           const isMkt = dataRef.current.isMarketing;
                           const settingsData = isMkt ? marketingProductInfoCard : dataRef.current.sceneSettingsCard;
                           const settingsPrompt = isMkt
-                            ? `根据你提供的信息，我整理了以下商品信息卡片。确认无误后进入下一步，你也可以告诉我需要调整的地方。`
+                            ? `根据你提供的信息，我整理了以下商品信息卡片。确认无误后，下一步选择内容类型。你也可以告诉我需要调整的地方。`
                             : dataRef.current.isKnowledge
                             ? `根据你的描述，我帮你生成了一版分析配置——${getSettingsSummary()}\n\n看看感觉怎么样？确认后我会开始深入分析设定体系，你也可以告诉我想调整的地方。`
                             : `根据你的描述，我帮你生成了一版创作设定——${getSettingsSummary()}\n\n看看感觉怎么样？确认后我会为你选择篇幅并创建角色，你也可以告诉我想调整的地方。`;
@@ -4228,7 +4228,7 @@ export default function ChatPanel() {
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => quickConfirm(isMarketing ? "确认商品信息，选择内容类型" : "确认设定，进入下一步")}
-                          data-tip={isMarketing ? "确认进入场景选择" : "确认进入篇幅选择"}
+                          data-tip={isMarketing ? "确认进入内容类型选择" : "确认进入篇幅选择"}
                           className="flex-1 px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
                         >
                           下一步
