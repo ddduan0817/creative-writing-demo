@@ -1941,6 +1941,48 @@ export default function ChatPanel() {
 
     // If awaiting micro-adjust, user typed adjustment → proceed
     if (awaitingAdjust) {
+      // ── Marketing round 21: detect direction switch intent ──
+      if (adjustRound === 21 && dataRef.current.isMarketing) {
+        const switchMatch = text.match(/(?:换成?|选|改[成为]?|用|要)\s*(?:方向|选项|第?\s*)([1-3一二三])|^(?:方向|选项|第?\s*)([1-3一二三])$/);
+        const numMap: Record<string, number> = { "1": 0, "2": 1, "3": 2, "一": 0, "二": 1, "三": 2 };
+        const matched = switchMatch?.[1] || switchMatch?.[2];
+        if (matched && numMap[matched] !== undefined) {
+          const newIdx = numMap[matched];
+          const platform = marketingPlatformRef.current;
+          const brief = platform === "live_script" ? mockLiveBrief : platform === "graphic_note" ? mockGraphicBrief : mockVideoBrief;
+          const dir = brief.directions[newIdx];
+          if (dir) {
+            // Update selection
+            setSelections((prev) => ({ ...prev, [21]: newIdx }));
+            // Build new micro-adjust prompt
+            const adjustHint = platform === "live_script"
+              ? `选得好！这个方向很有感染力。\n\n想微调什么吗？比如「开场再有感染力一点」「换个话术风格」，或者点击下方「继续」直接生成直播台本。`
+              : platform === "graphic_note"
+              ? `选得好！这个角度很有种草力。\n\n想微调什么吗？比如「标题再吸引一点」「换个笔记风格」，或者点击下方「继续」直接生成图文笔记。`
+              : `选得好！这个方向很有冲击力。\n\n想微调什么吗？比如「钩子再夸张一点」「加个闺蜜角色」，或者点击下方「继续」直接生成分幕剧本。`;
+            const thinkingId = `thinking-switch-dir-${Date.now()}`;
+            setTimeout(() => {
+              setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+            }, 300);
+            setTimeout(() => {
+              setMessages((prev) => [
+                ...prev.filter((m) => m.id !== thinkingId),
+                {
+                  id: `model-brief-adjust-${Date.now()}`,
+                  sender: "model",
+                  type: "micro-adjust",
+                  prompt: `好的，已切换到方向 ${newIdx + 1}「${dir.title}」。\n\n${adjustHint.split("\n\n")[1]}`,
+                  round: 21,
+                },
+              ]);
+              setAwaitingAdjust(true);
+              setAdjustRound(21);
+            }, 1500);
+            return;
+          }
+        }
+      }
+
       const thinkingId = `thinking-adj-ack-${adjustRound}`;
       setTimeout(() => {
         setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
@@ -4620,7 +4662,9 @@ export default function ChatPanel() {
                   ? "补充笔记参数，比如「小红书，6张图，真实测评」..."
                   : "补充视频参数，比如「抖音，60秒，反转型」..."
                 : currentRound === 21
-                ? "选择一个创意方向，或者直接输入你的想法..."
+                ? awaitingAdjust
+                  ? "想微调什么？直接说就行，比如「钩子再夸张一点」「换个风格」..."
+                  : "选择一个创意方向，或者直接输入你的想法..."
                 : currentRound === 23
                 ? marketingPlatformRef.current === "live_script"
                   ? "想调整台本吗？比如「逼单话术再强一点」「加个互动环节」..."
