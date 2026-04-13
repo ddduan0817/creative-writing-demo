@@ -4264,7 +4264,7 @@ export default function ChatPanel() {
                     {/* Gradient fade overlay */}
                     <div className="absolute bottom-8 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
                     <div className="relative px-4 py-2.5 text-center border-t border-gray-50">
-                      <span className="text-[11px] text-gray-400">点击左侧预览区查看完整创作设定</span>
+                      <span className="text-[11px] text-gray-400">{isMarketing ? "点击左侧预览区查看完整商品信息" : "点击左侧预览区查看完整创作设定"}</span>
                     </div>
                   </div>
                   {/* Action buttons */}
@@ -4305,7 +4305,7 @@ export default function ChatPanel() {
                               }, 2000);
                             }
                           }}
-                          data-tip="重新生成设定"
+                          data-tip={isMarketing ? "重新生成商品信息" : "重新生成设定"}
                           className="flex-1 px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
                         >
                           换一换
