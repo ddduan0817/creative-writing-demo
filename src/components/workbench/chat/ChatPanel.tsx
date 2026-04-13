@@ -4510,10 +4510,10 @@ export default function ChatPanel() {
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => quickConfirm("确认角色，进入下一步")}
-                          data-tip="确认进入大纲生成"
+                          data-tip={novelLength === "short" ? "确认直接生成正文" : "确认进入大纲生成"}
                           className="flex-1 px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
                         >
-                          下一步
+                          {novelLength === "short" ? "确认，开始写正文" : "下一步"}
                         </button>
                         <button
                           onClick={() => {
