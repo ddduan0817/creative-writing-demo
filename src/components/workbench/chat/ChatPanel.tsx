@@ -2208,7 +2208,7 @@ export default function ChatPanel() {
             id: "model-brief-adjust",
             sender: "model",
             type: "micro-adjust",
-            prompt: `好的选择！这个方向很有冲击力。\n\n想微调什么吗？比如「钩子再夸张一点」「换个风格」，或者点击下方「继续」直接生成${outputLabel}。`,
+            prompt: `选得好！这个方向很有冲击力。\n\n想微调什么吗？比如「钩子再夸张一点」「换个风格」，或者点击下方「继续」直接生成${outputLabel}。`,
             round: 21,
           },
         ]);
@@ -3249,10 +3249,10 @@ export default function ChatPanel() {
                           const thinkingId = `thinking-dir-adj`;
                           const platform = marketingPlatformRef.current;
                           const adjustHint = platform === "live_script"
-                            ? "好的选择！这个方向很有感染力。\n\n想微调什么吗？比如「开场再有感染力一点」「换个话术风格」，或者点击下方「继续」直接生成直播台本。"
+                            ? "选得好！这个方向很有感染力。\n\n想微调什么吗？比如「开场再有感染力一点」「换个话术风格」，或者点击下方「继续」直接生成直播台本。"
                             : platform === "graphic_note"
-                            ? "好的选择！这个角度很有种草力。\n\n想微调什么吗？比如「标题再吸引一点」「换个笔记风格」，或者点击下方「继续」直接生成图文笔记。"
-                            : "好的选择！这个方向很有冲击力。\n\n想微调什么吗？比如「钩子再夸张一点」「加个闺蜜角色」，或者点击下方「继续」直接生成分幕剧本。";
+                            ? "选得好！这个角度很有种草力。\n\n想微调什么吗？比如「标题再吸引一点」「换个笔记风格」，或者点击下方「继续」直接生成图文笔记。"
+                            : "选得好！这个方向很有冲击力。\n\n想微调什么吗？比如「钩子再夸张一点」「加个闺蜜角色」，或者点击下方「继续」直接生成分幕剧本。";
                           setTimeout(() => {
                             setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
                           }, 300);
