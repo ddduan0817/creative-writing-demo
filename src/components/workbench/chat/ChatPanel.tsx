@@ -2728,13 +2728,15 @@ export default function ChatPanel() {
                 </div>
                 <p className="text-sm text-gray-700 leading-relaxed pl-8">{msg.prompt}</p>
                 {isActive && (() => {
-                    // For short_video round 21, show a simple "继续" button without progress bar
+                    // For marketing round 21, show a simple "继续" button without progress bar
                     if (msg.round === 21) {
+                      const platform = marketingPlatformRef.current;
+                      const tipLabel = platform === "live_script" ? "直播台本" : platform === "graphic_note" ? "图文笔记" : "分幕剧本";
                       return (
                         <div className="pl-8 space-y-2">
                           <button
                             onClick={handleSkipAdjust}
-                            data-tip="跳过微调，直接生成分幕剧本"
+                            data-tip={`跳过微调，直接生成${tipLabel}`}
                             className="px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
                           >
                             继续
@@ -3245,6 +3247,12 @@ export default function ChatPanel() {
                           ]);
                           // Show micro-adjust
                           const thinkingId = `thinking-dir-adj`;
+                          const platform = marketingPlatformRef.current;
+                          const adjustHint = platform === "live_script"
+                            ? "好的选择！这个方向很有感染力。\n\n想微调什么吗？比如「开场再有感染力一点」「换个话术风格」，或者点击下方「继续」直接生成直播台本。"
+                            : platform === "graphic_note"
+                            ? "好的选择！这个角度很有种草力。\n\n想微调什么吗？比如「标题再吸引一点」「换个笔记风格」，或者点击下方「继续」直接生成图文笔记。"
+                            : "好的选择！这个方向很有冲击力。\n\n想微调什么吗？比如「钩子再夸张一点」「加个闺蜜角色」，或者点击下方「继续」直接生成分幕剧本。";
                           setTimeout(() => {
                             setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
                           }, 300);
@@ -3255,7 +3263,7 @@ export default function ChatPanel() {
                                 id: "model-brief-adjust",
                                 sender: "model",
                                 type: "micro-adjust",
-                                prompt: "好的选择！这个方向很有冲击力。\n\n想微调什么吗？比如「钩子再夸张一点」「加个闺蜜角色」，或者点击下方「继续」直接生成分幕剧本。",
+                                prompt: adjustHint,
                                 round: 21,
                               },
                             ]);
@@ -3595,6 +3603,37 @@ export default function ChatPanel() {
                   </div>
                 </div>
 
+                {/* Action buttons */}
+                {currentRound === 24 && (
+                  <div className="pl-8 mt-2 flex items-center gap-2.5">
+                    <button
+                      onClick={() => {
+                        setMessages((prev) => [...prev, { id: `user-regen-sb-${Date.now()}`, sender: "user", type: "text", content: "换一换" }]);
+                        const thinkingId = `thinking-regen-sb`;
+                        setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+                        setTimeout(() => {
+                          setMessages((prev) => [
+                            ...prev.filter((m) => m.id !== thinkingId),
+                            {
+                              id: `model-video-storyboard-${Date.now()}`,
+                              sender: "model" as const,
+                              type: "video-storyboard" as const,
+                              prompt: "已重新生成一版分镜表，看看这个怎么样？",
+                              storyboard: mockStoryboard,
+                            },
+                          ]);
+                          setAgentStageData("storyboard", mockStoryboard);
+                        }, 2000);
+                      }}
+                      data-tip="重新生成分镜表"
+                      className="px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
+                    >
+                      <RefreshCw className="w-3.5 h-3.5 inline mr-1" />
+                      换一换
+                    </button>
+                  </div>
+                )}
+
                 {/* Completion message */}
                 <p className="text-sm text-gray-600 leading-relaxed pl-8">
                   分镜表生成完毕！想调整任何部分直接告诉我，比如「第3镜换成特写」「加个转场」。
@@ -3747,6 +3786,7 @@ export default function ChatPanel() {
                           ]);
                         }, 2000);
                       }}
+                      data-tip="重新生成直播台本"
                       className="px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
                     >
                       <RefreshCw className="w-3.5 h-3.5 inline mr-1" />
@@ -3888,6 +3928,7 @@ export default function ChatPanel() {
                           ]);
                         }, 2000);
                       }}
+                      data-tip="重新生成图文笔记"
                       className="px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
                     >
                       <RefreshCw className="w-3.5 h-3.5 inline mr-1" />
@@ -3936,7 +3977,7 @@ export default function ChatPanel() {
                                 id: "model-settings",
                                 sender: "model",
                                 type: "settings-card",
-                                prompt: `我帮你生成了一个样例商品——隐形蓝牙耳机 Pro。\n\n确认商品信息后，你可以选择内容类型（短视频脚本/直播台本/图文笔记）。`,
+                                prompt: `我帮你生成了一个样例商品——花漾柔光持妆气垫。\n\n确认商品信息后，你可以选择内容类型（短视频脚本/直播台本/图文笔记）。`,
                                 settings: marketingProductInfoCard,
                               },
                             ]);
