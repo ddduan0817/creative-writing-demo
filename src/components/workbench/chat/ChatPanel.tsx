@@ -3224,54 +3224,67 @@ export default function ChatPanel() {
 
                 {/* Brief info card */}
                 <div className="pl-8">
-                  <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                    {/* Confirmed params */}
-                    <div className="px-4 py-3 border-b border-gray-50">
-                      <h4 className="text-xs font-semibold text-gray-500 mb-2">信息确认</h4>
-                      <div className="grid grid-cols-2 gap-x-4 gap-y-1">
-                        {brief.confirmedParams.map((p, i) => (
-                          <div key={i} className="flex items-baseline gap-1">
-                            <span className="text-[11px] text-gray-400 shrink-0">{p.label}</span>
-                            <span className="text-xs text-gray-700">{p.value}</span>
+                  <div
+                    className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden relative cursor-pointer hover:border-indigo-200 transition"
+                    onClick={() => {
+                      setCreationStage(2);
+                      setAgentStageData("brief", brief);
+                    }}
+                  >
+                    <div className="max-h-[200px] overflow-hidden">
+                      {/* Confirmed params */}
+                      <div className="px-4 py-3 border-b border-gray-50">
+                        <h4 className="text-xs font-semibold text-gray-500 mb-2">信息确认</h4>
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                          {brief.confirmedParams.map((p, i) => (
+                            <div key={i} className="flex items-baseline gap-1">
+                              <span className="text-[11px] text-gray-400 shrink-0">{p.label}</span>
+                              <span className="text-xs text-gray-700">{p.value}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      {/* Selling points matrix */}
+                      <div className="px-4 py-3 border-b border-gray-50">
+                        <h4 className="text-xs font-semibold text-gray-500 mb-2">商品卖点矩阵</h4>
+                        <div className="space-y-1.5">
+                          <div>
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-rose-50 text-rose-600 font-medium">核心卖点</span>
+                            <div className="mt-1 space-y-0.5">
+                              {brief.sellingPoints.core.map((p, i) => (
+                                <p key={i} className="text-xs text-gray-700 pl-2">① {p}</p>
+                              ))}
+                            </div>
                           </div>
-                        ))}
+                          <div>
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-600 font-medium">次要卖点</span>
+                            <p className="text-xs text-gray-500 pl-2 mt-1">{brief.sellingPoints.secondary.join("、")}</p>
+                          </div>
+                          <div>
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-600 font-medium">差异化卖点</span>
+                            <div className="mt-1 space-y-0.5">
+                              {brief.sellingPoints.differentiated.map((p, i) => (
+                                <p key={i} className="text-xs text-gray-600 pl-2">{p}</p>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      {/* Audience */}
+                      <div className="px-4 py-3">
+                        <h4 className="text-xs font-semibold text-gray-500 mb-2">目标受众画像</h4>
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                          <div className="flex items-baseline gap-1"><span className="text-[11px] text-gray-400">年龄</span><span className="text-xs text-gray-700">{brief.audience.age}</span></div>
+                          <div className="flex items-baseline gap-1"><span className="text-[11px] text-gray-400">身份</span><span className="text-xs text-gray-700">{brief.audience.identity}</span></div>
+                          <div className="col-span-2 flex items-baseline gap-1"><span className="text-[11px] text-gray-400">痛点</span><span className="text-xs text-gray-700">{brief.audience.painPoints}</span></div>
+                          <div className="col-span-2 flex items-baseline gap-1"><span className="text-[11px] text-gray-400">消费偏好</span><span className="text-xs text-gray-700">{brief.audience.preference}</span></div>
+                        </div>
                       </div>
                     </div>
-                    {/* Selling points matrix */}
-                    <div className="px-4 py-3 border-b border-gray-50">
-                      <h4 className="text-xs font-semibold text-gray-500 mb-2">商品卖点矩阵</h4>
-                      <div className="space-y-1.5">
-                        <div>
-                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-rose-50 text-rose-600 font-medium">核心卖点</span>
-                          <div className="mt-1 space-y-0.5">
-                            {brief.sellingPoints.core.map((p, i) => (
-                              <p key={i} className="text-xs text-gray-700 pl-2">① {p}</p>
-                            ))}
-                          </div>
-                        </div>
-                        <div>
-                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-600 font-medium">次要卖点</span>
-                          <p className="text-xs text-gray-500 pl-2 mt-1">{brief.sellingPoints.secondary.join("、")}</p>
-                        </div>
-                        <div>
-                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-600 font-medium">差异化卖点</span>
-                          <div className="mt-1 space-y-0.5">
-                            {brief.sellingPoints.differentiated.map((p, i) => (
-                              <p key={i} className="text-xs text-gray-600 pl-2">{p}</p>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    {/* Audience */}
-                    <div className="px-4 py-3">
-                      <h4 className="text-xs font-semibold text-gray-500 mb-2">目标受众画像</h4>
-                      <div className="grid grid-cols-2 gap-x-4 gap-y-1">
-                        <div className="flex items-baseline gap-1"><span className="text-[11px] text-gray-400">年龄</span><span className="text-xs text-gray-700">{brief.audience.age}</span></div>
-                        <div className="flex items-baseline gap-1"><span className="text-[11px] text-gray-400">身份</span><span className="text-xs text-gray-700">{brief.audience.identity}</span></div>
-                        <div className="col-span-2 flex items-baseline gap-1"><span className="text-[11px] text-gray-400">痛点</span><span className="text-xs text-gray-700">{brief.audience.painPoints}</span></div>
-                        <div className="col-span-2 flex items-baseline gap-1"><span className="text-[11px] text-gray-400">消费偏好</span><span className="text-xs text-gray-700">{brief.audience.preference}</span></div>
-                      </div>
+                    {/* Gradient fade overlay */}
+                    <div className="absolute bottom-8 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
+                    <div className="relative px-4 py-2.5 text-center border-t border-gray-50">
+                      <span className="text-[11px] text-gray-400">点击左侧预览区查看完整创意Brief</span>
                     </div>
                   </div>
                 </div>
@@ -3359,7 +3372,14 @@ export default function ChatPanel() {
                 <p className="text-sm text-gray-700 leading-relaxed pl-8">{msg.prompt}</p>
 
                 <div className="pl-8">
-                  <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                  <div
+                    className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden relative cursor-pointer hover:border-indigo-200 transition"
+                    onClick={() => {
+                      setCreationStage(3);
+                      setAgentStageData("videoScript", script);
+                    }}
+                  >
+                    <div className="max-h-[280px] overflow-hidden">
                     {/* Header */}
                     <div className="px-4 py-3 border-b border-gray-50">
                       <div className="flex items-center gap-2">
@@ -3420,39 +3440,36 @@ export default function ChatPanel() {
                     )}
 
                     {/* 3. Scene-by-scene script */}
-                    <div className="relative max-h-[320px] overflow-hidden">
-                      <div className="px-4 py-2">
-                        <h4 className="text-xs font-semibold text-gray-500 mb-1.5">3. 完整分幕剧本</h4>
-                        <div className="overflow-x-auto">
-                          <table className="w-full text-[11px] min-w-[600px]">
-                            <thead>
-                              <tr className="border-b border-gray-100">
-                                <th className="text-left py-1 pr-2 text-gray-400 font-medium w-8">幕号</th>
-                                <th className="text-left py-1 pr-2 text-gray-400 font-medium w-28">场景头</th>
-                                <th className="text-left py-1 pr-2 text-gray-400 font-medium w-12">人物</th>
-                                <th className="text-left py-1 pr-2 text-gray-400 font-medium w-14">时长</th>
-                                <th className="text-left py-1 pr-2 text-gray-400 font-medium w-28">产品露出</th>
-                                <th className="text-left py-1 pr-2 text-gray-400 font-medium">画面描述</th>
-                                <th className="text-left py-1 text-gray-400 font-medium">台词</th>
+                    <div className="px-4 py-2">
+                      <h4 className="text-xs font-semibold text-gray-500 mb-1.5">3. 完整分幕剧本</h4>
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-[11px] min-w-[600px]">
+                          <thead>
+                            <tr className="border-b border-gray-100">
+                              <th className="text-left py-1 pr-2 text-gray-400 font-medium w-8">幕号</th>
+                              <th className="text-left py-1 pr-2 text-gray-400 font-medium w-28">场景头</th>
+                              <th className="text-left py-1 pr-2 text-gray-400 font-medium w-12">人物</th>
+                              <th className="text-left py-1 pr-2 text-gray-400 font-medium w-14">时长</th>
+                              <th className="text-left py-1 pr-2 text-gray-400 font-medium w-28">产品露出</th>
+                              <th className="text-left py-1 pr-2 text-gray-400 font-medium">画面描述</th>
+                              <th className="text-left py-1 text-gray-400 font-medium">台词</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {script.scenes.map((s, si) => (
+                              <tr key={si} className="border-b border-gray-50 last:border-0 align-top">
+                                <td className="py-1.5 pr-2 text-gray-500">{s.act}</td>
+                                <td className="py-1.5 pr-2 text-gray-700 text-[10px]">{s.heading}</td>
+                                <td className="py-1.5 pr-2 text-gray-600">{s.characters.join("、")}</td>
+                                <td className="py-1.5 pr-2 text-gray-500">{s.duration}</td>
+                                <td className="py-1.5 pr-2 text-gray-600 text-[10px]">{s.productExposure}</td>
+                                <td className="py-1.5 pr-2 text-gray-600 text-[10px] leading-relaxed">{s.visual}</td>
+                                <td className="py-1.5 text-gray-800 text-[10px] leading-relaxed italic">{s.dialogue}</td>
                               </tr>
-                            </thead>
-                            <tbody>
-                              {script.scenes.map((s, si) => (
-                                <tr key={si} className="border-b border-gray-50 last:border-0 align-top">
-                                  <td className="py-1.5 pr-2 text-gray-500">{s.act}</td>
-                                  <td className="py-1.5 pr-2 text-gray-700 text-[10px]">{s.heading}</td>
-                                  <td className="py-1.5 pr-2 text-gray-600">{s.characters.join("、")}</td>
-                                  <td className="py-1.5 pr-2 text-gray-500">{s.duration}</td>
-                                  <td className="py-1.5 pr-2 text-gray-600 text-[10px]">{s.productExposure}</td>
-                                  <td className="py-1.5 pr-2 text-gray-600 text-[10px] leading-relaxed">{s.visual}</td>
-                                  <td className="py-1.5 text-gray-800 text-[10px] leading-relaxed italic">{s.dialogue}</td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
+                            ))}
+                          </tbody>
+                        </table>
                       </div>
-                      <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
                     </div>
 
                     {/* 4. Selling Point Verification */}
@@ -3481,9 +3498,12 @@ export default function ChatPanel() {
                         </table>
                       </div>
                     )}
+                    </div>
 
+                    {/* Gradient fade overlay */}
+                    <div className="absolute bottom-8 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
                     {/* Footer */}
-                    <div className="px-4 py-2 border-t border-gray-50 text-center">
+                    <div className="relative px-4 py-2.5 text-center border-t border-gray-50">
                       <span className="text-[11px] text-gray-400">点击左侧预览区查看完整分幕剧本</span>
                     </div>
                   </div>
@@ -3560,7 +3580,13 @@ export default function ChatPanel() {
                 <p className="text-sm text-gray-700 leading-relaxed pl-8">{msg.prompt}</p>
 
                 <div className="pl-8">
-                  <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                  <div
+                    className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden relative cursor-pointer hover:border-indigo-200 transition"
+                    onClick={() => {
+                      setCreationStage(4);
+                      setAgentStageData("storyboard", sb);
+                    }}
+                  >
                     {/* Header */}
                     <div className="px-4 py-3 border-b border-gray-50">
                       <div className="flex items-center justify-between">
@@ -3577,39 +3603,37 @@ export default function ChatPanel() {
                         </span>
                       </div>
                     </div>
+                    <div className="max-h-[240px] overflow-hidden">
                     {/* Storyboard table */}
-                    <div className="relative max-h-[300px] overflow-hidden">
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-[11px] min-w-[700px]">
-                          <thead>
-                            <tr className="bg-gray-50 text-gray-500">
-                              <th className="px-2 py-1.5 text-left font-medium w-8">镜号</th>
-                              <th className="px-2 py-1.5 text-left font-medium w-10">所属幕</th>
-                              <th className="px-2 py-1.5 text-left font-medium w-10">景别</th>
-                              <th className="px-2 py-1.5 text-left font-medium w-10">运镜</th>
-                              <th className="px-2 py-1.5 text-left font-medium">画面描述</th>
-                              <th className="px-2 py-1.5 text-left font-medium">台词/音效</th>
-                              <th className="px-2 py-1.5 text-center font-medium w-12">时长(s)</th>
-                              <th className="px-2 py-1.5 text-left font-medium">产品露出</th>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-[11px] min-w-[700px]">
+                        <thead>
+                          <tr className="bg-gray-50 text-gray-500">
+                            <th className="px-2 py-1.5 text-left font-medium w-8">镜号</th>
+                            <th className="px-2 py-1.5 text-left font-medium w-10">所属幕</th>
+                            <th className="px-2 py-1.5 text-left font-medium w-10">景别</th>
+                            <th className="px-2 py-1.5 text-left font-medium w-10">运镜</th>
+                            <th className="px-2 py-1.5 text-left font-medium">画面描述</th>
+                            <th className="px-2 py-1.5 text-left font-medium">台词/音效</th>
+                            <th className="px-2 py-1.5 text-center font-medium w-12">时长(s)</th>
+                            <th className="px-2 py-1.5 text-left font-medium">产品露出</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {sb.shots.map((shot) => (
+                            <tr key={shot.shotNo} className="border-t border-gray-50 hover:bg-gray-50/50 align-top">
+                              <td className="px-2 py-1.5 text-gray-500 font-mono">{shot.shotNo}</td>
+                              <td className="px-2 py-1.5 text-gray-500">{shot.act}</td>
+                              <td className="px-2 py-1.5 text-gray-600">{shot.shotSize}</td>
+                              <td className="px-2 py-1.5 text-gray-600">{shot.cameraMove}</td>
+                              <td className="px-2 py-1.5 text-gray-700 text-[10px] leading-relaxed">{shot.visual}</td>
+                              <td className="px-2 py-1.5 text-gray-600 text-[10px] leading-relaxed whitespace-pre-line">{shot.audioDialogue}</td>
+                              <td className="px-2 py-1.5 text-center text-gray-500">{shot.duration}</td>
+                              <td className="px-2 py-1.5 text-[10px] text-gray-600">{shot.productExposure}</td>
                             </tr>
-                          </thead>
-                          <tbody>
-                            {sb.shots.map((shot) => (
-                              <tr key={shot.shotNo} className="border-t border-gray-50 hover:bg-gray-50/50 align-top">
-                                <td className="px-2 py-1.5 text-gray-500 font-mono">{shot.shotNo}</td>
-                                <td className="px-2 py-1.5 text-gray-500">{shot.act}</td>
-                                <td className="px-2 py-1.5 text-gray-600">{shot.shotSize}</td>
-                                <td className="px-2 py-1.5 text-gray-600">{shot.cameraMove}</td>
-                                <td className="px-2 py-1.5 text-gray-700 text-[10px] leading-relaxed">{shot.visual}</td>
-                                <td className="px-2 py-1.5 text-gray-600 text-[10px] leading-relaxed whitespace-pre-line">{shot.audioDialogue}</td>
-                                <td className="px-2 py-1.5 text-center text-gray-500">{shot.duration}</td>
-                                <td className="px-2 py-1.5 text-[10px] text-gray-600">{shot.productExposure}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                      <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
 
                     {/* Duration validation */}
@@ -3641,9 +3665,12 @@ export default function ChatPanel() {
                         </div>
                       </div>
                     )}
+                    </div>
 
+                    {/* Gradient fade overlay */}
+                    <div className="absolute bottom-8 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
                     {/* Footer */}
-                    <div className="px-4 py-2 border-t border-gray-50 text-center">
+                    <div className="relative px-4 py-2.5 text-center border-t border-gray-50">
                       <span className="text-[11px] text-gray-400">点击左侧预览区查看完整分镜表</span>
                     </div>
                   </div>
@@ -3702,7 +3729,14 @@ export default function ChatPanel() {
                 <p className="text-sm text-gray-700 leading-relaxed pl-8">{msg.prompt}</p>
 
                 <div className="pl-8">
-                  <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                  <div
+                    className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden relative cursor-pointer hover:border-indigo-200 transition"
+                    onClick={() => {
+                      setCreationStage(3);
+                      setAgentStageData("liveScript", ls);
+                    }}
+                  >
+                    <div className="max-h-[280px] overflow-hidden">
                     {/* Header */}
                     <div className="px-4 py-3 border-b border-gray-50">
                       <div className="flex items-center gap-2">
@@ -3738,35 +3772,32 @@ export default function ChatPanel() {
                     </div>
 
                     {/* Script phases */}
-                    <div className="relative max-h-[320px] overflow-hidden">
-                      <div className="px-4 py-2">
-                        <h4 className="text-xs font-semibold text-gray-500 mb-1.5">完整台本</h4>
-                        <div className="overflow-x-auto">
-                          <table className="w-full text-[11px] min-w-[600px]">
-                            <thead>
-                              <tr className="border-b border-gray-100">
-                                <th className="text-left py-1 pr-2 text-gray-400 font-medium w-16">时间段</th>
-                                <th className="text-left py-1 pr-2 text-gray-400 font-medium w-16">环节</th>
-                                <th className="text-left py-1 pr-2 text-gray-400 font-medium">话术</th>
-                                <th className="text-left py-1 pr-2 text-gray-400 font-medium w-32">互动设计</th>
-                                <th className="text-left py-1 text-gray-400 font-medium w-28">产品露出</th>
+                    <div className="px-4 py-2">
+                      <h4 className="text-xs font-semibold text-gray-500 mb-1.5">完整台本</h4>
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-[11px] min-w-[600px]">
+                          <thead>
+                            <tr className="border-b border-gray-100">
+                              <th className="text-left py-1 pr-2 text-gray-400 font-medium w-16">时间段</th>
+                              <th className="text-left py-1 pr-2 text-gray-400 font-medium w-16">环节</th>
+                              <th className="text-left py-1 pr-2 text-gray-400 font-medium">话术</th>
+                              <th className="text-left py-1 pr-2 text-gray-400 font-medium w-32">互动设计</th>
+                              <th className="text-left py-1 text-gray-400 font-medium w-28">产品露出</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {ls.phases.map((p, pi) => (
+                              <tr key={pi} className="border-b border-gray-50 last:border-0 align-top">
+                                <td className="py-1.5 pr-2 text-gray-500 text-[10px]">{p.timeRange}</td>
+                                <td className="py-1.5 pr-2 text-gray-700 font-medium text-[10px]">{p.phase}</td>
+                                <td className="py-1.5 pr-2 text-gray-600 text-[10px] leading-relaxed">{p.script}</td>
+                                <td className="py-1.5 pr-2 text-indigo-500 text-[10px] leading-relaxed">{p.interaction}</td>
+                                <td className="py-1.5 text-gray-500 text-[10px]">{p.productExposure}</td>
                               </tr>
-                            </thead>
-                            <tbody>
-                              {ls.phases.map((p, pi) => (
-                                <tr key={pi} className="border-b border-gray-50 last:border-0 align-top">
-                                  <td className="py-1.5 pr-2 text-gray-500 text-[10px]">{p.timeRange}</td>
-                                  <td className="py-1.5 pr-2 text-gray-700 font-medium text-[10px]">{p.phase}</td>
-                                  <td className="py-1.5 pr-2 text-gray-600 text-[10px] leading-relaxed">{p.script}</td>
-                                  <td className="py-1.5 pr-2 text-indigo-500 text-[10px] leading-relaxed">{p.interaction}</td>
-                                  <td className="py-1.5 text-gray-500 text-[10px]">{p.productExposure}</td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
+                            ))}
+                          </tbody>
+                        </table>
                       </div>
-                      <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
                     </div>
 
                     {/* Interaction library */}
@@ -3808,10 +3839,13 @@ export default function ChatPanel() {
                         </table>
                       </div>
                     )}
+                    </div>
 
+                    {/* Gradient fade overlay */}
+                    <div className="absolute bottom-8 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
                     {/* Footer */}
-                    <div className="px-4 py-2 border-t border-gray-50 text-center">
-                      <span className="text-[11px] text-gray-400">点击左侧预览区查看完整台本</span>
+                    <div className="relative px-4 py-2.5 text-center border-t border-gray-50">
+                      <span className="text-[11px] text-gray-400">点击左侧预览区查看完整直播台本</span>
                     </div>
                   </div>
                 </div>
@@ -3861,7 +3895,14 @@ export default function ChatPanel() {
                 <p className="text-sm text-gray-700 leading-relaxed pl-8">{msg.prompt}</p>
 
                 <div className="pl-8">
-                  <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                  <div
+                    className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden relative cursor-pointer hover:border-indigo-200 transition"
+                    onClick={() => {
+                      setCreationStage(3);
+                      setAgentStageData("graphicNote", note);
+                    }}
+                  >
+                    <div className="max-h-[280px] overflow-hidden">
                     {/* Header */}
                     <div className="px-4 py-3 border-b border-gray-50">
                       <div className="flex items-center gap-2">
@@ -3879,16 +3920,13 @@ export default function ChatPanel() {
                     </div>
 
                     {/* Body sections */}
-                    <div className="relative max-h-[400px] overflow-hidden">
-                      <div className="px-4 py-2 space-y-3">
-                        {note.body.map((b, bi) => (
-                          <div key={bi}>
-                            <span className="text-[10px] font-medium text-gray-400 block mb-1">{b.section}</span>
-                            <p className="text-xs text-gray-700 leading-relaxed whitespace-pre-line">{b.content}</p>
-                          </div>
-                        ))}
-                      </div>
-                      <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
+                    <div className="px-4 py-2 space-y-3">
+                      {note.body.map((b, bi) => (
+                        <div key={bi}>
+                          <span className="text-[10px] font-medium text-gray-400 block mb-1">{b.section}</span>
+                          <p className="text-xs text-gray-700 leading-relaxed whitespace-pre-line">{b.content}</p>
+                        </div>
+                      ))}
                     </div>
 
                     {/* Image plan */}
@@ -3950,10 +3988,13 @@ export default function ChatPanel() {
                         </table>
                       </div>
                     )}
+                    </div>
 
+                    {/* Gradient fade overlay */}
+                    <div className="absolute bottom-8 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
                     {/* Footer */}
-                    <div className="px-4 py-2 border-t border-gray-50 text-center">
-                      <span className="text-[11px] text-gray-400">点击左侧预览区查看完整笔记</span>
+                    <div className="relative px-4 py-2.5 text-center border-t border-gray-50">
+                      <span className="text-[11px] text-gray-400">点击左侧预览区查看完整图文笔记</span>
                     </div>
                   </div>
                 </div>
