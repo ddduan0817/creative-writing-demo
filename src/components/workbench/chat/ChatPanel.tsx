@@ -3000,6 +3000,11 @@ export default function ChatPanel() {
                         key={s.id}
                         onClick={() => {
                           marketingPlatformRef.current = s.id;
+                          // 清除旧子场景的左侧编辑器数据，防止条件链命中旧数据
+                          setAgentStageData("videoScript", undefined);
+                          setAgentStageData("liveScript", undefined);
+                          setAgentStageData("graphicNote", undefined);
+                          setAgentStageData("storyboard", undefined);
                           setMessages((prev) => [
                             ...prev,
                             { id: `user-scene-${Date.now()}`, sender: "user", type: "text", content: s.label },
@@ -3359,11 +3364,10 @@ export default function ChatPanel() {
                     <div className="px-4 py-3 border-b border-gray-50">
                       <div className="flex items-center gap-2">
                         <span className="text-[10px] px-2 py-0.5 rounded bg-rose-50 text-rose-600 font-medium">分幕剧本</span>
-                        <span className="text-xs text-gray-500">{script.title}</span>
+                        <span className="text-[10px] px-2 py-0.5 rounded bg-gray-100 text-gray-600 font-medium">{script.style}</span>
                       </div>
                       <div className="flex items-center gap-3 mt-1.5">
                         <span className="text-[11px] text-gray-400">时长 {script.duration}</span>
-                        <span className="text-[11px] text-gray-400">风格 {script.style}</span>
                       </div>
                     </div>
 
@@ -3703,11 +3707,10 @@ export default function ChatPanel() {
                     <div className="px-4 py-3 border-b border-gray-50">
                       <div className="flex items-center gap-2">
                         <span className="text-[10px] px-2 py-0.5 rounded bg-amber-50 text-amber-600 font-medium">直播台本</span>
-                        <span className="text-xs text-gray-500">{ls.title}</span>
+                        <span className="text-[10px] px-2 py-0.5 rounded bg-gray-100 text-gray-600 font-medium">{ls.style}</span>
                       </div>
                       <div className="flex items-center gap-3 mt-1.5">
                         <span className="text-[11px] text-gray-400">时长 {ls.duration}</span>
-                        <span className="text-[11px] text-gray-400">风格 {ls.style}</span>
                       </div>
                     </div>
 
@@ -3863,7 +3866,7 @@ export default function ChatPanel() {
                     <div className="px-4 py-3 border-b border-gray-50">
                       <div className="flex items-center gap-2">
                         <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-50 text-emerald-600 font-medium">图文笔记</span>
-                        <span className="text-xs text-gray-500">{note.style}</span>
+                        <span className="text-[10px] px-2 py-0.5 rounded bg-gray-100 text-gray-600 font-medium">{note.style}</span>
                       </div>
                     </div>
 
@@ -3876,7 +3879,7 @@ export default function ChatPanel() {
                     </div>
 
                     {/* Body sections */}
-                    <div className="relative max-h-[280px] overflow-hidden">
+                    <div className="relative max-h-[400px] overflow-hidden">
                       <div className="px-4 py-2 space-y-3">
                         {note.body.map((b, bi) => (
                           <div key={bi}>
