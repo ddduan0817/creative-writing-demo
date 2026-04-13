@@ -1899,7 +1899,7 @@ export default function ChatPanel() {
             ? (dataRef.current.sceneTitle || "正文")
             : (dataRef.current.sceneOutlineCard.chapters[chapterIndex]?.title || `第${chapterIndex + 1}章`);
           const doneContent = isSingleChapter
-            ? `角色档案完成！短篇不需要大纲，直接开始写正文。\n\n《${chTitle}》生成完毕！你可以在编辑区查看。\n\n想调整哪里直接告诉我，比如「开头节奏太慢」「对话再自然一些」。`
+            ? `角色档案完成！正在为你生成正文。\n\n《${chTitle}》生成完毕！你可以在编辑区查看。\n\n想调整哪里直接告诉我，比如「开头节奏太慢」「对话再自然一些」。`
             : chapterIndex < totalChapters - 1
             ? `「${chTitle}」生成完毕！你可以在编辑区查看。\n\n想调整直接告诉我，满意就点击下方「继续」写下一章。`
             : `「${chTitle}」生成完毕！全部 ${totalChapters} 章已完成。\n\n想调整任何章节直接告诉我，比如「第三章结尾再加点悬念」。`;
@@ -2329,7 +2329,7 @@ export default function ChatPanel() {
               id: "model-write-start",
               sender: "model",
               type: "text",
-              content: `角色档案完成！短篇不需要大纲，直接开始写正文。\n\n正在为你生成《${title}》...`,
+              content: `角色档案完成！正在为你生成《${title}》...`,
             },
           ]);
           setCurrentRound(14);
