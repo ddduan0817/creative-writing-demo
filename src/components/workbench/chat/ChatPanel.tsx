@@ -3178,7 +3178,7 @@ export default function ChatPanel() {
 
                       {/* Footer */}
                       <div className="px-4 py-2 border-t border-gray-50 text-center">
-                        <span className="text-[11px] text-gray-400">点击左侧预览区查看完整内容结构</span>
+                        <span className="text-[11px] text-gray-400">点击在左侧预览区查看完整内容结构</span>
                       </div>
                     </div>
                   ))}
@@ -3284,7 +3284,7 @@ export default function ChatPanel() {
                     {/* Gradient fade overlay */}
                     <div className="absolute bottom-8 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
                     <div className="relative px-4 py-2.5 text-center border-t border-gray-50">
-                      <span className="text-[11px] text-gray-400">点击左侧预览区查看完整创意Brief</span>
+                      <span className="text-[11px] text-gray-400">点击在左侧预览区查看完整创意Brief</span>
                     </div>
                   </div>
                 </div>
@@ -3504,7 +3504,7 @@ export default function ChatPanel() {
                     <div className="absolute bottom-8 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
                     {/* Footer */}
                     <div className="relative px-4 py-2.5 text-center border-t border-gray-50">
-                      <span className="text-[11px] text-gray-400">点击左侧预览区查看完整分幕剧本</span>
+                      <span className="text-[11px] text-gray-400">点击在左侧预览区查看完整分幕剧本</span>
                     </div>
                   </div>
                 </div>
@@ -3671,7 +3671,7 @@ export default function ChatPanel() {
                     <div className="absolute bottom-8 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
                     {/* Footer */}
                     <div className="relative px-4 py-2.5 text-center border-t border-gray-50">
-                      <span className="text-[11px] text-gray-400">点击左侧预览区查看完整分镜表</span>
+                      <span className="text-[11px] text-gray-400">点击在左侧预览区查看完整分镜表</span>
                     </div>
                   </div>
                 </div>
@@ -3845,7 +3845,7 @@ export default function ChatPanel() {
                     <div className="absolute bottom-8 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
                     {/* Footer */}
                     <div className="relative px-4 py-2.5 text-center border-t border-gray-50">
-                      <span className="text-[11px] text-gray-400">点击左侧预览区查看完整直播台本</span>
+                      <span className="text-[11px] text-gray-400">点击在左侧预览区查看完整直播台本</span>
                     </div>
                   </div>
                 </div>
@@ -3994,7 +3994,7 @@ export default function ChatPanel() {
                     <div className="absolute bottom-8 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
                     {/* Footer */}
                     <div className="relative px-4 py-2.5 text-center border-t border-gray-50">
-                      <span className="text-[11px] text-gray-400">点击左侧预览区查看完整图文笔记</span>
+                      <span className="text-[11px] text-gray-400">点击在左侧预览区查看完整图文笔记</span>
                     </div>
                   </div>
                 </div>
@@ -4305,7 +4305,7 @@ export default function ChatPanel() {
                     {/* Gradient fade overlay */}
                     <div className="absolute bottom-8 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
                     <div className="relative px-4 py-2.5 text-center border-t border-gray-50">
-                      <span className="text-[11px] text-gray-400">{isMarketing ? "点击左侧预览区查看完整商品信息" : "点击左侧预览区查看完整创作设定"}</span>
+                      <span className="text-[11px] text-gray-400">{isMarketing ? "点击在左侧预览区查看完整商品信息" : "点击在左侧预览区查看完整创作设定"}</span>
                     </div>
                   </div>
                   {/* Action buttons */}
@@ -4430,7 +4430,7 @@ export default function ChatPanel() {
                     {/* Gradient fade */}
                     <div className="absolute bottom-8 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
                     <div className="relative px-4 py-2.5 text-center border-t border-gray-50">
-                      <span className="text-[11px] text-gray-400">点击左侧预览区查看完整世界观</span>
+                      <span className="text-[11px] text-gray-400">点击在左侧预览区查看完整世界观</span>
                     </div>
                   </div>
                   {/* Action buttons */}
@@ -4542,7 +4542,7 @@ export default function ChatPanel() {
                     </div>
                     <div className="absolute bottom-8 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
                     <div className="relative px-4 py-2.5 text-center border-t border-gray-50">
-                      <span className="text-[11px] text-gray-400">点击左侧预览区查看完整角色档案</span>
+                      <span className="text-[11px] text-gray-400">点击在左侧预览区查看完整角色档案</span>
                     </div>
                   </div>
                   {/* Action buttons */}
@@ -4644,7 +4644,7 @@ export default function ChatPanel() {
                     </div>
                     <div className="absolute bottom-8 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
                     <div className="relative px-4 py-2.5 text-center border-t border-gray-50">
-                      <span className="text-[11px] text-gray-400">点击左侧预览区查看完整大纲</span>
+                      <span className="text-[11px] text-gray-400">点击在左侧预览区查看完整大纲</span>
                     </div>
                   </div>
                   {/* Action buttons */}
