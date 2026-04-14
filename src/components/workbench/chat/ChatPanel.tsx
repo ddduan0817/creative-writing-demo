@@ -3231,7 +3231,7 @@ export default function ChatPanel() {
                       setAgentStageData("brief", brief);
                     }}
                   >
-                    <div className="max-h-[200px] overflow-hidden">
+                    <div className="max-h-[200px] overflow-y-auto">
                       {/* Confirmed params */}
                       <div className="px-4 py-3 border-b border-gray-50">
                         <h4 className="text-xs font-semibold text-gray-500 mb-2">信息确认</h4>
@@ -3282,7 +3282,7 @@ export default function ChatPanel() {
                       </div>
                     </div>
                     {/* Gradient fade overlay */}
-                    <div className="absolute bottom-8 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
+
                     <div className="relative px-4 py-2.5 text-center border-t border-gray-50">
                       <span className="text-[11px] text-gray-400">点击在左侧预览区查看完整创意Brief</span>
                     </div>
@@ -3379,7 +3379,7 @@ export default function ChatPanel() {
                       setAgentStageData("videoScript", script);
                     }}
                   >
-                    <div className="max-h-[280px] overflow-hidden">
+                    <div className="max-h-[280px] overflow-y-auto">
                     {/* Header */}
                     <div className="px-4 py-3 border-b border-gray-50">
                       <div className="flex items-center gap-2">
@@ -3501,7 +3501,7 @@ export default function ChatPanel() {
                     </div>
 
                     {/* Gradient fade overlay */}
-                    <div className="absolute bottom-8 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
+
                     {/* Footer */}
                     <div className="relative px-4 py-2.5 text-center border-t border-gray-50">
                       <span className="text-[11px] text-gray-400">点击在左侧预览区查看完整分幕剧本</span>
@@ -3603,7 +3603,7 @@ export default function ChatPanel() {
                         </span>
                       </div>
                     </div>
-                    <div className="max-h-[240px] overflow-hidden">
+                    <div className="max-h-[240px] overflow-y-auto">
                     {/* Storyboard table */}
                     <div className="overflow-x-auto">
                       <table className="w-full text-[11px] min-w-[700px]">
@@ -3668,7 +3668,7 @@ export default function ChatPanel() {
                     </div>
 
                     {/* Gradient fade overlay */}
-                    <div className="absolute bottom-8 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
+
                     {/* Footer */}
                     <div className="relative px-4 py-2.5 text-center border-t border-gray-50">
                       <span className="text-[11px] text-gray-400">点击在左侧预览区查看完整分镜表</span>
@@ -3736,7 +3736,7 @@ export default function ChatPanel() {
                       setAgentStageData("liveScript", ls);
                     }}
                   >
-                    <div className="max-h-[280px] overflow-hidden">
+                    <div className="max-h-[280px] overflow-y-auto">
                     {/* Header */}
                     <div className="px-4 py-3 border-b border-gray-50">
                       <div className="flex items-center gap-2">
@@ -3842,7 +3842,7 @@ export default function ChatPanel() {
                     </div>
 
                     {/* Gradient fade overlay */}
-                    <div className="absolute bottom-8 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
+
                     {/* Footer */}
                     <div className="relative px-4 py-2.5 text-center border-t border-gray-50">
                       <span className="text-[11px] text-gray-400">点击在左侧预览区查看完整直播台本</span>
@@ -3902,7 +3902,7 @@ export default function ChatPanel() {
                       setAgentStageData("graphicNote", note);
                     }}
                   >
-                    <div className="max-h-[280px] overflow-hidden">
+                    <div className="max-h-[280px] overflow-y-auto">
                     {/* Header */}
                     <div className="px-4 py-3 border-b border-gray-50">
                       <div className="flex items-center gap-2">
@@ -3991,7 +3991,7 @@ export default function ChatPanel() {
                     </div>
 
                     {/* Gradient fade overlay */}
-                    <div className="absolute bottom-8 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
+
                     {/* Footer */}
                     <div className="relative px-4 py-2.5 text-center border-t border-gray-50">
                       <span className="text-[11px] text-gray-400">点击在左侧预览区查看完整图文笔记</span>
@@ -4275,7 +4275,7 @@ export default function ChatPanel() {
                       setAgentStageData("settings", msg.settings);
                     }}
                   >
-                    <div className="max-h-[160px] overflow-hidden">
+                    <div className="max-h-[160px] overflow-y-auto">
                       {Object.entries(msg.settings).map(([group, items], gi) => (
                         <div key={group}>
                           {gi > 0 && <div className="border-t border-gray-100" />}
@@ -4303,7 +4303,7 @@ export default function ChatPanel() {
                       ))}
                     </div>
                     {/* Gradient fade overlay */}
-                    <div className="absolute bottom-8 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
+
                     <div className="relative px-4 py-2.5 text-center border-t border-gray-50">
                       <span className="text-[11px] text-gray-400">{isMarketing ? "点击在左侧预览区查看完整商品信息" : "点击在左侧预览区查看完整创作设定"}</span>
                     </div>
@@ -4402,7 +4402,7 @@ export default function ChatPanel() {
                       setAgentStageData("worldbuilding", msg.data);
                     }}
                   >
-                    <div className="max-h-[200px] overflow-hidden">
+                    <div className="max-h-[200px] overflow-y-auto">
                       {/* Summary */}
                       <div className="px-4 py-3">
                         <h4 className="text-xs font-semibold text-gray-500 mb-2">故事世界</h4>
@@ -4428,7 +4428,7 @@ export default function ChatPanel() {
                       </div>
                     </div>
                     {/* Gradient fade */}
-                    <div className="absolute bottom-8 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
+
                     <div className="relative px-4 py-2.5 text-center border-t border-gray-50">
                       <span className="text-[11px] text-gray-400">点击在左侧预览区查看完整世界观</span>
                     </div>
@@ -4511,7 +4511,7 @@ export default function ChatPanel() {
                       setAgentStageData("characters", msg.data);
                     }}
                   >
-                    <div className="max-h-[200px] overflow-hidden">
+                    <div className="max-h-[200px] overflow-y-auto">
                       {/* Female lead */}
                       <div className="px-4 py-3">
                         <h4 className="text-xs font-semibold text-gray-500 mb-2">女主角</h4>
@@ -4540,7 +4540,7 @@ export default function ChatPanel() {
                           </div>
                       </div>
                     </div>
-                    <div className="absolute bottom-8 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
+
                     <div className="relative px-4 py-2.5 text-center border-t border-gray-50">
                       <span className="text-[11px] text-gray-400">点击在左侧预览区查看完整角色档案</span>
                     </div>
@@ -4623,7 +4623,7 @@ export default function ChatPanel() {
                       setAgentStageData("outline", msg.data);
                     }}
                   >
-                    <div className="max-h-[220px] overflow-hidden">
+                    <div className="max-h-[220px] overflow-y-auto">
                       {/* Structure info */}
                       <div className="px-4 py-3">
                         <span className="text-xs text-gray-400">{msg.data.totalChapters}章 · {msg.data.estimatedWords}</span>
@@ -4642,7 +4642,7 @@ export default function ChatPanel() {
                         ))}
                       </div>
                     </div>
-                    <div className="absolute bottom-8 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
+
                     <div className="relative px-4 py-2.5 text-center border-t border-gray-50">
                       <span className="text-[11px] text-gray-400">点击在左侧预览区查看完整大纲</span>
                     </div>
