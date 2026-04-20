@@ -1409,9 +1409,9 @@ export default function RichTextEditor() {
                       <p className="text-xs text-gray-400">如需修改，请在右侧对话中告诉我</p>
                     </div>
 
-                    {/* 信息确认 */}
+                    {/* 创作参数 */}
                     <div>
-                      <h3 className="text-sm font-bold text-gray-700 mb-3">信息确认</h3>
+                      <h3 className="text-sm font-bold text-gray-700 mb-3">创作参数</h3>
                       <div className="space-y-1 ml-1">
                         {brief.confirmedParams?.map((p: { label: string; value: string }, i: number) => (
                           <div key={i} className="flex items-baseline gap-2">

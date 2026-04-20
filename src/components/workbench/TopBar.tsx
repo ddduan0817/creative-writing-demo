@@ -27,6 +27,8 @@ export default function TopBar() {
     restoreFromHistory,
     creationStage,
     workMode,
+    scene,
+    agentStageData,
   } = useEditorStore();
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(title);
@@ -185,6 +187,8 @@ export default function TopBar() {
       {showMaterials && (
         <MaterialsPanel
           creationStage={creationStage}
+          scene={scene}
+          agentStageData={agentStageData}
           onClose={() => setShowMaterials(false)}
         />
       )}
@@ -381,7 +385,7 @@ function HistoryPanel({
 }
 
 // ─── 查看资料弹窗 ───────────────────────────────────────────────
-const materialTabs = [
+const novelTabs = [
   { key: "settings", label: "创作设定", stage: 1 },
   { key: "elements", label: "写作要素", stage: 1 },
   { key: "writing", label: "写作方式", stage: 1 },
@@ -389,14 +393,30 @@ const materialTabs = [
   { key: "outline", label: "大纲", stage: 4 },
 ] as const;
 
+const marketingTabs = [
+  { key: "product", label: "商品信息", stage: 1 },
+  { key: "brief", label: "创意Brief", stage: 2 },
+  { key: "output", label: "最终产物", stage: 3 },
+  { key: "storyboard", label: "分镜表", stage: 4 },
+] as const;
+
+type SceneType = "novel" | "screenplay" | "marketing" | "knowledge" | "general";
+
 function MaterialsPanel({
   creationStage,
+  scene,
+  agentStageData,
   onClose,
 }: {
   creationStage: number;
+  scene: SceneType;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  agentStageData: Record<string, any>;
   onClose: () => void;
 }) {
-  const [activeTab, setActiveTab] = useState<string>("settings");
+  const isMarketing = scene === "marketing";
+  const tabs = isMarketing ? marketingTabs : novelTabs;
+  const [activeTab, setActiveTab] = useState<string>(tabs[0].key);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20">
@@ -405,7 +425,7 @@ function MaterialsPanel({
         <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between flex-shrink-0">
           <div className="flex items-center gap-2">
             <BookOpen className="w-4 h-4 text-gray-500" />
-            <span className="text-sm font-semibold text-gray-800">创作资料</span>
+            <span className="text-sm font-semibold text-gray-800">{isMarketing ? "创作资料" : "创作资料"}</span>
           </div>
           <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded transition">
             <X className="w-4 h-4 text-gray-400" />
@@ -414,7 +434,7 @@ function MaterialsPanel({
 
         {/* Tabs */}
         <div className="flex border-b border-gray-100 px-4 gap-1 flex-shrink-0">
-          {materialTabs.map((tab) => {
+          {tabs.map((tab) => {
             const available = creationStage >= tab.stage;
             return (
               <button
@@ -439,15 +459,20 @@ function MaterialsPanel({
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6">
-          <MaterialContent tab={activeTab} creationStage={creationStage} />
+          {isMarketing
+            ? <MarketingMaterialContent tab={activeTab} creationStage={creationStage} agentStageData={agentStageData} />
+            : <NovelMaterialContent tab={activeTab} creationStage={creationStage} />
+          }
         </div>
       </div>
     </div>
   );
 }
 
-function MaterialContent({ tab, creationStage }: { tab: string; creationStage: number }) {
-  const requiredStage = materialTabs.find((t) => t.key === tab)?.stage ?? 99;
+// ─── 营销场景资料内容 ─────────────────────────────────────────
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function MarketingMaterialContent({ tab, creationStage, agentStageData }: { tab: string; creationStage: number; agentStageData: Record<string, any> }) {
+  const requiredStage = marketingTabs.find((t) => t.key === tab)?.stage ?? 99;
   if (creationStage < requiredStage) {
     return (
       <div className="flex items-center justify-center h-48 text-gray-300 text-sm">
@@ -457,6 +482,196 @@ function MaterialContent({ tab, creationStage }: { tab: string; creationStage: n
         </div>
       </div>
     );
+  }
+
+  if (tab === "product") {
+    const settings = agentStageData.settings as Record<string, { label: string; value: string }[]> | undefined;
+    if (!settings) return <EmptyPlaceholder />;
+    return (
+      <div className="space-y-6">
+        {Object.entries(settings).map(([group, fields]) => (
+          <div key={group}>
+            <h3 className="text-sm font-semibold text-gray-700 mb-3 pb-2 border-b border-gray-100">{group}</h3>
+            <div className="space-y-3">
+              {fields.map((item) => (
+                <div key={item.label}>
+                  <span className="text-xs font-medium text-gray-400 block mb-1">{item.label}</span>
+                  <p className="text-sm text-gray-700 leading-relaxed">{item.value}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (tab === "brief") {
+    const brief = agentStageData.videoBrief || agentStageData.brief;
+    if (!brief) return <EmptyPlaceholder />;
+    return (
+      <div className="space-y-6">
+        {/* 创作参数 */}
+        {brief.confirmedParams && (
+          <div>
+            <h3 className="text-sm font-semibold text-gray-700 mb-3 pb-2 border-b border-gray-100">创作参数</h3>
+            <div className="space-y-2">
+              {brief.confirmedParams.map((p: { label: string; value: string }) => (
+                <div key={p.label} className="flex items-start gap-4">
+                  <span className="text-sm text-gray-400 w-20 shrink-0">{p.label}</span>
+                  <span className="text-sm text-gray-700">{p.value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {/* 卖点矩阵 */}
+        {brief.sellingPoints && (
+          <div>
+            <h3 className="text-sm font-semibold text-gray-700 mb-3 pb-2 border-b border-gray-100">商品卖点矩阵</h3>
+            <div className="space-y-3">
+              {brief.sellingPoints.core && (
+                <div>
+                  <span className="text-xs font-medium text-red-400 block mb-1.5">核心卖点</span>
+                  <div className="space-y-1">{brief.sellingPoints.core.map((s: string, i: number) => (
+                    <p key={i} className="text-sm text-gray-700 leading-relaxed">· {s}</p>
+                  ))}</div>
+                </div>
+              )}
+              {brief.sellingPoints.secondary && (
+                <div>
+                  <span className="text-xs font-medium text-amber-400 block mb-1.5">次要卖点</span>
+                  <div className="space-y-1">{brief.sellingPoints.secondary.map((s: string, i: number) => (
+                    <p key={i} className="text-sm text-gray-700 leading-relaxed">· {s}</p>
+                  ))}</div>
+                </div>
+              )}
+              {brief.sellingPoints.differentiator && (
+                <div>
+                  <span className="text-xs font-medium text-blue-400 block mb-1.5">差异化卖点</span>
+                  <div className="space-y-1">{brief.sellingPoints.differentiator.map((s: string, i: number) => (
+                    <p key={i} className="text-sm text-gray-700 leading-relaxed">· {s}</p>
+                  ))}</div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+        {/* 受众画像 */}
+        {brief.audience && (
+          <div>
+            <h3 className="text-sm font-semibold text-gray-700 mb-3 pb-2 border-b border-gray-100">目标受众画像</h3>
+            <div className="space-y-2">
+              {Object.entries(brief.audience as Record<string, string>).map(([k, v]) => (
+                <div key={k} className="flex items-start gap-4">
+                  <span className="text-sm text-gray-400 w-20 shrink-0">{k}</span>
+                  <span className="text-sm text-gray-700">{v}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {/* 创意方向 */}
+        {brief.directions && (
+          <div>
+            <h3 className="text-sm font-semibold text-gray-700 mb-3 pb-2 border-b border-gray-100">创意方向</h3>
+            <div className="space-y-3">
+              {brief.directions.map((d: { title: string; storyType: string; overview: string; hook: string }, i: number) => (
+                <div key={i} className="bg-gray-50/60 rounded-lg p-3.5">
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <span className="text-sm font-semibold text-gray-800">方向{i + 1}：{d.title}</span>
+                    <span className="px-2 py-0.5 text-[10px] rounded-full bg-indigo-50 text-indigo-500">{d.storyType}</span>
+                  </div>
+                  <p className="text-sm text-gray-600 leading-relaxed mb-1">{d.overview}</p>
+                  <p className="text-xs text-gray-400">钩子：{d.hook}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  if (tab === "output") {
+    const script = agentStageData.videoScript;
+    const live = agentStageData.liveScript;
+    const note = agentStageData.graphicNote;
+    const data = script || live || note;
+    if (!data) return <EmptyPlaceholder />;
+
+    const typeName = script ? "分幕剧本" : live ? "直播台本" : "图文笔记";
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center gap-2 mb-2">
+          <span className="px-2.5 py-1 bg-indigo-50 text-indigo-600 text-xs rounded-full font-medium">{typeName}</span>
+        </div>
+        {/* 渲染文本内容 */}
+        <div className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
+          {typeof data === "string" ? data : (
+            <div className="space-y-3">
+              {Object.entries(data as Record<string, unknown>).map(([key, val]) => {
+                if (key === "type" || key === "title" || key === "direction") return null;
+                return (
+                  <div key={key}>
+                    <span className="text-xs font-medium text-gray-400 block mb-1">{key}</span>
+                    <p className="text-sm text-gray-700 leading-relaxed">{typeof val === "string" ? val : JSON.stringify(val, null, 2)}</p>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  if (tab === "storyboard") {
+    const sb = agentStageData.storyboard;
+    if (!sb) return <EmptyPlaceholder />;
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center gap-2 mb-2">
+          <span className="px-2.5 py-1 bg-indigo-50 text-indigo-600 text-xs rounded-full font-medium">分镜表</span>
+        </div>
+        <div className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
+          {typeof sb === "string" ? sb : (
+            <div className="space-y-3">
+              {Object.entries(sb as Record<string, unknown>).map(([key, val]) => {
+                if (key === "type" || key === "title") return null;
+                return (
+                  <div key={key}>
+                    <span className="text-xs font-medium text-gray-400 block mb-1">{key}</span>
+                    <p className="text-sm text-gray-700 leading-relaxed">{typeof val === "string" ? val : JSON.stringify(val, null, 2)}</p>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  return null;
+}
+
+function EmptyPlaceholder() {
+  return (
+    <div className="flex items-center justify-center h-48 text-gray-300 text-sm">
+      <div className="text-center">
+        <FileText className="w-8 h-8 mx-auto mb-2 opacity-40" />
+        <p>尚未生成</p>
+      </div>
+    </div>
+  );
+}
+
+// ─── 小说场景资料内容 ─────────────────────────────────────────
+function NovelMaterialContent({ tab, creationStage }: { tab: string; creationStage: number }) {
+  const requiredStage = novelTabs.find((t) => t.key === tab)?.stage ?? 99;
+  if (creationStage < requiredStage) {
+    return <EmptyPlaceholder />;
   }
 
   if (tab === "settings") {

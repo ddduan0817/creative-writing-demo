@@ -3234,7 +3234,7 @@ export default function ChatPanel() {
                     <div className="max-h-[200px] overflow-y-auto">
                       {/* Confirmed params */}
                       <div className="px-4 py-3 border-b border-gray-50">
-                        <h4 className="text-xs font-semibold text-gray-500 mb-2">信息确认</h4>
+                        <h4 className="text-xs font-semibold text-gray-500 mb-2">创作参数</h4>
                         <div className="grid grid-cols-2 gap-x-4 gap-y-1">
                           {brief.confirmedParams.map((p, i) => (
                             <div key={i} className="flex items-baseline gap-1">
