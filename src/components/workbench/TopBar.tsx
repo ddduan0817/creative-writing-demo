@@ -599,25 +599,109 @@ function MarketingMaterialContent({ tab, creationStage, agentStageData }: { tab:
   }
 
   if (tab === "script") {
-    const data = agentStageData.videoScript;
-    if (!data) return <EmptyPlaceholder />;
+    const script = agentStageData.videoScript;
+    if (!script) return <EmptyPlaceholder />;
     return (
-      <div className="space-y-4">
-        <div className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
-          {typeof data === "string" ? data : (
-            <div className="space-y-3">
-              {Object.entries(data as Record<string, unknown>).map(([key, val]) => {
-                if (key === "type" || key === "title" || key === "direction") return null;
-                return (
-                  <div key={key}>
-                    <span className="text-xs font-medium text-gray-400 block mb-1">{key}</span>
-                    <p className="text-sm text-gray-700 leading-relaxed">{typeof val === "string" ? val : JSON.stringify(val, null, 2)}</p>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+      <div className="space-y-5">
+        {/* Header info */}
+        <div className="flex items-center gap-3">
+          <span className="px-2.5 py-1 bg-rose-50 text-rose-600 text-xs rounded-full font-medium">{script.style || "分幕剧本"}</span>
+          <span className="text-sm text-gray-400">时长 {script.duration}</span>
         </div>
+
+        {/* 1. 角色表 */}
+        {script.characters && script.characters.length > 0 && (
+          <div>
+            <h3 className="text-sm font-semibold text-gray-700 mb-2 pb-1.5 border-b border-gray-100">1. 角色表</h3>
+            <div className="space-y-2">
+              {script.characters.map((c: { name: string; description: string }, i: number) => (
+                <div key={i} className="flex gap-3">
+                  <span className="text-sm font-medium text-indigo-600 w-12 shrink-0">{c.name}</span>
+                  <span className="text-sm text-gray-600">{c.description}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* 2. 场景规划 */}
+        {script.scenePlans && script.scenePlans.length > 0 && (
+          <div>
+            <h3 className="text-sm font-semibold text-gray-700 mb-2 pb-1.5 border-b border-gray-100">2. 场景规划</h3>
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-gray-100">
+                  <th className="text-left py-1.5 pr-3 text-gray-400 font-medium text-xs w-10">编号</th>
+                  <th className="text-left py-1.5 pr-3 text-gray-400 font-medium text-xs w-16">地点</th>
+                  <th className="text-left py-1.5 pr-3 text-gray-400 font-medium text-xs w-16">时空</th>
+                  <th className="text-left py-1.5 text-gray-400 font-medium text-xs">目的</th>
+                </tr>
+              </thead>
+              <tbody>
+                {script.scenePlans.map((sp: { sceneNo: number; location: string; timeSpace: string; purpose: string }) => (
+                  <tr key={sp.sceneNo} className="border-b border-gray-50 last:border-0">
+                    <td className="py-1.5 pr-3 text-gray-500">{sp.sceneNo}</td>
+                    <td className="py-1.5 pr-3 text-gray-700">{sp.location}</td>
+                    <td className="py-1.5 pr-3 text-gray-500">{sp.timeSpace}</td>
+                    <td className="py-1.5 text-gray-600">{sp.purpose}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {/* 3. 完整分幕剧本 */}
+        {script.scenes && script.scenes.length > 0 && (
+          <div>
+            <h3 className="text-sm font-semibold text-gray-700 mb-2 pb-1.5 border-b border-gray-100">3. 完整分幕剧本</h3>
+            <div className="space-y-3">
+              {script.scenes.map((s: { act: number; heading: string; characters: string[]; duration: string; productExposure: string; visual: string; dialogue: string; sellingPoint?: string }, i: number) => (
+                <div key={i} className="bg-gray-50/60 rounded-lg p-3.5">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-xs font-bold text-indigo-600">幕{s.act}</span>
+                    <span className="text-xs text-gray-500">{s.heading}</span>
+                    <span className="text-[10px] text-gray-400 ml-auto">{s.duration}</span>
+                  </div>
+                  <div className="space-y-1.5 text-sm">
+                    <div><span className="text-gray-400 text-xs">角色：</span><span className="text-gray-600">{s.characters.join("、")}</span></div>
+                    <div><span className="text-gray-400 text-xs">画面：</span><span className="text-gray-600">{s.visual}</span></div>
+                    <div><span className="text-gray-400 text-xs">台词：</span><span className="text-gray-700 italic">{s.dialogue}</span></div>
+                    {s.productExposure && <div><span className="text-gray-400 text-xs">产品露出：</span><span className="text-gray-600">{s.productExposure}</span></div>}
+                    {s.sellingPoint && <div><span className="px-1.5 py-0.5 bg-amber-50 text-amber-600 text-[10px] rounded">{s.sellingPoint}</span></div>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* 4. 卖点植入核验 */}
+        {script.sellingPointChecks && script.sellingPointChecks.length > 0 && (
+          <div>
+            <h3 className="text-sm font-semibold text-gray-700 mb-2 pb-1.5 border-b border-gray-100">4. 卖点植入核验</h3>
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-gray-100">
+                  <th className="text-left py-1.5 pr-2 text-gray-400 font-medium text-xs">类型</th>
+                  <th className="text-left py-1.5 pr-2 text-gray-400 font-medium text-xs">内容</th>
+                  <th className="text-left py-1.5 pr-2 text-gray-400 font-medium text-xs w-12">次数</th>
+                  <th className="text-left py-1.5 text-gray-400 font-medium text-xs w-12">合规</th>
+                </tr>
+              </thead>
+              <tbody>
+                {script.sellingPointChecks.map((sp: { type: string; content: string; count: string; compliance: string }, i: number) => (
+                  <tr key={i} className="border-b border-gray-50 last:border-0">
+                    <td className="py-1.5 pr-2 text-gray-500 text-xs">{sp.type}</td>
+                    <td className="py-1.5 pr-2 text-gray-700">{sp.content}</td>
+                    <td className="py-1.5 pr-2 text-gray-500 text-center">{sp.count}</td>
+                    <td className="py-1.5 text-center"><span className={`text-xs ${sp.compliance === "✅" ? "text-green-500" : "text-gray-400"}`}>{sp.compliance}</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     );
   }
