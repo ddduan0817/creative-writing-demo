@@ -46,14 +46,17 @@ import {
   mockGraphicNote,
 } from "./marketingMockData";
 import {
-  knowledgeInspirationRounds,
-  knowledgeMockSettings,
-  knowledgeWorldbuildingRounds,
-  knowledgeMockWorldbuilding,
-  knowledgeCharacterRounds,
-  knowledgeMockCharacterCard,
-  knowledgeMockOutlineCard,
-  knowledgeMockChapterTexts,
+  mockBookAnalysis,
+  mockBookSettingsCard,
+  mockLearningReport,
+  mockContentAnalysis,
+  mockContentSettingsCard,
+  mockInsightNotes,
+  mockSourceOverview,
+  mockSourceSettingsCard,
+  mockKnowledgeArticle,
+  mockKnowledgeArticleXhs,
+  type KnowledgeAgentType,
 } from "./knowledgeMockData";
 
 // ─── Mock Data ───────────────────────────────────────────────
@@ -1258,6 +1261,14 @@ type Message =
   | { id: string; sender: "model"; type: "video-storyboard"; prompt: string; storyboard: import("./marketingMockData").Storyboard }
   | { id: string; sender: "model"; type: "live-script"; prompt: string; data: import("./marketingMockData").LiveScriptData }
   | { id: string; sender: "model"; type: "graphic-note"; prompt: string; data: import("./marketingMockData").GraphicNoteData }
+  | { id: string; sender: "model"; type: "knowledge-agent-select"; prompt: string }
+  | { id: string; sender: "model"; type: "knowledge-upload-guide"; prompt: string; agent: string }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  | { id: string; sender: "model"; type: "knowledge-analysis"; prompt: string; data: any; agent: string }
+  | { id: string; sender: "model"; type: "knowledge-mode-select"; prompt: string }
+  | { id: string; sender: "model"; type: "knowledge-platform-select"; prompt: string }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  | { id: string; sender: "model"; type: "knowledge-report"; prompt: string; data: any; agent: string }
   | { id: string; sender: "user"; type: "card-selection"; content: string }
   | { id: string; sender: "user"; type: "text"; content: string };
 
@@ -1285,61 +1296,53 @@ export default function ChatPanel() {
   const sceneInspirationRounds = useMemo(() => {
     if (isScreenplay) return screenplayInspirationRounds;
     if (isMarketing) return marketingInspirationRounds;
-    if (isKnowledge) return knowledgeInspirationRounds;
     return inspirationRounds;
-  }, [isScreenplay, isMarketing, isKnowledge]);
+  }, [isScreenplay, isMarketing]);
   const sceneSettingsCard = useMemo(() => {
     if (isScreenplay) return screenplayMockSettings;
     if (isMarketing) return marketingMockSettings;
-    if (isKnowledge) return knowledgeMockSettings;
     return mockSettings;
-  }, [isScreenplay, isMarketing, isKnowledge]);
+  }, [isScreenplay, isMarketing]);
   const sceneWorldbuildingRounds = useMemo(() => {
     if (isScreenplay) return screenplayWorldbuildingRounds;
     if (isMarketing) return marketingWorldbuildingRounds;
-    if (isKnowledge) return knowledgeWorldbuildingRounds;
     return worldbuildingRounds;
-  }, [isScreenplay, isMarketing, isKnowledge]);
+  }, [isScreenplay, isMarketing]);
   const sceneWorldbuilding = useMemo(() => {
     if (isScreenplay) return screenplayMockWorldbuilding;
     if (isMarketing) return marketingMockWorldbuilding;
-    if (isKnowledge) return knowledgeMockWorldbuilding;
     return mockWorldbuilding;
-  }, [isScreenplay, isMarketing, isKnowledge]);
+  }, [isScreenplay, isMarketing]);
   const sceneCharacterRounds = useMemo(() => {
     if (isScreenplay) return screenplayCharacterRounds;
     if (isMarketing) return marketingCharacterRounds;
-    if (isKnowledge) return knowledgeCharacterRounds;
     return characterRounds;
-  }, [isScreenplay, isMarketing, isKnowledge]);
+  }, [isScreenplay, isMarketing]);
   const sceneCharacterCard = useMemo(() => {
     if (isScreenplay) return screenplayMockCharacterCard;
     if (isMarketing) return marketingMockCharacterCard;
-    if (isKnowledge) return knowledgeMockCharacterCard;
     return mockCharacterCard;
-  }, [isScreenplay, isMarketing, isKnowledge]);
+  }, [isScreenplay, isMarketing]);
   const sceneOutlineCard = useMemo(() => {
     if (isScreenplay) return screenplayMockOutlineCard;
     if (isMarketing) return marketingMockOutlineCard;
-    if (isKnowledge) return knowledgeMockOutlineCard;
     return mockOutlineCard;
-  }, [isScreenplay, isMarketing, isKnowledge]);
+  }, [isScreenplay, isMarketing]);
   const sceneChapterTexts = useMemo(() => {
     if (isScreenplay) return screenplayMockChapterTexts;
     if (isMarketing) return marketingMockChapterTexts;
-    if (isKnowledge) return knowledgeMockChapterTexts;
     return mockChapterTexts;
-  }, [isScreenplay, isMarketing, isKnowledge]);
+  }, [isScreenplay, isMarketing]);
   const sceneTitle = useMemo(() => {
     if (isScreenplay) return "雨夜追凶";
     if (isMarketing) return "焕颜精华";
-    if (isKnowledge) return "AI效率局";
+    if (isKnowledge) return "知识专栏";
     return "一碗春";
   }, [isScreenplay, isMarketing, isKnowledge]);
   const sceneWelcome = useMemo(() => {
     if (isScreenplay) return "你好！欢迎来到剧本创作工作台\n\n描述一下你想创作的剧本——一句话、一个画面、甚至几个关键词就够了。\n我会帮你快速生成一版完整设定，然后我们一起调整打磨。\n\n没有想法也没关系，点击下方按钮我来帮你构思一个。";
     if (isMarketing) return "你好！欢迎来到电商内容创作工作台\n\n告诉我你要推广什么商品，以及你的目标平台。\n比如：「一款隐形蓝牙耳机，主打极致隐形和防水，想在抖音投放」\n\n我会帮你整理商品信息，然后根据平台特点生成内容结构。";
-    if (isKnowledge) return "你好！欢迎来到深度解读工作台\n\n告诉我你想拆解哪本书？书名、文件、核心问题都可以——比如「帮我拆解《诡秘之主》的力量体系」。\n我来帮你快速生成分析框架，然后一起深入。\n\n没有想法也没关系，点击下方按钮我来帮你构思一个。";
+    if (isKnowledge) return "";
     return "你好！欢迎来到小说创作工作台\n\n描述一下你想写的故事——一句话、一个画面、甚至几个关键词就够了。\n我会帮你快速生成一版创作设定，然后我们一起调整打磨。\n\n没有想法也没关系，点击下方按钮我来帮你构思一个。";
   }, [isScreenplay, isMarketing, isKnowledge]);
 
@@ -1412,6 +1415,7 @@ export default function ChatPanel() {
   const hasInit = useRef(false);
   const novelVariantRef = useRef(0); // 0 = original (清岚镇), 1 = alt (潮音镇)
   const marketingPlatformRef = useRef<string | null>(null); // 电商选中的内容平台
+  const knowledgeAgentRef = useRef<KnowledgeAgentType | null>(null); // 知识专栏选中的子Agent
 
   // Auto-scroll
   useEffect(() => {
@@ -1477,8 +1481,23 @@ export default function ChatPanel() {
           },
         ]);
       }, 1200);
+    } else if (isKnowledge) {
+      // Knowledge: show thinking then agent selection
+      const thinkingId = `thinking-init-k`;
+      setMessages([{ id: thinkingId, sender: "model", type: "thinking" }]);
+
+      setTimeout(() => {
+        setMessages([
+          {
+            id: "model-knowledge-agent-select",
+            sender: "model",
+            type: "knowledge-agent-select",
+            prompt: "嗨！我是你的知识助手。选择你想做的事情：",
+          },
+        ]);
+      }, 1200);
     } else {
-      // Novel / Marketing / Knowledge: start empty, show background guide
+      // Novel / Marketing: start empty, show background guide
       setMessages([]);
     }
   }, [scene, workMode]);
@@ -2003,6 +2022,201 @@ export default function ChatPanel() {
       return;
     }
 
+    // ══ Knowledge-specific round handlers ══
+    if (isKnowledge && knowledgeAgentRef.current) {
+      const agent = knowledgeAgentRef.current;
+
+      // Knowledge round -2: user provided input (upload/link/source) → show analysis card
+      if (currentRound === -2) {
+        const thinkingId = `thinking-k-analysis`;
+        setTimeout(() => {
+          setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+        }, 300);
+        setTimeout(() => {
+          if (agent === "book_analysis") {
+            setMessages((prev) => [
+              ...prev.filter((m) => m.id !== thinkingId),
+              {
+                id: "model-k-book-analysis",
+                sender: "model",
+                type: "knowledge-analysis",
+                prompt: "书籍已上传成功！以下是分析结果：",
+                data: mockBookAnalysis,
+                agent: "book_analysis",
+              },
+            ]);
+            setCurrentRound(4);
+            setCreationStage(1);
+            setAgentStageData("settings", mockBookSettingsCard);
+          } else if (agent === "content_interpret") {
+            setMessages((prev) => [
+              ...prev.filter((m) => m.id !== thinkingId),
+              {
+                id: "model-k-content-analysis",
+                sender: "model",
+                type: "knowledge-analysis",
+                prompt: "内容解析完毕！以下是分析结果：",
+                data: mockContentAnalysis,
+                agent: "content_interpret",
+              },
+            ]);
+            setCurrentRound(4);
+            setCreationStage(1);
+            setAgentStageData("settings", mockContentSettingsCard);
+          } else {
+            setMessages((prev) => [
+              ...prev.filter((m) => m.id !== thinkingId),
+              {
+                id: "model-k-source-overview",
+                sender: "model",
+                type: "knowledge-analysis",
+                prompt: "素材已读取！以下是概览：",
+                data: mockSourceOverview,
+                agent: "knowledge_blog",
+              },
+            ]);
+            setCurrentRound(4);
+            setCreationStage(1);
+            setAgentStageData("settings", mockSourceSettingsCard);
+          }
+        }, 2500);
+        return;
+      }
+
+      // Knowledge round 4: analysis confirmed → params selection / generate
+      if (currentRound === 4) {
+        const thinkingId = `thinking-k-params`;
+        setTimeout(() => {
+          setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+        }, 300);
+        setTimeout(() => {
+          if (agent === "book_analysis") {
+            setMessages((prev) => [
+              ...prev.filter((m) => m.id !== thinkingId),
+              {
+                id: "model-k-mode-select",
+                sender: "model",
+                type: "knowledge-mode-select",
+                prompt: "分析确认！请选择拆解模式：",
+              },
+            ]);
+            setCurrentRound(6);
+          } else if (agent === "content_interpret") {
+            // 内容解读无参数选择，直接生成
+            setMessages((prev) => [
+              ...prev.filter((m) => m.id !== thinkingId),
+              {
+                id: "model-k-generating",
+                sender: "model",
+                type: "thinking",
+              },
+            ]);
+            setTimeout(() => {
+              setMessages((prev) => [
+                ...prev.filter((m) => m.id !== "model-k-generating"),
+                {
+                  id: "model-k-insight-notes",
+                  sender: "model",
+                  type: "knowledge-report",
+                  prompt: "精华笔记生成完毕！已同步到左侧编辑区：",
+                  data: mockInsightNotes,
+                  agent: "content_interpret",
+                },
+              ]);
+              setCurrentRound(23);
+              setCreationStage(3);
+              setAgentStageData("knowledgeReport", mockInsightNotes);
+            }, 3000);
+          } else {
+            // 知识博客：选择平台
+            setMessages((prev) => [
+              ...prev.filter((m) => m.id !== thinkingId),
+              {
+                id: "model-k-platform-select",
+                sender: "model",
+                type: "knowledge-platform-select",
+                prompt: "素材确认！请选择目标发布平台：",
+              },
+            ]);
+            setCurrentRound(6);
+          }
+        }, 2000);
+        return;
+      }
+
+      // Knowledge round 6: mode/platform selected → generate output
+      if (currentRound === 6) {
+        const thinkingId = `thinking-k-output`;
+        setTimeout(() => {
+          setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+        }, 300);
+        setTimeout(() => {
+          if (agent === "book_analysis") {
+            setMessages((prev) => [
+              ...prev.filter((m) => m.id !== thinkingId),
+              {
+                id: "model-k-learning-report",
+                sender: "model",
+                type: "knowledge-report",
+                prompt: "学习报告生成完毕！已同步到左侧编辑区：",
+                data: mockLearningReport,
+                agent: "book_analysis",
+              },
+            ]);
+            setCurrentRound(23);
+            setCreationStage(3);
+            setAgentStageData("knowledgeReport", mockLearningReport);
+          } else {
+            // knowledge_blog
+            const isXhs = text.includes("小红书");
+            const article = isXhs ? mockKnowledgeArticleXhs : mockKnowledgeArticle;
+            setMessages((prev) => [
+              ...prev.filter((m) => m.id !== thinkingId),
+              {
+                id: "model-k-article",
+                sender: "model",
+                type: "knowledge-report",
+                prompt: `${article.platform}风格文章生成完毕！已同步到左侧编辑区：`,
+                data: article,
+                agent: "knowledge_blog",
+              },
+            ]);
+            setCurrentRound(23);
+            setCreationStage(3);
+            setAgentStageData("knowledgeReport", article);
+          }
+        }, 3000);
+        return;
+      }
+
+      // Knowledge round 23: final output — modification
+      if (currentRound === 23) {
+        const thinkingId = `thinking-k-mod`;
+        setTimeout(() => {
+          setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+        }, 300);
+        setTimeout(() => {
+          if (agent === "book_analysis") {
+            setMessages((prev) => [
+              ...prev.filter((m) => m.id !== thinkingId),
+              { id: `model-k-report-${Date.now()}`, sender: "model", type: "knowledge-report", prompt: "好的，已根据你的要求调整了学习报告：", data: mockLearningReport, agent: "book_analysis" },
+            ]);
+          } else if (agent === "content_interpret") {
+            setMessages((prev) => [
+              ...prev.filter((m) => m.id !== thinkingId),
+              { id: `model-k-notes-${Date.now()}`, sender: "model", type: "knowledge-report", prompt: "好的，已根据你的要求调整了精华笔记：", data: mockInsightNotes, agent: "content_interpret" },
+            ]);
+          } else {
+            setMessages((prev) => [
+              ...prev.filter((m) => m.id !== thinkingId),
+              { id: `model-k-article-${Date.now()}`, sender: "model", type: "knowledge-report", prompt: "好的，已根据你的要求调整了文章：", data: mockKnowledgeArticle, agent: "knowledge_blog" },
+            ]);
+          }
+        }, 2500);
+        return;
+      }
+    }
+
     // If user types at a card/preview stage, check if it's a confirm or a modification
     const isConfirmIntent = /确认|下一步|方向不错|没问题|生成设定|帮我生成|直接生成|开始写|开始生成/.test(text);
 
@@ -2114,7 +2328,7 @@ export default function ChatPanel() {
         return;
       }
 
-      // Knowledge: auto-generate worldbuilding (keep existing behavior)
+      // Screenplay: auto-generate worldbuilding
       const thinkingId = `thinking-auto-wb`;
       setTimeout(() => {
         setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
@@ -2617,13 +2831,13 @@ export default function ChatPanel() {
               <span className="text-white text-lg font-bold">言</span>
             </div>
             <p className="text-base font-medium text-gray-700 mb-1">
-              {isMarketing ? "嗨！我是你的营销创作助手" : isKnowledge ? "嗨！我是你的作品分析助手" : "嗨！我是你的创意写作助手"}
+              {isMarketing ? "嗨！我是你的营销创作助手" : isKnowledge ? "嗨！我是你的知识助手" : "嗨！我是你的创意写作助手"}
             </p>
             <p className="text-xs text-gray-400 max-w-[240px] leading-relaxed">
               {isMarketing
                 ? "我可以帮你策划短视频脚本、创作直播台本，优化卖点文案，随时向我提问吧！"
                 : isKnowledge
-                ? "我可以帮你拆解作品设定、分析角色体系，随时向我提问吧！"
+                ? "我可以帮你拆解书籍、解读内容、创作知识文章，选一个方向开始吧！"
                 : "我可以帮你构思情节、打磨文笔、解答创作疑问，随时向我提问吧！"}
             </p>
           </div>
@@ -3202,6 +3416,557 @@ export default function ChatPanel() {
                       <RefreshCw className="w-3.5 h-3.5 inline mr-1" />
                       换一换
                     </button>
+                  </div>
+                </div>
+              </div>
+            );
+          }
+
+          {/* ── Model: knowledge agent selection ── */}
+          if (msg.sender === "model" && msg.type === "knowledge-agent-select") {
+            const agents = [
+              { id: "book_analysis" as KnowledgeAgentType, label: "深度拆书", desc: "系统化学习书籍，建立完整知识体系", icon: "📚" },
+              { id: "content_interpret" as KnowledgeAgentType, label: "内容解读", desc: "快速理解短内容核心观点", icon: "🎯" },
+              { id: "knowledge_blog" as KnowledgeAgentType, label: "知识博客", desc: "基于已有知识进行二次创作", icon: "✍️" },
+            ];
+            const selectedAgent = knowledgeAgentRef.current;
+            return (
+              <div key={msg.id} className="space-y-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                    <span className="text-white text-[10px] font-bold">AI</span>
+                  </div>
+                  <span className="text-xs text-gray-400">文心</span>
+                </div>
+                <p className="text-sm text-gray-700 leading-relaxed pl-8">{msg.prompt}</p>
+
+                {!selectedAgent ? (
+                  <div className="pl-8 grid grid-cols-3 gap-2">
+                    {agents.map((a) => (
+                      <button
+                        key={a.id}
+                        onClick={() => {
+                          knowledgeAgentRef.current = a.id;
+                          setMessages((prev) => [
+                            ...prev,
+                            { id: `user-k-agent-${Date.now()}`, sender: "user", type: "text", content: a.label },
+                          ]);
+
+                          const thinkingId = `thinking-k-guide`;
+                          setTimeout(() => {
+                            setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+                          }, 300);
+
+                          if (a.id === "book_analysis") {
+                            setTimeout(() => {
+                              setMessages((prev) => [
+                                ...prev.filter((m) => m.id !== thinkingId),
+                                { id: "model-k-book-guide", sender: "model", type: "knowledge-upload-guide", prompt: "好的，深度拆书！请上传你想拆解的书籍：", agent: "book_analysis" },
+                              ]);
+                              setCurrentRound(-2);
+                            }, 1500);
+                          } else if (a.id === "content_interpret") {
+                            setTimeout(() => {
+                              const guidePrompt = `好的，内容解读！请粘贴你想解读的内容链接：\n\n支持的内容类型：\n· **视频** — YouTube、B站、抖音、TED\n· **音频** — 播客、有声书、讲座\n· **文章** — 公众号、知乎、技术博客\n\n直接粘贴链接，或者点击下方按钮用示例体验。`;
+                              setMessages((prev) => [
+                                ...prev.filter((m) => m.id !== thinkingId),
+                                { id: "model-k-content-guide", sender: "model", type: "guide", prompt: guidePrompt },
+                              ]);
+                              setCurrentRound(-2);
+                            }, 1500);
+                          } else {
+                            setTimeout(() => {
+                              const guidePrompt = `好的，知识博客！请选择你的创作素材来源：\n\n· **使用系统内报告** — 基于之前的拆书报告或解读笔记创作\n· **上传已有素材** — 读书笔记、思维导图、PPT等\n\n直接描述你想写什么，或者点击下方按钮用示例体验。`;
+                              setMessages((prev) => [
+                                ...prev.filter((m) => m.id !== thinkingId),
+                                { id: "model-k-blog-guide", sender: "model", type: "guide", prompt: guidePrompt },
+                              ]);
+                              setCurrentRound(-2);
+                            }, 1500);
+                          }
+                        }}
+                        className="text-left p-3 rounded-xl border-2 border-gray-100 bg-white hover:border-indigo-200 hover:shadow-sm cursor-pointer transition-all duration-200"
+                      >
+                        <div className="text-xl mb-1.5">{a.icon}</div>
+                        <p className="text-sm font-medium text-gray-800 mb-0.5">{a.label}</p>
+                        <p className="text-[11px] text-gray-500 leading-relaxed">{a.desc}</p>
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="pl-8">
+                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-indigo-50 border border-indigo-200">
+                      <span className="text-sm">{agents.find((a) => a.id === selectedAgent)?.icon}</span>
+                      <span className="text-sm font-medium text-indigo-700">{agents.find((a) => a.id === selectedAgent)?.label}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          }
+
+          {/* ── Model: knowledge upload guide (book_analysis) ── */}
+          if (msg.sender === "model" && msg.type === "knowledge-upload-guide") {
+            return (
+              <div key={msg.id} className="space-y-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                    <span className="text-white text-[10px] font-bold">AI</span>
+                  </div>
+                  <span className="text-xs text-gray-400">文心</span>
+                </div>
+                <p className="text-sm text-gray-700 leading-relaxed pl-8">{msg.prompt}</p>
+                <div className="pl-8 space-y-2">
+                  <div className="flex items-center gap-3 p-4 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50/50 justify-center">
+                    <FileUp className="w-5 h-5 text-gray-400" />
+                    <span className="text-sm text-gray-500">支持 PDF、EPUB、TXT 格式</span>
+                  </div>
+                  <button
+                    onClick={() => {
+                      // Simulate file upload
+                      setMessages((prev) => [
+                        ...prev,
+                        { id: `user-k-upload-${Date.now()}`, sender: "user", type: "text", content: "📄 原则：生活和工作.pdf（576页）" },
+                      ]);
+                      const thinkingId = `thinking-k-upload`;
+                      setTimeout(() => {
+                        setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+                      }, 300);
+                      setTimeout(() => {
+                        setMessages((prev) => [
+                          ...prev.filter((m) => m.id !== thinkingId),
+                          {
+                            id: "model-k-book-analysis",
+                            sender: "model",
+                            type: "knowledge-analysis",
+                            prompt: "书籍已上传成功！以下是分析结果：",
+                            data: mockBookAnalysis,
+                            agent: "book_analysis",
+                          },
+                        ]);
+                        setCurrentRound(4);
+                        setCreationStage(1);
+                        setAgentStageData("settings", mockBookSettingsCard);
+                      }, 2500);
+                    }}
+                    className="w-full px-3 py-2 text-xs text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition"
+                  >
+                    用示例体验 · 《原则》Ray Dalio
+                  </button>
+                </div>
+              </div>
+            );
+          }
+
+          {/* ── Model: knowledge analysis card ── */}
+          if (msg.sender === "model" && msg.type === "knowledge-analysis") {
+            const agent = msg.agent as KnowledgeAgentType;
+            return (
+              <div key={msg.id} className="space-y-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                    <span className="text-white text-[10px] font-bold">AI</span>
+                  </div>
+                  <span className="text-xs text-gray-400">文心</span>
+                </div>
+                <p className="text-sm text-gray-700 leading-relaxed pl-8">{msg.prompt}</p>
+                <div className="pl-8">
+                  <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div className="max-h-[280px] overflow-y-auto">
+                      {agent === "book_analysis" && (() => {
+                        const data = msg.data;
+                        return (
+                          <>
+                            <div className="px-4 py-3 border-b border-gray-50">
+                              <h4 className="text-xs font-semibold text-gray-500 mb-2">书籍信息</h4>
+                              <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                                {data.bookInfo.map((item: {label: string; value: string}, i: number) => (
+                                  <div key={i} className="flex items-baseline gap-1">
+                                    <span className="text-[11px] text-gray-400 shrink-0">{item.label}</span>
+                                    <span className="text-xs text-gray-700">{item.value}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                            <div className="px-4 py-3 border-b border-gray-50">
+                              <h4 className="text-xs font-semibold text-gray-500 mb-2">章节结构</h4>
+                              <div className="space-y-1">
+                                {data.chapterStructure.map((ch: {chapter: string; pages: string}, i: number) => (
+                                  <div key={i} className="flex items-center justify-between">
+                                    <span className="text-xs text-gray-700">{ch.chapter}</span>
+                                    <span className="text-[11px] text-gray-400">{ch.pages}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                            <div className="px-4 py-3">
+                              <h4 className="text-xs font-semibold text-gray-500 mb-2">内容统计</h4>
+                              <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                                {data.contentStats.map((item: {label: string; value: string}, i: number) => (
+                                  <div key={i} className={`flex items-baseline gap-1 ${item.label === "适合拆解评估" ? "col-span-2" : ""}`}>
+                                    <span className="text-[11px] text-gray-400 shrink-0">{item.label}</span>
+                                    <span className="text-xs text-gray-700">{item.value}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </>
+                        );
+                      })()}
+                      {agent === "content_interpret" && (() => {
+                        const data = msg.data;
+                        return (
+                          <>
+                            <div className="px-4 py-3 border-b border-gray-50">
+                              <h4 className="text-xs font-semibold text-gray-500 mb-2">内容信息</h4>
+                              <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                                {data.contentInfo.map((item: {label: string; value: string}, i: number) => (
+                                  <div key={i} className={`flex items-baseline gap-1 ${item.label === "核心主题" ? "col-span-2" : ""}`}>
+                                    <span className="text-[11px] text-gray-400 shrink-0">{item.label}</span>
+                                    <span className="text-xs text-gray-700">{item.value}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                            <div className="px-4 py-3 border-b border-gray-50">
+                              <h4 className="text-xs font-semibold text-gray-500 mb-2">关键词</h4>
+                              <div className="flex flex-wrap gap-1.5">
+                                {data.keywords.map((kw: string, i: number) => (
+                                  <span key={i} className="px-2 py-0.5 text-[11px] rounded-full bg-blue-50 text-blue-600">{kw}</span>
+                                ))}
+                              </div>
+                            </div>
+                            <div className="px-4 py-3">
+                              <h4 className="text-xs font-semibold text-gray-500 mb-2">主题分布</h4>
+                              <div className="space-y-1">
+                                {data.topicBreakdown.map((t: {topic: string; weight: string}, i: number) => (
+                                  <div key={i} className="flex items-center justify-between">
+                                    <span className="text-xs text-gray-700">{t.topic}</span>
+                                    <span className="text-[11px] text-indigo-500 font-medium">{t.weight}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </>
+                        );
+                      })()}
+                      {agent === "knowledge_blog" && (() => {
+                        const data = msg.data;
+                        return (
+                          <>
+                            <div className="px-4 py-3 border-b border-gray-50">
+                              <h4 className="text-xs font-semibold text-gray-500 mb-2">素材信息</h4>
+                              <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                                {data.sourceInfo.map((item: {label: string; value: string}, i: number) => (
+                                  <div key={i} className="flex items-baseline gap-1">
+                                    <span className="text-[11px] text-gray-400 shrink-0">{item.label}</span>
+                                    <span className="text-xs text-gray-700">{item.value}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                            <div className="px-4 py-3 border-b border-gray-50">
+                              <h4 className="text-xs font-semibold text-gray-500 mb-2">核心知识点</h4>
+                              <div className="space-y-0.5">
+                                {data.keyPoints.map((kp: string, i: number) => (
+                                  <p key={i} className="text-xs text-gray-700">· {kp}</p>
+                                ))}
+                              </div>
+                            </div>
+                            <div className="px-4 py-3">
+                              <h4 className="text-xs font-semibold text-gray-500 mb-2">建议创作角度</h4>
+                              <div className="space-y-1">
+                                {data.suggestedAngles.map((a: {angle: string; desc: string}, i: number) => (
+                                  <div key={i} className="flex items-baseline gap-1.5">
+                                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-600 font-medium shrink-0">{a.angle}</span>
+                                    <span className="text-xs text-gray-600">{a.desc}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </>
+                        );
+                      })()}
+                    </div>
+                    <div className="relative px-4 py-2.5 text-center border-t border-gray-50">
+                      <span className="text-[11px] text-gray-400">点击在左侧预览区查看完整分析</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Confirm / modify actions */}
+                <div className="pl-8 flex items-center gap-2">
+                  <button
+                    onClick={() => {
+                      setMessages((prev) => [
+                        ...prev,
+                        { id: `user-k-confirm-${Date.now()}`, sender: "user", type: "text", content: "确认，继续" },
+                      ]);
+                      // Trigger next step via handleSend logic
+                      const thinkingId = `thinking-k-next`;
+                      setTimeout(() => {
+                        setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+                      }, 300);
+                      setTimeout(() => {
+                        if (agent === "book_analysis") {
+                          setMessages((prev) => [
+                            ...prev.filter((m) => m.id !== thinkingId),
+                            { id: "model-k-mode-select", sender: "model", type: "knowledge-mode-select", prompt: "分析确认！请选择拆解模式：" },
+                          ]);
+                          setCurrentRound(6);
+                        } else if (agent === "content_interpret") {
+                          setMessages((prev) => [
+                            ...prev.filter((m) => m.id !== thinkingId),
+                            { id: "model-k-gen-thinking", sender: "model", type: "thinking" },
+                          ]);
+                          setTimeout(() => {
+                            setMessages((prev) => [
+                              ...prev.filter((m) => m.id !== "model-k-gen-thinking"),
+                              { id: "model-k-insight-notes", sender: "model", type: "knowledge-report", prompt: "精华笔记生成完毕！已同步到左侧编辑区：", data: mockInsightNotes, agent: "content_interpret" },
+                            ]);
+                            setCurrentRound(23);
+                            setCreationStage(3);
+                            setAgentStageData("knowledgeReport", mockInsightNotes);
+                          }, 3000);
+                        } else {
+                          setMessages((prev) => [
+                            ...prev.filter((m) => m.id !== thinkingId),
+                            { id: "model-k-platform-select", sender: "model", type: "knowledge-platform-select", prompt: "素材确认！请选择目标发布平台：" },
+                          ]);
+                          setCurrentRound(6);
+                        }
+                      }, 2000);
+                    }}
+                    className="px-4 py-2 text-sm text-white bg-gray-900 rounded-xl hover:bg-gray-800 transition"
+                  >
+                    确认，继续
+                  </button>
+                </div>
+              </div>
+            );
+          }
+
+          {/* ── Model: knowledge mode selection (book_analysis) ── */}
+          if (msg.sender === "model" && msg.type === "knowledge-mode-select") {
+            const modes = [
+              { id: "quick", label: "快速模式", desc: "5个核心知识点 · 2个案例/知识点 · 约5000字 · 10-15分钟", icon: "⚡" },
+              { id: "deep", label: "深度模式", desc: "15个核心知识点 · 3个案例/知识点 · 8大行业迁移 · 约10000字 · 30-45分钟", icon: "🔬" },
+            ];
+            return (
+              <div key={msg.id} className="space-y-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                    <span className="text-white text-[10px] font-bold">AI</span>
+                  </div>
+                  <span className="text-xs text-gray-400">文心</span>
+                </div>
+                <p className="text-sm text-gray-700 leading-relaxed pl-8">{msg.prompt}</p>
+                <div className="pl-8 space-y-2">
+                  {modes.map((m) => (
+                    <button
+                      key={m.id}
+                      onClick={() => {
+                        setMessages((prev) => [
+                          ...prev,
+                          { id: `user-k-mode-${Date.now()}`, sender: "user", type: "text", content: m.label },
+                        ]);
+                        setCreationStage(2);
+                        const thinkingId = `thinking-k-gen`;
+                        setTimeout(() => {
+                          setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+                        }, 300);
+                        setTimeout(() => {
+                          setMessages((prev) => [
+                            ...prev.filter((m2) => m2.id !== thinkingId),
+                            { id: "model-k-learning-report", sender: "model", type: "knowledge-report", prompt: "学习报告生成完毕！已同步到左侧编辑区：", data: mockLearningReport, agent: "book_analysis" },
+                          ]);
+                          setCurrentRound(23);
+                          setCreationStage(3);
+                          setAgentStageData("knowledgeReport", mockLearningReport);
+                        }, 3000);
+                      }}
+                      className="w-full text-left p-3.5 rounded-xl border-2 border-gray-100 bg-white hover:border-indigo-200 hover:shadow-sm cursor-pointer transition-all duration-200"
+                    >
+                      <div className="flex items-start gap-2.5">
+                        <span className="text-lg shrink-0">{m.icon}</span>
+                        <div>
+                          <p className="text-sm font-medium text-gray-800 mb-0.5">{m.label}</p>
+                          <p className="text-[11px] text-gray-500 leading-relaxed">{m.desc}</p>
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            );
+          }
+
+          {/* ── Model: knowledge platform selection (knowledge_blog) ── */}
+          if (msg.sender === "model" && msg.type === "knowledge-platform-select") {
+            const platforms = [
+              { id: "wechat", label: "公众号", desc: "深度长文，观点输出", icon: "📱" },
+              { id: "xiaohongshu", label: "小红书", desc: "轻量种草，碎片化阅读", icon: "📕" },
+              { id: "zhihu", label: "知乎", desc: "专业问答，体系化分析", icon: "💡" },
+              { id: "tech_blog", label: "技术博客", desc: "技术干货，代码示例", icon: "💻" },
+            ];
+            return (
+              <div key={msg.id} className="space-y-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                    <span className="text-white text-[10px] font-bold">AI</span>
+                  </div>
+                  <span className="text-xs text-gray-400">文心</span>
+                </div>
+                <p className="text-sm text-gray-700 leading-relaxed pl-8">{msg.prompt}</p>
+                <div className="pl-8 grid grid-cols-2 gap-2">
+                  {platforms.map((p) => (
+                    <button
+                      key={p.id}
+                      onClick={() => {
+                        setMessages((prev) => [
+                          ...prev,
+                          { id: `user-k-platform-${Date.now()}`, sender: "user", type: "text", content: p.label },
+                        ]);
+                        setCreationStage(2);
+                        const thinkingId = `thinking-k-article`;
+                        setTimeout(() => {
+                          setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+                        }, 300);
+                        const article = p.id === "xiaohongshu" ? mockKnowledgeArticleXhs : mockKnowledgeArticle;
+                        setTimeout(() => {
+                          setMessages((prev) => [
+                            ...prev.filter((m2) => m2.id !== thinkingId),
+                            { id: "model-k-article", sender: "model", type: "knowledge-report", prompt: `${p.label}风格文章生成完毕！已同步到左侧编辑区：`, data: article, agent: "knowledge_blog" },
+                          ]);
+                          setCurrentRound(23);
+                          setCreationStage(3);
+                          setAgentStageData("knowledgeReport", article);
+                        }, 3000);
+                      }}
+                      className="text-left p-3 rounded-xl border-2 border-gray-100 bg-white hover:border-indigo-200 hover:shadow-sm cursor-pointer transition-all duration-200"
+                    >
+                      <div className="text-lg mb-1">{p.icon}</div>
+                      <p className="text-sm font-medium text-gray-800 mb-0.5">{p.label}</p>
+                      <p className="text-[11px] text-gray-500 leading-relaxed">{p.desc}</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            );
+          }
+
+          {/* ── Model: knowledge report / insight notes / article (final product) ── */}
+          if (msg.sender === "model" && msg.type === "knowledge-report") {
+            const agent = msg.agent as KnowledgeAgentType;
+            return (
+              <div key={msg.id} className="space-y-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                    <span className="text-white text-[10px] font-bold">AI</span>
+                  </div>
+                  <span className="text-xs text-gray-400">文心</span>
+                </div>
+                <p className="text-sm text-gray-700 leading-relaxed pl-8">{msg.prompt}</p>
+                <div className="pl-8">
+                  <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div className="max-h-[300px] overflow-y-auto">
+                      {agent === "book_analysis" && (() => {
+                        const data = msg.data;
+                        return (
+                          <div className="px-4 py-3 space-y-3">
+                            <div className="flex items-center gap-2">
+                              <span className="text-lg">📚</span>
+                              <h3 className="text-sm font-semibold text-gray-800">{data.title}</h3>
+                            </div>
+                            <div className="flex items-center gap-2 text-[11px] text-gray-400">
+                              <span>{data.bookName}</span>
+                              <span>·</span>
+                              <span>{data.mode}</span>
+                            </div>
+                            <div>
+                              <h4 className="text-xs font-semibold text-gray-500 mb-1.5">核心知识点（前3个）</h4>
+                              {data.knowledgePoints.slice(0, 3).map((kp: {id: number; title: string; definition: string}) => (
+                                <div key={kp.id} className="mb-2 p-2 rounded-lg bg-gray-50">
+                                  <p className="text-xs font-medium text-gray-800">#{kp.id} {kp.title}</p>
+                                  <p className="text-[11px] text-gray-600 mt-0.5 line-clamp-2">{kp.definition}</p>
+                                </div>
+                              ))}
+                              <p className="text-[11px] text-gray-400">...还有{data.knowledgePoints.length - 3}个知识点</p>
+                            </div>
+                            <div>
+                              <h4 className="text-xs font-semibold text-gray-500 mb-1">行业迁移矩阵</h4>
+                              <div className="flex flex-wrap gap-1">
+                                {data.industryMigration.map((im: {industry: string}, i: number) => (
+                                  <span key={i} className="px-2 py-0.5 text-[10px] rounded-full bg-blue-50 text-blue-600">{im.industry}</span>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })()}
+                      {agent === "content_interpret" && (() => {
+                        const data = msg.data;
+                        return (
+                          <div className="px-4 py-3 space-y-3">
+                            <div className="flex items-center gap-2">
+                              <span className="text-lg">🎯</span>
+                              <h3 className="text-sm font-semibold text-gray-800">{data.title}</h3>
+                            </div>
+                            <div className="p-2 rounded-lg bg-indigo-50 border border-indigo-100">
+                              <p className="text-xs text-indigo-700 leading-relaxed">{data.oneSentence}</p>
+                            </div>
+                            <div>
+                              <h4 className="text-xs font-semibold text-gray-500 mb-1.5">核心观点（{data.coreInsights.length}个）</h4>
+                              {data.coreInsights.slice(0, 3).map((ins: {id: number; point: string; timestamp?: string}) => (
+                                <div key={ins.id} className="mb-1.5 flex items-start gap-1.5">
+                                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-600 font-medium shrink-0">{ins.timestamp || ""}</span>
+                                  <span className="text-xs text-gray-700">{ins.point}</span>
+                                </div>
+                              ))}
+                              <p className="text-[11px] text-gray-400">...还有{data.coreInsights.length - 3}个观点</p>
+                            </div>
+                            <div>
+                              <h4 className="text-xs font-semibold text-gray-500 mb-1">金句摘录</h4>
+                              <p className="text-[11px] text-gray-600 italic">&quot;{data.goldenQuotes[0]?.quote}&quot;</p>
+                            </div>
+                          </div>
+                        );
+                      })()}
+                      {agent === "knowledge_blog" && (() => {
+                        const data = msg.data;
+                        return (
+                          <div className="px-4 py-3 space-y-3">
+                            <div className="flex items-center gap-2">
+                              <span className="text-lg">✍️</span>
+                              <div>
+                                <h3 className="text-sm font-semibold text-gray-800">{data.title}</h3>
+                                <span className="text-[10px] px-1.5 py-0.5 rounded bg-rose-50 text-rose-600 font-medium">{data.platform}</span>
+                              </div>
+                            </div>
+                            {data.subtitle && (
+                              <p className="text-xs text-gray-500">{data.subtitle}</p>
+                            )}
+                            <div>
+                              <h4 className="text-xs font-semibold text-gray-500 mb-1">文章结构</h4>
+                              {data.sections.slice(0, 4).map((sec: {heading: string}, i: number) => (
+                                <p key={i} className="text-xs text-gray-600 mb-0.5">{i + 1}. {sec.heading || "(正文)"}</p>
+                              ))}
+                              {data.sections.length > 4 && <p className="text-[11px] text-gray-400">...共{data.sections.length}个段落</p>}
+                            </div>
+                            <div className="flex flex-wrap gap-1">
+                              {data.tags.map((tag: string, i: number) => (
+                                <span key={i} className="px-2 py-0.5 text-[10px] rounded-full bg-gray-100 text-gray-500">#{tag}</span>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      })()}
+                    </div>
+                    <div className="relative px-4 py-2.5 text-center border-t border-gray-50">
+                      <span className="text-[11px] text-gray-400">
+                        {agent === "book_analysis" ? "点击在左侧预览区查看完整学习报告" : agent === "content_interpret" ? "点击在左侧预览区查看完整精华笔记" : "点击在左侧预览区查看完整文章"}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -4721,7 +5486,15 @@ export default function ChatPanel() {
                 ? scene === "marketing"
                   ? "告诉我你要推广的商品，包括商品名称、价格、品类、商品简介、目标用户、核心卖点、目标平台"
                   : scene === "knowledge"
-                  ? "输入书名或上传文件，比如「帮我拆解《诡秘之主》」..."
+                  ? currentRound === -2
+                    ? knowledgeAgentRef.current === "content_interpret"
+                      ? "粘贴视频/文章/播客链接，或直接描述内容..."
+                      : knowledgeAgentRef.current === "knowledge_blog"
+                      ? "描述你想写什么，或输入素材来源..."
+                      : "上传书籍文件或输入书名..."
+                    : currentRound === 23
+                    ? "想调整什么？直接说就行..."
+                    : "选择一个Agent开始吧..."
                   : "描述你的故事，比如「重生复仇的女频故事」「末日科幻」..."
                 : awaitingAdjust
                 ? "想微调什么？直接说就行，或者点「继续」跳过"

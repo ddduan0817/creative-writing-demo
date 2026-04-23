@@ -554,29 +554,20 @@ export default function RichTextEditor() {
         group: "书籍信息",
         type: "text" as const,
         items: [
-          { label: "书名", value: "《诡秘之主》" },
-          { label: "作者", value: "爱潜水的乌贼" },
-          { label: "总字数", value: "约450万字" },
-          { label: "章节数", value: "8卷 · 1413章" },
+          { label: "书名", value: "《原则：生活和工作》" },
+          { label: "作者", value: "瑞·达利欧 (Ray Dalio)" },
+          { label: "页数", value: "576页" },
+          { label: "章节结构", value: "3大部分 · 约210个原则条目" },
         ],
       },
       {
-        group: "分析配置",
+        group: "内容识别",
         type: "tags" as const,
         items: [
-          { label: "分析方向", value: "设定体系 · 魔药/序列/途径" },
-          { label: "分析深度", value: "深度拆解 · 引用原文+标注出处" },
-          { label: "输出形式", value: "结构化报告" },
-        ],
-      },
-      {
-        group: "自动识别",
-        type: "tags" as const,
-        items: [
-          { label: "核心角色", value: "克莱恩·莫雷蒂 · 奥黛丽·霍尔 · 阿尔杰·威尔逊等47位" },
-          { label: "主要势力", value: "7大正统教会 · 3大隐秘组织 · 塔罗会" },
-          { label: "核心设定", value: "22条非凡途径 · 序列0-9 · 灰雾之上" },
-          { label: "预处理", value: "分章索引✅ · 实体识别✅ · 向量化✅" },
+          { label: "核心概念", value: "约210个原则条目" },
+          { label: "案例故事", value: "47个真实商业案例" },
+          { label: "可视化图表", value: "23张" },
+          { label: "拆解评估", value: "⭐⭐⭐⭐⭐ 极佳" },
         ],
       },
     ];
@@ -601,7 +592,7 @@ export default function RichTextEditor() {
       novel: "创作设定",
       screenplay: "创作设定",
       marketing: "商品信息",
-      knowledge: "分析配置",
+      knowledge: "分析概览",
     };
     const settingsTitle = settingsTitleMap[scene] || "创作设定";
     const settingsSubtitle = scene === "marketing" || scene === "knowledge"
@@ -1323,6 +1314,171 @@ export default function RichTextEditor() {
                         ))}
                       </div>
                     </div>
+                  </>
+                );
+              })() : agentStageData?.knowledgeReport ? (() => {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const report = agentStageData.knowledgeReport as any;
+                const isLearningReport = !!report.knowledgePoints;
+                const isInsightNotes = !!report.coreInsights;
+                const isArticle = !!report.sections && !report.knowledgePoints && !report.coreInsights;
+                return (
+                  <>
+                    {isLearningReport && (
+                      <>
+                        <div>
+                          <h2 className="text-lg font-bold text-gray-900 mb-1">{report.title}</h2>
+                          <div className="flex items-center gap-2 text-xs text-gray-400">
+                            <span>{report.bookName}</span><span>·</span><span>{report.mode}</span>
+                          </div>
+                          <p className="text-xs text-gray-400 mt-1">可直接编辑，也可在对话中修改</p>
+                        </div>
+                        <div contentEditable suppressContentEditableWarning>
+                          <h3 className="text-sm font-bold text-gray-700 mb-3">核心知识点</h3>
+                          <div className="space-y-6 ml-1">
+                            {report.knowledgePoints?.map((kp: { id: number; title: string; definition: string; originalCase: string; crossIndustryCase: string; lifeCase: string }) => (
+                              <div key={kp.id} className="border-l-2 border-indigo-200 pl-3">
+                                <h4 className="text-sm font-bold text-gray-800 mb-1">#{kp.id} {kp.title}</h4>
+                                <p className="text-sm text-gray-700 leading-relaxed mb-2">{kp.definition}</p>
+                                <div className="space-y-1.5">
+                                  <div><span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-50 text-blue-600 font-medium">原书案例</span><p className="text-xs text-gray-600 leading-relaxed mt-0.5 ml-1">{kp.originalCase}</p></div>
+                                  <div><span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-600 font-medium">跨行业案例</span><p className="text-xs text-gray-600 leading-relaxed mt-0.5 ml-1">{kp.crossIndustryCase}</p></div>
+                                  <div><span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-600 font-medium">生活案例</span><p className="text-xs text-gray-600 leading-relaxed mt-0.5 ml-1">{kp.lifeCase}</p></div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        <div contentEditable suppressContentEditableWarning>
+                          <h3 className="text-sm font-bold text-gray-700 mb-2">行业迁移矩阵</h3>
+                          <div className="space-y-1.5 ml-1">
+                            {report.industryMigration?.map((im: { industry: string; application: string }, i: number) => (
+                              <div key={i} className="flex items-start gap-2">
+                                <span className="text-[10px] px-1.5 py-0.5 rounded bg-rose-50 text-rose-600 font-medium shrink-0">{im.industry}</span>
+                                <span className="text-xs text-gray-600 leading-relaxed">{im.application}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        <div contentEditable suppressContentEditableWarning>
+                          <h3 className="text-sm font-bold text-gray-700 mb-2">可执行SOP</h3>
+                          <div className="space-y-2 ml-1">
+                            {report.sop?.map((s: { step: number; action: string; detail: string }) => (
+                              <div key={s.step} className="flex items-start gap-2">
+                                <span className="w-5 h-5 rounded-full bg-gray-100 text-gray-500 text-xs flex items-center justify-center shrink-0">{s.step}</span>
+                                <div><p className="text-sm font-medium text-gray-800">{s.action}</p><p className="text-xs text-gray-600 leading-relaxed">{s.detail}</p></div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        <div contentEditable suppressContentEditableWarning>
+                          <h3 className="text-sm font-bold text-gray-700 mb-2">费曼检验题</h3>
+                          <div className="space-y-3 ml-1">
+                            {report.feymanQuiz?.map((q: { question: string; hint: string; criteria: string }, i: number) => (
+                              <div key={i} className="p-3 rounded-lg bg-gray-50 border border-gray-100">
+                                <p className="text-sm text-gray-800 font-medium mb-1">{i + 1}. {q.question}</p>
+                                <p className="text-xs text-gray-500">提示：{q.hint}</p>
+                                <p className="text-xs text-emerald-600 mt-1">评分标准：{q.criteria}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </>
+                    )}
+                    {isInsightNotes && (
+                      <>
+                        <div>
+                          <h2 className="text-lg font-bold text-gray-900 mb-1">{report.title}</h2>
+                          <p className="text-xs text-gray-400 mt-1">可直接编辑，也可在对话中修改</p>
+                        </div>
+                        <div className="p-3 rounded-lg bg-indigo-50 border border-indigo-100">
+                          <p className="text-sm text-indigo-700 leading-relaxed">{report.oneSentence}</p>
+                        </div>
+                        <div contentEditable suppressContentEditableWarning>
+                          <h3 className="text-sm font-bold text-gray-700 mb-3">核心观点</h3>
+                          <div className="space-y-4 ml-1">
+                            {report.coreInsights?.map((ins: { id: number; point: string; detail: string; timestamp?: string }) => (
+                              <div key={ins.id} className="border-l-2 border-emerald-200 pl-3">
+                                <div className="flex items-center gap-2 mb-1">
+                                  {ins.timestamp && <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-600 font-medium">{ins.timestamp}</span>}
+                                  <span className="text-sm font-medium text-gray-800">{ins.point}</span>
+                                </div>
+                                <p className="text-sm text-gray-600 leading-relaxed">{ins.detail}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        <div contentEditable suppressContentEditableWarning>
+                          <h3 className="text-sm font-bold text-gray-700 mb-2">金句摘录</h3>
+                          <div className="space-y-2 ml-1">
+                            {report.goldenQuotes?.map((gq: { quote: string; timestamp?: string }, i: number) => (
+                              <div key={i} className="flex items-start gap-2">
+                                {gq.timestamp && <span className="text-[10px] text-gray-400 shrink-0 mt-0.5">{gq.timestamp}</span>}
+                                <p className="text-sm text-gray-700 italic leading-relaxed">&ldquo;{gq.quote}&rdquo;</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        <div contentEditable suppressContentEditableWarning>
+                          <h3 className="text-sm font-bold text-gray-700 mb-2">时间轴</h3>
+                          <div className="space-y-2 ml-1">
+                            {report.timeline?.map((t: { time: string; type: string; title: string; desc: string }, i: number) => (
+                              <div key={i} className="flex items-start gap-2">
+                                <span className="text-[10px] text-gray-400 shrink-0 w-20 mt-0.5">{t.time}</span>
+                                <div>
+                                  <div className="flex items-center gap-1.5"><span className="text-[10px] px-1 py-0.5 rounded bg-blue-50 text-blue-500">{t.type}</span><span className="text-sm font-medium text-gray-800">{t.title}</span></div>
+                                  <p className="text-xs text-gray-600 mt-0.5">{t.desc}</p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        <div contentEditable suppressContentEditableWarning>
+                          <h3 className="text-sm font-bold text-gray-700 mb-2">三分钟速读版</h3>
+                          <div className="prose prose-sm text-gray-700 ml-1 whitespace-pre-wrap leading-relaxed">{report.threeMinRead}</div>
+                        </div>
+                      </>
+                    )}
+                    {isArticle && (
+                      <>
+                        <div>
+                          <h2 className="text-lg font-bold text-gray-900 mb-1">{report.title}</h2>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-rose-50 text-rose-600 font-medium">{report.platform}</span>
+                            {report.subtitle && <span className="text-xs text-gray-400">{report.subtitle}</span>}
+                          </div>
+                          <p className="text-xs text-gray-400 mt-1">可直接编辑，也可在对话中修改</p>
+                        </div>
+                        <div contentEditable suppressContentEditableWarning>
+                          <div className="space-y-6 ml-1">
+                            {report.sections?.map((sec: { heading: string; content: string }, i: number) => (
+                              <div key={i}>
+                                {sec.heading && <h3 className="text-sm font-bold text-gray-800 mb-2">{sec.heading}</h3>}
+                                <div className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{sec.content}</div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-bold text-gray-700 mb-2">推荐标签</h3>
+                          <div className="flex flex-wrap gap-1.5 ml-1">
+                            {report.tags?.map((tag: string, i: number) => (
+                              <span key={i} className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-500">#{tag}</span>
+                            ))}
+                          </div>
+                        </div>
+                        {report.imageNotes?.length > 0 && (
+                          <div>
+                            <h3 className="text-sm font-bold text-gray-700 mb-2">配图建议</h3>
+                            <div className="space-y-1 ml-1">
+                              {report.imageNotes.map((n: string, i: number) => (
+                                <p key={i} className="text-xs text-gray-600">· {n}</p>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    )}
                   </>
                 );
               })() :

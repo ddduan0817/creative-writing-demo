@@ -399,6 +399,10 @@ const marketingTabs = [
   { key: "script", label: "分幕剧本", stage: 3 },
 ] as const;
 
+const knowledgeTabs = [
+  { key: "analysis", label: "分析概览", stage: 1 },
+] as const;
+
 type SceneType = "novel" | "screenplay" | "marketing" | "knowledge" | "general";
 
 function MaterialsPanel({
@@ -414,7 +418,12 @@ function MaterialsPanel({
   onClose: () => void;
 }) {
   const isMarketing = scene === "marketing";
-  const tabs = isMarketing ? (marketingTabs as unknown as { key: string; label: string; stage: number }[]) : (novelTabs as unknown as { key: string; label: string; stage: number }[]);
+  const isKnowledge = scene === "knowledge";
+  const tabs = isMarketing
+    ? (marketingTabs as unknown as { key: string; label: string; stage: number }[])
+    : isKnowledge
+    ? (knowledgeTabs as unknown as { key: string; label: string; stage: number }[])
+    : (novelTabs as unknown as { key: string; label: string; stage: number }[]);
   const [activeTab, setActiveTab] = useState<string>(tabs[0].key);
 
   // 营销场景：分幕剧本 tab 仅短视频场景可用，直播/图文始终置灰
@@ -466,6 +475,8 @@ function MaterialsPanel({
         <div className="flex-1 overflow-y-auto p-6">
           {isMarketing
             ? <MarketingMaterialContent tab={activeTab} creationStage={creationStage} agentStageData={agentStageData} />
+            : isKnowledge
+            ? <KnowledgeMaterialContent tab={activeTab} creationStage={creationStage} agentStageData={agentStageData} />
             : <NovelMaterialContent tab={activeTab} creationStage={creationStage} />
           }
         </div>
@@ -702,6 +713,39 @@ function MarketingMaterialContent({ tab, creationStage, agentStageData }: { tab:
             </table>
           </div>
         )}
+      </div>
+    );
+  }
+
+  return null;
+}
+
+// ─── 知识场景资料内容 ─────────────────────────────────────────
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function KnowledgeMaterialContent({ tab, creationStage, agentStageData }: { tab: string; creationStage: number; agentStageData: Record<string, any> }) {
+  const requiredStage = knowledgeTabs.find((t) => t.key === tab)?.stage ?? 99;
+  if (creationStage < requiredStage) {
+    return <EmptyPlaceholder />;
+  }
+
+  if (tab === "analysis") {
+    const settings = agentStageData.settings as Record<string, { label: string; value: string }[]> | undefined;
+    if (!settings) return <EmptyPlaceholder />;
+    return (
+      <div className="space-y-6">
+        {Object.entries(settings).map(([group, fields]) => (
+          <div key={group}>
+            <h3 className="text-sm font-semibold text-gray-700 mb-3 pb-2 border-b border-gray-100">{group}</h3>
+            <div className="space-y-3">
+              {fields.map((item) => (
+                <div key={item.label}>
+                  <span className="text-xs font-medium text-gray-400 block mb-1">{item.label}</span>
+                  <p className="text-sm text-gray-700 leading-relaxed">{item.value}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
       </div>
     );
   }
