@@ -1481,21 +1481,6 @@ export default function ChatPanel() {
           },
         ]);
       }, 1200);
-    } else if (isKnowledge) {
-      // Knowledge: show thinking then agent selection
-      const thinkingId = `thinking-init-k`;
-      setMessages([{ id: thinkingId, sender: "model", type: "thinking" }]);
-
-      setTimeout(() => {
-        setMessages([
-          {
-            id: "model-knowledge-agent-select",
-            sender: "model",
-            type: "knowledge-agent-select",
-            prompt: "嗨！我是你的知识助手。选择你想做的事情：",
-          },
-        ]);
-      }, 1200);
     } else {
       // Novel / Marketing: start empty, show background guide
       setMessages([]);
@@ -2019,6 +2004,26 @@ export default function ChatPanel() {
         ]);
         setTimeout(() => proceedToNextRound(adjustRound), 500);
       }, 1200);
+      return;
+    }
+
+    // ══ Knowledge: first message → show agent selection ══
+    if (isKnowledge && !knowledgeAgentRef.current) {
+      const thinkingId = `thinking-k-agent-select`;
+      setTimeout(() => {
+        setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+      }, 300);
+      setTimeout(() => {
+        setMessages((prev) => [
+          ...prev.filter((m) => m.id !== thinkingId),
+          {
+            id: "model-knowledge-agent-select",
+            sender: "model",
+            type: "knowledge-agent-select",
+            prompt: "收到！我是你的知识助手。选择你想做的事情：",
+          },
+        ]);
+      }, 1500);
       return;
     }
 
