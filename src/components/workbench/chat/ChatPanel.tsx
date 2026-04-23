@@ -2007,23 +2007,48 @@ export default function ChatPanel() {
       return;
     }
 
-    // ══ Knowledge: first message → show agent selection ══
+    // ══ Knowledge: first message → detect intent and enter agent flow ══
     if (isKnowledge && !knowledgeAgentRef.current) {
-      const thinkingId = `thinking-k-agent-select`;
+      // Simple intent detection
+      const isBlog = /写文章|博客|创作|写作|公众号|小红书|知乎|发布/.test(text);
+      const isInterpret = /解读|解析|视频|音频|播客|文章|链接|TED|分析内容/.test(text);
+      // Default to book_analysis for 拆书/读书/学习 or anything else
+      const agent: KnowledgeAgentType = isBlog ? "knowledge_blog" : isInterpret ? "content_interpret" : "book_analysis";
+
+      knowledgeAgentRef.current = agent;
+
+      const thinkingId = `thinking-k-guide`;
       setTimeout(() => {
         setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
       }, 300);
-      setTimeout(() => {
-        setMessages((prev) => [
-          ...prev.filter((m) => m.id !== thinkingId),
-          {
-            id: "model-knowledge-agent-select",
-            sender: "model",
-            type: "knowledge-agent-select",
-            prompt: "收到！我是你的知识助手。选择你想做的事情：",
-          },
-        ]);
-      }, 1500);
+
+      if (agent === "book_analysis") {
+        setTimeout(() => {
+          setMessages((prev) => [
+            ...prev.filter((m) => m.id !== thinkingId),
+            { id: "model-k-book-guide", sender: "model", type: "knowledge-upload-guide", prompt: "好的，深度拆书！请上传你想拆解的书籍：", agent: "book_analysis" },
+          ]);
+          setCurrentRound(-2);
+        }, 1500);
+      } else if (agent === "content_interpret") {
+        setTimeout(() => {
+          const guidePrompt = `好的，内容解读！请粘贴你想解读的内容链接：\n\n支持的内容类型：\n· **视频** — YouTube、B站、抖音、TED\n· **音频** — 播客、有声书、讲座\n· **文章** — 公众号、知乎、技术博客\n\n直接粘贴链接，或者点击下方按钮用示例体验。`;
+          setMessages((prev) => [
+            ...prev.filter((m) => m.id !== thinkingId),
+            { id: "model-k-content-guide", sender: "model", type: "guide", prompt: guidePrompt },
+          ]);
+          setCurrentRound(-2);
+        }, 1500);
+      } else {
+        setTimeout(() => {
+          const guidePrompt = `好的，知识博客！请选择你的创作素材来源：\n\n· **使用系统内报告** — 基于之前的拆书报告或解读笔记创作\n· **上传已有素材** — 读书笔记、思维导图、PPT等\n\n直接描述你想写什么，或者点击下方按钮用示例体验。`;
+          setMessages((prev) => [
+            ...prev.filter((m) => m.id !== thinkingId),
+            { id: "model-k-blog-guide", sender: "model", type: "guide", prompt: guidePrompt },
+          ]);
+          setCurrentRound(-2);
+        }, 1500);
+      }
       return;
     }
 
