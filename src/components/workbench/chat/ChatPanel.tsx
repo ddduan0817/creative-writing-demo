@@ -46,13 +46,10 @@ import {
   mockGraphicNote,
 } from "./marketingMockData";
 import {
-  mockBookAnalysis,
   mockBookSettingsCard,
   mockLearningReport,
-  mockContentAnalysis,
   mockContentSettingsCard,
   mockInsightNotes,
-  mockSourceOverview,
   mockSourceSettingsCard,
   mockKnowledgeArticle,
   mockKnowledgeArticleXhs,
@@ -2056,59 +2053,32 @@ export default function ChatPanel() {
     if (isKnowledge && knowledgeAgentRef.current) {
       const agent = knowledgeAgentRef.current;
 
-      // Knowledge round -2: user provided input (upload/link/source) → show analysis card
+      // Knowledge round -2: user provided input (upload/link/source) → show settings card
       if (currentRound === -2) {
         const thinkingId = `thinking-k-analysis`;
         setTimeout(() => {
           setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
         }, 300);
         setTimeout(() => {
-          if (agent === "book_analysis") {
-            setMessages((prev) => [
-              ...prev.filter((m) => m.id !== thinkingId),
-              {
-                id: "model-k-book-analysis",
-                sender: "model",
-                type: "knowledge-analysis",
-                prompt: "书籍已上传成功！以下是分析结果：",
-                data: mockBookAnalysis,
-                agent: "book_analysis",
-              },
-            ]);
-            setCurrentRound(4);
-            setCreationStage(1);
-            setAgentStageData("settings", mockBookSettingsCard);
-          } else if (agent === "content_interpret") {
-            setMessages((prev) => [
-              ...prev.filter((m) => m.id !== thinkingId),
-              {
-                id: "model-k-content-analysis",
-                sender: "model",
-                type: "knowledge-analysis",
-                prompt: "内容解析完毕！以下是分析结果：",
-                data: mockContentAnalysis,
-                agent: "content_interpret",
-              },
-            ]);
-            setCurrentRound(4);
-            setCreationStage(1);
-            setAgentStageData("settings", mockContentSettingsCard);
-          } else {
-            setMessages((prev) => [
-              ...prev.filter((m) => m.id !== thinkingId),
-              {
-                id: "model-k-source-overview",
-                sender: "model",
-                type: "knowledge-analysis",
-                prompt: "素材已读取！以下是概览：",
-                data: mockSourceOverview,
-                agent: "knowledge_blog",
-              },
-            ]);
-            setCurrentRound(4);
-            setCreationStage(1);
-            setAgentStageData("settings", mockSourceSettingsCard);
-          }
+          const settingsMap: Record<string, { card: Record<string, { label: string; value: string }[]>; prompt: string }> = {
+            book_analysis: { card: mockBookSettingsCard, prompt: "书籍解析完成！以下是分析概览，确认后选择拆解模式。你也可以告诉我需要调整的地方。" },
+            content_interpret: { card: mockContentSettingsCard, prompt: "内容解析完成！以下是分析概览，确认后我会生成精华笔记。你也可以告诉我需要调整的地方。" },
+            knowledge_blog: { card: mockSourceSettingsCard, prompt: "素材已读取！以下是素材概览，确认后选择发布平台。你也可以告诉我需要调整的地方。" },
+          };
+          const { card, prompt } = settingsMap[agent] || settingsMap.book_analysis;
+          setMessages((prev) => [
+            ...prev.filter((m) => m.id !== thinkingId),
+            {
+              id: "model-k-settings",
+              sender: "model",
+              type: "settings-card",
+              prompt,
+              settings: card,
+            },
+          ]);
+          setCurrentRound(4);
+          setCreationStage(1);
+          setAgentStageData("settings", card);
         }, 2500);
         return;
       }
@@ -2124,9 +2094,9 @@ export default function ChatPanel() {
             setMessages((prev) => [
               ...prev.filter((m) => m.id !== thinkingId),
               {
-                id: "model-k-mode-select",
+                id: "model-k-scene-select",
                 sender: "model",
-                type: "knowledge-mode-select",
+                type: "scene-select",
                 prompt: "分析确认！请选择拆解模式：",
               },
             ]);
@@ -2162,9 +2132,9 @@ export default function ChatPanel() {
             setMessages((prev) => [
               ...prev.filter((m) => m.id !== thinkingId),
               {
-                id: "model-k-platform-select",
+                id: "model-k-scene-select",
                 sender: "model",
-                type: "knowledge-platform-select",
+                type: "scene-select",
                 prompt: "素材确认！请选择目标发布平台：",
               },
             ]);
@@ -3219,14 +3189,28 @@ export default function ChatPanel() {
             );
           }
 
-          // ── Model: scene select (marketing) ──
+          // ── Model: scene select (marketing / knowledge) ──
           if (msg.sender === "model" && msg.type === "scene-select") {
-            const scenes = [
+            const knowledgeAgent = knowledgeAgentRef.current;
+            const knowledgeBookModes = [
+              { id: "quick", label: "快速模式", desc: "5个核心知识点 · 约5000字", icon: "⚡" },
+              { id: "deep", label: "深度模式", desc: "15个知识点 · 8大行业迁移 · 约10000字", icon: "🔬" },
+            ];
+            const knowledgeBlogPlatforms = [
+              { id: "wechat", label: "公众号", desc: "深度长文", icon: "📱" },
+              { id: "xiaohongshu", label: "小红书", desc: "种草笔记", icon: "📕" },
+              { id: "zhihu", label: "知乎", desc: "知识问答", icon: "💡" },
+              { id: "tech_blog", label: "技术博客", desc: "技术文章", icon: "💻" },
+            ];
+            const marketingScenes = [
               { id: "short_video", label: "短视频脚本", desc: "短视频拍摄台本", icon: "🎬" },
               { id: "live_script", label: "直播台本", desc: "直播话术与节奏设计", icon: "🎙️" },
               { id: "graphic_note", label: "图文笔记", desc: "图文种草笔记", icon: "📝" },
             ];
-            const selectedScene = marketingPlatformRef.current;
+            const scenes = isKnowledge
+              ? (knowledgeAgent === "book_analysis" ? knowledgeBookModes : knowledgeBlogPlatforms)
+              : marketingScenes;
+            const selectedScene = isKnowledge ? knowledgeAgentRef.current && (currentRound > 6 ? "selected" : null) : marketingPlatformRef.current;
             return (
               <div key={msg.id} className="space-y-3">
                 <div className="flex items-center gap-2 mb-1">
@@ -3243,6 +3227,64 @@ export default function ChatPanel() {
                       <button
                         key={s.id}
                         onClick={() => {
+                          // ── Knowledge scene handling ──
+                          if (isKnowledge) {
+                            setMessages((prev) => [
+                              ...prev,
+                              { id: `user-scene-${Date.now()}`, sender: "user", type: "text", content: s.label },
+                            ]);
+
+                            if (knowledgeAgent === "book_analysis") {
+                              // Mode selected → generate learning report
+                              const thinkingId = `thinking-k-output`;
+                              setTimeout(() => {
+                                setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+                              }, 300);
+                              setTimeout(() => {
+                                setMessages((prev) => [
+                                  ...prev.filter((m) => m.id !== thinkingId),
+                                  {
+                                    id: "model-k-learning-report",
+                                    sender: "model",
+                                    type: "knowledge-report",
+                                    prompt: `${s.label}学习报告生成完毕！已同步到左侧编辑区：`,
+                                    data: mockLearningReport,
+                                    agent: "book_analysis",
+                                  },
+                                ]);
+                                setCurrentRound(23);
+                                setCreationStage(3);
+                                setAgentStageData("knowledgeReport", mockLearningReport);
+                              }, 3000);
+                            } else {
+                              // Platform selected → generate article
+                              const isXhs = s.id === "xiaohongshu";
+                              const article = isXhs ? mockKnowledgeArticleXhs : mockKnowledgeArticle;
+                              const thinkingId = `thinking-k-output`;
+                              setTimeout(() => {
+                                setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+                              }, 300);
+                              setTimeout(() => {
+                                setMessages((prev) => [
+                                  ...prev.filter((m) => m.id !== thinkingId),
+                                  {
+                                    id: "model-k-article",
+                                    sender: "model",
+                                    type: "knowledge-report",
+                                    prompt: `${s.label}风格文章生成完毕！已同步到左侧编辑区：`,
+                                    data: article,
+                                    agent: "knowledge_blog",
+                                  },
+                                ]);
+                                setCurrentRound(23);
+                                setCreationStage(3);
+                                setAgentStageData("knowledgeReport", article);
+                              }, 3000);
+                            }
+                            return;
+                          }
+
+                          // ── Marketing scene handling ──
                           marketingPlatformRef.current = s.id;
                           // 清除旧子场景的左侧编辑器数据，防止条件链命中旧数据
                           setAgentStageData("videoScript", undefined);
@@ -3566,12 +3608,11 @@ export default function ChatPanel() {
                         setMessages((prev) => [
                           ...prev.filter((m) => m.id !== thinkingId),
                           {
-                            id: "model-k-book-analysis",
+                            id: "model-k-settings",
                             sender: "model",
-                            type: "knowledge-analysis",
-                            prompt: "书籍已上传成功！以下是分析结果：",
-                            data: mockBookAnalysis,
-                            agent: "book_analysis",
+                            type: "settings-card",
+                            prompt: "书籍解析完成！以下是分析概览，确认后选择拆解模式。你也可以告诉我需要调整的地方。",
+                            settings: mockBookSettingsCard,
                           },
                         ]);
                         setCurrentRound(4);
