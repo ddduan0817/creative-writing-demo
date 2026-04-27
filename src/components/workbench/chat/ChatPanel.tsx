@@ -2929,7 +2929,7 @@ export default function ChatPanel() {
               </div>
               <h3 className="text-sm font-semibold text-gray-900 mb-0.5">引导创作</h3>
               <p className="text-xs text-gray-500 leading-relaxed">自由对话，灵活探索</p>
-              <p className="text-[11px] text-gray-400 mt-2 leading-relaxed">{isScreenplay ? "通过 AI 对话完成灵感→设定→角色→集纲→正文的创作流程" : "通过 AI 对话完成灵感→设定→角色→大纲→正文的创作流程"}</p>
+              <p className="text-[11px] text-gray-400 mt-2 leading-relaxed">{isScreenplay ? "通过 AI 对话完成灵感→设定→角色→集纲→逐集创作的流程" : "通过 AI 对话完成灵感→设定→角色→大纲→正文的创作流程"}</p>
             </button>
 
             <button
