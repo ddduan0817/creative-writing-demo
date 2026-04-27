@@ -18,7 +18,10 @@ import {
 } from "lucide-react";
 import {
   screenplayInspirationRounds,
-  screenplayMockSettings,
+  screenplayMockSettings_short_script,
+  screenplayMockSettings_short_storyboard,
+  screenplayMockSettings_comic_script,
+  screenplayMockSettings_comic_storyboard,
   screenplayWorldbuildingRounds,
   screenplayMockWorldbuilding,
   screenplayCharacterRounds,
@@ -1251,6 +1254,7 @@ type Message =
   | { id: string; sender: "model"; type: "length-select"; prompt: string }
   | { id: string; sender: "model"; type: "micro-adjust"; prompt: string; round: number }
   | { id: string; sender: "model"; type: "subtype-select"; prompt: string }
+  | { id: string; sender: "model"; type: "scripttype-select"; prompt: string }
   | { id: string; sender: "model"; type: "scene-select"; prompt: string }
   | { id: string; sender: "model"; type: "content-structure"; prompt: string; scenarios: import("./marketingMockData").ContentScenario[] }
   | { id: string; sender: "model"; type: "video-brief"; prompt: string; brief: import("./marketingMockData").VideoBrief }
@@ -1289,6 +1293,10 @@ export default function ChatPanel() {
   const isMarketing = scene === "marketing";
   const isKnowledge = scene === "knowledge";
 
+  // Screenplay-specific type states (declared here so useMemo below can reference them)
+  const [screenplaySubtype, setScreenplaySubtype] = useState<"short_drama" | "comic_drama" | null>(null);
+  const [screenplayScriptType, setScreenplayScriptType] = useState<"script" | "storyboard" | null>(null);
+
   // Scene-aware mock data selectors
   const sceneInspirationRounds = useMemo(() => {
     if (isScreenplay) return screenplayInspirationRounds;
@@ -1296,10 +1304,15 @@ export default function ChatPanel() {
     return inspirationRounds;
   }, [isScreenplay, isMarketing]);
   const sceneSettingsCard = useMemo(() => {
-    if (isScreenplay) return screenplayMockSettings;
+    if (isScreenplay) {
+      if (screenplaySubtype === "short_drama" && screenplayScriptType === "storyboard") return screenplayMockSettings_short_storyboard;
+      if (screenplaySubtype === "comic_drama" && screenplayScriptType === "script") return screenplayMockSettings_comic_script;
+      if (screenplaySubtype === "comic_drama" && screenplayScriptType === "storyboard") return screenplayMockSettings_comic_storyboard;
+      return screenplayMockSettings_short_script; // default: 短剧剧本
+    }
     if (isMarketing) return marketingMockSettings;
     return mockSettings;
-  }, [isScreenplay, isMarketing]);
+  }, [isScreenplay, isMarketing, screenplaySubtype, screenplayScriptType]);
   const sceneWorldbuildingRounds = useMemo(() => {
     if (isScreenplay) return screenplayWorldbuildingRounds;
     if (isMarketing) return marketingWorldbuildingRounds;
@@ -1403,7 +1416,6 @@ export default function ChatPanel() {
   const [adjustRound, setAdjustRound] = useState(0); // which round is awaiting adjust
   const [favKeywords, setFavKeywords] = useState<Set<string>>(new Set());
   const [writingChapter, setWritingChapter] = useState(-1); // -1 = not writing, 0+ = generating chapter index
-  const [screenplaySubtype, setScreenplaySubtype] = useState<"short_drama" | "comic_drama" | null>(null);
   const [novelLength, setNovelLength] = useState<"short" | "medium" | "long" | null>(null); // 短篇/中篇/长篇
   const [input, setInput] = useState("");
   const [showAttachMenu, setShowAttachMenu] = useState(false);
@@ -1464,20 +1476,8 @@ export default function ChatPanel() {
     hasInit.current = true;
 
     if (isScreenplay) {
-      // Screenplay: show thinking then subtype selection
-      const thinkingId = `thinking-init`;
-      setMessages([{ id: thinkingId, sender: "model", type: "thinking" }]);
-
-      setTimeout(() => {
-        setMessages([
-          {
-            id: "model-subtype",
-            sender: "model",
-            type: "subtype-select",
-            prompt: "你好！欢迎来到剧本创作工作台。你想创作哪种类型？",
-          },
-        ]);
-      }, 1200);
+      // Screenplay: same as novel — start empty, user sends first message
+      setMessages([]);
     } else {
       // Novel / Marketing: start empty, show background guide
       setMessages([]);
@@ -1501,7 +1501,7 @@ export default function ChatPanel() {
     // Workflow: WorkbenchLayout will switch to 3-column layout
   }, [setWorkMode]);
 
-  // Handle screenplay subtype selection (短剧 / 漫剧)
+  // Handle screenplay subtype selection (短剧 / 漫剧) — called from subtype-select card
   const handleSubtypeSelect = useCallback((subtype: "short_drama" | "comic_drama") => {
     setScreenplaySubtype(subtype);
     const label = subtype === "short_drama" ? "短剧" : "漫剧";
@@ -1512,8 +1512,8 @@ export default function ChatPanel() {
       { id: `user-subtype`, sender: "user", type: "card-selection", content: `我想创作${label}` },
     ]);
 
-    // Show thinking then welcome message
-    const thinkingId = `thinking-welcome`;
+    // Show thinking then script-type selection card
+    const thinkingId = `thinking-scripttype`;
     setTimeout(() => {
       setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
     }, 300);
@@ -1522,16 +1522,44 @@ export default function ChatPanel() {
       setMessages((prev) => [
         ...prev.filter((m) => m.id !== thinkingId),
         {
-          id: "model-welcome",
+          id: "model-scripttype",
+          sender: "model",
+          type: "subtype-select",
+          prompt: `好的，${label}！最后确认一下输出格式：`,
+        },
+      ]);
+    }, 1200);
+  }, []);
+
+  // Handle screenplay script type selection (剧本 / 脚本)
+  const handleScriptTypeSelect = useCallback((scriptType: "script" | "storyboard") => {
+    setScreenplayScriptType(scriptType);
+    const sceneLabel = screenplaySubtype === "short_drama" ? "短剧" : "漫剧";
+    const typeLabel = scriptType === "script" ? "剧本" : "脚本";
+
+    setMessages((prev) => [
+      ...prev,
+      { id: `user-scripttype`, sender: "user", type: "card-selection", content: `我要写${sceneLabel}${typeLabel}` },
+    ]);
+
+    // Show thinking then welcome (user-first) background guide
+    const thinkingId = `thinking-sp-welcome`;
+    setTimeout(() => {
+      setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+    }, 300);
+
+    setTimeout(() => {
+      setMessages((prev) => [
+        ...prev.filter((m) => m.id !== thinkingId),
+        {
+          id: "model-sp-welcome",
           sender: "model",
           type: "welcome",
-          prompt: subtype === "short_drama"
-            ? "好的，我们来创作一部短剧！\n\n你可以让我帮你找灵感，也可以直接描述你的剧本构思——一段梗概、一个场景、甚至一句「我想写一部关于__的短剧」都可以，我们一起把它变成完整的剧本。"
-            : "好的，我们来创作一部漫剧！\n\n你可以让我帮你找灵感，也可以直接描述你的剧本构思——一段梗概、一个画面、甚至一句「我想做一部关于__的漫剧」都可以，我们一起把它变成完整的分镜剧本。",
+          prompt: `好的，我们来创作一部${sceneLabel}${typeLabel}！\n\n描述一下你的故事构思——一段梗概、一个场景、甚至一句「我想写一部关于__的${typeLabel}」都可以。\n有小说原著想改编的话，直接上传文件我来帮你提取设定。\n\n没有想法也没关系，点击下方按钮让我来帮你找灵感。`,
         },
       ]);
     }, 1500);
-  }, []);
+  }, [screenplaySubtype]);
 
   // Handle novel length selection (now happens after settings confirm)
   const handleLengthSelect = useCallback((length: "short" | "medium" | "long") => {
@@ -2049,6 +2077,82 @@ export default function ChatPanel() {
       return;
     }
 
+    // ══ Screenplay: first message — detect or ask for subtype/scriptType ══
+    if (isScreenplay && !screenplaySubtype && !screenplayScriptType && currentRound === 0) {
+      // Simple intent detection from user's first message
+      const detectSubtype = (): "short_drama" | "comic_drama" | null => {
+        if (/漫剧|动漫|漫画|AI绘|AI画|漫/.test(text)) return "comic_drama";
+        if (/短剧|真人|出镜|竖屏短/.test(text)) return "short_drama";
+        return null;
+      };
+      const detectScriptType = (): "script" | "storyboard" | null => {
+        if (/脚本|分镜|storyboard/.test(text)) return "storyboard";
+        if (/剧本|台词|对白|script/.test(text)) return "script";
+        return null;
+      };
+
+      const detectedSubtype = detectSubtype();
+      const detectedScriptType = detectScriptType();
+
+      if (detectedSubtype) setScreenplaySubtype(detectedSubtype);
+      if (detectedScriptType) setScreenplayScriptType(detectedScriptType);
+
+      const thinkingId = `thinking-sp-type`;
+      setTimeout(() => {
+        setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+      }, 300);
+
+      // Both dimensions known (detected from text)
+      if (detectedSubtype && detectedScriptType) {
+        const sceneLabel = detectedSubtype === "short_drama" ? "短剧" : "漫剧";
+        const typeLabel = detectedScriptType === "script" ? "剧本" : "脚本";
+        setTimeout(() => {
+          setMessages((prev) => [
+            ...prev.filter((m) => m.id !== thinkingId),
+            {
+              id: "model-sp-welcome",
+              sender: "model",
+              type: "welcome",
+              prompt: `好的，我们来创作一部${sceneLabel}${typeLabel}！\n\n描述一下你的故事构思——一段梗概、一个场景、甚至一句「我想写一部关于__的${typeLabel}」都可以。\n有小说原著想改编的话，直接上传文件我来帮你提取设定。\n\n没有想法也没关系，点击下方按钮让我来帮你找灵感。`,
+            },
+          ]);
+          setCurrentRound(1);
+        }, 1500);
+        return;
+      }
+
+      // Only subtype known → ask for scriptType
+      if (detectedSubtype && !detectedScriptType) {
+        const sceneLabel = detectedSubtype === "short_drama" ? "短剧" : "漫剧";
+        setTimeout(() => {
+          setMessages((prev) => [
+            ...prev.filter((m) => m.id !== thinkingId),
+            {
+              id: "model-sp-scripttype",
+              sender: "model",
+              type: "scripttype-select",
+              prompt: `好的，${sceneLabel}！你想创作哪种格式？`,
+            },
+          ]);
+        }, 1500);
+        return;
+      }
+
+      // Neither or only scriptType known → ask for subtype first
+      setTimeout(() => {
+        setMessages((prev) => [
+          ...prev.filter((m) => m.id !== thinkingId),
+          {
+            id: "model-sp-subtype",
+            sender: "model",
+            type: "subtype-select",
+            prompt: "好的，我们开始创作！先确认一下类型：",
+          },
+        ]);
+      }, 1500);
+      return;
+    }
+
     // ══ Knowledge-specific round handlers ══
     if (isKnowledge && knowledgeAgentRef.current) {
       const agent = knowledgeAgentRef.current;
@@ -2328,7 +2432,33 @@ export default function ChatPanel() {
         return;
       }
 
-      // Screenplay: auto-generate worldbuilding
+      // Screenplay: skip worldbuilding, go directly to character rounds
+      if (dataRef.current.isScreenplay) {
+        const thinkingId = `thinking-sp-char-r1`;
+        setTimeout(() => {
+          setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+        }, 300);
+
+        setTimeout(() => {
+          const firstCharRound = dataRef.current.sceneCharacterRounds[0];
+          setMessages((prev) => [
+            ...prev.filter((m) => m.id !== thinkingId),
+            {
+              id: "model-r9",
+              sender: "model",
+              type: "inspiration",
+              prompt: firstCharRound.prompt,
+              cards: firstCharRound.cards,
+              round: 9,
+            },
+          ]);
+          setCurrentRound(9);
+          setCreationStage(2);
+        }, 2000);
+        return;
+      }
+
+      // Non-screenplay non-marketing: auto-generate worldbuilding
       const thinkingId = `thinking-auto-wb`;
       setTimeout(() => {
         setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
@@ -3121,6 +3251,66 @@ export default function ChatPanel() {
                         <div>
                           <p className="text-sm font-medium text-gray-800 mb-1">{screenplaySubtype === "short_drama" ? "短剧" : "漫剧"}</p>
                           <p className="text-xs text-gray-500 leading-relaxed">{screenplaySubtype === "short_drama" ? "真人出镜短视频剧本，强节奏、强钩子，单集60-120秒" : "动态漫画 / AI绘图剧本，分镜驱动，画面感优先"}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          }
+
+          // ── Model: screenplay script type selection (剧本 / 脚本) ──
+          if (msg.sender === "model" && msg.type === "scripttype-select") {
+            return (
+              <div key={msg.id} className="space-y-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                    <span className="text-white text-[10px] font-bold">AI</span>
+                  </div>
+                  <span className="text-xs text-gray-400">文心</span>
+                </div>
+                <p className="text-sm text-gray-700 leading-relaxed pl-8">{msg.prompt}</p>
+
+                {!screenplayScriptType && (
+                  <div className="pl-8 space-y-2">
+                    <button
+                      onClick={() => handleScriptTypeSelect("script")}
+                      className="w-full text-left p-3.5 rounded-xl border-2 border-gray-100 bg-white hover:border-indigo-200 hover:shadow-sm cursor-pointer transition-all duration-200"
+                    >
+                      <div className="flex items-start gap-2.5">
+                        <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-medium shrink-0 mt-0.5 bg-gray-100 text-gray-400">1</span>
+                        <div>
+                          <p className="text-sm font-medium text-gray-800 mb-1">剧本</p>
+                          <p className="text-xs text-gray-500 leading-relaxed">场景头 + 台词 + 动作，标准影视剧本格式</p>
+                        </div>
+                      </div>
+                    </button>
+                    <button
+                      onClick={() => handleScriptTypeSelect("storyboard")}
+                      className="w-full text-left p-3.5 rounded-xl border-2 border-gray-100 bg-white hover:border-indigo-200 hover:shadow-sm cursor-pointer transition-all duration-200"
+                    >
+                      <div className="flex items-start gap-2.5">
+                        <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-medium shrink-0 mt-0.5 bg-gray-100 text-gray-400">2</span>
+                        <div>
+                          <p className="text-sm font-medium text-gray-800 mb-1">脚本</p>
+                          <p className="text-xs text-gray-500 leading-relaxed">分镜 + 台词 + 时长，适合导演和摄制团队</p>
+                        </div>
+                      </div>
+                    </button>
+                  </div>
+                )}
+
+                {screenplayScriptType && (
+                  <div className="pl-8 space-y-2">
+                    <div className="w-full text-left p-3.5 rounded-xl border-2 border-indigo-400 bg-indigo-50/80 shadow-sm">
+                      <div className="flex items-start gap-2.5">
+                        <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-medium shrink-0 mt-0.5 bg-indigo-500 text-white">
+                          {screenplayScriptType === "script" ? "1" : "2"}
+                        </span>
+                        <div>
+                          <p className="text-sm font-medium text-gray-800 mb-1">{screenplayScriptType === "script" ? "剧本" : "脚本"}</p>
+                          <p className="text-xs text-gray-500 leading-relaxed">{screenplayScriptType === "script" ? "场景头 + 台词 + 动作，标准影视剧本格式" : "分镜 + 台词 + 时长，适合导演和摄制团队"}</p>
                         </div>
                       </div>
                     </div>

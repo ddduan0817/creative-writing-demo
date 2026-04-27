@@ -1,6 +1,6 @@
 // ─── Screenplay Agent Mock Data ─────────────────────────────
-// 剧本脚本场景专用的 Agent 对话 mock 数据
-// 参考 ScreenplayLeftPanel 的标签体系：悬疑/刑侦、都市言情、短剧、甜虐等
+// 剧本脚本场景专用 Agent 对话 mock 数据
+// 流程：设定（含剧集规格）→ 角色 → 集纲 → 正文
 
 export interface InspirationCard {
   text: string;
@@ -13,11 +13,11 @@ export interface InspirationRound {
   adjustPrompt: string;
 }
 
-// ─── 灵感轮次（3轮） ──────────────────────────────────────────
+// ─── 设定轮次（3轮灵感卡片） ──────────────────────────────────
 
 export const screenplayInspirationRounds: InspirationRound[] = [
   {
-    prompt: "你好！我来帮你构思一部精彩的短剧。先看看这几个方向，哪个更打动你？",
+    prompt: "描述一下你想创作的剧本方向，我帮你快速生成一版设定。\n\n你也可以先看看下面几个方向，哪个更打动你？",
     cards: [
       {
         text: "都市悬疑：刑侦记者意外发现未婚夫出现在嫌疑人名单上。她必须在揭露真相和保护爱情之间做出抉择，每一集都有致命反转。",
@@ -38,15 +38,15 @@ export const screenplayInspirationRounds: InspirationRound[] = [
     prompt: "好方向！在这个基础上，你更偏好哪种叙事节奏？",
     cards: [
       {
-        text: "强钩子快节奏：每集结尾一个爆点，30秒内必须抓住观众。情节密度极高，没有一句废话，看完一集立刻想看下一集。适合60-90秒短剧。",
+        text: "强钩子快节奏：每集结尾一个爆点，30秒内必须抓住观众。情节密度极高，没有一句废话，看完一集立刻想看下一集。",
         keywords: ["快节奏", "强钩子", "爆点", "高密度"],
       },
       {
-        text: "甜虐交替型：三集甜一集虐，用高甜片段养观众，再用反转虐心拉扯。情感起伏明显，让人又笑又哭。适合80-100集的长线剧。",
+        text: "甜虐交替型：三集甜一集虐，用高甜片段养观众，再用反转虐心拉扯。情感起伏明显，让人又笑又哭。",
         keywords: ["甜虐", "养观众", "情感拉扯", "长线"],
       },
       {
-        text: "悬疑解谜型：每集埋一条线索，主线暗线交织推进。观众一边追剧一边推理，评论区变成「破案现场」。适合40-60集的中等体量。",
+        text: "悬疑解谜型：每集埋一条线索，主线暗线交织推进。观众一边追剧一边推理，评论区变成「破案现场」。",
         keywords: ["悬疑", "解谜", "暗线", "推理"],
       },
     ],
@@ -60,155 +60,138 @@ export const screenplayInspirationRounds: InspirationRound[] = [
         keywords: ["反转", "烧脑", "男女通吃"],
       },
       {
-        text: "甜宠爽文：女主不恋爱脑、不白莲花，该打脸打脸该逆袭逆袭。男主只有在女主面前才会失去冷静。「全世界都觉得她不行，只有他知道她有多强」。女频核心向。",
+        text: "甜宠爽文：女主不恋爱脑、不白莲花，该打脸打脸该逆袭逆袭。男主只有在女主面前才会失去冷静。女频核心向。",
         keywords: ["甜宠", "爽文", "打脸", "女频"],
       },
       {
-        text: "虐心催泪：BE美学 + 意难平。前70%甜到齁，后30%虐到哭。结局开放式，留给观众想象空间。适合短视频传播的催泪向。",
+        text: "虐心催泪：BE美学 + 意难平。前70%甜到齁，后30%虐到哭。结局开放式，留给观众想象空间。",
         keywords: ["虐心", "催泪", "BE", "意难平"],
       },
     ],
-    adjustPrompt: "最后还想补充什么？比如「结局要HE」「核心卖点再突出一点」，没有的话我开始整理设定了～",
+    adjustPrompt: "最后还想补充什么？比如「结局要HE」「核心卖点再突出一点」，没有的话我来整理设定了～",
   },
 ];
 
-// ─── 设定确认卡片 ──────────────────────────────────────────
+// ─── 设定卡片（含剧集规格，按类型动态差异） ──────────────────
 
-export const screenplayMockSettings: Record<string, { label: string; value: string }[]> = {
-  "剧集概念": [
+// 短剧 × 剧本
+export const screenplayMockSettings_short_script: Record<string, { label: string; value: string }[]> = {
+  "创作设定": [
     { label: "核心设定", value: "刑侦记者发现未婚夫是嫌疑人，真相与爱情的极致拉扯" },
-    { label: "类型定位", value: "都市悬疑 · 甜虐言情" },
-    { label: "核心卖点", value: "越爱越不敢查 · 每集结尾强反转" },
-  ],
-  "剧集规格": [
-    { label: "受众", value: "女频" },
-    { label: "题材", value: "悬疑 · 刑侦 · 言情" },
-    { label: "风格调性", value: "甜虐 · 反转 · 烧脑" },
-    { label: "集数", value: "60集" },
-    { label: "单集时长", value: "90秒" },
+    { label: "故事线", value: "林晓调查案件时发现未婚夫陈深的名字出现在嫌疑人名单上，她在揭露真相与保护爱情之间艰难抉择" },
+    { label: "核心冲突", value: "越爱越不敢查 · 查到真相就意味着失去一切" },
+    { label: "核心卖点", value: "每集结尾强反转 · 甜虐双线并行" },
   ],
   "内容要素": [
-    { label: "剧情元素", value: "犯罪 · 职场 · 失忆" },
+    { label: "受众", value: "女频" },
+    { label: "题材", value: "悬疑 · 刑侦 · 言情" },
+    { label: "时空", value: "现代都市" },
+    { label: "风格调性", value: "甜虐 · 反转 · 烧脑" },
     { label: "人物关系", value: "恋人 · 宿敌" },
-    { label: "时空", value: "现代" },
-    { label: "结局", value: "HE（历经虐心后的大团圆）" },
+    { label: "结局", value: "HE" },
+  ],
+  "剧集规格": [
+    { label: "场景类型", value: "短剧" },
+    { label: "输出格式", value: "剧本（场景头 + 台词 + 动作）" },
+    { label: "集数", value: "80集" },
+    { label: "单集时长", value: "90秒" },
   ],
 };
 
-// ─── 世界观轮次 ──────────────────────────────────────────
-
-export const screenplayWorldbuildingRounds: InspirationRound[] = [
-  {
-    prompt: "设定确认！接下来我们构建故事发生的世界。你希望剧本的核心场景是什么样的？",
-    cards: [
-      {
-        text: "都市双面：白天是车水马龙的CBD和报社编辑部，夜晚是霓虹灯下的线人接头和暗巷追踪。两个世界在女主身上交汇——她白天写稿，晚上查案。",
-        keywords: ["CBD", "报社", "暗巷", "双面生活"],
-      },
-      {
-        text: "老城区迷宫：故事集中在一片即将拆迁的老城区。窄巷、天井、老茶馆、废弃工厂。每条巷子都藏着秘密，每个老居民都可能是证人。地理空间本身就是谜题。",
-        keywords: ["老城区", "拆迁", "迷宫", "地理谜题"],
-      },
-      {
-        text: "高端表面 vs 地下暗涌：上层是金融中心、高端酒会、检察院大楼，下层是地下赌场、走私通道、废弃码头。案件的线索在两个阶层之间穿梭。",
-        keywords: ["高端", "地下", "阶层", "走私"],
-      },
-    ],
-    adjustPrompt: "想微调什么？比如「加个警局场景」「要有标志性的约会地点」，或者跳过继续～",
-  },
-  {
-    prompt: "很有氛围！核心场景的视觉风格你偏好哪种？",
-    cards: [
-      {
-        text: "冷色调悬疑感：整体偏灰蓝冷色调，夜戏占60%。大量雨天、雾天、逆光剪影。甜蜜场景用暖黄对比反差，让观众一看色调就知道「要发糖还是发刀」。",
-        keywords: ["冷色调", "夜戏", "雨天", "反差"],
-      },
-      {
-        text: "明暗交替：悬疑线用暗调（窄巷、地下室、深夜），感情线用明调（阳光咖啡馆、落地窗公寓、天台日落）。两条线交替剪辑，明暗对比推动情绪。",
-        keywords: ["明暗", "对比", "交替剪辑", "情绪"],
-      },
-      {
-        text: "写实质感：不刻意滤镜，追求纪录片式的真实感。手持镜头跟拍，自然光源，街头实景。让观众觉得「这不是演的，这是真实发生的」。",
-        keywords: ["写实", "纪录片", "手持", "真实感"],
-      },
-    ],
-    adjustPrompt: "场景还想加什么？比如「再加一个标志性空间」「色调再暖一点」，没有就跳过～",
-  },
-  {
-    prompt: "最后确认一下剧集的叙事结构和钩子设计：",
-    cards: [
-      {
-        text: "双线并行结构：A线（悬疑主线）每集推进案件一步，B线（感情线）每3集一个小高潮。两条线在关键节点交汇——「查到的真相恰好击碎了刚建立的信任」。",
-        keywords: ["双线", "并行", "交汇", "信任崩塌"],
-      },
-      {
-        text: "倒叙+补叙：第1集直接从高潮开始（女主拿枪指着未婚夫），然后倒回起点。之后每隔10集闪回一次第1集的画面，每次多揭露一点细节。",
-        keywords: ["倒叙", "闪回", "悬念", "逐步揭露"],
-      },
-      {
-        text: "单元剧+暗线：每5集一个小案件（单元），小案件之间有暗线串联。观众追的是每个单元的爽感，不知不觉被暗线拉入大局。第40集暗线浮出水面，全面反转。",
-        keywords: ["单元剧", "暗线", "串联", "大反转"],
-      },
-    ],
-    adjustPrompt: "最后还想补充什么？比如「钩子再密一点」「结构再简单一点」，没有的话我开始整理世界观了～",
-  },
-];
-
-// ─── 世界观总结卡片 ──────────────────────────────────────
-
-export interface WorldbuildingScene {
-  name: string;
-  description: string;
-}
-
-export interface WorldbuildingData {
-  summary: string;
-  timeline: string;
-  scenes: WorldbuildingScene[];
-  socialEcology: string[];
-  hiddenClues: string[];
-}
-
-export const screenplayMockWorldbuilding: WorldbuildingData = {
-  summary: "当代都市「滨城」——一座沿海新一线城市，CBD林立的现代面孔下，藏着大量即将拆迁的老城区暗巷。白天繁华体面，入夜后每条小巷都可能藏着一个秘密。",
-  timeline: "故事跨越60天。前20集：初遇+信任建立+第一条线索；中间20集：真相逐步浮现+感情升温+信任裂痕；后20集：全面反转+抉择+高潮结局。",
-  scenes: [
-    { name: "《滨城晚报》编辑部", description: "女主林晓的主战场，开放式工位+独立小会议室。白天正常上班，深夜常常独自一人对着线索板发呆。桌上永远堆着外卖盒和采访录音笔。" },
-    { name: "陈深的公寓", description: "极简风高层公寓，落地窗正对CBD夜景。看似完美的生活表象下，书房有一个上锁的抽屉。这是甜蜜场景和揭秘场景的共用空间。" },
-    { name: "老城区「永安巷」", description: "核心悬疑场景。即将拆迁的老巷子，潮湿、逼仄、路灯忽明忽暗。线人接头点在巷尾的老茶馆「三味堂」，老板娘什么都知道但从不主动说。" },
-    { name: "滨城市公安局", description: "陈队长的地盘。标准化办公环境，审讯室、档案室、监控中心。林晓在这里获取官方信息，也在这里发现了不该发现的东西。" },
-    { name: "海边废弃码头", description: "关键大场景。走私通道的终点，也是故事高潮的发生地。生锈的集装箱、断裂的栈桥、远处的灯塔。一到雾天就什么都看不清。" },
+// 短剧 × 脚本
+export const screenplayMockSettings_short_storyboard: Record<string, { label: string; value: string }[]> = {
+  "创作设定": [
+    { label: "核心设定", value: "刑侦记者发现未婚夫是嫌疑人，真相与爱情的极致拉扯" },
+    { label: "故事线", value: "林晓调查案件时发现未婚夫陈深的名字出现在嫌疑人名单上，她在揭露真相与保护爱情之间艰难抉择" },
+    { label: "核心冲突", value: "越爱越不敢查 · 查到真相就意味着失去一切" },
+    { label: "核心卖点", value: "每集结尾强反转 · 甜虐双线并行" },
   ],
-  socialEcology: [
-    "滨城新旧交替：CBD光鲜vs老城区破败，城市改造是故事的社会背景",
-    "报社内部：主编方哥是林晓的靠山，但他也有不能说的压力来源",
-    "警方体系：陈队长正直但受上层掣肘，基层刑警老马是林晓的暗线信息源",
-    "地下势力：以「永安巷」为据点的灰色地带，茶馆老板娘是信息枢纽",
+  "内容要素": [
+    { label: "受众", value: "女频" },
+    { label: "题材", value: "悬疑 · 刑侦 · 言情" },
+    { label: "时空", value: "现代都市" },
+    { label: "风格调性", value: "甜虐 · 反转 · 烧脑" },
+    { label: "结局", value: "HE" },
   ],
-  hiddenClues: [
-    "陈深的真实身份不是普通金融分析师，他是卧底——但不是警方的卧底",
-    "林晓三年前的车祸不是意外，和当前案件的幕后主使是同一个人",
-    "永安巷茶馆老板娘是陈深母亲的旧识，她一直在暗中观察两人",
-    "案件的最终指向不是犯罪集团，而是一个系统性的腐败网络",
+  "剧集规格": [
+    { label: "场景类型", value: "短剧" },
+    { label: "输出格式", value: "脚本（分镜 + 台词 + 时长）" },
+    { label: "集数", value: "80集" },
+    { label: "单集时长", value: "90秒" },
+    { label: "单集镜头数", value: "8-12镜/集" },
   ],
 };
 
-// ─── 角色轮次 ──────────────────────────────────────────
+// 漫剧 × 剧本
+export const screenplayMockSettings_comic_script: Record<string, { label: string; value: string }[]> = {
+  "创作设定": [
+    { label: "核心设定", value: "刑侦记者发现未婚夫是嫌疑人，真相与爱情的极致拉扯" },
+    { label: "故事线", value: "林晓调查案件时发现未婚夫陈深的名字出现在嫌疑人名单上，她在揭露真相与保护爱情之间艰难抉择" },
+    { label: "核心冲突", value: "越爱越不敢查 · 查到真相就意味着失去一切" },
+    { label: "核心卖点", value: "每集结尾强反转 · 甜虐双线并行" },
+  ],
+  "内容要素": [
+    { label: "受众", value: "女频" },
+    { label: "题材", value: "悬疑 · 刑侦 · 言情" },
+    { label: "时空", value: "现代都市" },
+    { label: "风格调性", value: "甜虐 · 反转 · 烧脑" },
+    { label: "结局", value: "HE" },
+  ],
+  "剧集规格": [
+    { label: "场景类型", value: "漫剧" },
+    { label: "输出格式", value: "剧本（场景头 + 台词 + 动作）" },
+    { label: "集数", value: "80集" },
+    { label: "单集时长", value: "90秒" },
+    { label: "画面方向", value: "竖屏" },
+    { label: "画风", value: "写实 · 偏写实日漫风" },
+  ],
+};
+
+// 漫剧 × 脚本
+export const screenplayMockSettings_comic_storyboard: Record<string, { label: string; value: string }[]> = {
+  "创作设定": [
+    { label: "核心设定", value: "刑侦记者发现未婚夫是嫌疑人，真相与爱情的极致拉扯" },
+    { label: "故事线", value: "林晓调查案件时发现未婚夫陈深的名字出现在嫌疑人名单上，她在揭露真相与保护爱情之间艰难抉择" },
+    { label: "核心冲突", value: "越爱越不敢查 · 查到真相就意味着失去一切" },
+    { label: "核心卖点", value: "每集结尾强反转 · 甜虐双线并行" },
+  ],
+  "内容要素": [
+    { label: "受众", value: "女频" },
+    { label: "题材", value: "悬疑 · 刑侦 · 言情" },
+    { label: "时空", value: "现代都市" },
+    { label: "风格调性", value: "甜虐 · 反转 · 烧脑" },
+    { label: "结局", value: "HE" },
+  ],
+  "剧集规格": [
+    { label: "场景类型", value: "漫剧" },
+    { label: "输出格式", value: "脚本（分格 + 台词 + 情绪）" },
+    { label: "集数", value: "80集" },
+    { label: "单集时长", value: "90秒" },
+    { label: "画面方向", value: "竖屏" },
+    { label: "单集镜头数", value: "8-12格/集" },
+    { label: "画风", value: "写实 · 偏写实日漫风" },
+  ],
+};
+
+// 默认设定（未区分类型时使用）
+export const screenplayMockSettings = screenplayMockSettings_short_script;
+
+// ─── 角色轮次 ──────────────────────────────────────────────
 
 export const screenplayCharacterRounds: InspirationRound[] = [
   {
-    prompt: "世界观搭建完毕！接下来创建角色。先看看女主角的性格方向：",
+    prompt: "设定已完成！接下来创建角色。先看看女主角的性格方向：",
     cards: [
       {
         text: "飒爽记者型：嗅觉敏锐、行动力极强，为了线索可以蹲点三天三夜。嘴上说着「我只相信证据」，心里却在害怕查出来的真相。看似理性，实则感情用事。",
         keywords: ["飒爽", "记者", "敏锐", "外强内柔"],
       },
       {
-        text: "沉稳分析型：冷静克制，擅长从海量信息中找到关联。同事都叫她「人形数据库」。但面对陈深时，所有的冷静分析能力都会失效。这种反差是她最大的软肋。",
+        text: "沉稳分析型：冷静克制，擅长从海量信息中找到关联。同事都叫她「人形数据库」。但面对陈深时，所有的冷静分析能力都会失效。",
         keywords: ["沉稳", "冷静", "数据库", "反差软肋"],
       },
       {
-        text: "元气冒险型：新人记者，初生牛犊不怕虎。胆子大、运气好、直觉准。别人觉得危险的线索她觉得「超刺激的」。但随着真相越来越沉重，她的元气也在一点点消耗。",
+        text: "元气冒险型：新人记者，初生牛犊不怕虎。胆子大、运气好、直觉准。随着真相越来越沉重，她的元气也在一点点消耗。",
         keywords: ["元气", "冒险", "直觉", "成长"],
       },
     ],
@@ -244,15 +227,15 @@ export const screenplayCharacterRounds: InspirationRound[] = [
         keywords: ["圈层", "渗透", "监视", "良心"],
       },
       {
-        text: "情感纠葛型：林晓的前男友方逸（现任主编，对她仍有感情）、陈深的青梅竹马沈月（知道陈深所有秘密）、陈队长的女儿陈念（和林晓亦师亦友）。每个人都是情感和真相的交汇点。",
+        text: "情感纠葛型：林晓的前男友方逸（现任主编，对她仍有感情）、陈深的青梅竹马沈月（知道陈深所有秘密）。每个人都是情感和真相的交汇点。",
         keywords: ["情感", "纠葛", "前任", "青梅竹马"],
       },
     ],
-    adjustPrompt: "配角还想加谁？或者想调整关系设定？比如「加个反派Boss」「闺蜜要更有存在感」，没有就跳过～",
+    adjustPrompt: "配角还想加谁？或者想调整关系设定？没有就跳过～",
   },
 ];
 
-// ─── 角色总结卡片 ──────────────────────────────────────
+// ─── 角色总结卡片 ──────────────────────────────────────────
 
 export interface CharacterProfile {
   name: string;
@@ -275,26 +258,41 @@ export const screenplayMockCharacterCard: CharacterCardData = {
     identity: "《滨城晚报》深度调查记者，业内新锐",
     appearance: "短发干练，常穿风衣+帆布鞋，随身背着采访包。跑线索时扎马尾，约会时会换裙子",
     personality: "飒爽果敢，嗅觉敏锐，嘴硬心软。面对线索时冷静如冰，面对陈深时理性全线崩溃",
-    background: "《滨城晚报》新锐记者，紧张时咬笔帽，破案时在玻璃墙上贴便利贴画关系图。三年前的车祸让她失去了部分记忆，她一直以为那只是意外",
+    background: "三年前曾经历一场车祸，失去部分记忆。她一直以为那只是意外，直到开始调查这个案件",
   },
   maleLead: {
     name: "陈深",
     identity: "知名投资公司高级分析师（表面身份），林晓的未婚夫",
     appearance: "西装革履，气质清冷。左手无名指的戒指永远不摘——那是他唯一的真心",
     personality: "表面温柔完美、实则深不可测。唯一会露出真实情绪的时刻是林晓遇到危险",
-    background: "知名投资公司高级分析师（表面身份），深夜独自在书房打加密电话时会无意识地转戒指。他不是警方卧底，而是另一个组织的人，接近林晓最初是任务，但他真的爱上了她",
+    background: "深夜独自在书房打加密电话时会无意识地转戒指。他不是警方卧底，而是另一个组织的人，接近林晓最初是任务，但他真的爱上了她",
   },
   supporting: [
-    { name: "陈队长", role: "刑侦队队长", desc: "正直的老警察，掌握关键证据但受上层压力无法公开。林晓既是他的线人也是他想保护的晚辈" },
-    { name: "方主编", role: "报社主编/林晓前男友", desc: "表面是林晓的靠山，实则和幕后势力有说不清的关系。对林晓有感情残留" },
-    { name: "周姐", role: "永安巷茶馆老板娘", desc: "地下信息网络的枢纽人物，什么都知道但永远只说三分。是陈深母亲的旧识" },
-    { name: "老马", role: "基层刑警", desc: "陈队长的老搭档，看似粗犷实则心细如发。是全剧最后的道德底线" },
+    { name: "陈队长", role: "刑侦队队长", desc: "正直的老警察，掌握关键证据但受上层压力无法公开" },
+    { name: "方主编", role: "报社主编 / 林晓前男友", desc: "表面是林晓的靠山，实则和幕后势力有说不清的关系" },
+    { name: "周姐", role: "永安巷茶馆老板娘", desc: "地下信息网络的枢纽人物，是陈深母亲的旧识" },
+    { name: "老马", role: "基层刑警", desc: "陈队长的老搭档，全剧最后的道德底线" },
   ],
   relationships: "林晓 × 陈深：未婚夫妻 → 信任崩塌 → 对立 → 和解\n方主编 → 林晓：暗中保护又有所隐瞒\n陈队长 ↔ 陈深：表面对立，暗线关联\n周姐 → 陈深：「你妈让我看着你，别走歪了」",
 };
 
-// ─── 大纲总结卡片 ──────────────────────────────────────
+// ─── 集纲卡片（替代原大纲卡片） ──────────────────────────────
 
+export interface EpisodeOutline {
+  ep: string;
+  title: string;
+  summary: string;
+  hook: string;
+}
+
+export interface EpisodeOutlineCardData {
+  structure: string;
+  totalEpisodes: number;
+  episodeDuration: string;
+  episodes: EpisodeOutline[];
+}
+
+// 复用 OutlineCardData 接口结构，方便 ChatPanel 通用渲染
 export interface OutlineChapter {
   title: string;
   summary: string;
@@ -309,26 +307,24 @@ export interface OutlineCardData {
 }
 
 export const screenplayMockOutlineCard: OutlineCardData = {
-  structure: "三幕六转 · 甜虐双线",
-  totalChapters: 60,
-  estimatedWords: "约60集×90秒",
+  structure: "三幕八转 · 悬疑甜虐双线",
+  totalChapters: 80,
+  estimatedWords: "80集 × 90秒",
   chapters: [
     { title: "第1集 雨夜接头", summary: "林晓深夜在永安巷与线人接头，获得一份加密文件。回家时发现陈深异常——他比她先到家，衣角却是湿的。", keyEvent: "悬念开场 · 第一个疑点" },
     { title: "第2集 完美未婚夫", summary: "闪回林晓和陈深的日常：他做早餐、接她下班、记住她所有的喜好。甜蜜到不真实。", keyEvent: "人设建立 · 反差预埋" },
     { title: "第3集 名单上的名字", summary: "林晓解密文件，在嫌疑人关联名单上发现了「陈深」两个字。她以为自己看错了。", keyEvent: "核心悬念启动" },
     { title: "第5集 秘密电话", summary: "林晓半夜醒来，发现陈深在阳台打电话，声音冰冷：「她不会发现的。」", keyEvent: "信任动摇 · 第一刀" },
     { title: "第10集 永安巷追踪", summary: "林晓尾随陈深到永安巷，目睹他和一个黑衣人交接物品。她的世界开始崩塌。", keyEvent: "第一个大反转" },
-    { title: "第15集 真假温柔", summary: "陈深发现林晓在调查自己，选择加倍温柔来掩饰。这是他最后一次有机会放弃任务。", keyEvent: "男主抉择点" },
     { title: "第20集 摊牌", summary: "林晓把证据摔在陈深面前：「你到底是谁？」陈深沉默了很久：「我是爱你的人。」", keyEvent: "信任崩塌 · 高潮点" },
     { title: "第30集 第三方", summary: "林晓发现陈深既不是警察也不是犯罪分子，而是第三方组织的人。真相比她想象的更复杂。", keyEvent: "世界观扩展 · 中段反转" },
     { title: "第40集 三年前的真相", summary: "所有线索指向林晓三年前的车祸。那不是意外——有人要她遗忘的，正是这整个案件的起点。", keyEvent: "女主过去线揭露" },
-    { title: "第50集 联手", summary: "林晓选择相信陈深。两人决定联手揭露真正的幕后黑手——那个隐藏在体制内的腐败网络。", keyEvent: "双线合流 · 进入终局" },
     { title: "第55集 终局布置", summary: "废弃码头，最后的对决即将展开。陈深把戒指交给林晓：「不管结果怎样，这枚戒指是真的。」", keyEvent: "高潮前奏 · 催泪点" },
-    { title: "第60集 雨过天晴", summary: "案件告破，但代价沉重。片尾：一年后，林晓在永安巷茶馆采访，门口走进一个熟悉的身影。", keyEvent: "HE · 开放式余韵" },
+    { title: "第80集 雨过天晴", summary: "案件告破，但代价沉重。片尾：一年后，林晓在永安巷茶馆采访，门口走进一个熟悉的身影。", keyEvent: "HE · 开放式余韵" },
   ],
 };
 
-// ─── 正文 mock（第1集剧本片段） ──────────────────────────
+// ─── 正文 mock（剧本格式，按集） ──────────────────────────────
 
 export const screenplayMockChapterTexts: Record<number, string> = {
   0: `【第1集 · 雨夜接头】
@@ -392,3 +388,29 @@ export const screenplayMockChapterTexts: Record<number, string> = {
 
 【第2集 完】`,
 };
+
+// ─── 废弃的世界观数据（保留接口兼容，不再使用） ──────────────
+
+export interface WorldbuildingScene {
+  name: string;
+  description: string;
+}
+
+export interface WorldbuildingData {
+  summary: string;
+  timeline: string;
+  scenes: WorldbuildingScene[];
+  socialEcology: string[];
+  hiddenClues: string[];
+}
+
+// 空的世界观数据（剧本 agent 不再使用世界观轮次）
+export const screenplayMockWorldbuilding: WorldbuildingData = {
+  summary: "",
+  timeline: "",
+  scenes: [],
+  socialEcology: [],
+  hiddenClues: [],
+};
+
+export const screenplayWorldbuildingRounds: InspirationRound[] = [];
