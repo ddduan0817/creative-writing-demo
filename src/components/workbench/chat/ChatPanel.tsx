@@ -19,9 +19,13 @@ import {
 import {
   screenplayInspirationRounds,
   screenplayMockSettings_short_script,
+  screenplayMockSettings_short_script_alt,
   screenplayMockSettings_short_storyboard,
+  screenplayMockSettings_short_storyboard_alt,
   screenplayMockSettings_comic_script,
+  screenplayMockSettings_comic_script_alt,
   screenplayMockSettings_comic_storyboard,
+  screenplayMockSettings_comic_storyboard_alt,
   screenplayWorldbuildingRounds,
   screenplayMockWorldbuilding,
   screenplayCharacterRounds,
@@ -1390,6 +1394,21 @@ export default function ChatPanel() {
       const concept = s["书籍信息"] || s["分析配置"];
       const core = concept?.[0]?.value || "";
       return core ? `分析对象：${core}` : "";
+    }
+    if (dataRef.current.isScreenplay) {
+      const creation = s["创作设定"];
+      const elements = s["内容要素"];
+      const coreSetting = creation?.find((e: { label: string; value: string }) => e.label === "核心设定")?.value || "";
+      const genre = elements?.find((e: { label: string; value: string }) => e.label === "题材")?.value || "";
+      const style = elements?.find((e: { label: string; value: string }) => e.label === "风格调性")?.value || "";
+      const ending = elements?.find((e: { label: string; value: string }) => e.label === "结局")?.value || "";
+      const parts: string[] = [];
+      if (genre) parts.push(genre.replace(/ · /g, ""));
+      if (style) parts.push(`${style.replace(/ · /g, "")}风格`);
+      if (ending) parts.push(`${ending}结局`);
+      const prefix = parts.length > 0 ? `一部${parts.join("、")}的剧本` : "";
+      if (prefix && coreSetting) return `${prefix}——${coreSetting}`;
+      return coreSetting || prefix;
     }
     // Novel / Screenplay — build a natural sentence
     const concept = s["故事概念"];
@@ -5363,6 +5382,29 @@ export default function ChatPanel() {
                                   { id: `model-settings-${Date.now()}`, sender: "model" as const, type: "settings-card" as const, prompt: "已重新整理商品信息，看看这个怎么样？", settings: marketingProductInfoCard },
                                 ]);
                                 setAgentStageData("settings", marketingProductInfoCard);
+                              }, 2000);
+                            } else if (isScreenplay) {
+                              // Screenplay: toggle between default and alt settings based on subtype×scriptType
+                              novelVariantRef.current = novelVariantRef.current === 0 ? 1 : 0;
+                              const isAltVariant = novelVariantRef.current === 1;
+                              let altData: Record<string, { label: string; value: string }[]>;
+                              if (screenplaySubtype === "comic_drama" && screenplayScriptType === "storyboard") {
+                                altData = isAltVariant ? screenplayMockSettings_comic_storyboard_alt : screenplayMockSettings_comic_storyboard;
+                              } else if (screenplaySubtype === "comic_drama") {
+                                altData = isAltVariant ? screenplayMockSettings_comic_script_alt : screenplayMockSettings_comic_script;
+                              } else if (screenplayScriptType === "storyboard") {
+                                altData = isAltVariant ? screenplayMockSettings_short_storyboard_alt : screenplayMockSettings_short_storyboard;
+                              } else {
+                                altData = isAltVariant ? screenplayMockSettings_short_script_alt : screenplayMockSettings_short_script;
+                              }
+                              const thinkingId = `thinking-regen-settings`;
+                              setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+                              setTimeout(() => {
+                                setMessages((prev) => [
+                                  ...prev.filter((m) => m.id !== thinkingId),
+                                  { id: `model-settings-${Date.now()}`, sender: "model" as const, type: "settings-card" as const, prompt: "已重新生成一版设定，看看这个怎么样？", settings: altData },
+                                ]);
+                                setAgentStageData("settings", altData);
                               }, 2000);
                             } else {
                               novelVariantRef.current = novelVariantRef.current === 0 ? 1 : 0;

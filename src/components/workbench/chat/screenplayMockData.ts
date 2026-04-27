@@ -176,7 +176,108 @@ export const screenplayMockSettings_comic_storyboard: Record<string, { label: st
 // 默认设定（未区分类型时使用）
 export const screenplayMockSettings = screenplayMockSettings_short_script;
 
-// ─── 角色轮次 ──────────────────────────────────────────────
+// ─── Alt 设定卡片（换一换时使用，故事不同于默认版） ──────────
+
+// 短剧 × 剧本 Alt
+export const screenplayMockSettings_short_script_alt: Record<string, { label: string; value: string }[]> = {
+  "创作设定": [
+    { label: "核心设定", value: "豪门赘婿被迫离婚后逆袭归来，前妻才发现他是千亿集团真正的掌舵人" },
+    { label: "故事线", value: "陈墨隐忍三年终于离婚，以商业奇才的真实身份席卷商界，前妻苏雨晴在一次次交锋中看清了当年的误解" },
+    { label: "核心冲突", value: "离婚后的重逢 · 身份反转 · 复仇还是复合" },
+    { label: "核心卖点", value: "爽文逆袭 · 反转打脸 · 前期虐后期甜" },
+  ],
+  "内容要素": [
+    { label: "受众", value: "男频 · 女频通吃" },
+    { label: "题材", value: "商战 · 豪门 · 言情" },
+    { label: "时空", value: "现代都市" },
+    { label: "风格调性", value: "爽文 · 反转 · 打脸" },
+    { label: "人物关系", value: "前妻前夫 · 商业对手" },
+    { label: "结局", value: "HE" },
+  ],
+  "剧集规格": [
+    { label: "场景类型", value: "短剧" },
+    { label: "输出格式", value: "剧本（场景头 + 台词 + 动作）" },
+    { label: "集数", value: "80集" },
+    { label: "单集时长", value: "90秒" },
+  ],
+};
+
+// 短剧 × 脚本 Alt
+export const screenplayMockSettings_short_storyboard_alt: Record<string, { label: string; value: string }[]> = {
+  "创作设定": [
+    { label: "核心设定", value: "豪门赘婿被迫离婚后逆袭归来，前妻才发现他是千亿集团真正的掌舵人" },
+    { label: "故事线", value: "陈墨隐忍三年终于离婚，以商业奇才的真实身份席卷商界，前妻苏雨晴在一次次交锋中看清了当年的误解" },
+    { label: "核心冲突", value: "离婚后的重逢 · 身份反转 · 复仇还是复合" },
+    { label: "核心卖点", value: "爽文逆袭 · 反转打脸 · 前期虐后期甜" },
+  ],
+  "内容要素": [
+    { label: "受众", value: "男频 · 女频通吃" },
+    { label: "题材", value: "商战 · 豪门 · 言情" },
+    { label: "时空", value: "现代都市" },
+    { label: "风格调性", value: "爽文 · 反转 · 打脸" },
+    { label: "结局", value: "HE" },
+  ],
+  "剧集规格": [
+    { label: "场景类型", value: "短剧" },
+    { label: "输出格式", value: "脚本（分镜 + 台词 + 时长）" },
+    { label: "集数", value: "80集" },
+    { label: "单集时长", value: "90秒" },
+    { label: "单集镜头数", value: "8-12镜/集" },
+  ],
+};
+
+// 漫剧 × 剧本 Alt
+export const screenplayMockSettings_comic_script_alt: Record<string, { label: string; value: string }[]> = {
+  "创作设定": [
+    { label: "核心设定", value: "豪门赘婿被迫离婚后逆袭归来，前妻才发现他是千亿集团真正的掌舵人" },
+    { label: "故事线", value: "陈墨隐忍三年终于离婚，以商业奇才的真实身份席卷商界，前妻苏雨晴在一次次交锋中看清了当年的误解" },
+    { label: "核心冲突", value: "离婚后的重逢 · 身份反转 · 复仇还是复合" },
+    { label: "核心卖点", value: "爽文逆袭 · 反转打脸 · 前期虐后期甜" },
+  ],
+  "内容要素": [
+    { label: "受众", value: "男频 · 女频通吃" },
+    { label: "题材", value: "商战 · 豪门 · 言情" },
+    { label: "时空", value: "现代都市" },
+    { label: "风格调性", value: "爽文 · 反转 · 打脸" },
+    { label: "结局", value: "HE" },
+  ],
+  "剧集规格": [
+    { label: "场景类型", value: "漫剧" },
+    { label: "输出格式", value: "剧本（场景头 + 台词 + 动作）" },
+    { label: "集数", value: "80集" },
+    { label: "单集时长", value: "90秒" },
+    { label: "画面方向", value: "竖屏" },
+    { label: "画风", value: "写实 · 偏写实日漫风" },
+  ],
+};
+
+// 漫剧 × 脚本 Alt
+export const screenplayMockSettings_comic_storyboard_alt: Record<string, { label: string; value: string }[]> = {
+  "创作设定": [
+    { label: "核心设定", value: "豪门赘婿被迫离婚后逆袭归来，前妻才发现他是千亿集团真正的掌舵人" },
+    { label: "故事线", value: "陈墨隐忍三年终于离婚，以商业奇才的真实身份席卷商界，前妻苏雨晴在一次次交锋中看清了当年的误解" },
+    { label: "核心冲突", value: "离婚后的重逢 · 身份反转 · 复仇还是复合" },
+    { label: "核心卖点", value: "爽文逆袭 · 反转打脸 · 前期虐后期甜" },
+  ],
+  "内容要素": [
+    { label: "受众", value: "男频 · 女频通吃" },
+    { label: "题材", value: "商战 · 豪门 · 言情" },
+    { label: "时空", value: "现代都市" },
+    { label: "风格调性", value: "爽文 · 反转 · 打脸" },
+    { label: "结局", value: "HE" },
+  ],
+  "剧集规格": [
+    { label: "场景类型", value: "漫剧" },
+    { label: "输出格式", value: "脚本（分格 + 台词 + 情绪）" },
+    { label: "集数", value: "80集" },
+    { label: "单集时长", value: "90秒" },
+    { label: "画面方向", value: "竖屏" },
+    { label: "单集镜头数", value: "8-12格/集" },
+    { label: "画风", value: "写实 · 偏写实日漫风" },
+  ],
+};
+
+
 
 export const screenplayCharacterRounds: InspirationRound[] = [
   {
