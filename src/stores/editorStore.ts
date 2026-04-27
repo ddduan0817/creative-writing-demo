@@ -440,7 +440,7 @@ export const useEditorStore = create<EditorState>((set) => ({
   resetToEmpty: (sceneType) => {
     const sceneNames: Record<string, string> = {
       novel: "未命名小说",
-      screenplay: "未命名剧本",
+      screenplay: "未命名文档",
       marketing: "未命名文案",
       knowledge: "未命名专栏",
       general: "未命名文档",
@@ -466,7 +466,7 @@ export const useEditorStore = create<EditorState>((set) => ({
       currentNovelChapter: 0,
       workflowCharacters: [],
       characterFullscreen: false,
-      title: isScreenplay ? "雨夜追凶" : (sceneNames[sceneType] || "未命名文档"),
+      title: sceneNames[sceneType] || "未命名文档",
       titleManuallyEdited: false,
       leftPanelExpanded: false,
       chapters: defaultChapters,
