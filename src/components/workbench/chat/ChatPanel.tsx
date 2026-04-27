@@ -2854,7 +2854,7 @@ export default function ChatPanel() {
               type: "settings-card",
               prompt: dataRef.current.isKnowledge
                 ? `根据你的描述，我帮你生成了一版分析配置——${getSettingsSummary()}\n\n看看感觉怎么样？确认后我会开始深入分析设定体系，你也可以告诉我想调整的地方。`
-                : `根据你的描述，我帮你生成了一版创作设定——${getSettingsSummary()}\n\n看看感觉怎么样？确认后我会为你选择篇幅并创建角色，你也可以告诉我想调整的地方。`,
+                : `根据你的描述，我帮你生成了一版创作设定——${getSettingsSummary()}\n\n看看感觉怎么样？确认后我会为你${dataRef.current.isScreenplay ? "创建角色和集纲" : "选择篇幅并创建角色"}，你也可以告诉我想调整的地方。`,
               settings: dataRef.current.sceneSettingsCard,
             },
           ]);
@@ -2875,6 +2875,8 @@ export default function ChatPanel() {
       setTimeout(() => {
         const guidePrompt = dataRef.current.isKnowledge
           ? `收到！我大概理解了你想分析的方向。\n\n为了生成更精准的分析配置，你可以再补充一些信息：\n· **分析维度** — 想从哪些角度切入？（世界观、角色体系、叙事结构……）\n· **关注重点** — 有特别想深挖的部分吗？\n· **分析深度** — 概览性梳理还是逐层拆解？\n\n当然，你也可以点击下方按钮直接生成，我会根据已有信息先出一版。`
+          : dataRef.current.isScreenplay
+          ? `收到！这个方向很有潜力。\n\n为了生成更精准的创作设定，可以再补充几个关键信息：\n· **核心设定** — 一句话说清楚故事的核心情境和卖点\n· **故事线** — 主线大致走向是什么？（主角经历了什么、如何变化）\n· **核心冲突** — 驱动整个故事的最大矛盾是什么？\n· **核心卖点** — 最吸引观众的爆点在哪里？（甜虐/反转/搞笑/燃……）\n\n想到什么说什么就行，或者点击下方按钮，我先根据已有信息出一版设定。`
           : `收到！这个方向很有意思。\n\n为了生成更贴合你想法的设定，可以再聊聊：\n· **故事基调** — 整体偏什么风格？（轻松日常 / 热血燃向 / 悬疑烧脑 / 虐心催泪……）\n· **故事走向** — 大致的情节发展？（逆袭 / 探案 / 成长 / 复仇……）\n· **核心冲突** — 主角面临的最大矛盾是什么？\n\n想到什么说什么就行，或者点击下方按钮，我先出一版设定。`;
         setMessages((prev) => [
           ...prev.filter((m) => m.id !== thinkingId),
@@ -5104,6 +5106,8 @@ export default function ChatPanel() {
                                 type: "settings-card",
                                 prompt: dataRef.current.isKnowledge
                                   ? `我帮你生成了一版分析配置——${getSettingsSummary()}\n\n看看感觉怎么样？确认后我会开始深入分析设定体系，你也可以告诉我想调整的地方。`
+                                  : dataRef.current.isScreenplay
+                                  ? `我帮你生成了一版创作设定——${getSettingsSummary()}\n\n看看感觉怎么样？确认后我会为你创建角色和集纲，你也可以告诉我想调整的地方。`
                                   : `我帮你生成了一版创作设定——${getSettingsSummary()}\n\n看看感觉怎么样？确认后我会为你选择篇幅并创建角色，你也可以告诉我想调整的地方。`,
                                 settings: dataRef.current.sceneSettingsCard,
                               },
@@ -5116,7 +5120,7 @@ export default function ChatPanel() {
                       }}
                       className="px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
                     >
-                      {isMarketing ? "用样例商品体验" : "帮我想一个"}
+                      {isMarketing ? "用样例商品体验" : isScreenplay ? "帮我生成一版设定" : "帮我想一个"}
                     </button>
                   </div>
                 )}
