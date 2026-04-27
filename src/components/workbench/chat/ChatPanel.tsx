@@ -1524,7 +1524,7 @@ export default function ChatPanel() {
         {
           id: "model-scripttype",
           sender: "model",
-          type: "subtype-select",
+          type: "scripttype-select",
           prompt: `好的，${label}！最后确认一下输出格式：`,
         },
       ]);
