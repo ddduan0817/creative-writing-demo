@@ -2961,13 +2961,15 @@ export default function ChatPanel() {
               <span className="text-white text-lg font-bold">言</span>
             </div>
             <p className="text-base font-medium text-gray-700 mb-1">
-              {isMarketing ? "嗨！我是你的营销创作助手" : isKnowledge ? "嗨！我是你的知识助手" : "嗨！我是你的创意写作助手"}
+              {isMarketing ? "嗨！我是你的营销创作助手" : isKnowledge ? "嗨！我是你的知识助手" : isScreenplay ? "嗨！我是你的剧本创作助手" : "嗨！我是你的创意写作助手"}
             </p>
             <p className="text-xs text-gray-400 max-w-[240px] leading-relaxed">
               {isMarketing
                 ? "我可以帮你策划短视频脚本、创作直播台本，优化卖点文案，随时向我提问吧！"
                 : isKnowledge
                 ? "我可以帮你拆解书籍、解读内容、创作知识文章，选一个方向开始吧！"
+                : isScreenplay
+                ? "告诉我你想写短剧还是漫剧，有没有故事雏形，我帮你从设定到集纲全程搞定！"
                 : "我可以帮你构思情节、打磨文笔、解答创作疑问，随时向我提问吧！"}
             </p>
           </div>
