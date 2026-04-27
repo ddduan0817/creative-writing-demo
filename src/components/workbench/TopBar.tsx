@@ -403,6 +403,14 @@ const knowledgeTabs = [
   { key: "analysis", label: "分析概览", stage: 1 },
 ] as const;
 
+const screenplayTabs = [
+  { key: "settings", label: "创作设定", stage: 1 },
+  { key: "elements", label: "内容要素", stage: 1 },
+  { key: "spec", label: "剧集规格", stage: 1 },
+  { key: "characters", label: "角色档案", stage: 3 },
+  { key: "outline", label: "集纲", stage: 4 },
+] as const;
+
 type SceneType = "novel" | "screenplay" | "marketing" | "knowledge" | "general";
 
 function MaterialsPanel({
@@ -419,10 +427,13 @@ function MaterialsPanel({
 }) {
   const isMarketing = scene === "marketing";
   const isKnowledge = scene === "knowledge";
+  const isScreenplay = scene === "screenplay";
   const tabs = isMarketing
     ? (marketingTabs as unknown as { key: string; label: string; stage: number }[])
     : isKnowledge
     ? (knowledgeTabs as unknown as { key: string; label: string; stage: number }[])
+    : isScreenplay
+    ? (screenplayTabs as unknown as { key: string; label: string; stage: number }[])
     : (novelTabs as unknown as { key: string; label: string; stage: number }[]);
   const [activeTab, setActiveTab] = useState<string>(tabs[0].key);
 
@@ -477,6 +488,8 @@ function MaterialsPanel({
             ? <MarketingMaterialContent tab={activeTab} creationStage={creationStage} agentStageData={agentStageData} />
             : isKnowledge
             ? <KnowledgeMaterialContent tab={activeTab} creationStage={creationStage} agentStageData={agentStageData} />
+            : isScreenplay
+            ? <ScreenplayMaterialContent tab={activeTab} creationStage={creationStage} agentStageData={agentStageData} />
             : <NovelMaterialContent tab={activeTab} creationStage={creationStage} />
           }
         </div>
@@ -765,6 +778,165 @@ function EmptyPlaceholder() {
 }
 
 // ─── 小说场景资料内容 ─────────────────────────────────────────
+// ─── 剧本场景资料内容 ─────────────────────────────────────────
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function ScreenplayMaterialContent({ tab, creationStage, agentStageData }: { tab: string; creationStage: number; agentStageData: Record<string, any> }) {
+  const requiredStage = screenplayTabs.find((t) => t.key === tab)?.stage ?? 99;
+  if (creationStage < requiredStage) return <EmptyPlaceholder />;
+
+  // 从 agentStageData.settings 中提取对应分组
+  const settings = agentStageData.settings as Record<string, { label: string; value: string }[]> | undefined;
+
+  if (tab === "settings") {
+    const fields = settings?.["创作设定"];
+    if (!fields) return <EmptyPlaceholder />;
+    return (
+      <div className="space-y-6">
+        <div>
+          <h3 className="text-sm font-semibold text-gray-700 mb-3 pb-2 border-b border-gray-100">创作设定</h3>
+          <div className="space-y-3">
+            {fields.map((item) => (
+              <div key={item.label}>
+                <span className="text-xs font-medium text-gray-400 block mb-1">{item.label}</span>
+                <p className="text-sm text-gray-700 leading-relaxed">{item.value}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (tab === "elements") {
+    const fields = settings?.["内容要素"];
+    if (!fields) return <EmptyPlaceholder />;
+    return (
+      <div className="space-y-6">
+        <div>
+          <h3 className="text-sm font-semibold text-gray-700 mb-3 pb-2 border-b border-gray-100">内容要素</h3>
+          <div className="space-y-2.5">
+            {fields.map((item) => (
+              <div key={item.label} className="flex items-start gap-4">
+                <span className="text-sm text-gray-400 w-20 shrink-0">{item.label}</span>
+                <div className="flex flex-wrap gap-1.5">
+                  {item.value.split(" · ").map((tag) => (
+                    <span key={tag} className="px-2.5 py-1 bg-indigo-50 text-indigo-600 text-sm rounded-full">{tag}</span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (tab === "spec") {
+    const fields = settings?.["剧集规格"];
+    if (!fields) return <EmptyPlaceholder />;
+    return (
+      <div className="space-y-6">
+        <div>
+          <h3 className="text-sm font-semibold text-gray-700 mb-3 pb-2 border-b border-gray-100">剧集规格</h3>
+          <div className="space-y-2.5">
+            {fields.map((item) => (
+              <div key={item.label} className="flex items-start gap-4">
+                <span className="text-sm text-gray-400 w-24 shrink-0">{item.label}</span>
+                <span className="text-sm text-gray-700">{item.value}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (tab === "characters") {
+    const charData = agentStageData.characters as import("./chat/screenplayMockData").CharacterCardData | undefined;
+    if (!charData) return <EmptyPlaceholder />;
+    return (
+      <div className="space-y-6">
+        <div>
+          <h3 className="text-sm font-semibold text-gray-700 mb-3 pb-2 border-b border-gray-100">女主角</h3>
+          <div className="bg-purple-50/50 rounded-lg p-4 space-y-2.5">
+            <span className="text-base font-bold text-purple-600">{charData.femaleLead.name}</span>
+            {[
+              { label: "身份", value: charData.femaleLead.identity },
+              { label: "外貌", value: charData.femaleLead.appearance },
+              { label: "性格", value: charData.femaleLead.personality },
+              { label: "背景", value: charData.femaleLead.background },
+            ].map((item) => (
+              <div key={item.label} className="flex gap-3">
+                <span className="text-xs text-purple-400 w-10 shrink-0 pt-0.5">{item.label}</span>
+                <p className="text-sm text-gray-700 leading-relaxed">{item.value}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div>
+          <h3 className="text-sm font-semibold text-gray-700 mb-3 pb-2 border-b border-gray-100">男主角</h3>
+          <div className="bg-blue-50/50 rounded-lg p-4 space-y-2.5">
+            <span className="text-base font-bold text-blue-600">{charData.maleLead.name}</span>
+            {[
+              { label: "身份", value: charData.maleLead.identity },
+              { label: "外貌", value: charData.maleLead.appearance },
+              { label: "性格", value: charData.maleLead.personality },
+              { label: "背景", value: charData.maleLead.background },
+            ].map((item) => (
+              <div key={item.label} className="flex gap-3">
+                <span className="text-xs text-blue-400 w-10 shrink-0 pt-0.5">{item.label}</span>
+                <p className="text-sm text-gray-700 leading-relaxed">{item.value}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div>
+          <h3 className="text-sm font-semibold text-gray-700 mb-3 pb-2 border-b border-gray-100">关键配角</h3>
+          <div className="space-y-2.5">
+            {charData.supporting.map((c) => (
+              <div key={c.name} className="bg-gray-50/60 rounded-lg p-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-sm font-medium text-amber-600">{c.name}</span>
+                  <span className="text-[11px] text-gray-400">{c.role}</span>
+                </div>
+                <p className="text-sm text-gray-600 leading-relaxed">{c.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div>
+          <h3 className="text-sm font-semibold text-gray-700 mb-3 pb-2 border-b border-gray-100">人物关系</h3>
+          <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">{charData.relationships}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (tab === "outline") {
+    const outlineData = agentStageData.outline as import("./chat/screenplayMockData").OutlineCardData | undefined;
+    if (!outlineData) return <EmptyPlaceholder />;
+    return (
+      <div className="space-y-3">
+        <div className="flex items-center gap-3 mb-4">
+          <span className="px-3 py-1.5 bg-indigo-50 text-indigo-600 text-sm rounded-full font-medium">{outlineData.structure}</span>
+          <span className="text-sm text-gray-400">{outlineData.totalChapters}集 · {outlineData.estimatedWords}</span>
+        </div>
+        {outlineData.chapters.map((ch, i) => (
+          <div key={i} className="bg-gray-50/60 rounded-lg p-3.5">
+            <div className="flex items-center gap-2.5 mb-1.5">
+              <h4 className="text-sm font-semibold text-gray-800">{ch.title}</h4>
+              <span className="px-2 py-0.5 text-[10px] rounded-full bg-indigo-50 text-indigo-500 border border-indigo-100">{ch.keyEvent}</span>
+            </div>
+            <p className="text-sm text-gray-600 leading-relaxed">{ch.summary}</p>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  return null;
+}
+
 function NovelMaterialContent({ tab, creationStage }: { tab: string; creationStage: number }) {
   const requiredStage = novelTabs.find((t) => t.key === tab)?.stage ?? 99;
   if (creationStage < requiredStage) {
