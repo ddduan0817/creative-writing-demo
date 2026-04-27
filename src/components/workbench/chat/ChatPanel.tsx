@@ -5070,7 +5070,7 @@ export default function ChatPanel() {
                   </div>
                   <span className="text-xs text-gray-400">文心</span>
                 </div>
-                <div className="text-sm text-gray-700 leading-relaxed pl-8 whitespace-pre-wrap">{msg.prompt}</div>
+                <div className="text-sm text-gray-700 leading-relaxed pl-8 whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: msg.prompt.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} />
 
                 {/* Entry button */}
                 {flowMode === "none" && (
