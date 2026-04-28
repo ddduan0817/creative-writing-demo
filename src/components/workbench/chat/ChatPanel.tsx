@@ -1599,8 +1599,9 @@ export default function ChatPanel() {
           prompt: `好的，我们来创作一部${sceneLabel}${typeLabel}！\n\n为了生成精准的创作设定，可以跟我聊聊你的故事构思：\n· **核心设定** — 一句话说清楚故事的核心情境和卖点\n· **故事线** — 主线大致走向是什么？（主角经历了什么、如何变化）\n· **核心冲突** — 驱动整个故事的最大矛盾是什么？\n· **核心卖点** — 最吸引观众的爆点在哪里？（甜虐 / 反转 / 搞笑 / 燃……）\n\n有小说原著想改编的话，直接上传文件我来帮你提取设定。\n没有想法也没关系，点击下方按钮让我来帮你找灵感。`,
         },
       ]);
+      setCurrentRound(1);
     }, 1500);
-  }, [screenplaySubtype]);
+  }, [screenplaySubtype, setCurrentRound]);
 
   // Handle novel length selection (now happens after settings confirm)
   const handleLengthSelect = useCallback((length: "short" | "medium" | "long") => {
