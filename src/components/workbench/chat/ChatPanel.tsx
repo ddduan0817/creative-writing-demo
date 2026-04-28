@@ -3490,7 +3490,7 @@ export default function ChatPanel() {
                 <p className="text-sm text-gray-700 leading-relaxed pl-8">{msg.prompt}</p>
 
                 {!selectedScene ? (
-                  <div className="pl-8 grid grid-cols-3 gap-2">
+                  <div className={`pl-8 grid gap-2 ${isKnowledge ? "grid-cols-2" : "grid-cols-3"}`}>
                     {scenes.map((s: { id: string; label: string; desc: string; icon: string }) => (
                       <button
                         key={s.id}
@@ -3857,10 +3857,7 @@ export default function ChatPanel() {
                 </div>
                 <p className="text-sm text-gray-700 leading-relaxed pl-8">{msg.prompt}</p>
                 <div className="pl-8 space-y-2">
-                  <div className="flex items-center gap-3 p-4 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50/50 justify-center">
-                    <FileUp className="w-5 h-5 text-gray-400" />
-                    <span className="text-sm text-gray-500">支持 PDF、EPUB、TXT 格式</span>
-                  </div>
+                  <p className="text-xs text-gray-400">支持 PDF、EPUB、TXT 格式，点击对话框左侧 <span className="font-medium text-gray-500">+</span> 上传文件</p>
                   <button
                     onClick={() => {
                       // Simulate file upload
@@ -5444,67 +5441,76 @@ export default function ChatPanel() {
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => quickConfirm(isMarketing ? "确认商品信息，选择内容类型" : "确认设定，进入下一步")}
-                          data-tip={isMarketing ? "确认进入内容类型选择" : isScreenplay ? "确认进入角色创建" : "确认进入篇幅选择"}
+                          data-tip={
+                            isMarketing ? "确认进入内容类型选择"
+                            : isKnowledge
+                              ? knowledgeAgentRef.current === "book_analysis" ? "确认分析概览，选择拆解模式"
+                                : knowledgeAgentRef.current === "content_interpret" ? "确认内容，生成精华笔记"
+                                : "确认素材，选择播客风格"
+                            : isScreenplay ? "确认进入角色创建" : "确认进入篇幅选择"
+                          }
                           className="flex-1 px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
                         >
                           下一步
                         </button>
-                        <button
-                          onClick={() => {
-                            setMessages((prev) => [...prev, { id: `user-regen-${Date.now()}`, sender: "user" as const, type: "text" as const, content: "换一换" }]);
-                            if (isMarketing) {
-                              const thinkingId = `thinking-regen-settings`;
-                              setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
-                              setTimeout(() => {
-                                setMessages((prev) => [
-                                  ...prev.filter((m) => m.id !== thinkingId),
-                                  { id: `model-settings-${Date.now()}`, sender: "model" as const, type: "settings-card" as const, prompt: "已重新整理商品信息，看看这个怎么样？", settings: marketingProductInfoCard },
-                                ]);
-                                setAgentStageData("settings", marketingProductInfoCard);
-                              }, 2000);
-                            } else if (isScreenplay) {
-                              // Screenplay: toggle between default and alt settings based on subtype×scriptType
-                              novelVariantRef.current = novelVariantRef.current === 0 ? 1 : 0;
-                              const isAltVariant = novelVariantRef.current === 1;
-                              let altData: Record<string, { label: string; value: string }[]>;
-                              if (screenplaySubtype === "comic_drama" && screenplayScriptType === "storyboard") {
-                                altData = isAltVariant ? screenplayMockSettings_comic_storyboard_alt : screenplayMockSettings_comic_storyboard;
-                              } else if (screenplaySubtype === "comic_drama") {
-                                altData = isAltVariant ? screenplayMockSettings_comic_script_alt : screenplayMockSettings_comic_script;
-                              } else if (screenplayScriptType === "storyboard") {
-                                altData = isAltVariant ? screenplayMockSettings_short_storyboard_alt : screenplayMockSettings_short_storyboard;
+                        {!isKnowledge && (
+                          <button
+                            onClick={() => {
+                              setMessages((prev) => [...prev, { id: `user-regen-${Date.now()}`, sender: "user" as const, type: "text" as const, content: "换一换" }]);
+                              if (isMarketing) {
+                                const thinkingId = `thinking-regen-settings`;
+                                setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+                                setTimeout(() => {
+                                  setMessages((prev) => [
+                                    ...prev.filter((m) => m.id !== thinkingId),
+                                    { id: `model-settings-${Date.now()}`, sender: "model" as const, type: "settings-card" as const, prompt: "已重新整理商品信息，看看这个怎么样？", settings: marketingProductInfoCard },
+                                  ]);
+                                  setAgentStageData("settings", marketingProductInfoCard);
+                                }, 2000);
+                              } else if (isScreenplay) {
+                                // Screenplay: toggle between default and alt settings based on subtype×scriptType
+                                novelVariantRef.current = novelVariantRef.current === 0 ? 1 : 0;
+                                const isAltVariant = novelVariantRef.current === 1;
+                                let altData: Record<string, { label: string; value: string }[]>;
+                                if (screenplaySubtype === "comic_drama" && screenplayScriptType === "storyboard") {
+                                  altData = isAltVariant ? screenplayMockSettings_comic_storyboard_alt : screenplayMockSettings_comic_storyboard;
+                                } else if (screenplaySubtype === "comic_drama") {
+                                  altData = isAltVariant ? screenplayMockSettings_comic_script_alt : screenplayMockSettings_comic_script;
+                                } else if (screenplayScriptType === "storyboard") {
+                                  altData = isAltVariant ? screenplayMockSettings_short_storyboard_alt : screenplayMockSettings_short_storyboard;
+                                } else {
+                                  altData = isAltVariant ? screenplayMockSettings_short_script_alt : screenplayMockSettings_short_script;
+                                }
+                                const thinkingId = `thinking-regen-settings`;
+                                setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+                                setTimeout(() => {
+                                  setMessages((prev) => [
+                                    ...prev.filter((m) => m.id !== thinkingId),
+                                    { id: `model-settings-${Date.now()}`, sender: "model" as const, type: "settings-card" as const, prompt: "已重新生成一版设定，看看这个怎么样？", settings: altData },
+                                  ]);
+                                  setAgentStageData("settings", altData);
+                                }, 2000);
                               } else {
-                                altData = isAltVariant ? screenplayMockSettings_short_script_alt : screenplayMockSettings_short_script;
+                                novelVariantRef.current = novelVariantRef.current === 0 ? 1 : 0;
+                                const altData = novelVariantRef.current === 1 ? mockSettingsAlt : mockSettings;
+                                const thinkingId = `thinking-regen-settings`;
+                                setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+                                setTimeout(() => {
+                                  setMessages((prev) => [
+                                    ...prev.filter((m) => m.id !== thinkingId),
+                                    { id: `model-settings-${Date.now()}`, sender: "model" as const, type: "settings-card" as const, prompt: "已重新生成一版设定，看看这个怎么样？", settings: altData },
+                                  ]);
+                                  setAgentStageData("settings", altData);
+                                }, 2000);
                               }
-                              const thinkingId = `thinking-regen-settings`;
-                              setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
-                              setTimeout(() => {
-                                setMessages((prev) => [
-                                  ...prev.filter((m) => m.id !== thinkingId),
-                                  { id: `model-settings-${Date.now()}`, sender: "model" as const, type: "settings-card" as const, prompt: "已重新生成一版设定，看看这个怎么样？", settings: altData },
-                                ]);
-                                setAgentStageData("settings", altData);
-                              }, 2000);
-                            } else {
-                              novelVariantRef.current = novelVariantRef.current === 0 ? 1 : 0;
-                              const altData = novelVariantRef.current === 1 ? mockSettingsAlt : mockSettings;
-                              const thinkingId = `thinking-regen-settings`;
-                              setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
-                              setTimeout(() => {
-                                setMessages((prev) => [
-                                  ...prev.filter((m) => m.id !== thinkingId),
-                                  { id: `model-settings-${Date.now()}`, sender: "model" as const, type: "settings-card" as const, prompt: "已重新生成一版设定，看看这个怎么样？", settings: altData },
-                                ]);
-                                setAgentStageData("settings", altData);
-                              }, 2000);
-                            }
-                          }}
-                          data-tip={isMarketing ? "重新生成商品信息" : "重新生成设定"}
-                          className="flex-1 px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
-                        >
-                          换一换
-                        </button>
-                        {!isMarketing && (
+                            }}
+                            data-tip={isMarketing ? "重新生成商品信息" : "重新生成设定"}
+                            className="flex-1 px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
+                          >
+                            换一换
+                          </button>
+                        )}
+                        {!isMarketing && !isKnowledge && (
                           <button
                             onClick={() => {
                               setMessages((prev) => [...prev, { id: `user-refine-settings-${Date.now()}`, sender: "user" as const, type: "text" as const, content: "继续完善" }]);
