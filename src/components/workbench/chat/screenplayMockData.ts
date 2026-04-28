@@ -399,7 +399,7 @@ export interface OutlineCardData {
 export const screenplayMockOutlineCard: OutlineCardData = {
   structure: "S×4 + A×6 + B×30 · 道德困境×热血逆袭×虐后甜HE",
   totalChapters: 40,
-  estimatedWords: "40集 × 90秒",
+  estimatedWords: "每集90秒",
   chapters: [
     { title: "第1集(S) 命书燃尽之夜", summary: "苏辰在古庙接过师父玄衍真人递来的逆天笔，抹去命书死线。城西无辜乞丐替死——改命代价首次降临。命殿执令使洛瑶感应到命书异动，剑指古庙。", keyEvent: "觉醒开场 · 道德困境埋线 · 追杀登场" },
     { title: "第2集(B) 逃亡初章", summary: "苏辰改命逃亡，洛瑶御剑追击，命锁对逆天笔产生异常震动。玄衍真人暗中掩护，留下染血道袍与烧焦密令碎片。", keyEvent: "追杀正式开始 · 命锁异常伏笔" },
