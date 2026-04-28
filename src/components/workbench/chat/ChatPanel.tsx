@@ -1762,6 +1762,8 @@ export default function ChatPanel() {
               type: "character-card",
               prompt: flowMode === "inspiration"
                 ? "根据你的灵感偏好，我更新了角色档案。看看现在怎么样？"
+                : dataRef.current.isScreenplay
+                ? "角色创建完成！你可以在编辑区查看完整的角色档案，觉得没问题就可以开始生成集纲了，想调整随时告诉我。"
                 : "角色创建完成！你可以在编辑区查看完整的角色档案，觉得没问题就可以开始生成大纲了，想调整随时告诉我。",
               data: dataRef.current.sceneCharacterCard,
             },
@@ -1949,8 +1951,8 @@ export default function ChatPanel() {
           const doneContent = isSingleChapter
             ? `角色档案完成！正在为你生成正文。\n\n《${chTitle}》生成完毕！你可以在编辑区查看。\n\n想调整哪里直接告诉我，比如「开头节奏太慢」「对话再自然一些」。`
             : chapterIndex < totalChapters - 1
-            ? `「${chTitle}」生成完毕！你可以在编辑区查看。\n\n想调整直接告诉我，满意就点击下方「继续」写下一章。`
-            : `「${chTitle}」生成完毕！全部 ${totalChapters} 章已完成。\n\n想调整任何章节直接告诉我，比如「第三章结尾再加点悬念」。`;
+            ? `「${chTitle}」生成完毕！你可以在编辑区查看。\n\n想调整直接告诉我，满意就点击下方「继续」${dataRef.current.isScreenplay ? "写下一集" : "写下一章"}。`
+            : `「${chTitle}」生成完毕！全部 ${totalChapters} ${dataRef.current.isScreenplay ? "集" : "章"}已完成。\n\n想调整任何${dataRef.current.isScreenplay ? "集" : "章节"}直接告诉我，比如「${dataRef.current.isScreenplay ? "第三集结尾再加个反转" : "第三章结尾再加点悬念"}」。`;
           // Find and update the "正在生成" message for this chapter
           const genMsgId = chapterIndex === 0 ? "model-write-start" : `model-gen-ch-${chapterIndex}`;
           setMessages((prev) =>
@@ -2391,7 +2393,7 @@ export default function ChatPanel() {
               id: `model-outline-${Date.now()}`,
               sender: "model" as const,
               type: "outline-card" as const,
-              prompt: "好的，已根据你的要求调整了大纲。看看现在怎么样？",
+              prompt: dataRef.current.isScreenplay ? "好的，已根据你的要求调整了集纲。看看现在怎么样？" : "好的，已根据你的要求调整了大纲。看看现在怎么样？",
               data: dataRef.current.sceneOutlineCard,
             },
           ]);
@@ -2451,28 +2453,27 @@ export default function ChatPanel() {
         return;
       }
 
-      // Screenplay: skip worldbuilding, go directly to character rounds
+      // Screenplay: skip worldbuilding, directly show character card (same as novel pattern)
       if (dataRef.current.isScreenplay) {
-        const thinkingId = `thinking-sp-char-r1`;
+        const thinkingId = `thinking-sp-char-card`;
         setTimeout(() => {
           setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
         }, 300);
 
         setTimeout(() => {
-          const firstCharRound = dataRef.current.sceneCharacterRounds[0];
           setMessages((prev) => [
             ...prev.filter((m) => m.id !== thinkingId),
             {
-              id: "model-r9",
+              id: "model-characters",
               sender: "model",
-              type: "inspiration",
-              prompt: firstCharRound.prompt,
-              cards: firstCharRound.cards,
-              round: 9,
+              type: "character-card",
+              prompt: "设定完成！以下是基础角色档案，看看感觉怎么样？",
+              data: dataRef.current.sceneCharacterCard,
             },
           ]);
-          setCurrentRound(9);
-          setCreationStage(2);
+          setCurrentRound(12);
+          setCreationStage(3);
+          setAgentStageData("characters", dataRef.current.sceneCharacterCard);
         }, 2000);
         return;
       }
@@ -2720,6 +2721,8 @@ export default function ChatPanel() {
               ? "角色确认！以下是分幕脚本，看看感觉怎么样？确认后就可以开始生成详细内容了。"
               : dataRef.current.isKnowledge
               ? "角色确认！以下是结构化分析大纲，确认后就可以开始生成详细报告了。"
+              : dataRef.current.isScreenplay
+              ? "角色档案完成！以下是集纲规划，看看感觉怎么样？确认后就可以开始逐集创作了。"
               : "角色确认！以下是故事大纲，看看感觉怎么样？确认后就可以开始写正文了。",
             data: dataRef.current.sceneOutlineCard,
           },
@@ -2753,6 +2756,8 @@ export default function ChatPanel() {
               ? `大纲确认！共 ${chapterTitles.length} 幕，正在生成「${chapterTitles[0]}」...`
               : dataRef.current.isKnowledge
               ? `大纲确认！共 ${chapterTitles.length} 篇，正在生成「${chapterTitles[0]}」...`
+              : dataRef.current.isScreenplay
+              ? `集纲确认！共 ${chapterTitles.length} 集，正在生成「${chapterTitles[0]}」...`
               : `大纲确认！共 ${chapterTitles.length} 章，正在生成「${chapterTitles[0]}」...`,
           },
         ]);
@@ -5625,10 +5630,10 @@ export default function ChatPanel() {
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => quickConfirm("确认角色，进入下一步")}
-                          data-tip={novelLength === "short" ? "确认直接生成正文" : "确认进入大纲生成"}
+                          data-tip={isScreenplay ? "确认进入集纲生成" : novelLength === "short" ? "确认直接生成正文" : "确认进入大纲生成"}
                           className="flex-1 px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
                         >
-                          {novelLength === "short" ? "确认，开始写正文" : "下一步"}
+                          {isScreenplay ? "下一步" : novelLength === "short" ? "确认，开始写正文" : "下一步"}
                         </button>
                         <button
                           onClick={() => {
@@ -5718,7 +5723,7 @@ export default function ChatPanel() {
                     </div>
 
                     <div className="relative px-4 py-2.5 text-center border-t border-gray-50">
-                      <span className="text-[11px] text-gray-400">点击在左侧预览区查看完整大纲</span>
+                      <span className="text-[11px] text-gray-400">{isScreenplay ? "点击在左侧预览区查看完整集纲" : "点击在左侧预览区查看完整大纲"}</span>
                     </div>
                   </div>
                   {/* Action buttons */}
@@ -5726,11 +5731,11 @@ export default function ChatPanel() {
                     <div className="mt-2.5 space-y-2">
                       <div className="flex items-center gap-2">
                         <button
-                          onClick={() => quickConfirm("确认大纲，开始写正文")}
-                          data-tip="确认大纲并逐章生成正文"
+                          onClick={() => quickConfirm(isScreenplay ? "确认集纲，开始逐集创作" : "确认大纲，开始写正文")}
+                          data-tip={isScreenplay ? "确认集纲并逐集生成正文" : "确认大纲并逐章生成正文"}
                           className="flex-1 px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
                         >
-                          开始写正文
+                          {isScreenplay ? "开始逐集创作" : "开始写正文"}
                         </button>
                       </div>
                     </div>
@@ -5772,6 +5777,8 @@ export default function ChatPanel() {
                 : currentRound === 13
                 ? scene === "marketing"
                   ? "想调整什么？比如「第三幕加个反转」「结尾CTA再强一点」..."
+                  : scene === "screenplay"
+                  ? "想调整什么？比如「第三集加个反转」「结局改成开放式」..."
                   : "想调整什么？比如「第三章加个反转」「结局改成开放式」..."
                 : currentRound === 20
                 ? marketingPlatformRef.current === "live_script"
