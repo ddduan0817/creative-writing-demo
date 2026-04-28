@@ -148,26 +148,26 @@ export const screenplayMockSettings_comic_script: Record<string, { label: string
 
 export const screenplayMockSettings_comic_storyboard: Record<string, { label: string; value: string }[]> = {
   "创作设定": [
-    { label: "核心设定", value: "命域大陆少年苏辰觉醒上古逆天笔，改命必转移厄运，身体逐渐崩解化为星光" },
-    { label: "故事线", value: "苏辰觉醒逆天笔遭命殿追杀，与执令使洛瑶从对立走向并肩，揭露命书系统是堕神收割装置，最终以命换命重写规则" },
-    { label: "核心冲突", value: "改一命必转移厄运给无辜者 · 最终需以自身为墨才能重写规则" },
-    { label: "核心卖点", value: "道德困境×热血逆袭×虐后甜HE" },
+    { label: "核心设定", value: "银河边境最后一位界渡者凌霄，独自穿越维度裂缝寻找失联母星，途中意外同行璃音与幽渊，三人各有隐秘，共赴星界深处" },
+    { label: "故事线", value: "凌霄私自闯入禁区寻找母星→途中收获伙伴→在维度冒险中逐渐打开心防→最终在母星结界里与母亲重逢，幽渊完成族人遗愿重生" },
+    { label: "核心冲突", value: "个人执念 vs 连接与信任 · 孤身前行的习惯 vs 同行者带来的改变" },
+    { label: "核心卖点", value: "维度冒险×孤独成长×三人情感羁绊×HE大团圆" },
   ],
   "内容要素": [
-    { label: "受众", value: "男女通吃" },
-    { label: "题材", value: "玄幻 · 热血 · 言情" },
-    { label: "时空", value: "架空命域大陆" },
-    { label: "风格调性", value: "热血 · 虐心 · 燃向" },
+    { label: "受众", value: "男女通吃 · 科幻向" },
+    { label: "题材", value: "科幻 · 冒险 · 治愈成长" },
+    { label: "时空", value: "银河边境 · 多维度宇宙" },
+    { label: "风格调性", value: "孤独感 · 燃向 · 末尾治愈" },
     { label: "结局", value: "HE" },
   ],
   "剧集规格": [
     { label: "场景类型", value: "漫剧" },
-    { label: "输出格式", value: "脚本（分格 + 台词 + 情绪）" },
-    { label: "集数", value: "40集" },
-    { label: "单集时长", value: "90秒" },
-    { label: "画面方向", value: "竖屏" },
-    { label: "单集镜头数", value: "8-12格/集" },
-    { label: "画风", value: "玄幻热血 · 国漫风" },
+    { label: "输出格式", value: "分镜脚本（格号 + 版式 + 绘制指引 + 对白）" },
+    { label: "集数", value: "25集" },
+    { label: "单集页数", value: "8-10页/集" },
+    { label: "画面方向", value: "横屏" },
+    { label: "单集格数", value: "30-40格/集" },
+    { label: "画风", value: "赛博科幻 · 星云色调 · 宽幅横构图" },
   ],
 };
 
@@ -247,26 +247,26 @@ export const screenplayMockSettings_comic_script_alt: Record<string, { label: st
 
 export const screenplayMockSettings_comic_storyboard_alt: Record<string, { label: string; value: string }[]> = {
   "创作设定": [
-    { label: "核心设定", value: "豪门赘婿被迫离婚后逆袭归来，前妻才发现他是千亿集团真正的掌舵人" },
-    { label: "故事线", value: "陈墨隐忍三年终于离婚，以商业奇才的真实身份席卷商界，前妻苏雨晴在一次次交锋中看清了当年的误解" },
-    { label: "核心冲突", value: "离婚后的重逢 · 身份反转 · 复仇还是复合" },
-    { label: "核心卖点", value: "爽文逆袭 · 反转打脸 · 前期虐后期甜" },
+    { label: "核心设定", value: "末世废土上，少女机师驾驶残破机甲守护最后一座地下城，敌人是被污染意识控制的人类同胞" },
+    { label: "故事线", value: "叶鸢意外激活了被认为已损毁的先驱机甲，与机甲内残存AI意识共生，在保卫家园的战斗中逐渐揭开污染源的真相" },
+    { label: "核心冲突", value: "消灭敌人 vs 拯救被控制的人 · 机甲AI的存在意义" },
+    { label: "核心卖点", value: "机甲热血×末世治愈×人与AI羁绊×揭秘反转" },
   ],
   "内容要素": [
-    { label: "受众", value: "男频 · 女频通吃" },
-    { label: "题材", value: "商战 · 豪门 · 言情" },
-    { label: "时空", value: "现代都市" },
-    { label: "风格调性", value: "爽文 · 反转 · 打脸" },
+    { label: "受众", value: "男女通吃 · 机甲粉" },
+    { label: "题材", value: "科幻 · 机甲 · 末世" },
+    { label: "时空", value: "近未来废土" },
+    { label: "风格调性", value: "热血 · 悲壮 · 后期治愈" },
     { label: "结局", value: "HE" },
   ],
   "剧集规格": [
     { label: "场景类型", value: "漫剧" },
-    { label: "输出格式", value: "脚本（分格 + 台词 + 情绪）" },
-    { label: "集数", value: "80集" },
-    { label: "单集时长", value: "90秒" },
-    { label: "画面方向", value: "竖屏" },
-    { label: "单集镜头数", value: "8-12格/集" },
-    { label: "画风", value: "写实 · 偏写实日漫风" },
+    { label: "输出格式", value: "分镜脚本（格号 + 版式 + 绘制指引 + 对白）" },
+    { label: "集数", value: "30集" },
+    { label: "单集页数", value: "8-10页/集" },
+    { label: "画面方向", value: "横屏" },
+    { label: "单集格数", value: "30-40格/集" },
+    { label: "画风", value: "赛博机甲风 · 高对比色调 · 动势感强" },
   ],
 };
 
