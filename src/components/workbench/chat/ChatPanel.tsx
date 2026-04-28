@@ -5709,7 +5709,7 @@ export default function ChatPanel() {
                     <div className="max-h-[220px] overflow-y-auto">
                       {/* Structure info */}
                       <div className="px-4 py-3">
-                        <span className="text-xs text-gray-400">{msg.data.totalChapters}章 · {msg.data.estimatedWords}</span>
+                        <span className="text-xs text-gray-400">{msg.data.totalChapters}{isScreenplay ? "集" : "章"} · {msg.data.estimatedWords}</span>
                       </div>
                       <div className="border-t border-gray-100" />
                       {/* Chapter list */}
