@@ -31,10 +31,13 @@ import {
   screenplayCharacterRounds,
   screenplayMockCharacterCard,
   screenplayMockCharacterCard_comic_script,
+  screenplayMockCharacterCard_short_storyboard,
   screenplayMockOutlineCard,
   screenplayMockOutlineCard_comic_script,
+  screenplayMockOutlineCard_short_storyboard,
   screenplayMockChapterTexts,
   screenplayMockChapterTexts_comic_script,
+  screenplayMockChapterTexts_short_storyboard,
 } from "./screenplayMockData";
 import {
   marketingInspirationRounds,
@@ -1338,6 +1341,7 @@ export default function ChatPanel() {
   const sceneCharacterCard = useMemo(() => {
     if (isScreenplay) {
       if (screenplaySubtype === "comic_drama" && screenplayScriptType === "script") return screenplayMockCharacterCard_comic_script;
+      if (screenplaySubtype === "short_drama" && screenplayScriptType === "storyboard") return screenplayMockCharacterCard_short_storyboard;
       return screenplayMockCharacterCard;
     }
     if (isMarketing) return marketingMockCharacterCard;
@@ -1346,6 +1350,7 @@ export default function ChatPanel() {
   const sceneOutlineCard = useMemo(() => {
     if (isScreenplay) {
       if (screenplaySubtype === "comic_drama" && screenplayScriptType === "script") return screenplayMockOutlineCard_comic_script;
+      if (screenplaySubtype === "short_drama" && screenplayScriptType === "storyboard") return screenplayMockOutlineCard_short_storyboard;
       return screenplayMockOutlineCard;
     }
     if (isMarketing) return marketingMockOutlineCard;
@@ -1354,6 +1359,7 @@ export default function ChatPanel() {
   const sceneChapterTexts = useMemo(() => {
     if (isScreenplay) {
       if (screenplaySubtype === "comic_drama" && screenplayScriptType === "script") return screenplayMockChapterTexts_comic_script;
+      if (screenplaySubtype === "short_drama" && screenplayScriptType === "storyboard") return screenplayMockChapterTexts_short_storyboard;
       return screenplayMockChapterTexts;
     }
     if (isMarketing) return marketingMockChapterTexts;
@@ -1362,6 +1368,7 @@ export default function ChatPanel() {
   const sceneTitle = useMemo(() => {
     if (isScreenplay) {
       if (screenplaySubtype === "comic_drama" && screenplayScriptType === "script") return "记忆猎人";
+      if (screenplaySubtype === "short_drama" && screenplayScriptType === "storyboard") return "战神归来";
       return "逆天改命";
     }
     if (isMarketing) return "焕颜精华";
