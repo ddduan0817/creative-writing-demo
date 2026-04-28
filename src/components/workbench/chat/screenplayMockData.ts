@@ -122,25 +122,26 @@ export const screenplayMockSettings_short_storyboard: Record<string, { label: st
 
 export const screenplayMockSettings_comic_script: Record<string, { label: string; value: string }[]> = {
   "创作设定": [
-    { label: "核心设定", value: "命域大陆少年苏辰觉醒上古逆天笔，改命必转移厄运，身体逐渐崩解化为星光" },
-    { label: "故事线", value: "苏辰觉醒逆天笔遭命殿追杀，与执令使洛瑶从对立走向并肩，揭露命书系统是堕神收割装置，最终以命换命重写规则" },
-    { label: "核心冲突", value: "改一命必转移厄运给无辜者 · 最终需以自身为墨才能重写规则" },
-    { label: "核心卖点", value: "道德困境×热血逆袭×虐后甜HE" },
+    { label: "核心设定", value: "命域大陆少年苏辰觉醒上古逆天笔，改命必转移厄运给无辜者，最终以自身命书为墨逆写世界规则" },
+    { label: "故事线", value: "苏辰觉醒逆天笔遭命殿追杀，与执令使洛瑶从对立走向并肩，揭露命书系统是堕神收割装置，最终以命换命斩断命书系统，星光新生" },
+    { label: "核心冲突", value: "改一命必转移厄运给无辜者 · 最终需以自身命书为墨才能重写规则" },
+    { label: "核心卖点", value: "命运压迫×热血逆袭×壮烈牺牲×虐后甜HE" },
   ],
   "内容要素": [
-    { label: "受众", value: "男女通吃" },
-    { label: "题材", value: "玄幻 · 热血 · 言情" },
-    { label: "时空", value: "架空命域大陆" },
-    { label: "风格调性", value: "热血 · 虐心 · 燃向" },
-    { label: "结局", value: "HE" },
+    { label: "受众", value: "15-30岁男女，偏好热血燃向+虐心情感+宏大世界观" },
+    { label: "题材", value: "玄幻 · 逆天改命 · 命运哲学" },
+    { label: "时空", value: "架空「命域大陆」· 东方玄幻风格" },
+    { label: "风格调性", value: "前期命运压迫→中期觉醒反抗→后期壮烈牺牲；热血与虐心并重" },
+    { label: "人物关系", value: "苏辰（改命者）↔ 洛瑶（执令使→倒戈）↔ 玄衍真人（师父/牺牲者）↔ 命主（堕神）" },
+    { label: "结局", value: "虐后甜HE · 星光新生" },
   ],
   "剧集规格": [
     { label: "场景类型", value: "漫剧" },
     { label: "输出格式", value: "剧本（场景头 + 台词 + 动作）" },
+    { label: "屏幕方向", value: "横屏" },
     { label: "集数", value: "40集" },
-    { label: "单集时长", value: "90秒" },
-    { label: "画面方向", value: "竖屏" },
-    { label: "画风", value: "玄幻热血 · 国漫风" },
+    { label: "单集时长", value: "120秒" },
+    { label: "付费策略", value: "养用户模式 · 前7集免费 · 2个付费卡点（第8-9集 / 第35-37集区间）" },
   ],
 };
 
