@@ -30,8 +30,11 @@ import {
   screenplayMockWorldbuilding,
   screenplayCharacterRounds,
   screenplayMockCharacterCard,
+  screenplayMockCharacterCard_comic_script,
   screenplayMockOutlineCard,
+  screenplayMockOutlineCard_comic_script,
   screenplayMockChapterTexts,
+  screenplayMockChapterTexts_comic_script,
 } from "./screenplayMockData";
 import {
   marketingInspirationRounds,
@@ -1333,26 +1336,38 @@ export default function ChatPanel() {
     return characterRounds;
   }, [isScreenplay, isMarketing]);
   const sceneCharacterCard = useMemo(() => {
-    if (isScreenplay) return screenplayMockCharacterCard;
+    if (isScreenplay) {
+      if (screenplaySubtype === "comic_drama" && screenplayScriptType === "script") return screenplayMockCharacterCard_comic_script;
+      return screenplayMockCharacterCard;
+    }
     if (isMarketing) return marketingMockCharacterCard;
     return mockCharacterCard;
-  }, [isScreenplay, isMarketing]);
+  }, [isScreenplay, isMarketing, screenplaySubtype, screenplayScriptType]);
   const sceneOutlineCard = useMemo(() => {
-    if (isScreenplay) return screenplayMockOutlineCard;
+    if (isScreenplay) {
+      if (screenplaySubtype === "comic_drama" && screenplayScriptType === "script") return screenplayMockOutlineCard_comic_script;
+      return screenplayMockOutlineCard;
+    }
     if (isMarketing) return marketingMockOutlineCard;
     return mockOutlineCard;
-  }, [isScreenplay, isMarketing]);
+  }, [isScreenplay, isMarketing, screenplaySubtype, screenplayScriptType]);
   const sceneChapterTexts = useMemo(() => {
-    if (isScreenplay) return screenplayMockChapterTexts;
+    if (isScreenplay) {
+      if (screenplaySubtype === "comic_drama" && screenplayScriptType === "script") return screenplayMockChapterTexts_comic_script;
+      return screenplayMockChapterTexts;
+    }
     if (isMarketing) return marketingMockChapterTexts;
     return mockChapterTexts;
-  }, [isScreenplay, isMarketing]);
+  }, [isScreenplay, isMarketing, screenplaySubtype, screenplayScriptType]);
   const sceneTitle = useMemo(() => {
-    if (isScreenplay) return "雨夜追凶";
+    if (isScreenplay) {
+      if (screenplaySubtype === "comic_drama" && screenplayScriptType === "script") return "记忆猎人";
+      return "逆天改命";
+    }
     if (isMarketing) return "焕颜精华";
     if (isKnowledge) return "知识专栏";
     return "一碗春";
-  }, [isScreenplay, isMarketing, isKnowledge]);
+  }, [isScreenplay, isMarketing, isKnowledge, screenplaySubtype, screenplayScriptType]);
   const sceneWelcome = useMemo(() => {
     if (isScreenplay) return "你好！欢迎来到剧本创作工作台\n\n描述一下你想创作的剧本——一句话、一个画面、甚至几个关键词就够了。\n我会帮你快速生成一版完整设定，然后我们一起调整打磨。\n\n没有想法也没关系，点击下方按钮我来帮你构思一个。";
     if (isMarketing) return "你好！欢迎来到电商内容创作工作台\n\n告诉我你要推广什么商品，以及你的目标平台。\n比如：「一款隐形蓝牙耳机，主打极致隐形和防水，想在抖音投放」\n\n我会帮你整理商品信息，然后根据平台特点生成内容结构。";
