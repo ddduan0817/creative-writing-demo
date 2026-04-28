@@ -38,6 +38,9 @@ import {
   screenplayMockChapterTexts,
   screenplayMockChapterTexts_comic_script,
   screenplayMockChapterTexts_short_storyboard,
+  screenplayMockCharacterCard_comic_storyboard,
+  screenplayMockOutlineCard_comic_storyboard,
+  screenplayMockChapterTexts_comic_storyboard,
 } from "./screenplayMockData";
 import {
   marketingInspirationRounds,
@@ -1275,6 +1278,7 @@ type Message =
   | { id: string; sender: "model"; type: "graphic-note"; prompt: string; data: import("./marketingMockData").GraphicNoteData }
   | { id: string; sender: "model"; type: "knowledge-agent-select"; prompt: string }
   | { id: string; sender: "model"; type: "knowledge-upload-guide"; prompt: string; agent: string }
+  | { id: string; sender: "model"; type: "knowledge-clarify"; prompt: string; question: string; options: { id: string; label: string; desc: string }[] }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   | { id: string; sender: "model"; type: "knowledge-analysis"; prompt: string; data: any; agent: string }
   | { id: string; sender: "model"; type: "knowledge-mode-select"; prompt: string }
@@ -1343,6 +1347,7 @@ export default function ChatPanel() {
     if (isScreenplay) {
       if (screenplaySubtype === "comic_drama" && screenplayScriptType === "script") return screenplayMockCharacterCard_comic_script;
       if (screenplaySubtype === "short_drama" && screenplayScriptType === "storyboard") return screenplayMockCharacterCard_short_storyboard;
+      if (screenplaySubtype === "comic_drama" && screenplayScriptType === "storyboard") return screenplayMockCharacterCard_comic_storyboard;
       return screenplayMockCharacterCard;
     }
     if (isMarketing) return marketingMockCharacterCard;
@@ -1352,6 +1357,7 @@ export default function ChatPanel() {
     if (isScreenplay) {
       if (screenplaySubtype === "comic_drama" && screenplayScriptType === "script") return screenplayMockOutlineCard_comic_script;
       if (screenplaySubtype === "short_drama" && screenplayScriptType === "storyboard") return screenplayMockOutlineCard_short_storyboard;
+      if (screenplaySubtype === "comic_drama" && screenplayScriptType === "storyboard") return screenplayMockOutlineCard_comic_storyboard;
       return screenplayMockOutlineCard;
     }
     if (isMarketing) return marketingMockOutlineCard;
@@ -1361,6 +1367,7 @@ export default function ChatPanel() {
     if (isScreenplay) {
       if (screenplaySubtype === "comic_drama" && screenplayScriptType === "script") return screenplayMockChapterTexts_comic_script;
       if (screenplaySubtype === "short_drama" && screenplayScriptType === "storyboard") return screenplayMockChapterTexts_short_storyboard;
+      if (screenplaySubtype === "comic_drama" && screenplayScriptType === "storyboard") return screenplayMockChapterTexts_comic_storyboard;
       return screenplayMockChapterTexts;
     }
     if (isMarketing) return marketingMockChapterTexts;
@@ -1370,6 +1377,7 @@ export default function ChatPanel() {
     if (isScreenplay) {
       if (screenplaySubtype === "comic_drama" && screenplayScriptType === "script") return "记忆猎人";
       if (screenplaySubtype === "short_drama" && screenplayScriptType === "storyboard") return "战神归来";
+      if (screenplaySubtype === "comic_drama" && screenplayScriptType === "storyboard") return "星界行者";
       return "逆天改命";
     }
     if (isMarketing) return "焕颜精华";
@@ -2103,46 +2111,83 @@ export default function ChatPanel() {
       return;
     }
 
-    // ══ Knowledge: first message → detect intent and enter agent flow ══
+    // ══ Knowledge: first message → B+C 两层路由 ══
     if (isKnowledge && !knowledgeAgentRef.current) {
-      // Simple intent detection
-      const isBlog = /写文章|博客|创作|写作|公众号|小红书|知乎|发布/.test(text);
-      const isInterpret = /解读|解析|视频|音频|播客|文章|链接|TED|分析内容/.test(text);
-      // Default to book_analysis for 拆书/读书/学习 or anything else
-      const agent: KnowledgeAgentType = isBlog ? "knowledge_podcast" : isInterpret ? "content_interpret" : "book_analysis";
-
-      knowledgeAgentRef.current = agent;
-
       const thinkingId = `thinking-k-guide`;
       setTimeout(() => {
         setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
       }, 300);
 
-      if (agent === "book_analysis") {
-        setTimeout(() => {
-          setMessages((prev) => [
-            ...prev.filter((m) => m.id !== thinkingId),
-            { id: "model-k-book-guide", sender: "model", type: "knowledge-upload-guide", prompt: "好的，深度拆书！请上传你想拆解的书籍：", agent: "book_analysis" },
-          ]);
-          setCurrentRound(-2);
-        }, 1500);
-      } else if (agent === "content_interpret") {
-        setTimeout(() => {
-          const guidePrompt = `好的，内容解读！请粘贴你想解读的内容链接：\n\n支持的内容类型：\n· **视频** — YouTube、B站、抖音、TED\n· **音频** — 播客、有声书、讲座\n· **文章** — 公众号、知乎、技术博客\n\n直接粘贴链接，或者点击下方按钮用示例体验。`;
-          setMessages((prev) => [
-            ...prev.filter((m) => m.id !== thinkingId),
-            { id: "model-k-content-guide", sender: "model", type: "guide", prompt: guidePrompt },
-          ]);
-          setCurrentRound(-2);
-        }, 1500);
+      // ── Layer B: 强信号静默路由 ──
+      const hasUrl = /https?:\/\/|www\.|b23\.tv|youtu\.be/.test(text);
+      const hasFile = /\.pdf|\.epub|\.txt|上传了|附件/.test(text);
+      const isBookIntent = /拆书|读书|学习|这本书|书名|书籍/.test(text);
+      const isPodcastIntent = /写文章|创作|播客脚本|公众号|小红书|知乎|分享|写一篇/.test(text);
+      const isInterpretIntent = hasUrl || /解读|解析|视频|音频|这个视频|这篇文章|TED/.test(text);
+
+      let detectedAgent: KnowledgeAgentType | null = null;
+      if (isBookIntent || hasFile) detectedAgent = "book_analysis";
+      else if (isInterpretIntent) detectedAgent = "content_interpret";
+      else if (isPodcastIntent) detectedAgent = "knowledge_podcast";
+
+      if (detectedAgent) {
+        // 强信号：直接路由进对应 Agent
+        knowledgeAgentRef.current = detectedAgent;
+        if (detectedAgent === "book_analysis") {
+          setTimeout(() => {
+            setMessages((prev) => [
+              ...prev.filter((m) => m.id !== thinkingId),
+              { id: "model-k-book-guide", sender: "model", type: "knowledge-upload-guide", prompt: "好的，深度拆书！请上传你想拆解的书籍：", agent: "book_analysis" },
+            ]);
+            setCurrentRound(-2);
+          }, 1500);
+        } else if (detectedAgent === "content_interpret") {
+          setTimeout(() => {
+            const guidePrompt = `好的，内容解读！请粘贴你想解读的内容链接：\n\n支持的内容类型：\n· **视频** — YouTube、B站、抖音、TED\n· **音频** — 播客、有声书、讲座\n· **文章** — 公众号、知乎、技术博客\n\n直接粘贴链接，或者点击下方按钮用示例体验。`;
+            setMessages((prev) => [
+              ...prev.filter((m) => m.id !== thinkingId),
+              { id: "model-k-content-guide", sender: "model", type: "guide", prompt: guidePrompt },
+            ]);
+            setCurrentRound(-2);
+          }, 1500);
+        } else {
+          setTimeout(() => {
+            const guidePrompt = `好的，知识播客！请选择你的创作素材来源：\n\n· **使用系统内报告** — 基于之前的拆书报告或解读笔记创作\n· **上传已有素材** — 读书笔记、思维导图、PPT等\n\n直接描述你想聊什么，或者点击下方按钮用示例体验。`;
+            setMessages((prev) => [
+              ...prev.filter((m) => m.id !== thinkingId),
+              { id: "model-k-blog-guide", sender: "model", type: "guide", prompt: guidePrompt },
+            ]);
+            setCurrentRound(-2);
+          }, 1500);
+        }
       } else {
+        // ── Layer C: 弱信号，问一个精准问题 ──
+        const hasContent = text.length > 4 && !/^(你好|hi|hello|在吗|在|嗯|哦|好的|ok)$/i.test(text.trim());
+        const clarifyPrompt = hasContent
+          ? `我看到你提到了「${text.slice(0, 20)}${text.length > 20 ? "…" : ""}」，想确认一下你的需求：`
+          : "知识专栏支持三种模式，你现在想做哪件事？";
+        const clarifyOptions = hasContent
+          ? [
+              { id: "learn", label: "深度学习它", desc: "上传书籍 / 链接，生成学习报告或精华笔记" },
+              { id: "create", label: "基于它创作播客", desc: "整理成可录制的播客脚本" },
+            ]
+          : [
+              { id: "book", label: "拆解一本书", desc: "上传 PDF / 电子书，系统化学习" },
+              { id: "interpret", label: "解读一个内容", desc: "分享视频 / 文章链接，快速提炼" },
+              { id: "podcast", label: "创作播客脚本", desc: "基于已有笔记，生成可录制的脚本" },
+            ];
         setTimeout(() => {
-          const guidePrompt = `好的，知识播客！请选择你的创作素材来源：\n\n· **使用系统内报告** — 基于之前的拆书报告或解读笔记创作\n· **上传已有素材** — 读书笔记、思维导图、PPT等\n\n直接描述你想聊什么，或者点击下方按钮用示例体验。`;
           setMessages((prev) => [
             ...prev.filter((m) => m.id !== thinkingId),
-            { id: "model-k-blog-guide", sender: "model", type: "guide", prompt: guidePrompt },
+            {
+              id: "model-k-clarify",
+              sender: "model",
+              type: "knowledge-clarify",
+              prompt: clarifyPrompt,
+              question: clarifyPrompt,
+              options: clarifyOptions,
+            },
           ]);
-          setCurrentRound(-2);
         }, 1500);
       }
       return;
@@ -3845,6 +3890,92 @@ export default function ChatPanel() {
             );
           }
 
+          {/* ── Model: knowledge clarify (B+C 兜底追问) ── */}
+          if (msg.sender === "model" && msg.type === "knowledge-clarify") {
+            const isAnswered = !!knowledgeAgentRef.current;
+            return (
+              <div key={msg.id} className="space-y-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                    <span className="text-white text-[10px] font-bold">AI</span>
+                  </div>
+                  <span className="text-xs text-gray-400">文心</span>
+                </div>
+                <p className="text-sm text-gray-700 leading-relaxed pl-8">{msg.prompt}</p>
+                {!isAnswered ? (
+                  <div className="pl-8 space-y-2">
+                    {msg.options.map((opt) => (
+                      <button
+                        key={opt.id}
+                        onClick={() => {
+                          // 根据选项映射到 agent
+                          const agentMap: Record<string, KnowledgeAgentType> = {
+                            learn: "book_analysis",
+                            create: "knowledge_podcast",
+                            book: "book_analysis",
+                            interpret: "content_interpret",
+                            podcast: "knowledge_podcast",
+                          };
+                          const agent = agentMap[opt.id] || "book_analysis";
+                          knowledgeAgentRef.current = agent;
+                          setMessages((prev) => [
+                            ...prev,
+                            { id: `user-k-clarify-${Date.now()}`, sender: "user", type: "text", content: opt.label },
+                          ]);
+                          const thinkingId = `thinking-k-clarify-reply`;
+                          setTimeout(() => {
+                            setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+                          }, 300);
+                          if (agent === "book_analysis") {
+                            setTimeout(() => {
+                              setMessages((prev) => [
+                                ...prev.filter((m) => m.id !== thinkingId),
+                                { id: "model-k-book-guide", sender: "model", type: "knowledge-upload-guide", prompt: "好的，深度拆书！请上传你想拆解的书籍：", agent: "book_analysis" },
+                              ]);
+                              setCurrentRound(-2);
+                            }, 1500);
+                          } else if (agent === "content_interpret") {
+                            setTimeout(() => {
+                              const guidePrompt = `好的，内容解读！请粘贴你想解读的内容链接：\n\n支持的内容类型：\n· **视频** — YouTube、B站、抖音、TED\n· **音频** — 播客、有声书、讲座\n· **文章** — 公众号、知乎、技术博客\n\n直接粘贴链接，或者点击下方按钮用示例体验。`;
+                              setMessages((prev) => [
+                                ...prev.filter((m) => m.id !== thinkingId),
+                                { id: "model-k-content-guide", sender: "model", type: "guide", prompt: guidePrompt },
+                              ]);
+                              setCurrentRound(-2);
+                            }, 1500);
+                          } else {
+                            setTimeout(() => {
+                              const guidePrompt = `好的，知识播客！请选择你的创作素材来源：\n\n· **使用系统内报告** — 基于之前的拆书报告或解读笔记创作\n· **上传已有素材** — 读书笔记、思维导图、PPT等\n\n直接描述你想聊什么，或者点击下方按钮用示例体验。`;
+                              setMessages((prev) => [
+                                ...prev.filter((m) => m.id !== thinkingId),
+                                { id: "model-k-blog-guide", sender: "model", type: "guide", prompt: guidePrompt },
+                              ]);
+                              setCurrentRound(-2);
+                            }, 1500);
+                          }
+                        }}
+                        className="w-full text-left px-4 py-3 rounded-xl border-2 border-gray-100 bg-white hover:border-indigo-200 hover:shadow-sm transition-all duration-200"
+                      >
+                        <p className="text-sm font-medium text-gray-800">{opt.label}</p>
+                        <p className="text-[11px] text-gray-500 mt-0.5">{opt.desc}</p>
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="pl-8">
+                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-indigo-50 border border-indigo-200">
+                      <span className="text-sm font-medium text-indigo-700">
+                        {knowledgeAgentRef.current === "book_analysis" ? "📚 深度拆书"
+                          : knowledgeAgentRef.current === "content_interpret" ? "🎯 内容解读"
+                          : "🎙️ 知识播客"}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          }
+
           {/* ── Model: knowledge upload guide (book_analysis) ── */}
           if (msg.sender === "model" && msg.type === "knowledge-upload-guide") {
             return (
@@ -5432,7 +5563,14 @@ export default function ChatPanel() {
                     {/* Gradient fade overlay */}
 
                     <div className="relative px-4 py-2.5 text-center border-t border-gray-50">
-                      <span className="text-[11px] text-gray-400">{isMarketing ? "点击在左侧预览区查看完整商品信息" : "点击在左侧预览区查看完整创作设定"}</span>
+                      <span className="text-[11px] text-gray-400">
+                        {isMarketing ? "点击在左侧预览区查看完整商品信息"
+                          : isKnowledge
+                            ? knowledgeAgentRef.current === "book_analysis" ? "点击在左侧预览区查看完整书籍分析"
+                              : knowledgeAgentRef.current === "content_interpret" ? "点击在左侧预览区查看完整内容分析"
+                              : "点击在左侧预览区查看完整素材概览"
+                          : "点击在左侧预览区查看完整创作设定"}
+                      </span>
                     </div>
                   </div>
                   {/* Action buttons */}
@@ -5440,7 +5578,14 @@ export default function ChatPanel() {
                     <div className="mt-2.5 space-y-2">
                       <div className="flex items-center gap-2">
                         <button
-                          onClick={() => quickConfirm(isMarketing ? "确认商品信息，选择内容类型" : "确认设定，进入下一步")}
+                          onClick={() => quickConfirm(
+                            isMarketing ? "确认商品信息，选择内容类型"
+                            : isKnowledge
+                              ? knowledgeAgentRef.current === "book_analysis" ? "确认分析概览，选择拆解模式"
+                                : knowledgeAgentRef.current === "content_interpret" ? "确认内容，开始生成精华笔记"
+                                : "确认素材，选择播客风格"
+                            : "确认设定，进入下一步"
+                          )}
                           data-tip={
                             isMarketing ? "确认进入内容类型选择"
                             : isKnowledge
