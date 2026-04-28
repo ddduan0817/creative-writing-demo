@@ -64,9 +64,10 @@ import {
   mockContentSettingsCard,
   mockInsightNotes,
   mockSourceSettingsCard,
-  mockKnowledgeArticle,
-  mockKnowledgeArticleXhs,
+  mockPodcastScript,
+  mockPodcastScriptStory,
   type KnowledgeAgentType,
+  type PodcastScript,
 } from "./knowledgeMockData";
 
 // ─── Mock Data ───────────────────────────────────────────────
@@ -1560,17 +1561,41 @@ export default function ChatPanel() {
     }, 300);
 
     setTimeout(() => {
-      setMessages((prev) => [
-        ...prev.filter((m) => m.id !== thinkingId),
-        {
-          id: "model-scripttype",
-          sender: "model",
-          type: "scripttype-select",
-          prompt: `好的，${label}！最后确认一下输出格式：`,
-        },
-      ]);
+      if (screenplayScriptType) {
+        // scriptType already detected from user's initial message — skip to welcome
+        const typeLabel = screenplayScriptType === "script" ? "剧本" : "脚本";
+        setMessages((prev) => [
+          ...prev.filter((m) => m.id !== thinkingId),
+          {
+            id: "model-sp-welcome",
+            sender: "model",
+            type: "welcome",
+            prompt: `好的，我们来创作一部${label}${typeLabel}！
+
+为了生成精准的创作设定，可以跟我聊聊你的故事构思：
+· **核心设定** — 一句话说清楚故事的核心情境和卖点
+· **故事线** — 主线大致走向是什么？（主角经历了什么、如何变化）
+· **核心冲突** — 驱动整个故事的最大矛盾是什么？
+· **核心卖点** — 最吸引观众的爆点在哪里？（甜虐 / 反转 / 搞笑 / 燃……）
+
+有小说原著想改编的话，直接上传文件我来帮你提取设定。
+没有想法也没关系，点击下方按钮让我来帮你找灵感。`,
+          },
+        ]);
+        setCurrentRound(1);
+      } else {
+        setMessages((prev) => [
+          ...prev.filter((m) => m.id !== thinkingId),
+          {
+            id: "model-scripttype",
+            sender: "model",
+            type: "scripttype-select",
+            prompt: `好的，${label}！最后确认一下输出格式：`,
+          },
+        ]);
+      }
     }, 1200);
-  }, []);
+  }, [screenplayScriptType, setCurrentRound]);
 
   // Handle screenplay script type selection (剧本 / 脚本)
   const handleScriptTypeSelect = useCallback((scriptType: "script" | "storyboard") => {
@@ -2084,7 +2109,7 @@ export default function ChatPanel() {
       const isBlog = /写文章|博客|创作|写作|公众号|小红书|知乎|发布/.test(text);
       const isInterpret = /解读|解析|视频|音频|播客|文章|链接|TED|分析内容/.test(text);
       // Default to book_analysis for 拆书/读书/学习 or anything else
-      const agent: KnowledgeAgentType = isBlog ? "knowledge_blog" : isInterpret ? "content_interpret" : "book_analysis";
+      const agent: KnowledgeAgentType = isBlog ? "knowledge_podcast" : isInterpret ? "content_interpret" : "book_analysis";
 
       knowledgeAgentRef.current = agent;
 
@@ -2112,7 +2137,7 @@ export default function ChatPanel() {
         }, 1500);
       } else {
         setTimeout(() => {
-          const guidePrompt = `好的，知识博客！请选择你的创作素材来源：\n\n· **使用系统内报告** — 基于之前的拆书报告或解读笔记创作\n· **上传已有素材** — 读书笔记、思维导图、PPT等\n\n直接描述你想写什么，或者点击下方按钮用示例体验。`;
+          const guidePrompt = `好的，知识播客！请选择你的创作素材来源：\n\n· **使用系统内报告** — 基于之前的拆书报告或解读笔记创作\n· **上传已有素材** — 读书笔记、思维导图、PPT等\n\n直接描述你想聊什么，或者点击下方按钮用示例体验。`;
           setMessages((prev) => [
             ...prev.filter((m) => m.id !== thinkingId),
             { id: "model-k-blog-guide", sender: "model", type: "guide", prompt: guidePrompt },
@@ -2213,7 +2238,7 @@ export default function ChatPanel() {
           const settingsMap: Record<string, { card: Record<string, { label: string; value: string }[]>; prompt: string }> = {
             book_analysis: { card: mockBookSettingsCard, prompt: "书籍解析完成！以下是分析概览，确认后选择拆解模式。你也可以告诉我需要调整的地方。" },
             content_interpret: { card: mockContentSettingsCard, prompt: "内容解析完成！以下是分析概览，确认后我会生成精华笔记。你也可以告诉我需要调整的地方。" },
-            knowledge_blog: { card: mockSourceSettingsCard, prompt: "素材已读取！以下是素材概览，确认后选择发布平台。你也可以告诉我需要调整的地方。" },
+            knowledge_podcast: { card: mockSourceSettingsCard, prompt: "素材已读取！以下是素材概览，确认后选择播客风格。你也可以告诉我需要调整的地方。" },
           };
           const { card, prompt } = settingsMap[agent] || settingsMap.book_analysis;
           setMessages((prev) => [
@@ -2278,7 +2303,7 @@ export default function ChatPanel() {
               setAgentStageData("knowledgeReport", mockInsightNotes);
             }, 3000);
           } else {
-            // 知识博客：选择平台
+            // 知识播客：选择风格
             setMessages((prev) => [
               ...prev.filter((m) => m.id !== thinkingId),
               {
@@ -2317,23 +2342,23 @@ export default function ChatPanel() {
             setCreationStage(3);
             setAgentStageData("knowledgeReport", mockLearningReport);
           } else {
-            // knowledge_blog
-            const isXhs = text.includes("小红书");
-            const article = isXhs ? mockKnowledgeArticleXhs : mockKnowledgeArticle;
+            // knowledge_podcast
+            const isStory = text.includes("故事");
+            const script = isStory ? mockPodcastScriptStory : mockPodcastScript;
             setMessages((prev) => [
               ...prev.filter((m) => m.id !== thinkingId),
               {
                 id: "model-k-article",
                 sender: "model",
                 type: "knowledge-report",
-                prompt: `${article.platform}风格文章生成完毕！已同步到左侧编辑区：`,
-                data: article,
-                agent: "knowledge_blog",
+                prompt: `${script.style}播客脚本生成完毕！已同步到左侧编辑区：`,
+                data: script,
+                agent: "knowledge_podcast",
               },
             ]);
             setCurrentRound(23);
             setCreationStage(3);
-            setAgentStageData("knowledgeReport", article);
+            setAgentStageData("knowledgeReport", script);
           }
         }, 3000);
         return;
@@ -2359,7 +2384,7 @@ export default function ChatPanel() {
           } else {
             setMessages((prev) => [
               ...prev.filter((m) => m.id !== thinkingId),
-              { id: `model-k-article-${Date.now()}`, sender: "model", type: "knowledge-report", prompt: "好的，已根据你的要求调整了文章：", data: mockKnowledgeArticle, agent: "knowledge_blog" },
+              { id: `model-k-article-${Date.now()}`, sender: "model", type: "knowledge-report", prompt: "好的，已根据你的要求调整了播客脚本：", data: mockPodcastScript, agent: "knowledge_podcast" },
             ]);
           }
         }, 2500);
@@ -3441,11 +3466,9 @@ export default function ChatPanel() {
               { id: "quick", label: "快速模式", desc: "5个核心知识点 · 约5000字", icon: "⚡" },
               { id: "deep", label: "深度模式", desc: "15个知识点 · 8大行业迁移 · 约10000字", icon: "🔬" },
             ];
-            const knowledgeBlogPlatforms = [
-              { id: "wechat", label: "公众号", desc: "深度长文", icon: "📱" },
-              { id: "xiaohongshu", label: "小红书", desc: "种草笔记", icon: "📕" },
-              { id: "zhihu", label: "知乎", desc: "知识问答", icon: "💡" },
-              { id: "tech_blog", label: "技术博客", desc: "技术文章", icon: "💻" },
+            const knowledgePodcastStyles = [
+              { id: "dialogue", label: "双人对谈", desc: "两位主播轮流分享，自然生动", icon: "🎙️" },
+              { id: "story", label: "故事切入", desc: "以案例开场，单人深度叙述", icon: "📖" },
             ];
             const marketingScenes = [
               { id: "short_video", label: "短视频脚本", desc: "短视频拍摄台本", icon: "🎬" },
@@ -3453,7 +3476,7 @@ export default function ChatPanel() {
               { id: "graphic_note", label: "图文笔记", desc: "图文种草笔记", icon: "📝" },
             ];
             const scenes = isKnowledge
-              ? (knowledgeAgent === "book_analysis" ? knowledgeBookModes : knowledgeBlogPlatforms)
+              ? (knowledgeAgent === "book_analysis" ? knowledgeBookModes : knowledgePodcastStyles)
               : marketingScenes;
             const selectedScene = isKnowledge ? knowledgeAgentRef.current && (currentRound > 6 ? "selected" : null) : marketingPlatformRef.current;
             return (
@@ -3468,7 +3491,7 @@ export default function ChatPanel() {
 
                 {!selectedScene ? (
                   <div className="pl-8 grid grid-cols-3 gap-2">
-                    {scenes.map((s) => (
+                    {scenes.map((s: { id: string; label: string; desc: string; icon: string }) => (
                       <button
                         key={s.id}
                         onClick={() => {
@@ -3502,9 +3525,9 @@ export default function ChatPanel() {
                                 setAgentStageData("knowledgeReport", mockLearningReport);
                               }, 3000);
                             } else {
-                              // Platform selected → generate article
-                              const isXhs = s.id === "xiaohongshu";
-                              const article = isXhs ? mockKnowledgeArticleXhs : mockKnowledgeArticle;
+                              // Style selected → generate podcast script
+                              const isStory = s.id === "story";
+                              const script = isStory ? mockPodcastScriptStory : mockPodcastScript;
                               const thinkingId = `thinking-k-output`;
                               setTimeout(() => {
                                 setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
@@ -3516,14 +3539,14 @@ export default function ChatPanel() {
                                     id: "model-k-article",
                                     sender: "model",
                                     type: "knowledge-report",
-                                    prompt: `${s.label}风格文章生成完毕！已同步到左侧编辑区：`,
-                                    data: article,
-                                    agent: "knowledge_blog",
+                                    prompt: `${s.label}播客脚本生成完毕！已同步到左侧编辑区：`,
+                                    data: script,
+                                    agent: "knowledge_podcast",
                                   },
                                 ]);
                                 setCurrentRound(23);
                                 setCreationStage(3);
-                                setAgentStageData("knowledgeReport", article);
+                                setAgentStageData("knowledgeReport", script);
                               }, 3000);
                             }
                             return;
@@ -3626,7 +3649,7 @@ export default function ChatPanel() {
                 ) : (
                   <div className="pl-8">
                     <div className="inline-block px-4 py-2 rounded-xl border-2 border-indigo-400 bg-indigo-50/80 text-sm font-medium text-indigo-700">
-                      {scenes.find((s) => s.id === selectedScene)?.label || selectedScene}
+                      {scenes.find((s: { id: string; label: string; desc: string; icon: string }) => s.id === selectedScene)?.label || selectedScene}
                     </div>
                   </div>
                 )}
@@ -3744,7 +3767,7 @@ export default function ChatPanel() {
             const agents = [
               { id: "book_analysis" as KnowledgeAgentType, label: "深度拆书", desc: "系统化学习书籍，建立完整知识体系", icon: "📚" },
               { id: "content_interpret" as KnowledgeAgentType, label: "内容解读", desc: "快速理解短内容核心观点", icon: "🎯" },
-              { id: "knowledge_blog" as KnowledgeAgentType, label: "知识博客", desc: "基于已有知识进行二次创作", icon: "✍️" },
+              { id: "knowledge_podcast" as KnowledgeAgentType, label: "知识播客", desc: "基于已有知识生成双人对谈播客脚本", icon: "🎙️" },
             ];
             const selectedAgent = knowledgeAgentRef.current;
             return (
@@ -3793,7 +3816,7 @@ export default function ChatPanel() {
                             }, 1500);
                           } else {
                             setTimeout(() => {
-                              const guidePrompt = `好的，知识博客！请选择你的创作素材来源：\n\n· **使用系统内报告** — 基于之前的拆书报告或解读笔记创作\n· **上传已有素材** — 读书笔记、思维导图、PPT等\n\n直接描述你想写什么，或者点击下方按钮用示例体验。`;
+                              const guidePrompt = `好的，知识播客！请选择你的创作素材来源：\n\n· **使用系统内报告** — 基于之前的拆书报告或解读笔记创作\n· **上传已有素材** — 读书笔记、思维导图、PPT等\n\n直接描述你想聊什么，或者点击下方按钮用示例体验。`;
                               setMessages((prev) => [
                                 ...prev.filter((m) => m.id !== thinkingId),
                                 { id: "model-k-blog-guide", sender: "model", type: "guide", prompt: guidePrompt },
@@ -3966,7 +3989,7 @@ export default function ChatPanel() {
                           </>
                         );
                       })()}
-                      {agent === "knowledge_blog" && (() => {
+                      {agent === "knowledge_podcast" && (() => {
                         const data = msg.data;
                         return (
                           <>
@@ -4117,13 +4140,11 @@ export default function ChatPanel() {
             );
           }
 
-          {/* ── Model: knowledge platform selection (knowledge_blog) ── */}
+          {/* ── Model: knowledge style selection (knowledge_podcast) ── */}
           if (msg.sender === "model" && msg.type === "knowledge-platform-select") {
-            const platforms = [
-              { id: "wechat", label: "公众号", desc: "深度长文，观点输出", icon: "📱" },
-              { id: "xiaohongshu", label: "小红书", desc: "轻量种草，碎片化阅读", icon: "📕" },
-              { id: "zhihu", label: "知乎", desc: "专业问答，体系化分析", icon: "💡" },
-              { id: "tech_blog", label: "技术博客", desc: "技术干货，代码示例", icon: "💻" },
+            const styles = [
+              { id: "dialogue", label: "双人对谈", desc: "两位主播对话，轻松自然", icon: "🎙️" },
+              { id: "story", label: "故事切入", desc: "以案例开场，单人深度叙述", icon: "📖" },
             ];
             return (
               <div key={msg.id} className="space-y-3">
@@ -4135,28 +4156,28 @@ export default function ChatPanel() {
                 </div>
                 <p className="text-sm text-gray-700 leading-relaxed pl-8">{msg.prompt}</p>
                 <div className="pl-8 grid grid-cols-2 gap-2">
-                  {platforms.map((p) => (
+                  {styles.map((p) => (
                     <button
                       key={p.id}
                       onClick={() => {
                         setMessages((prev) => [
                           ...prev,
-                          { id: `user-k-platform-${Date.now()}`, sender: "user", type: "text", content: p.label },
+                          { id: `user-k-style-${Date.now()}`, sender: "user", type: "text", content: p.label },
                         ]);
                         setCreationStage(2);
-                        const thinkingId = `thinking-k-article`;
+                        const thinkingId = `thinking-k-podcast`;
                         setTimeout(() => {
                           setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
                         }, 300);
-                        const article = p.id === "xiaohongshu" ? mockKnowledgeArticleXhs : mockKnowledgeArticle;
+                        const script = p.id === "story" ? mockPodcastScriptStory : mockPodcastScript;
                         setTimeout(() => {
                           setMessages((prev) => [
                             ...prev.filter((m2) => m2.id !== thinkingId),
-                            { id: "model-k-article", sender: "model", type: "knowledge-report", prompt: `${p.label}风格文章生成完毕！已同步到左侧编辑区：`, data: article, agent: "knowledge_blog" },
+                            { id: "model-k-podcast", sender: "model", type: "knowledge-report", prompt: `${p.label}播客脚本生成完毕！已同步到左侧编辑区：`, data: script, agent: "knowledge_podcast" },
                           ]);
                           setCurrentRound(23);
                           setCreationStage(3);
-                          setAgentStageData("knowledgeReport", article);
+                          setAgentStageData("knowledgeReport", script);
                         }, 3000);
                       }}
                       className="text-left p-3 rounded-xl border-2 border-gray-100 bg-white hover:border-indigo-200 hover:shadow-sm cursor-pointer transition-all duration-200"
@@ -4248,31 +4269,35 @@ export default function ChatPanel() {
                           </div>
                         );
                       })()}
-                      {agent === "knowledge_blog" && (() => {
-                        const data = msg.data;
+                      {agent === "knowledge_podcast" && (() => {
+                        const data = msg.data as PodcastScript;
                         return (
                           <div className="px-4 py-3 space-y-3">
                             <div className="flex items-center gap-2">
-                              <span className="text-lg">✍️</span>
+                              <span className="text-lg">🎙️</span>
                               <div>
                                 <h3 className="text-sm font-semibold text-gray-800">{data.title}</h3>
-                                <span className="text-[10px] px-1.5 py-0.5 rounded bg-rose-50 text-rose-600 font-medium">{data.platform}</span>
+                                <div className="flex items-center gap-1.5 mt-0.5">
+                                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-50 text-purple-600 font-medium">{data.style}</span>
+                                  <span className="text-[10px] text-gray-400">{data.duration}</span>
+                                </div>
                               </div>
                             </div>
-                            {data.subtitle && (
-                              <p className="text-xs text-gray-500">{data.subtitle}</p>
-                            )}
                             <div>
-                              <h4 className="text-xs font-semibold text-gray-500 mb-1">文章结构</h4>
-                              {data.sections.slice(0, 4).map((sec: {heading: string}, i: number) => (
-                                <p key={i} className="text-xs text-gray-600 mb-0.5">{i + 1}. {sec.heading || "(正文)"}</p>
+                              <h4 className="text-xs font-semibold text-gray-500 mb-1.5">脚本段落</h4>
+                              {data.segments.map((seg) => (
+                                <div key={seg.id} className="mb-1.5">
+                                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-500 font-medium">{seg.tag}</span>
+                                  <p className="text-[11px] text-gray-600 mt-0.5 pl-1 line-clamp-2">
+                                    <span className="text-gray-400">{seg.dialogues[0]?.speaker}：</span>
+                                    {seg.dialogues[0]?.text.slice(0, 60)}...
+                                  </p>
+                                </div>
                               ))}
-                              {data.sections.length > 4 && <p className="text-[11px] text-gray-400">...共{data.sections.length}个段落</p>}
                             </div>
-                            <div className="flex flex-wrap gap-1">
-                              {data.tags.map((tag: string, i: number) => (
-                                <span key={i} className="px-2 py-0.5 text-[10px] rounded-full bg-gray-100 text-gray-500">#{tag}</span>
-                              ))}
+                            <div>
+                              <h4 className="text-xs font-semibold text-gray-500 mb-1">节目金句</h4>
+                              <p className="text-[11px] text-gray-600 italic">&quot;{data.showNotes.quote}&quot;</p>
                             </div>
                           </div>
                         );
@@ -4280,7 +4305,7 @@ export default function ChatPanel() {
                     </div>
                     <div className="relative px-4 py-2.5 text-center border-t border-gray-50">
                       <span className="text-[11px] text-gray-400">
-                        {agent === "book_analysis" ? "点击在左侧预览区查看完整学习报告" : agent === "content_interpret" ? "点击在左侧预览区查看完整精华笔记" : "点击在左侧预览区查看完整文章"}
+                        {agent === "book_analysis" ? "点击在左侧预览区查看完整学习报告" : agent === "content_interpret" ? "点击在左侧预览区查看完整精华笔记" : "点击在左侧预览区查看完整播客脚本"}
                       </span>
                     </div>
                   </div>
@@ -5209,6 +5234,36 @@ export default function ChatPanel() {
                   <div className="pl-8 mt-1">
                     <button
                       onClick={() => {
+                        const isKnowledgeScene = dataRef.current.isKnowledge;
+                        const knowledgeAgent = knowledgeAgentRef.current;
+
+                        // 内容解读 / 知识播客：直接走知识专栏专属 settings 路径
+                        if (isKnowledgeScene && knowledgeAgent && knowledgeAgent !== "book_analysis") {
+                          const userContent = knowledgeAgent === "content_interpret"
+                            ? "用示例体验 · Simon Sinek TED演讲"
+                            : "用示例体验 · 《原则》拆书报告";
+                          setMessages((prev) => [...prev, { id: `user-k-example-${Date.now()}`, sender: "user", type: "text", content: userContent }]);
+                          const thinkingId = `thinking-k-settings`;
+                          setTimeout(() => {
+                            setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+                          }, 300);
+                          setTimeout(() => {
+                            const settingsMap: Record<string, { card: Record<string, { label: string; value: string }[]>; prompt: string }> = {
+                              content_interpret: { card: mockContentSettingsCard, prompt: "内容解析完成！以下是分析概览，确认后我会生成精华笔记。你也可以告诉我需要调整的地方。" },
+                              knowledge_podcast: { card: mockSourceSettingsCard, prompt: "素材已读取！以下是素材概览，确认后选择播客风格。你也可以告诉我需要调整的地方。" },
+                            };
+                            const { card, prompt } = settingsMap[knowledgeAgent] || settingsMap.content_interpret;
+                            setMessages((prev) => [
+                              ...prev.filter((m) => m.id !== thinkingId),
+                              { id: "model-k-settings", sender: "model", type: "settings-card", prompt, settings: card },
+                            ]);
+                            setCurrentRound(4);
+                            setCreationStage(1);
+                            setAgentStageData("settings", card);
+                          }, 2500);
+                          return;
+                        }
+
                         setFlowMode("freeform");
                         setMessages((prev) => [...prev, { id: `user-gen-now-${Date.now()}`, sender: "user", type: "text", content: "帮我生成" }]);
                         const thinkingId = `thinking-ff-settings`;
@@ -5220,28 +5275,20 @@ export default function ChatPanel() {
                           const settingsData = isMkt ? marketingProductInfoCard : dataRef.current.sceneSettingsCard;
                           const settingsPrompt = isMkt
                             ? `根据你提供的信息，我整理了以下商品信息卡片。确认无误后，下一步选择内容类型。你也可以告诉我需要调整的地方。`
-                            : dataRef.current.isKnowledge
-                            ? `根据你的描述，我帮你生成了一版分析配置——${getSettingsSummary()}\n\n看看感觉怎么样？确认后我会开始深入分析设定体系，你也可以告诉我想调整的地方。`
                             : `根据你的描述，我帮你生成了一版创作设定——${getSettingsSummary()}\n\n看看感觉怎么样？确认后我会为你${dataRef.current.isScreenplay ? "创建角色和集纲" : "选择篇幅并创建角色"}，你也可以告诉我想调整的地方。`;
                           setMessages((prev) => [
                             ...prev.filter((m) => m.id !== thinkingId),
-                            {
-                              id: "model-settings",
-                              sender: "model",
-                              type: "settings-card",
-                              prompt: settingsPrompt,
-                              settings: settingsData,
-                            },
+                            { id: "model-settings", sender: "model", type: "settings-card", prompt: settingsPrompt, settings: settingsData },
                           ]);
                           setCurrentRound(4);
                           setCreationStage(1);
                           setAgentStageData("settings", settingsData);
                         }, 2500);
                       }}
-                      data-tip={isMarketing ? "根据已有信息直接生成商品信息卡片" : "根据已有信息直接生成设定"}
+                      data-tip={isMarketing ? "根据已有信息直接生成商品信息卡片" : dataRef.current?.isKnowledge ? "用示例素材直接体验完整流程" : "根据已有信息直接生成设定"}
                       className="px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
                     >
-                      {isMarketing ? "直接生成商品信息" : "直接生成设定"}
+                      {isMarketing ? "直接生成商品信息" : dataRef.current?.isKnowledge ? "用示例体验" : "直接生成设定"}
                     </button>
                   </div>
                 )}
@@ -5832,7 +5879,7 @@ export default function ChatPanel() {
                   ? currentRound === -2
                     ? knowledgeAgentRef.current === "content_interpret"
                       ? "粘贴视频/文章/播客链接，或直接描述内容..."
-                      : knowledgeAgentRef.current === "knowledge_blog"
+                      : knowledgeAgentRef.current === "knowledge_podcast"
                       ? "描述你想写什么，或输入素材来源..."
                       : "上传书籍文件或输入书名..."
                     : currentRound === 23
