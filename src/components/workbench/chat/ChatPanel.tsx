@@ -1475,6 +1475,7 @@ export default function ChatPanel() {
   const novelVariantRef = useRef(0); // 0 = original (清岚镇), 1 = alt (潮音镇)
   const marketingPlatformRef = useRef<string | null>(null); // 电商选中的内容平台
   const knowledgeAgentRef = useRef<KnowledgeAgentType | null>(null); // 知识专栏选中的子Agent
+  const knowledgeStyleRef = useRef<{ id: string; label: string; icon: string } | null>(null); // 知识播客选中的风格
 
   // Auto-scroll
   useEffect(() => {
@@ -2314,9 +2315,9 @@ export default function ChatPanel() {
             setMessages((prev) => [
               ...prev.filter((m) => m.id !== thinkingId),
               {
-                id: "model-k-scene-select",
+                id: "model-k-mode-select",
                 sender: "model",
-                type: "scene-select",
+                type: "knowledge-mode-select",
                 prompt: "分析确认！请选择拆解模式：",
               },
             ]);
@@ -2352,10 +2353,10 @@ export default function ChatPanel() {
             setMessages((prev) => [
               ...prev.filter((m) => m.id !== thinkingId),
               {
-                id: "model-k-scene-select",
+                id: "model-k-platform-select",
                 sender: "model",
-                type: "scene-select",
-                prompt: "素材确认！请选择目标发布平台：",
+                type: "knowledge-platform-select",
+                prompt: "素材确认！请选择播客风格：",
               },
             ]);
             setCurrentRound(6);
@@ -4198,7 +4199,7 @@ export default function ChatPanel() {
                         } else {
                           setMessages((prev) => [
                             ...prev.filter((m) => m.id !== thinkingId),
-                            { id: "model-k-platform-select", sender: "model", type: "knowledge-platform-select", prompt: "素材确认！请选择目标发布平台：" },
+                            { id: "model-k-platform-select", sender: "model", type: "knowledge-platform-select", prompt: "素材确认！请选择播客风格：" },
                           ]);
                           setCurrentRound(6);
                         }
@@ -4274,6 +4275,7 @@ export default function ChatPanel() {
               { id: "dialogue", label: "双人对谈", desc: "两位主播对话，轻松自然", icon: "🎙️" },
               { id: "story", label: "故事切入", desc: "以案例开场，单人深度叙述", icon: "📖" },
             ];
+            const isSelected = !!knowledgeStyleRef.current;
             return (
               <div key={msg.id} className="space-y-3">
                 <div className="flex items-center gap-2 mb-1">
@@ -4283,39 +4285,49 @@ export default function ChatPanel() {
                   <span className="text-xs text-gray-400">文心</span>
                 </div>
                 <p className="text-sm text-gray-700 leading-relaxed pl-8">{msg.prompt}</p>
-                <div className="pl-8 grid grid-cols-2 gap-2">
-                  {styles.map((p) => (
-                    <button
-                      key={p.id}
-                      onClick={() => {
-                        setMessages((prev) => [
-                          ...prev,
-                          { id: `user-k-style-${Date.now()}`, sender: "user", type: "text", content: p.label },
-                        ]);
-                        setCreationStage(2);
-                        const thinkingId = `thinking-k-podcast`;
-                        setTimeout(() => {
-                          setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
-                        }, 300);
-                        const script = p.id === "story" ? mockPodcastScriptStory : mockPodcastScript;
-                        setTimeout(() => {
+                {!isSelected ? (
+                  <div className="pl-8 grid grid-cols-2 gap-2">
+                    {styles.map((p) => (
+                      <button
+                        key={p.id}
+                        onClick={() => {
+                          knowledgeStyleRef.current = p;
                           setMessages((prev) => [
-                            ...prev.filter((m2) => m2.id !== thinkingId),
-                            { id: "model-k-podcast", sender: "model", type: "knowledge-report", prompt: `${p.label}播客脚本生成完毕！已同步到左侧编辑区：`, data: script, agent: "knowledge_podcast" },
+                            ...prev,
+                            { id: `user-k-style-${Date.now()}`, sender: "user", type: "text", content: p.label },
                           ]);
-                          setCurrentRound(23);
-                          setCreationStage(3);
-                          setAgentStageData("knowledgeReport", script);
-                        }, 3000);
-                      }}
-                      className="text-left p-3 rounded-xl border-2 border-gray-100 bg-white hover:border-indigo-200 hover:shadow-sm cursor-pointer transition-all duration-200"
-                    >
-                      <div className="text-lg mb-1">{p.icon}</div>
-                      <p className="text-sm font-medium text-gray-800 mb-0.5">{p.label}</p>
-                      <p className="text-[11px] text-gray-500 leading-relaxed">{p.desc}</p>
-                    </button>
-                  ))}
-                </div>
+                          setCreationStage(2);
+                          const thinkingId = `thinking-k-podcast`;
+                          setTimeout(() => {
+                            setMessages((prev) => [...prev, { id: thinkingId, sender: "model", type: "thinking" }]);
+                          }, 300);
+                          const script = p.id === "story" ? mockPodcastScriptStory : mockPodcastScript;
+                          setTimeout(() => {
+                            setMessages((prev) => [
+                              ...prev.filter((m2) => m2.id !== thinkingId),
+                              { id: "model-k-podcast", sender: "model", type: "knowledge-report", prompt: `${p.label}播客脚本生成完毕！已同步到左侧编辑区：`, data: script, agent: "knowledge_podcast" },
+                            ]);
+                            setCurrentRound(23);
+                            setCreationStage(3);
+                            setAgentStageData("knowledgeReport", script);
+                          }, 3000);
+                        }}
+                        className="text-left p-3 rounded-xl border-2 border-gray-100 bg-white hover:border-indigo-200 hover:shadow-sm cursor-pointer transition-all duration-200"
+                      >
+                        <div className="text-lg mb-1">{p.icon}</div>
+                        <p className="text-sm font-medium text-gray-800 mb-0.5">{p.label}</p>
+                        <p className="text-[11px] text-gray-500 leading-relaxed">{p.desc}</p>
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="pl-8">
+                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-indigo-50 border border-indigo-200">
+                      <span className="text-sm">{knowledgeStyleRef.current?.icon}</span>
+                      <span className="text-sm font-medium text-indigo-700">{knowledgeStyleRef.current?.label}</span>
+                    </div>
+                  </div>
+                )}
               </div>
             );
           }

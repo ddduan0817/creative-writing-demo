@@ -1321,7 +1321,8 @@ export default function RichTextEditor() {
                 const report = agentStageData.knowledgeReport as any;
                 const isLearningReport = !!report.knowledgePoints;
                 const isInsightNotes = !!report.coreInsights;
-                const isArticle = !!report.sections && !report.knowledgePoints && !report.coreInsights;
+                const isPodcastScript = !!report.segments;
+                const isArticle = !!report.sections && !report.knowledgePoints && !report.coreInsights && !report.segments;
                 return (
                   <>
                     {isLearningReport && (
@@ -1475,6 +1476,69 @@ export default function RichTextEditor() {
                                 <p key={i} className="text-xs text-gray-600">· {n}</p>
                               ))}
                             </div>
+                          </div>
+                        )}
+                      </>
+                    )}
+                    {isPodcastScript && (
+                      <>
+                        <div>
+                          <h2 className="text-lg font-bold text-gray-900 mb-1">{report.title}</h2>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-600 font-medium">{report.style}</span>
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">{report.duration}</span>
+                          </div>
+                          <p className="text-xs text-gray-400 mt-1">可直接编辑，也可在对话中修改</p>
+                        </div>
+                        <div contentEditable suppressContentEditableWarning>
+                          <div className="space-y-6 ml-1">
+                            {report.segments?.map((seg: { id: number; tag: string; dialogues: { speaker: string; text: string }[] }) => (
+                              <div key={seg.id} className="space-y-3">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-600 font-semibold">{seg.tag}</span>
+                                </div>
+                                <div className="space-y-2">
+                                  {seg.dialogues.map((d, i: number) => (
+                                    <div key={i} className={`flex gap-2.5 ${d.speaker === "说话人2" ? "flex-row-reverse" : ""}`}>
+                                      <div className={`shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ${d.speaker === "说话人2" ? "bg-violet-100 text-violet-600" : "bg-indigo-100 text-indigo-600"}`}>
+                                        {d.speaker === "说话人2" ? "B" : "A"}
+                                      </div>
+                                      <div className={`max-w-[85%] px-3 py-2 rounded-xl text-sm text-gray-700 leading-relaxed ${d.speaker === "说话人2" ? "bg-violet-50 rounded-tr-none" : "bg-gray-50 rounded-tl-none"}`}>
+                                        {d.text}
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        {report.showNotes && (
+                          <div className="border-t border-gray-100 pt-4 space-y-3">
+                            <h3 className="text-sm font-bold text-gray-700">Show Notes</h3>
+                            <div>
+                              <p className="text-xs font-medium text-gray-500 mb-1.5">核心知识点</p>
+                              <div className="space-y-1">
+                                {report.showNotes.keyPoints?.map((kp: string, i: number) => (
+                                  <p key={i} className="text-xs text-gray-600">· {kp}</p>
+                                ))}
+                              </div>
+                            </div>
+                            {report.showNotes.tools?.length > 0 && (
+                              <div>
+                                <p className="text-xs font-medium text-gray-500 mb-1.5">实用工具</p>
+                                <div className="space-y-1">
+                                  {report.showNotes.tools.map((t: string, i: number) => (
+                                    <p key={i} className="text-xs text-gray-600">· {t}</p>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                            {report.showNotes.quote && (
+                              <div className="pl-3 border-l-2 border-indigo-200">
+                                <p className="text-xs text-gray-500 italic">{report.showNotes.quote}</p>
+                              </div>
+                            )}
                           </div>
                         )}
                       </>
