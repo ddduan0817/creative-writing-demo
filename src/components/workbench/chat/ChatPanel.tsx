@@ -1666,6 +1666,8 @@ export default function ChatPanel() {
                   : "已读取完毕！以下是书籍总览和分析配置。确认无误就可以开始深入分析了，有需要调整的随时告诉我。"
                 : isRefinement
                   ? "根据你的灵感偏好，我更新了创作设定。看看现在怎么样？"
+                  : dataRef.current.isScreenplay
+                  ? "根据你的灵感方向，我为你整理了以下创作设定。确认无误就可以创建角色了，你也可以告诉我需要调整的地方。"
                   : "根据你的灵感方向，我为你整理了以下创作设定。确认无误就可以选择篇幅了，你也可以告诉我需要调整的地方。",
               settings: dataRef.current.sceneSettingsCard,
             },
@@ -2805,7 +2807,9 @@ export default function ChatPanel() {
               id: "model-all-done",
               sender: "model",
               type: "text",
-              content: "全部章节生成完毕！\n\n你可以在编辑区点击左上角的目录图标查看和切换章节，随时修改任何内容。如果需要我帮忙润色、改写或调整某一章，直接告诉我就好。",
+              content: dataRef.current.isScreenplay
+                ? "全部集数生成完毕！\n\n你可以在编辑区点击左上角的目录图标查看和切换各集，随时修改任何内容。如果需要我帮忙润色、改写或调整某一集，直接告诉我就好。"
+                : "全部章节生成完毕！\n\n你可以在编辑区点击左上角的目录图标查看和切换章节，随时修改任何内容。如果需要我帮忙润色、改写或调整某一章，直接告诉我就好。",
             },
           ]);
         }, 1500);
@@ -3220,7 +3224,7 @@ export default function ChatPanel() {
                       }}
                       className="px-4 py-2 text-gray-700 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition"
                     >
-                      ▶ 继续生成下一章
+                      ▶ 继续生成下一{isScreenplay ? "集" : "章"}
                     </button>
                   </div>
                 )}
@@ -5195,7 +5199,7 @@ export default function ChatPanel() {
                             ? `根据你提供的信息，我整理了以下商品信息卡片。确认无误后，下一步选择内容类型。你也可以告诉我需要调整的地方。`
                             : dataRef.current.isKnowledge
                             ? `根据你的描述，我帮你生成了一版分析配置——${getSettingsSummary()}\n\n看看感觉怎么样？确认后我会开始深入分析设定体系，你也可以告诉我想调整的地方。`
-                            : `根据你的描述，我帮你生成了一版创作设定——${getSettingsSummary()}\n\n看看感觉怎么样？确认后我会为你选择篇幅并创建角色，你也可以告诉我想调整的地方。`;
+                            : `根据你的描述，我帮你生成了一版创作设定——${getSettingsSummary()}\n\n看看感觉怎么样？确认后我会为你${dataRef.current.isScreenplay ? "创建角色和集纲" : "选择篇幅并创建角色"}，你也可以告诉我想调整的地方。`;
                           setMessages((prev) => [
                             ...prev.filter((m) => m.id !== thinkingId),
                             {
@@ -5370,7 +5374,7 @@ export default function ChatPanel() {
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => quickConfirm(isMarketing ? "确认商品信息，选择内容类型" : "确认设定，进入下一步")}
-                          data-tip={isMarketing ? "确认进入内容类型选择" : "确认进入篇幅选择"}
+                          data-tip={isMarketing ? "确认进入内容类型选择" : isScreenplay ? "确认进入角色创建" : "确认进入篇幅选择"}
                           className="flex-1 px-4 py-2.5 text-gray-700 text-sm rounded-xl border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/50 transition"
                         >
                           下一步
